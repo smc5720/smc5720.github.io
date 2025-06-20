@@ -272,4 +272,170 @@ const additionalStyles = `
 // Inject additional styles
 const styleSheet = document.createElement('style');
 styleSheet.textContent = additionalStyles;
-document.head.appendChild(styleSheet); 
+document.head.appendChild(styleSheet);
+
+// ===== Firework/Particle Effect =====
+(function() {
+  const canvas = document.getElementById('firework-canvas');
+  const toggleBtn = document.getElementById('firework-toggle');
+  if (!canvas || !toggleBtn) return;
+  const ctx = canvas.getContext('2d');
+  let dpr = window.devicePixelRatio || 1;
+  let width = window.innerWidth;
+  let height = window.innerHeight;
+  let particles = [];
+  let effectEnabled = true;
+
+  // 스위치 버튼 동작
+  function updateToggleUI() {
+    if (effectEnabled) {
+      toggleBtn.textContent = '🎆 이펙트 ON';
+      toggleBtn.setAttribute('aria-pressed', 'true');
+      canvas.style.display = '';
+    } else {
+      toggleBtn.textContent = '🎇 이펙트 OFF';
+      toggleBtn.setAttribute('aria-pressed', 'false');
+      canvas.style.display = 'none';
+    }
+  }
+  toggleBtn.addEventListener('click', function() {
+    effectEnabled = !effectEnabled;
+    updateToggleUI();
+  });
+  updateToggleUI();
+
+  function resizeCanvas() {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    canvas.style.width = width + 'px';
+    canvas.style.height = height + 'px';
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(dpr, dpr);
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
+  function randomColor() {
+    const colors = [
+      '#ff5252', '#ffb142', '#fffa65', '#32ff7e', '#18dcff', '#7d5fff', '#cd84f1', '#fff', '#f5cd79'
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
+  }
+
+  // sizeType: 'small' | 'large'
+  function createFirework(x, y, sizeType = 'small') {
+    if (!effectEnabled) return;
+    let count, speedBase, sizeBase, gravityBase;
+    if (sizeType === 'large') {
+      count = 40 + Math.floor(Math.random() * 20);
+      speedBase = 3.5;
+      sizeBase = 3.5;
+      gravityBase = 0.05;
+    } else {
+      count = 12 + Math.floor(Math.random() * 8);
+      speedBase = 1.5;
+      sizeBase = 1.5;
+      gravityBase = 0.03;
+    }
+    for (let i = 0; i < count; i++) {
+      const angle = (Math.PI * 2 * i) / count;
+      const speed = speedBase + Math.random() * speedBase;
+      particles.push({
+        x,
+        y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        alpha: 1,
+        color: randomColor(),
+        size: sizeBase + Math.random() * sizeBase,
+        gravity: gravityBase + Math.random() * 0.02,
+        drag: 0.96 + Math.random() * 0.02
+      });
+    }
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, width, height);
+    if (effectEnabled) {
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += p.gravity;
+        p.vx *= p.drag;
+        p.vy *= p.drag;
+        p.alpha -= 0.015 + Math.random() * 0.01;
+        if (p.alpha <= 0) {
+          particles.splice(i, 1);
+          continue;
+        }
+        ctx.globalAlpha = Math.max(p.alpha, 0);
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    } else {
+      particles = [];
+      ctx.globalAlpha = 1;
+    }
+    requestAnimationFrame(animate);
+  }
+  animate();
+
+  // 마우스 위치 추적
+  let lastMouse = { x: width / 2, y: height / 2 };
+  let isMouseMoving = false;
+
+  function updateMouse(e) {
+    let x, y;
+    if (e.touches && e.touches.length > 0) {
+      x = e.touches[0].clientX;
+      y = e.touches[0].clientY;
+    } else {
+      x = e.clientX;
+      y = e.clientY;
+    }
+    lastMouse.x = x;
+    lastMouse.y = y;
+    isMouseMoving = true;
+    createFirework(x, y, 'small');
+  }
+
+  window.addEventListener('mousemove', function(e) {
+    if (Math.random() < 0.2) updateMouse(e); // 약하게, 빈도 조절
+  });
+  window.addEventListener('touchmove', function(e) {
+    if (Math.random() < 0.2) updateMouse(e);
+  });
+
+  // 클릭/터치 시 큰 폭죽
+  function triggerBigFirework(e) {
+    let x, y;
+    if (e.touches && e.touches.length > 0) {
+      x = e.touches[0].clientX;
+      y = e.touches[0].clientY;
+    } else {
+      x = e.clientX;
+      y = e.clientY;
+    }
+    lastMouse.x = x;
+    lastMouse.y = y;
+    createFirework(x, y, 'large');
+  }
+  window.addEventListener('mousedown', triggerBigFirework);
+  window.addEventListener('touchstart', triggerBigFirework);
+
+  // 마우스가 가만히 있을 때도 약하게 터지도록
+  setInterval(function() {
+    if (!isMouseMoving) {
+      createFirework(lastMouse.x, lastMouse.y, 'small');
+    }
+    isMouseMoving = false;
+  }, 100); // 0.1초마다
+
+})();
+// ===== Firework/Particle Effect END ===== 
