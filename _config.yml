@@ -24,7 +24,7 @@ remote_theme: "mmistakes/minimal-mistakes"
 
 # Author settings
 author:
-  avatar: "/assets/images/rico.png"
+  avatar: "/assets/images/profile.png"
 
 # Sidebar settings
 sidebar:
