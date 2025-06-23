@@ -14,8 +14,8 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.title }}.
 
-title: "mincnote"
-name: "mincnote"
+title: "RicoCheese's Blog"
+name: "RicoCheese's Blog"
 description: ""
 url: "https://smc5720.github.io"
 baseurl: ""
