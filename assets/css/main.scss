@@ -1,9 +1,33 @@
----
-# Only the main Sass file needs front matter (the dashes are enough)
-search: false
----
-
-@charset "utf-8";
-
 @import "minimal-mistakes/skins/{{ site.minimal_mistakes_skin | default: 'default' }}"; // skin
 @import "minimal-mistakes"; // main partials
+
+/* 사이드바 카테고리 리스트 스타일 */
+.sidebar__categories {
+  margin: 2em 0 1em 0;
+  text-align: center;
+}
+.sidebar__categories-title {
+  font-size: $h-size-2;
+  font-weight: bold;
+  margin-bottom: 0.5em;
+}
+.sidebar__categories-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.sidebar__categories-list li {
+  margin: 0.2em 0;
+}
+.sidebar__categories-list a {
+  color: #444;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.sidebar__categories-list a:hover {
+  color: #007acc;
+}
+.sidebar__categories-list span {
+  color: #aaa;
+  font-size: $type-size-5;
+}

@@ -14,9 +14,9 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.title }}.
 
-title: "My Personal Blog"
-name: "개인 블로그"
-description: "개발과 일상에 대한 생각을 담는 공간"
+title: "mincnote"
+name: "mincnote"
+description: ""
 url: "https://smc5720.github.io"
 baseurl: ""
 repository: "smc5720/smc5720.github.io"
@@ -24,19 +24,7 @@ remote_theme: "mmistakes/minimal-mistakes"
 
 # Author settings
 author:
-  name: "블로그 주인"
   avatar: "/assets/images/rico.png"
-  bio: "개발자이자 블로거입니다. 새로운 기술을 배우고 공유하는 것을 좋아합니다."
-  location: "대한민국"
-  company: "개발 회사"
-  email: "your-email@example.com"
-  links:
-    - label: "GitHub"
-      icon: "fab fa-fw fa-github"
-      url: "https://github.com/smc5720"
-    - label: "Email"
-      icon: "fas fa-fw fa-envelope"
-      url: "mailto:your-email@example.com"
 
 # Sidebar settings
 sidebar:

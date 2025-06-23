@@ -1,6 +1,14 @@
 {% if site.sidebar.enabled %}
   <div class="sidebar sticky">
     {% include author-profile.html %}
+    <div class="sidebar__categories">
+      <h6 class="sidebar__categories-title">📁 전체 글 ({{ site.posts | size }})</h6>
+      <ul class="sidebar__categories-list">
+        {% for category in site.categories %}
+          <li><a href="{{ site.baseurl }}/categories#{{ category[0] }}">{{ category[0] }} <span>({{ category[1].size }})</span></a></li>
+        {% endfor %}
+      </ul>
+    </div>
     {% if page.sidebar %}
       {% for s in page.sidebar %}
         {% if s.image %}
