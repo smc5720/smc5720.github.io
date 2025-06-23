@@ -22,6 +22,9 @@ baseurl: ""
 repository: "smc5720/smc5720.github.io"
 remote_theme: "mmistakes/minimal-mistakes"
 
+# Language settings
+locale: "ko"
+
 # Author settings
 author:
   avatar: "/assets/images/profile.png"
