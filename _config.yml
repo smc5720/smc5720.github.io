@@ -106,7 +106,7 @@ footer:
       url: "https://github.com/smc5720"
     - label: "Email"
       icon: "fas fa-fw fa-envelope"
-      url: "mailto:your-email@example.com"
+      url: "mailto:smc5720@gmail.com"
 
 collections:
   posts:

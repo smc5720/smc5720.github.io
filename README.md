@@ -145,7 +145,6 @@ bundle exec jekyll build
 
 ## 📞 연락처
 
-- **이메일**: your-email@example.com
 - **GitHub**: [@smc5720](https://github.com/smc5720)
 
 ## 🙏 감사의 말
