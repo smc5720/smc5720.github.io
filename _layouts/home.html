@@ -2,14 +2,17 @@
 layout: archive
 ---
 
-{{ content }}
-
 <h3 class="archive__subtitle">{{ site.data.ui-text[site.locale].recent_posts | default: "Recent Posts" }}</h3>
 
 {% if paginator %}
   {% assign posts = paginator.posts %}
+  {% assign total_pages = paginator.total_pages %}
+  {% assign current_page = paginator.page %}
 {% else %}
-  {% assign posts = site.posts %}
+  {% comment %} 홈페이지에서 paginator가 없을 때 수동으로 설정 {% endcomment %}
+  {% assign posts = site.posts | slice: 0, site.paginate %}
+  {% assign total_pages = site.posts.size | divided_by: site.paginate | ceil %}
+  {% assign current_page = 1 %}
 {% endif %}
 
 {% assign entries_layout = page.entries_layout | default: 'list' %}
@@ -19,4 +22,41 @@ layout: archive
   {% endfor %}
 </div>
 
-{% include paginator.html %}
+<!-- 페이지네이션 -->
+{% assign total_posts = site.posts.size %}
+{% if total_posts > 5 %}
+  <nav class="pagination" style="margin-top: 30px; text-align: center;">
+    <ul style="list-style: none; padding: 0; margin: 0; display: inline-flex; gap: 10px;">
+      {% comment %} Previous 버튼 {% endcomment %}
+      {% if page.url == '/' %}
+        <li style="display: inline;"><a href="#" style="color: #999; text-decoration: none; pointer-events: none;">Previous</a></li>
+      {% else %}
+        <li style="display: inline;"><a href="/" style="color: #007bff; text-decoration: none;">Previous</a></li>
+      {% endif %}
+
+      {% comment %} 페이지 번호 {% endcomment %}
+      <li style="display: inline;">
+        {% if page.url == '/' %}
+          <a href="#" style="color: #fff; background: #007bff; text-decoration: none; border-radius: 3px;">1</a>
+        {% else %}
+          <a href="/" style="color: #007bff; text-decoration: none;">1</a>
+        {% endif %}
+      </li>
+
+      <li style="display: inline;">
+        {% if page.url == '/page2/' %}
+          <a href="#" style="color: #fff; background: #007bff; text-decoration: none; border-radius: 3px;">2</a>
+        {% else %}
+          <a href="/page2/" style="color: #007bff; text-decoration: none;">2</a>
+        {% endif %}
+      </li>
+
+      {% comment %} Next 버튼 {% endcomment %}
+      {% if page.url == '/page2/' %}
+        <li style="display: inline;"><a href="#" style="color: #999; text-decoration: none; pointer-events: none;">Next</a></li>
+      {% else %}
+        <li style="display: inline;"><a href="/page2/" style="color: #007bff; text-decoration: none;">Next</a></li>
+      {% endif %}
+    </ul>
+  </nav>
+{% endif %}
