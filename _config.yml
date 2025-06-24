@@ -127,9 +127,9 @@ comments:
 
 # Analytics
 analytics:
-  provider: "google"
-  google:
-    tracking_id: ""
+  provider: "goatcounter"
+  goatcounter:
+    site: "smc5720.goatcounter.com"
 
 # Search
 search: true

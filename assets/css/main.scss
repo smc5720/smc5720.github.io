@@ -65,3 +65,32 @@ body {
   color: #aaa;
   font-size: $type-size-5;
 }
+
+/* 사이드바 방문자 카운터 스타일 */
+.sidebar__visitor-counter {
+  transition: transform 0.2s ease-in-out;
+}
+
+.sidebar__visitor-counter:hover {
+  transform: translateY(-2px);
+}
+
+.sidebar__visitor-counter h6 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+  .sidebar__visitor-counter {
+    margin: 1em 0;
+    padding: 12px;
+  }
+  
+  .sidebar__visitor-counter h6 {
+    font-size: 12px;
+  }
+}
