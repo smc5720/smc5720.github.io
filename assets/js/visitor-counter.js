@@ -38,39 +38,35 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const todayVisitors = document.getElementById('today-visitors');
             const sidebarTodayVisitors = document.getElementById('sidebar-today-visitors');
-            
-            if (todayData.days && todayData.days.length > 0) {
-                const today = new Date().toISOString().split('T')[0];
-                const todayStats = todayData.days.find(day => day.date === today);
-                const todayCount = todayStats ? todayStats.count : 0;
-                
-                if (todayVisitors) {
-                    todayVisitors.textContent = todayCount.toLocaleString();
-                }
-                if (sidebarTodayVisitors) {
-                    sidebarTodayVisitors.textContent = todayCount.toLocaleString();
-                }
-            }
-            
-            // 이번 주 방문자 수 계산
             const weekVisitors = document.getElementById('week-visitors');
             const sidebarWeekVisitors = document.getElementById('sidebar-week-visitors');
             
-            if (todayData.days) {
-                const today = new Date();
-                const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-                const weekStart = weekAgo.toISOString().split('T')[0];
-                
-                const weekCount = todayData.days
-                    .filter(day => day.date >= weekStart)
-                    .reduce((sum, day) => sum + day.count, 0);
-                
-                if (weekVisitors) {
-                    weekVisitors.textContent = weekCount.toLocaleString();
-                }
-                if (sidebarWeekVisitors) {
-                    sidebarWeekVisitors.textContent = weekCount.toLocaleString();
-                }
+            if (todayData.hits) {
+                const todayStr = new Date().toISOString().split('T')[0];
+                const weekAgo = new Date();
+                weekAgo.setDate(weekAgo.getDate() - 6);
+                const weekStartStr = weekAgo.toISOString().split('T')[0];
+
+                let todayCount = 0;
+                let weekCount = 0;
+
+                todayData.hits.forEach(hit => {
+                    if (hit.stats) {
+                        hit.stats.forEach(stat => {
+                            if (stat.day === todayStr) {
+                                todayCount += stat.daily;
+                            }
+                            if (stat.day >= weekStartStr && stat.day <= todayStr) {
+                                weekCount += stat.daily;
+                            }
+                        });
+                    }
+                });
+
+                if (todayVisitors) todayVisitors.textContent = todayCount.toLocaleString();
+                if (sidebarTodayVisitors) sidebarTodayVisitors.textContent = todayCount.toLocaleString();
+                if (weekVisitors) weekVisitors.textContent = weekCount.toLocaleString();
+                if (sidebarWeekVisitors) sidebarWeekVisitors.textContent = weekCount.toLocaleString();
             }
             
         } catch (error) {

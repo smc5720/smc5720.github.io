@@ -64,6 +64,3 @@ permalink: /about/
     <i class="fas fa-envelope"></i> Email
   </a>
 </div>
-
-<!-- 방문자 카운터 JavaScript -->
-<script src="/assets/js/visitor-counter.js"></script>
