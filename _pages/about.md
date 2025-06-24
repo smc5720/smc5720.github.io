@@ -2,6 +2,7 @@
 layout: single
 title: "About Me"
 author_profile: true
+permalink: /about/
 ---
 
 <div style="text-align: center; margin-bottom: 30px;">
