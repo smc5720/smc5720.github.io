@@ -2,9 +2,6 @@
   <div class="sidebar sticky">
     {% include author-profile.html %}
     
-    <!-- 방문자 카운터 -->
-    {% include visitor-counter-sidebar.html %}
-    
     <div class="sidebar__categories">
       <h6 class="sidebar__categories-title">📁 전체 글 ({{ site.posts | size }})</h6>
       <ul class="sidebar__categories-list">
@@ -17,6 +14,10 @@
         {% endfor %}
       </ul>
     </div>
+    
+    <!-- 방문자 카운터 -->
+    {% include visitor-counter-sidebar.html %}
+    
     {% if page.sidebar %}
       {% for s in page.sidebar %}
         {% if s.image %}
