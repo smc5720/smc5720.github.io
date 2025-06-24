@@ -53,6 +53,7 @@ timezone: # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 include:
   - .htaccess
   - _pages
+
 exclude:
   - "*.sublime-project"
   - "*.sublime-workspace"
@@ -66,6 +67,11 @@ exclude:
   - node_modules
   - Rakefile
   - README.md
+  - docs
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
 
 # Plugins
 plugins:
@@ -73,6 +79,7 @@ plugins:
   - jekyll-sitemap
   - jekyll-feed
   - jekyll-include-cache
+  - jekyll-seo-tag
 
 # Defaults
 defaults:
@@ -105,23 +112,6 @@ collections:
   posts:
     output: true
     permalink: /:collection/:name/
-
-# Plugins
-plugins:
-  - jekyll-paginate
-  - jekyll-sitemap
-  - jekyll-seo-tag
-  - jekyll-feed
-
-# Exclude from processing
-exclude:
-  - Gemfile
-  - Gemfile.lock
-  - node_modules
-  - vendor/bundle/
-  - vendor/cache/
-  - vendor/gems/
-  - vendor/ruby/
 
 # Social sharing
 social_share:
