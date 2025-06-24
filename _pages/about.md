@@ -7,9 +7,9 @@ permalink: /about/
 
 <div style="text-align: center; margin-bottom: 30px;">
   <img src="/assets/images/profile.png" alt="Profile" style="width: 200px; height: 200px; border-radius: 50%; border: 4px solid #f0f0f0; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
-  <h1 style="margin-top: 20px; color: #333;">안녕하세요! 👋</h1>
-  <p style="font-size: 18px; color: #666; margin-bottom: 20px;">RicoCheese</p>
-  
+  <h1 style="margin-top: 20px; color: #333; font-family: 'Gaegu', 'Dongle', 'Single Day', cursive;">안녕하세요! 👋</h1>
+  <p style="font-size: 18px; color: #666; margin-bottom: 20px; font-family: 'Gaegu', 'Dongle', 'Single Day', cursive;">RicoCheese</p>
+
   <!-- 방문자 수 위젯 -->
   <div style="display: flex; justify-content: center; gap: 20px; margin: 20px 0; flex-wrap: wrap;">
     <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 10px 20px; border-radius: 25px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">

@@ -3,8 +3,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // GoatCounter API를 사용하여 방문자 수 가져오기
     async function fetchVisitorStats() {
         try {
-            // GoatCounter API 엔드포인트
-            const response = await fetch('https://smc5720.goatcounter.com/api/v0/stats/total');
+            // GoatCounter API 엔드포인트 (Authorization 헤더 추가)
+            const response = await fetch('https://smc5720.goatcounter.com/api/v0/stats/total', {
+                headers: {
+                    'Authorization': 'Bearer 17fv4xim8svnd1d9syb98k88c6czsi0h5igf7d1ltywpkymt5j2'
+                }
+            });
             const data = await response.json();
             
             // 총 방문자 수 업데이트 (About 페이지 + 사이드바)
@@ -18,8 +22,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 sidebarTotalVisitors.textContent = data.total.toLocaleString();
             }
             
-            // 오늘 방문자 수 가져오기
-            const todayResponse = await fetch('https://smc5720.goatcounter.com/api/v0/stats/daily?start=2024-01-01&end=2024-12-31');
+            // 오늘 날짜와 7일 전 날짜 계산
+            const todayDate = new Date();
+            const startDate = new Date(todayDate.getTime() - 6 * 24 * 60 * 60 * 1000);
+            const start = startDate.toISOString(); // ISO 8601 형식
+            const end = todayDate.toISOString();   // ISO 8601 형식
+
+            // 공식 엔드포인트로 일별 방문자 수 가져오기
+            const todayResponse = await fetch(`https://smc5720.goatcounter.com/api/v0/stats/hits?start=${start}&end=${end}`, {
+                headers: {
+                    'Authorization': 'Bearer 17fv4xim8svnd1d9syb98k88c6czsi0h5igf7d1ltywpkymt5j2'
+                }
+            });
             const todayData = await todayResponse.json();
             
             const todayVisitors = document.getElementById('today-visitors');
