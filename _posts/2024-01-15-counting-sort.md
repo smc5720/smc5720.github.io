@@ -1,6 +1,7 @@
 ---
 title: "계수 정렬 (Counting Sort) - 선형 시간 복잡도의 정수 정렬 알고리즘"
 excerpt: "계수 정렬의 원리와 구현, 그리고 성능 분석에 대해 알아보자"
+description: "계수 정렬의 개념, 동작 원리, 구현 코드, 성능 분석, 장단점까지 한눈에 정리한 포스트입니다. 정수 데이터에 최적화된 선형 정렬!"
 categories:
   - Algorithm
 tags:

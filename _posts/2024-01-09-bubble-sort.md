@@ -1,6 +1,7 @@
 ---
 title: "버블 정렬 (Bubble Sort) - 가장 기본적인 정렬 알고리즘"
 excerpt: "버블 정렬의 원리와 구현, 그리고 성능 분석에 대해 알아보자"
+description: "버블 정렬의 개념, 동작 원리, 구현 코드, 성능 분석, 장단점까지 한눈에 정리한 포스트입니다. 알고리즘 입문자에게 추천!"
 categories:
   - Algorithm
 tags:

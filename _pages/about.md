@@ -1,6 +1,7 @@
 ---
 layout: single
 title: "About Me"
+description: "이 페이지는 RicoCheese(리코치즈) 개발자의 소개, 기술 스택, 연락처, 방문자 통계 등을 담고 있습니다. 백엔드, 프론트엔드, DevOps까지 다양한 경험을 확인해보세요."
 author_profile: true
 permalink: /about/
 ---

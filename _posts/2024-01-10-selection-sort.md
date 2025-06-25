@@ -1,6 +1,7 @@
 ---
 title: "선택 정렬 (Selection Sort) - 최솟값을 찾아 정렬하기"
 excerpt: "선택 정렬의 원리와 구현, 그리고 성능 분석에 대해 알아보자"
+description: "선택 정렬의 개념, 동작 원리, 구현 코드, 성능 분석, 장단점까지 한눈에 정리한 포스트입니다. 교환 횟수가 적은 정렬 알고리즘을 배우고 싶다면 추천!"
 categories:
   - Algorithm
 tags:

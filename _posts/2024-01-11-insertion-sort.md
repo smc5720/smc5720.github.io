@@ -1,6 +1,7 @@
 ---
 title: "삽입 정렬 (Insertion Sort) - 카드 정렬처럼 하나씩 삽입하기"
 excerpt: "삽입 정렬의 원리와 구현, 그리고 성능 분석에 대해 알아보자"
+description: "삽입 정렬의 개념, 동작 원리, 구현 코드, 성능 분석, 장단점까지 한눈에 정리한 포스트입니다. 거의 정렬된 데이터에 강한 알고리즘!"
 categories:
   - Algorithm
 tags:
