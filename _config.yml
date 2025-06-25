@@ -42,7 +42,6 @@ layout: single
 author_profile: true
 read_time: true
 share: true
-comments: true
 
 # Build settings
 markdown: kramdown
@@ -121,9 +120,12 @@ social_share:
 
 # Comments
 comments:
-  provider: "disqus"
-  disqus:
-    shortname: "your-disqus-shortname"
+  provider: "utterances"
+  utterances:
+    theme: "github-light"
+    issue_term: "pathname"
+    label: "💬 comment"
+    repo: "smc5720/smc5720.github.io"
 
 # Analytics
 analytics:
