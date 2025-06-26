@@ -22,21 +22,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 sidebarTotalVisitors.textContent = data.total.toLocaleString();
             }
             
-            // 오늘 날짜와 7일 전 날짜 계산 (한국 시간 기준 00:00:00으로 설정)
+            // 오늘 날짜와 7일 전 날짜 계산 (KST 고려하지 않음, UTC 기준)
             const todayDate = new Date();
-            // 한국 시간대(KST, UTC+9) 기준으로 자정 설정
-            const kstOffset = 9 * 60; // 한국 시간대 오프셋 (분)
-            
-            // 한국 시간 기준으로 자정 설정
-            todayDate.setUTCHours(0, 0, 0, 0); // UTC 기준 자정으로 설정
-            todayDate.setUTCMinutes(todayDate.getUTCMinutes() + kstOffset); // 한국 시간으로 조정
-            
-            const startDate = new Date(todayDate.getTime() - 6 * 24 * 60 * 60 * 1000);
-            startDate.setUTCHours(0, 0, 0, 0); // UTC 기준 자정으로 설정
-            startDate.setUTCMinutes(startDate.getUTCMinutes() + kstOffset); // 한국 시간으로 조정
-            
-            const start = startDate.toISOString(); // ISO 8601 형식
-            const end = todayDate.toISOString();   // ISO 8601 형식
+            const endDate = new Date(todayDate); // 오늘 날짜
+            const startDate = new Date(todayDate);
+            startDate.setDate(startDate.getDate() - 7); // 7일 전
+
+            // yyyy-mm-dd 형식으로 변경
+            const start = startDate.toISOString().split('T')[0]; // yyyy-mm-dd 형식
+            const end = endDate.toISOString().split('T')[0];   // yyyy-mm-dd 형식
 
             // 공식 엔드포인트로 일별 방문자 수 가져오기
             const todayResponse = await fetch(`https://smc5720.goatcounter.com/api/v0/stats/hits?start=${start}&end=${end}`, {

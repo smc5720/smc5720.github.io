@@ -22,7 +22,7 @@ permalink: /about/
       <div style="font-size: 18px; font-weight: bold;" id="today-visitors">로딩 중...</div>
     </div>
     <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 10px 20px; border-radius: 25px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-      <div style="font-size: 12px; opacity: 0.9;">이번 주 방문자</div>
+      <div style="font-size: 12px; opacity: 0.9;">최근 7일 방문자</div>
       <div style="font-size: 18px; font-weight: bold;" id="week-visitors">로딩 중...</div>
     </div>
   </div>
