@@ -21,6 +21,9 @@
     "rehype-slug": "^6.0.0",
     "remark-gfm": "^4.0.1"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": ["sharp", "unrs-resolver"]
+  },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
