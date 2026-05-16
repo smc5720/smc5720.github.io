@@ -1,0 +1,67 @@
+---
+title: "UE5 개발하면서 배운 것들"
+description: "Unreal Engine 5로 프로젝트를 진행하면서 삽질하고 배운 팁들을 정리했습니다."
+date: "2026-05-01"
+category: "dev"
+tags: ["unreal", "c++", "gamedev", "ue5"]
+---
+
+## 들어가며
+
+Unreal Engine 5를 사용하다 보면 문서에 잘 나오지 않는 함정들이 많습니다. 이번 글에서는 실제 프로젝트에서 마주쳤던 문제와 해결책을 공유합니다.
+
+## 1. GC와 `UPROPERTY`
+
+UE5의 가비지 컬렉터는 `UPROPERTY`로 마킹된 포인터만 추적합니다. 일반 포인터로 UObject를 들고 있으면 GC가 그 객체를 회수해버릴 수 있습니다.
+
+```cpp
+// 잘못된 예시
+UCLASS()
+class UMyClass : public UObject
+{
+    UOtherObject* RawPtr; // GC가 추적하지 않음!
+};
+
+// 올바른 예시
+UCLASS()
+class UMyClass : public UObject
+{
+    UPROPERTY()
+    UOtherObject* ManagedPtr; // GC가 이 포인터를 추적함
+};
+```
+
+## 2. `TWeakObjectPtr` 활용
+
+강한 참조가 불필요한 경우엔 `TWeakObjectPtr`를 쓰세요. 특히 UI에서 게임 오브젝트를 참조할 때 유용합니다.
+
+```cpp
+TWeakObjectPtr<AActor> WeakActor;
+
+void SomeFunction()
+{
+    if (WeakActor.IsValid())
+    {
+        WeakActor->DoSomething();
+    }
+}
+```
+
+## 3. 블루프린트 네이티브 이벤트
+
+C++에서 기본 구현을 제공하면서 블루프린트에서 오버라이드 가능하게 하려면 `BlueprintNativeEvent`를 사용합니다.
+
+```cpp
+UFUNCTION(BlueprintNativeEvent, Category = "Gameplay")
+void OnDamaged(float Amount);
+
+// .cpp에서 기본 구현
+void UMyClass::OnDamaged_Implementation(float Amount)
+{
+    Health -= Amount;
+}
+```
+
+## 느낀 점
+
+UE5는 엄청나게 강력하지만, 그만큼 올바른 패턴을 익히는 것이 중요합니다. 특히 메모리 관리와 GC는 초반에 확실히 이해하고 넘어가는 게 나중에 디버깅 시간을 크게 줄여줍니다.

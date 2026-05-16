@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem D:\\\\Git\\\\smc5720.github.io -Depth 1)",
+      "Bash(Select-Object Name, PSIsContainer)",
+      "Bash(Format-Table)",
+      "Bash(ls /mnt/)",
+      "Read(//d//**)",
+      "Bash(ls /drives/)",
+      "Bash(npx create-next-app@latest *)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(git *)"
+    ]
+  }
+}
