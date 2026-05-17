@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { getAllPosts, CATEGORY_LABELS } from "@/lib/posts";
 import { PostCard } from "@/components/PostCard";
-import { CategoryBadge } from "@/components/CategoryBadge";
 import type { Category } from "@/types/post";
+
+// Canonical category order for the cat-grid (01~05)
+const CAT_ORDER: Category[] = ["news", "dev", "retrospective", "release", "etc"];
 
 export default function HomePage() {
   const posts = getAllPosts();
@@ -192,31 +194,43 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Content ── */}
-      <div className="max-w-6xl mx-auto px-6 pb-32">
+      {/* ── Category counter grid ── */}
+      <section
+        aria-label="카테고리별 글 수"
+        style={{ maxWidth: "var(--container)", margin: "0 auto", paddingLeft: 32, paddingRight: 32 }}
+      >
+        <nav className="cat-grid">
+          {/* Total cell */}
+          <Link href="/blog" className="cat-cell">
+            <span className="mono-label" style={{ color: "var(--color-text-3)" }}>Total</span>
+            <span className="cat-cell-count">
+              {String(posts.length).padStart(2, "0")}
+            </span>
+            <span className="mono-label" style={{ color: "var(--color-text-3)" }}>essays · since 2022</span>
+          </Link>
 
-        {Object.keys(categoryCount).length > 0 && (
-          <section className="mb-20">
-            <div className="flex items-center gap-4 mb-8">
-              <span className="text-[10px] font-mono tracking-[0.2em] text-text-3 uppercase">카테고리</span>
-              <span className="flex-1 h-px bg-border" />
-            </div>
-            <div className="flex flex-wrap gap-3">
-              {(Object.entries(categoryCount) as [Category, number][]).map(([cat, count]) => (
-                <Link
-                  key={cat}
-                  href={`/blog?category=${cat}`}
-                  className="group flex items-center gap-2 bg-surface border border-border rounded-sm px-4 py-2.5 hover:border-border-2 transition-colors"
-                >
-                  <CategoryBadge category={cat} size="sm" />
-                  <span className="text-xs font-mono text-text-3 group-hover:text-text-2 transition-colors">
-                    {count}
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </section>
-        )}
+          {/* Per-category cells */}
+          {CAT_ORDER.map((cat, i) => (
+            <Link key={cat} href={`/blog?category=${cat}`} className="cat-cell">
+              <span className="mono-label" style={{ color: "var(--color-text-3)" }}>
+                {String(i + 1).padStart(2, "0")} · {CATEGORY_LABELS[cat]}
+              </span>
+              <span className="cat-cell-count">
+                {String(categoryCount[cat] ?? 0).padStart(2, "0")}
+                <span
+                  className="cat-cell-dot"
+                  aria-hidden="true"
+                  style={{ background: `var(--cat-${cat})` }}
+                />
+              </span>
+              <span className="mono-label" style={{ color: "var(--color-text-3)" }}>view filter →</span>
+            </Link>
+          ))}
+        </nav>
+      </section>
+
+      {/* ── Content ── */}
+      <div className="max-w-6xl mx-auto px-6 pb-32" style={{ paddingTop: 64 }}>
 
         {featured && (
           <section className="mb-20">
