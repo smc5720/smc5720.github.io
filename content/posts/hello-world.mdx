@@ -22,8 +22,7 @@ tags: ["nextjs", "blog", "react", "tailwind"]
 
 ## 코드 예시
 
-```typescript
-// src/lib/posts.ts
+```typescript filename="src/lib/posts.ts"
 export function getPostBySlug(slug: string): Post | null {
   const filePath = path.join(POSTS_DIR, `${slug}.mdx`);
   if (!fs.existsSync(filePath)) return null;
