@@ -3,16 +3,23 @@ import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import remarkGfm from "remark-gfm";
 import rehypeShiki from "@shikijs/rehype";
+import { CodeBlock } from "./CodeBlock";
+import { parseMetaString, dataLanguageTransformer } from "@/lib/shiki-meta-transformer";
 
 interface Props {
   source: string;
 }
+
+const components = {
+  pre: CodeBlock,
+};
 
 export async function MDXContent({ source }: Props) {
   return (
     <div className="prose">
       <MDXRemote
         source={source}
+        components={components}
         options={{
           mdxOptions: {
             remarkPlugins: [remarkGfm],
@@ -29,8 +36,10 @@ export async function MDXContent({ source }: Props) {
               [
                 rehypeShiki,
                 {
-                  theme: "tokyo-night",
+                  theme: "vitesse-dark",
                   addLanguageClass: true,
+                  parseMetaString,
+                  transformers: [dataLanguageTransformer],
                 },
               ],
             ],
