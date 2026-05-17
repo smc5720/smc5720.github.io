@@ -3,11 +3,12 @@ import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import Link from "next/link";
 import Image from "next/image";
-import { getAllPostSlugs, getPostBySlug, getAllPosts } from "@/lib/posts";
+import { getAllPostSlugs, getPostBySlug, getPrevNextPosts } from "@/lib/posts";
 import { CategoryBadge } from "@/components/CategoryBadge";
 import { ReadingProgress } from "@/components/ReadingProgress";
 import { TableOfContents } from "@/components/TableOfContents";
 import { MDXContent } from "@/components/MDXContent";
+import { PrevNextCards } from "@/components/PrevNextCards";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -32,10 +33,7 @@ export default async function PostPage({ params }: Props) {
   const post = getPostBySlug(slug);
   if (!post) notFound();
 
-  const allPosts = getAllPosts();
-  const idx = allPosts.findIndex((p) => p.slug === slug);
-  const prev = allPosts[idx + 1] ?? null;
-  const next = allPosts[idx - 1] ?? null;
+  const { prev, next } = getPrevNextPosts(slug);
 
   const date = format(new Date(post.date), "yyyy년 M월 d일", { locale: ko });
 
@@ -140,39 +138,17 @@ export default async function PostPage({ params }: Props) {
           <article className="prose-col">
             {/* MDX Content */}
             <MDXContent source={post.content} />
-
-            {/* Post footer */}
-            <div className="mt-16 pt-8 border-t border-border">
-              <nav className="grid grid-cols-2 gap-4">
-                {prev ? (
-                  <Link
-                    href={`/blog/${prev.slug}`}
-                    className="group block bg-surface border border-border rounded-sm p-5 hover:border-border-2 transition-colors"
-                  >
-                    <span className="text-[10px] font-mono text-text-3 uppercase tracking-widest block mb-2">← 이전 글</span>
-                    <span className="text-sm font-serif font-bold text-text-2 group-hover:text-text transition-colors line-clamp-2">
-                      {prev.title}
-                    </span>
-                  </Link>
-                ) : <div />}
-
-                {next ? (
-                  <Link
-                    href={`/blog/${next.slug}`}
-                    className="group block bg-surface border border-border rounded-sm p-5 hover:border-border-2 transition-colors text-right"
-                  >
-                    <span className="text-[10px] font-mono text-text-3 uppercase tracking-widest block mb-2">다음 글 →</span>
-                    <span className="text-sm font-serif font-bold text-text-2 group-hover:text-text transition-colors line-clamp-2">
-                      {next.title}
-                    </span>
-                  </Link>
-                ) : <div />}
-              </nav>
-            </div>
           </article>
 
           {/* ── Right spacer (third column balances the grid) ── */}
           <aside aria-hidden="true" />
+        </div>
+      </section>
+
+      {/* ── Prev / Next ── */}
+      <section style={{ marginTop: 96, paddingBottom: 96 }}>
+        <div className="container-narrow">
+          <PrevNextCards prev={prev} next={next} />
         </div>
       </section>
     </>

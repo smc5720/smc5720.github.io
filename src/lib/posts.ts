@@ -56,3 +56,31 @@ export function getAllTags(): string[] {
   return [...new Set(tags)].sort();
 }
 
+export function getPrevNextPosts(slug: string): { prev: PostMeta | null; next: PostMeta | null } {
+  const allPosts = getAllPosts(); // 날짜 내림차순 (최신→구)
+  const idx = allPosts.findIndex((p) => p.slug === slug);
+  if (idx === -1) return { prev: null, next: null };
+
+  const currentCategory = allPosts[idx].category;
+
+  // prev = 더 오래된 글 (idx+1 방향)
+  // 같은 카테고리 우선: idx+1~끝에서 첫 번째 같은 카테고리 글
+  // 없으면 allPosts[idx+1]
+  let prev: PostMeta | null = null;
+  if (idx < allPosts.length - 1) {
+    const sameCatPrev = allPosts.slice(idx + 1).find((p) => p.category === currentCategory);
+    prev = sameCatPrev ?? allPosts[idx + 1];
+  }
+
+  // next = 더 최신 글 (idx-1 방향)
+  // 같은 카테고리 우선: 0~idx-1에서 idx에 가장 가까운 같은 카테고리 글 (역순 탐색)
+  // 없으면 allPosts[idx-1]
+  let next: PostMeta | null = null;
+  if (idx > 0) {
+    const sameCatNext = allPosts.slice(0, idx).reverse().find((p) => p.category === currentCategory);
+    next = sameCatNext ?? allPosts[idx - 1];
+  }
+
+  return { prev, next };
+}
+

@@ -1552,3 +1552,62 @@ a {
     transition: none;
   }
 }
+
+/* ── Prev / Next navigation cards (.pnc-*) ── */
+.pnc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.pnc-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 24px;
+  border: 1px solid var(--color-border-2);
+  text-decoration: none;
+  transition: border-color .2s;
+  background: transparent;
+}
+
+.pnc-card:hover {
+  border-color: var(--color-accent-line);
+}
+
+.pnc-card--next {
+  text-align: right;
+  align-items: flex-end;
+}
+
+.pnc-label {
+  color: var(--color-text-3);
+}
+
+.pnc-title {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  line-height: 1.2;
+  color: var(--color-text);
+}
+
+.pnc-meta {
+  color: var(--color-text-3);
+}
+
+@media (max-width: 600px) {
+  .pnc-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pnc-card--next {
+    text-align: left;
+    align-items: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pnc-card {
+    transition: none;
+  }
+}
