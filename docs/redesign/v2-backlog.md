@@ -18,12 +18,6 @@ PM 가이드: `CLAUDE.md`
 
 ## M2 — Core pages  ·  `priority:p1`
 
-### M2-1 (#7). Home — Hero "The Studio Log."
-- **라벨**: `type:design` `area:home` `priority:p1`
-- **목표**: 거대 serif 타이틀 + Est. 라벨 + 시그니처 lede + CTA 두 개로 재구성. 그리드/노이즈 배경, mono scroll 인디케이터.
-- **디자인 참조**: `docs/redesign/v2-bundle/project/blog-pages.jsx` (Home 컴포넌트), `screens/01-final.png`
-- **의존**: M1-1, M1-2
-
 ### M2-2 (#8). Home — 카테고리 카운터 그리드 (.cat-grid)
 - **라벨**: `type:design` `area:home` `priority:p1`
 - **목표**: 5개 카테고리 + 전체 카운트 셀 = 6셀 그리드. 1100 → 6열, 900 → 3열, 600 → 2열.
@@ -132,6 +126,7 @@ PM 가이드: `CLAUDE.md`
 - **M1-2 · 폰트 로더 확장 (Inter body + Noto KR fallback)** — #4 · [#26](https://github.com/smc5720/smc5720.github.io/pull/26) · 2026-05-17. next/font에 Inter·Noto Sans KR·Noto Serif KR 추가, `@theme` 4종 스택을 `var(--font-*)`로 정합, `body` 기본 폰트를 Syne → Inter로 분리.
 - **M1-3 · prose / MDX 스타일 재작성** — #5 · [#27](https://github.com/smc5720/smc5720.github.io/pull/27) · 2026-05-17. `.prose` 전면 교체 — h2 decimal-leading-zero 카운터, h2 serif + 상단 보더, blockquote 좌측 2px accent, table bottom-border, ul/ol `::marker`, 본문 폰트 Syne→Inter, 모바일 다운스케일. `.prose pre`는 M1-4로 분리.
 - **M1-4 · Shiki 코드블록 + 컨테이너 디자인** — #6 · [#28](https://github.com/smc5720/smc5720.github.io/pull/28) · 2026-05-17. `@shikijs/rehype` 테마 tokyo-night → vitesse-dark, 코드펜스 메타에서 `filename="..."`을 파싱해 `data-filename`/`data-language`로 lift, 클라이언트 `CodeBlock` 컴포넌트가 헤드바(점 3개 + 파일명 + 언어 칩 + Copy 버튼)를 렌더. `navigator.clipboard` 복사 · 1.4s `ok` 상태 · `:focus-visible` 링 · `prefers-reduced-motion` 가드. 줄번호는 M4로 이관.
+- **M2-1 · Home — Hero 재구성** — #7 · [`ed0cf19`](https://github.com/smc5720/smc5720.github.io/commit/ed0cf19) · 2026-05-17. 거대 serif 타이틀(italic `Rico` + `Cheese` + accent 마침표, Fraunces opsz/SOFT axes) · 메타 스트립(`EST. 2022` + `NOW PLAYING ● featured`) · ASCII pre · 한국어 lede · CTA 두 개(`/blog` `/about`) · Scroll 인디케이터로 hero 재구성. `globals.css`에 `.display(-hero)` / `.lede` / `.mono-label(.tabular)` / `.btn(-primary/-ghost)` 공통 유틸 + `.hero-grid` 반응형(모바일 1열·ASCII 숨김, 태블릿 gap 축소) + `prefers-reduced-motion` 가드 추가. hero 아래 카테고리/Featured/Recent 블록은 M2-2/M2-3로 분리.
 
 ---
 
