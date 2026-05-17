@@ -18,7 +18,7 @@ PM 가이드: `CLAUDE.md`
 
 ## M2 — Core pages  ·  `priority:p1`
 
-### M2-9 (#15). Blog 상세 — Reading Progress 2px 바
+### M2-9 (#15). Blog 상세 — Reading Progress 2px 바 ✅ Shipped
 - **라벨**: `type:design` `area:blog-detail` `priority:p2`
 - **목표**: 상단 fixed 2px 진행 바. accent 컬러 + 글로우.
 - **디자인 참조**: `styles.css:305~311`
