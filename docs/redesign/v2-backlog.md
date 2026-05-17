@@ -18,15 +18,6 @@ PM 가이드: `CLAUDE.md`
 
 ## M1 — Foundations  ·  `priority:p0`
 
-### M1-2 (#4). 폰트 로더 확장 (Inter 추가 + body 폰트 분리)
-- **라벨**: `type:design` `area:design-system` `priority:p0`
-- **목표**: 현재 `Fraunces / Syne / JetBrains_Mono` 로딩에 **Inter** 추가. `--font-body`는 본문, `--font-sans`는 헤더·라벨에 사용. 한글 Noto fallback은 CSS 변수에서 처리.
-- **디자인 참조**: `docs/redesign/v2-bundle/project/styles.css:42~46`, `src/app/layout.tsx`
-- **완료 기준**:
-  - `next/font/google`로 Inter variable 추가
-  - `<html className>`에 4개 변수 모두 부여
-  - `--font-serif/sans/body/mono` 4종 모두 `@theme`에 등록
-
 ### M1-3 (#5). prose / MDX 스타일 재작성
 - **라벨**: `type:design` `area:mdx` `priority:p0`
 - **목표**: 현재 `.prose` (h2 헤딩 카운터 없음, 인용·코드·표 스타일 차이) 를 v2 사양으로 교체.
@@ -161,6 +152,7 @@ PM 가이드: `CLAUDE.md`
 ## Shipped
 
 - **M1-1 · `@theme` 토큰 전체 이식** — #3 · [#25](https://github.com/smc5720/smc5720.github.io/pull/25) · 2026-05-17. prototype 다크 토큰 31종 이식 + CategoryBadge 토큰화 (release red→orange). 라이트 테마는 M4-1로 분리.
+- **M1-2 · 폰트 로더 확장 (Inter body + Noto KR fallback)** — #4 · [#26](https://github.com/smc5720/smc5720.github.io/pull/26) · 2026-05-17. next/font에 Inter·Noto Sans KR·Noto Serif KR 추가, `@theme` 4종 스택을 `var(--font-*)`로 정합, `body` 기본 폰트를 Syne → Inter로 분리.
 
 ---
 
