@@ -16,20 +16,6 @@ PM 가이드: `CLAUDE.md`
 
 ---
 
-## M1 — Foundations  ·  `priority:p0`
-
-### M1-4 (#6). Shiki 코드블록 + 컨테이너 디자인
-- **라벨**: `type:design` `area:mdx` `priority:p0`
-- **목표**: 코드블록을 파일명 라벨 / 언어 태그 / 복사 버튼 / 줄번호 + 6색 토큰(vitesse-dark 풍)으로 교체.
-- **디자인 참조**: `docs/redesign/v2-bundle/project/styles.css:397~462`, `docs/redesign/v2-bundle/project/blog-components.jsx` (CodeBlock)
-- **완료 기준**:
-  - `@shikijs/rehype` 테마 결정 (vitesse-dark 또는 자체 변형)
-  - 파일명/언어는 MDX 코드펜스 메타에서 파싱 (`\`\`\`ts filename="x.ts"`)
-  - 복사 버튼 작동 (클라이언트 컴포넌트)
-  - 줄번호 토글은 일단 제외 (M4)
-
----
-
 ## M2 — Core pages  ·  `priority:p1`
 
 ### M2-1 (#7). Home — Hero "The Studio Log."
@@ -145,6 +131,7 @@ PM 가이드: `CLAUDE.md`
 - **M1-1 · `@theme` 토큰 전체 이식** — #3 · [#25](https://github.com/smc5720/smc5720.github.io/pull/25) · 2026-05-17. prototype 다크 토큰 31종 이식 + CategoryBadge 토큰화 (release red→orange). 라이트 테마는 M4-1로 분리.
 - **M1-2 · 폰트 로더 확장 (Inter body + Noto KR fallback)** — #4 · [#26](https://github.com/smc5720/smc5720.github.io/pull/26) · 2026-05-17. next/font에 Inter·Noto Sans KR·Noto Serif KR 추가, `@theme` 4종 스택을 `var(--font-*)`로 정합, `body` 기본 폰트를 Syne → Inter로 분리.
 - **M1-3 · prose / MDX 스타일 재작성** — #5 · [#27](https://github.com/smc5720/smc5720.github.io/pull/27) · 2026-05-17. `.prose` 전면 교체 — h2 decimal-leading-zero 카운터, h2 serif + 상단 보더, blockquote 좌측 2px accent, table bottom-border, ul/ol `::marker`, 본문 폰트 Syne→Inter, 모바일 다운스케일. `.prose pre`는 M1-4로 분리.
+- **M1-4 · Shiki 코드블록 + 컨테이너 디자인** — #6 · [#28](https://github.com/smc5720/smc5720.github.io/pull/28) · 2026-05-17. `@shikijs/rehype` 테마 tokyo-night → vitesse-dark, 코드펜스 메타에서 `filename="..."`을 파싱해 `data-filename`/`data-language`로 lift, 클라이언트 `CodeBlock` 컴포넌트가 헤드바(점 3개 + 파일명 + 언어 칩 + Copy 버튼)를 렌더. `navigator.clipboard` 복사 · 1.4s `ok` 상태 · `:focus-visible` 링 · `prefers-reduced-motion` 가드. 줄번호는 M4로 이관.
 
 ---
 
