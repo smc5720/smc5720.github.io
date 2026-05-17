@@ -706,21 +706,32 @@ a {
 
 /* ── Layout container ── */
 .container {
+  width: 100%;
   max-width: var(--container);
   margin: 0 auto;
   padding: 0 32px;
 }
 
+.container-narrow {
+  width: 100%;
+  max-width: var(--container-narrow);
+  margin: 0 auto;
+  padding: 0 var(--s-6);
+}
+
 @media (max-width: 1100px) {
   .container { padding: 0 28px; }
+  .container-narrow { padding: 0 28px; }
 }
 
 @media (max-width: 900px) {
   .container { padding: 0 20px; }
+  .container-narrow { padding: 0 20px; }
 }
 
 @media (max-width: 600px) {
   .container { padding: 0 16px; }
+  .container-narrow { padding: 0 16px; }
 }
 
 /* ── display-h2 — section title serif ── */
@@ -1065,6 +1076,11 @@ a {
   width: 36px;
 }
 
+/* ── Arrow link — back variant (left-facing) ── */
+.arrow-link-back .arrow {
+  transform: scaleX(-1);
+}
+
 /* ── Featured card responsive ── */
 @media (max-width: 900px) {
   .featured-card {
@@ -1361,6 +1377,46 @@ a {
     transition: none;
   }
 }
+
+/* ── Badge chip (.badge) — tag / category chip ── */
+/* dot before is category-only; for plain tag chips, use .badge.badge-tag which suppresses the dot */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-2);
+  border: 1px solid var(--color-border-2);
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.012);
+  white-space: nowrap;
+}
+
+/* dot before — category indicator */
+.badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--badge-dot, var(--color-text-3));
+  flex-shrink: 0;
+}
+
+/* tag variant — no dot */
+.badge.badge-tag::before {
+  display: none;
+}
+
+/* category data attrs */
+.badge[data-cat="news"]           { --badge-dot: var(--cat-news); }
+.badge[data-cat="dev"]            { --badge-dot: var(--cat-dev); }
+.badge[data-cat="retrospective"]  { --badge-dot: var(--cat-retrospective); }
+.badge[data-cat="release"]        { --badge-dot: var(--cat-release); }
+.badge[data-cat="etc"]            { --badge-dot: var(--cat-etc); }
 
 /* ── Empty / no-results state card ── */
 .empty-card {
