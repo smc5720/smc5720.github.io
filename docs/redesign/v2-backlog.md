@@ -18,15 +18,6 @@ PM 가이드: `CLAUDE.md`
 
 ## M1 — Foundations  ·  `priority:p0`
 
-### M1-1 (#3). `@theme` 토큰 전체 이식 (styles.css → globals.css)
-- **라벨**: `type:design` `area:design-system` `priority:p0`
-- **목표**: 프로토타입 `styles.css`의 `--color-*` / `--font-*` / `--s-*` / `--r-*` / `--sh-*` / `--ease-*` / `--container-*` 토큰을 모두 `src/app/globals.css`의 Tailwind v4 `@theme` 블록으로 옮긴다. 이름은 1:1.
-- **디자인 참조**: `docs/redesign/v2-bundle/project/styles.css` (1~70행, 707~768행)
-- **완료 기준**:
-  - 모든 토큰이 `@theme`로 정의됨
-  - 기존 컴포넌트가 새 토큰명으로 빌드 통과 (Tailwind class 매핑 변경 포함)
-  - 카테고리 dot 컬러(`--cat-*`) 5종 매핑 포함
-
 ### M1-2 (#4). 폰트 로더 확장 (Inter 추가 + body 폰트 분리)
 - **라벨**: `type:design` `area:design-system` `priority:p0`
 - **목표**: 현재 `Fraunces / Syne / JetBrains_Mono` 로딩에 **Inter** 추가. `--font-body`는 본문, `--font-sans`는 헤더·라벨에 사용. 한글 Noto fallback은 CSS 변수에서 처리.
@@ -169,7 +160,7 @@ PM 가이드: `CLAUDE.md`
 
 ## Shipped
 
-- (아직 없음. 첫 PR이 머지되면 여기로 이동.)
+- **M1-1 · `@theme` 토큰 전체 이식** — #3 · [#25](https://github.com/smc5720/smc5720.github.io/pull/25) · 2026-05-17. prototype 다크 토큰 31종 이식 + CategoryBadge 토큰화 (release red→orange). 라이트 테마는 M4-1로 분리.
 
 ---
 
