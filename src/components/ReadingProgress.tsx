@@ -20,6 +20,7 @@ export function ReadingProgress() {
   return (
     <div
       id="reading-progress"
+      aria-hidden="true"
       style={{ width: `${progress}%` }}
     />
   );

@@ -699,8 +699,8 @@ a {
   left: 0;
   height: 2px;
   background: var(--color-accent);
-  z-index: 100;
-  transition: width 0.05s linear;
+  z-index: 60;
+  transition: width 0.06s linear;
   box-shadow: 0 0 8px var(--color-accent);
 }
 
@@ -1544,5 +1544,11 @@ a {
     max-width: none !important;
     width: 100% !important;
     top: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #reading-progress {
+    transition: none;
   }
 }
