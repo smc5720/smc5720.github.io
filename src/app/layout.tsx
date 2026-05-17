@@ -1,5 +1,12 @@
 import type { Metadata } from "next";
-import { Fraunces, Syne, JetBrains_Mono } from "next/font/google";
+import {
+  Fraunces,
+  Syne,
+  JetBrains_Mono,
+  Inter,
+  Noto_Sans_KR,
+  Noto_Serif_KR,
+} from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -23,6 +30,29 @@ const jetbrains = JetBrains_Mono({
   variable: "--font-jetbrains",
   display: "swap",
   weight: ["400", "500", "600"],
+});
+
+// Inter is a variable font — no weight array needed
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+// Noto KR fonts: next/font downloads the full CSS (all unicode ranges including Korean)
+// at build time. The 'latin' subset here only controls the <link preload> hint, not coverage.
+const notoSansKR = Noto_Sans_KR({
+  subsets: ["latin"],
+  variable: "--font-noto-sans-kr",
+  display: "swap",
+  weight: ["400", "500", "700"],
+});
+
+const notoSerifKR = Noto_Serif_KR({
+  subsets: ["latin"],
+  variable: "--font-noto-serif-kr",
+  display: "swap",
+  weight: ["400", "700"],
 });
 
 export const metadata: Metadata = {
@@ -52,7 +82,7 @@ export default function RootLayout({
   return (
     <html
       lang="ko"
-      className={`${fraunces.variable} ${syne.variable} ${jetbrains.variable}`}
+      className={`${fraunces.variable} ${syne.variable} ${jetbrains.variable} ${inter.variable} ${notoSansKR.variable} ${notoSerifKR.variable}`}
     >
       <body className="noise-overlay flex flex-col min-h-screen bg-bg">
         <Header />
