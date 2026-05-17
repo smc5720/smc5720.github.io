@@ -1,0 +1,66 @@
+name: "[feat] 새 기능"
+description: 새로운 기능 또는 페이지 추가
+title: "[feat] "
+labels: ["type:feature", "status:needs-spec"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 무엇을 / 왜
+      description: 해결하려는 문제와 사용자가 얻는 가치
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: 범위
+      description: 이번 이슈에서 다루는 것 / 다루지 않는 것
+      value: |
+        **In scope**
+        -
+
+        **Out of scope**
+        -
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: 완료 기준
+      value: |
+        - [ ]
+        - [ ] `pnpm build` 통과
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: 영역
+      options:
+        - area:home
+        - area:blog-list
+        - area:blog-detail
+        - area:about
+        - area:system
+        - area:404
+        - area:design-system
+        - area:mdx
+        - area:infra
+        - area:ci
+        - area:content
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 우선순위
+      options:
+        - priority:p0
+        - priority:p1
+        - priority:p2
+        - priority:p3
+      default: 2
+    validations:
+      required: true

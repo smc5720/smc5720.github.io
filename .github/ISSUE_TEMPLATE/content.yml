@@ -1,0 +1,62 @@
+name: "[content] 블로그 글"
+description: 새 블로그 글 기획 또는 초안 작성
+title: "[content] "
+labels: ["type:content", "area:content", "status:needs-spec"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        글 작성은 `blog-writer` 에이전트에게 위임하는 것을 권장합니다.
+        초안이 끝나면 `content/posts/<slug>.mdx`로 PR 올립니다.
+
+  - type: input
+    id: working-title
+    attributes:
+      label: 가제
+      placeholder: 가제는 작성하며 바뀌어도 됩니다
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: 카테고리 (frontmatter `category`)
+      options:
+        - dev
+        - news
+        - retrospective
+        - release
+        - etc
+    validations:
+      required: true
+
+  - type: textarea
+    id: angle
+    attributes:
+      label: 글의 앵글
+      description: 무엇을 / 누구에게 / 왜. 핵심 메시지 한두 줄.
+    validations:
+      required: true
+
+  - type: textarea
+    id: outline
+    attributes:
+      label: 아웃라인 (선택)
+      description: 초안 전 단계에서 구조 잡기
+
+  - type: input
+    id: target-date
+    attributes:
+      label: 발행 목표일
+      placeholder: YYYY-MM-DD
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 우선순위
+      options:
+        - priority:p0
+        - priority:p1
+        - priority:p2
+        - priority:p3
+      default: 2

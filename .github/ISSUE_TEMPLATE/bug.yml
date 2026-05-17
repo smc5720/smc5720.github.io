@@ -1,0 +1,69 @@
+name: "[bug] 버그"
+description: 의도와 다르게 동작하는 부분
+title: "[bug] "
+labels: ["type:bug", "status:ready"]
+body:
+  - type: textarea
+    id: what-happens
+    attributes:
+      label: 무엇이 잘못됐나
+      placeholder: 어떤 화면/조작에서 어떤 결과가 나오나
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 예상한 동작
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: 재현 절차
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+
+  - type: input
+    id: env
+    attributes:
+      label: 환경
+      placeholder: 예) Chrome 130 / Windows 11 / 1440px, 또는 빌드 환경
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: 영역
+      options:
+        - area:home
+        - area:blog-list
+        - area:blog-detail
+        - area:about
+        - area:system
+        - area:404
+        - area:design-system
+        - area:mdx
+        - area:infra
+        - area:ci
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 우선순위
+      options:
+        - priority:p0
+        - priority:p1
+        - priority:p2
+        - priority:p3
+      default: 1
+    validations:
+      required: true

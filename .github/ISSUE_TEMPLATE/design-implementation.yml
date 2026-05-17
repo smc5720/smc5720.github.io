@@ -1,0 +1,84 @@
+name: "[design] 디자인 구현"
+description: v2 리디자인 번들에 있는 페이지·컴포넌트·토큰을 코드로 옮기는 작업
+title: "[design] "
+labels: ["type:design", "status:needs-spec"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        디자인 구현 이슈는 `docs/redesign/v2-bundle/`에 있는 원본을 참조로 합니다.
+        작업 전에 해당 영역의 HTML/CSS/JSX와 `styles.css` 토큰을 먼저 읽어주세요.
+
+  - type: input
+    id: scope
+    attributes:
+      label: 작업 범위
+      description: 어느 페이지/컴포넌트인지 한 줄로
+      placeholder: 예) Home 페이지의 marquee + featured 카드 섹션
+    validations:
+      required: true
+
+  - type: textarea
+    id: design-refs
+    attributes:
+      label: 디자인 참조 (번들 내 파일 경로)
+      description: docs/redesign/v2-bundle 기준 상대경로. 스크린샷도 가능.
+      placeholder: |
+        - project/blog-pages.jsx (Home 컴포넌트)
+        - project/styles.css (.marquee, .card 토큰)
+        - project/screens/01-final.png
+      value: |
+        - project/
+        - project/styles.css
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: 완료 기준 (Acceptance Criteria)
+      description: 체크리스트 형태로
+      value: |
+        - [ ] 데스크탑(≥1100px)에서 디자인과 일치
+        - [ ] 모바일(≤600px)에서 깨지지 않음
+        - [ ] 토큰은 Tailwind v4 `@theme` 변수만 사용 (하드코딩 컬러/사이즈 X)
+        - [ ] `prefers-reduced-motion` 대응
+        - [ ] 키보드 포커스 링 확인
+        - [ ] `pnpm build` 통과
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: 영역 라벨
+      options:
+        - area:home
+        - area:blog-list
+        - area:blog-detail
+        - area:about
+        - area:system
+        - area:404
+        - area:design-system
+        - area:mdx
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 우선순위
+      options:
+        - priority:p0
+        - priority:p1
+        - priority:p2
+        - priority:p3
+      default: 2
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: 비고
+      description: 의존 이슈, 알려진 위험, 결정이 필요한 부분 등

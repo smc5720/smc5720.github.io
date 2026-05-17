@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 디자인 번들 (v2 Studio Log)
+    url: https://github.com/smc5720/smc5720.github.io/tree/main/docs/redesign/v2-bundle
+    about: v2 리디자인의 원본 프로토타입·토큰·채팅 로그. 디자인 관련 작업 전 먼저 확인.
+  - name: v2 백로그
+    url: https://github.com/smc5720/smc5720.github.io/blob/main/docs/redesign/v2-backlog.md
+    about: 현재 진행 중인 v2 리디자인 작업 목록.

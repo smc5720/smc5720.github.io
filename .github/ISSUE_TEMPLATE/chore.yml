@@ -1,0 +1,48 @@
+name: "[chore] 잡일 · 리팩토링 · 의존성"
+description: 사용자에게 직접 보이지 않는 정리 작업
+title: "[chore] "
+labels: ["type:chore", "status:ready"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: 무엇을
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: 왜 (지금 하는 이유)
+      description: 보안, 성능, DX, 의존성 EOL 등
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: 영역
+      options:
+        - area:infra
+        - area:ci
+        - area:design-system
+        - area:mdx
+        - area:home
+        - area:blog-list
+        - area:blog-detail
+        - area:about
+        - area:system
+        - area:404
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 우선순위
+      options:
+        - priority:p0
+        - priority:p1
+        - priority:p2
+        - priority:p3
+      default: 3

@@ -1,0 +1,22 @@
+name: "[docs] 문서"
+description: README, AGENTS, 백로그, 핸드오프 문서 등 저장소 문서 업데이트
+title: "[docs] "
+labels: ["type:docs", "status:ready"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: 어떤 문서를 / 어떻게
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 우선순위
+      options:
+        - priority:p0
+        - priority:p1
+        - priority:p2
+        - priority:p3
+      default: 3
