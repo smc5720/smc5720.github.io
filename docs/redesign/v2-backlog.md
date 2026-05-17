@@ -28,7 +28,7 @@ PM 가이드: `CLAUDE.md`
 
 ## M3 — Supporting pages  ·  `priority:p2`
 
-### M3-1 (#17). About 페이지 — 8섹션 풀 재작성
+### ~~M3-1 (#17). About 페이지 — 8섹션 풀 재작성~~ · **Shipped** (d8533a5)
 - **라벨**: `type:design` `area:about` `priority:p2`
 - **목표**: Hero / Intro+프로필 카드 / Now / Interests / Stack / Selected writing / Colophon+pull quote / Elsewhere 8섹션.
 - **디자인 참조**: `docs/redesign/v2-bundle/project/blog-about.jsx`
