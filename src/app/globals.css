@@ -925,6 +925,92 @@ a {
   opacity: .6;
 }
 
+/* ── Blog controls bar (sticky strip above post list) ── */
+.controls-bar {
+  position: sticky;
+  top: 64px; /* matches header h-16 = 64px */
+  z-index: 30;
+  background: color-mix(in srgb, var(--color-bg) 85%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* ── Search box ── */
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--color-border-2);
+  background: var(--color-surface);
+  min-width: 220px;
+}
+
+.search-box:focus-within {
+  border-color: var(--color-border-3);
+}
+
+.search-box input {
+  flex: 1;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: .04em;
+  padding: 0;
+  height: 100%;
+}
+
+.search-box input::placeholder {
+  color: var(--color-text-3);
+}
+
+/* ── Segmented control (sort + view toggle) ── */
+.seg-ctrl {
+  display: flex;
+  border: 1px solid var(--color-border-2);
+  height: 36px;
+}
+
+.seg-ctrl button {
+  padding: 0 12px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--color-text-2);
+  background: transparent;
+  border: 0;
+  border-left: 1px solid var(--color-border-2);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color .15s, background .15s;
+}
+
+.seg-ctrl button:first-child {
+  border-left: 0;
+}
+
+.seg-ctrl button[aria-pressed="true"] {
+  color: var(--color-bg);
+  background: var(--color-text);
+}
+
+.seg-ctrl button:hover:not([aria-pressed="true"]) {
+  color: var(--color-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .search-box,
+  .seg-ctrl button {
+    transition: none;
+  }
+}
+
 /* ── Arrow link ── */
 .arrow-link {
   display: inline-flex;
@@ -977,6 +1063,35 @@ a {
 @media (max-width: 600px) {
   .featured-card > div:last-child {
     display: none;
+  }
+}
+
+/* ── Blog hero grid (title + lede) ── */
+@media (max-width: 900px) {
+  .blog-hero-grid {
+    grid-template-columns: 1fr !important;
+    gap: var(--s-6) !important;
+  }
+}
+
+/* ── Controls bar responsive ── */
+/* ≤900px: stack chips row above right-side controls */
+@media (max-width: 900px) {
+  .controls-bar .container {
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+}
+
+/* ≤600px: chips wrap (already flex-wrap), right controls also wrap */
+@media (max-width: 600px) {
+  .search-box {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .controls-bar .container > div:last-child {
+    width: 100%;
   }
 }
 

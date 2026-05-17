@@ -11,26 +11,96 @@ export default function BlogPage() {
   const posts = getAllPosts();
 
   return (
-    <div className="max-w-6xl mx-auto px-6 pt-32 pb-32">
-      {/* Page header */}
-      <div className="mb-16">
-        <div className="flex items-center gap-3 mb-6">
-          <span className="inline-block w-8 h-px bg-accent" />
-          <span className="font-mono text-xs tracking-[0.25em] text-text-3 uppercase">
-            {posts.length} Posts
-          </span>
-        </div>
-        <h1 className="font-serif font-black text-[clamp(3rem,8vw,6rem)] leading-none tracking-tight text-text">
-          Blog
-        </h1>
-        <p className="mt-4 text-text-2 text-base max-w-lg leading-relaxed">
-          개발, 뉴스, 회고, 릴리스 — 기록해두고 싶은 모든 것들
-        </p>
-      </div>
+    <main>
+      {/* ── Header strip ── */}
+      <section
+        style={{
+          paddingTop: "calc(64px + var(--s-8))", /* header offset + spacing */
+          paddingBottom: "var(--s-10)",
+          borderBottom: "1px solid var(--color-border)",
+        }}
+      >
+        <div className="container">
+          {/* Breadcrumb + count */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "var(--s-8)",
+            }}
+          >
+            <nav
+              aria-label="breadcrumb"
+              className="mono-label"
+              style={{ display: "flex", gap: "var(--s-3)", alignItems: "center" }}
+            >
+              <span style={{ color: "var(--color-text-3)" }}>RICOCHEESE</span>
+              <span style={{ color: "var(--color-text-3)" }}>/</span>
+              <span style={{ color: "var(--color-text)" }}>BLOG</span>
+            </nav>
+            <span
+              className="mono-label tabular"
+              style={{ color: "var(--color-text-3)" }}
+            >
+              {String(posts.length).padStart(3, "0")} essays
+            </span>
+          </div>
 
-      <Suspense fallback={<div className="text-text-3 font-mono text-sm">Loading...</div>}>
+          {/* Title + lede */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1.4fr 1fr",
+              gap: "var(--s-16)",
+              alignItems: "end",
+            }}
+            className="blog-hero-grid"
+          >
+            <h1
+              className="display"
+              style={{ margin: 0, fontSize: "clamp(48px,7vw,96px)" }}
+            >
+              The{" "}
+              <em
+                style={{
+                  fontStyle: "italic",
+                  color: "var(--color-text-2)",
+                  fontVariationSettings: '"SOFT" 100',
+                }}
+              >
+                Index
+              </em>
+              <span style={{ color: "var(--color-accent)" }}>.</span>
+            </h1>
+            <p
+              className="lede"
+              style={{ maxWidth: 460, color: "var(--color-text-2)" }}
+            >
+              다섯 가지 카테고리에 흩어진 글들. 검색하거나 카테고리로 좁혀
+              읽어보세요.{" "}
+              <span style={{ color: "var(--color-text)" }}>
+                모든 글은 MDX 원문이 공개
+              </span>
+              됩니다.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── BlogList (controls + results) ── */}
+      <Suspense
+        fallback={
+          <div
+            className="container mono-label"
+            style={{ paddingTop: "var(--s-8)", color: "var(--color-text-3)" }}
+          >
+            Loading...
+          </div>
+        }
+      >
         <BlogList posts={posts} />
       </Suspense>
-    </div>
+    </main>
   );
 }

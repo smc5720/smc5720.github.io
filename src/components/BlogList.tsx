@@ -1,120 +1,274 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useMemo, useCallback } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { PostCard } from "./PostCard";
-import { CategoryBadge } from "./CategoryBadge";
 import type { PostMeta, Category } from "@/types/post";
-import { CATEGORY_LABELS } from "@/lib/constants";
+import { CAT_ORDER } from "@/lib/constants";
 
-const ALL = "all";
-type Filter = Category | typeof ALL;
+const ALL = "all" as const;
+type SortKey = "new" | "long" | "short";
+type ViewKey = "grid" | "index";
 
 interface Props {
   posts: PostMeta[];
 }
 
 export function BlogList({ posts }: Props) {
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const [filter, setFilter] = useState<Filter>(ALL);
-  const [search, setSearch] = useState("");
 
-  useEffect(() => {
-    const cat = searchParams.get("category");
-    if (cat && Object.keys(CATEGORY_LABELS).includes(cat)) {
-      setFilter(cat as Category);
+  // Read state from URL (single source of truth)
+  const rawCat = searchParams.get("category") ?? ALL;
+  const activeCat: "all" | Category = (
+    CAT_ORDER.some((c) => c.id === rawCat) ? rawCat : ALL
+  ) as "all" | Category;
+  const search = searchParams.get("q") ?? "";
+  const rawSort = searchParams.get("sort") ?? "new";
+  const sort: SortKey = (["new", "long", "short"].includes(rawSort) ? rawSort : "new") as SortKey;
+  const rawView = searchParams.get("view") ?? "grid";
+  const view: ViewKey = (["grid", "index"].includes(rawView) ? rawView : "grid") as ViewKey;
+
+  /** Push a partial URL update, omitting keys whose value is the default */
+  const pushParams = useCallback(
+    (patch: Partial<{ category: string; q: string; sort: string; view: string }>) => {
+      const next = new URLSearchParams(searchParams.toString());
+
+      const merged = {
+        category: activeCat,
+        q: search,
+        sort,
+        view,
+        ...patch,
+      };
+
+      // Only keep non-default values to keep URLs clean
+      if (merged.category && merged.category !== ALL) {
+        next.set("category", merged.category);
+      } else {
+        next.delete("category");
+      }
+      if (merged.q) {
+        next.set("q", merged.q);
+      } else {
+        next.delete("q");
+      }
+      if (merged.sort && merged.sort !== "new") {
+        next.set("sort", merged.sort);
+      } else {
+        next.delete("sort");
+      }
+      if (merged.view && merged.view !== "grid") {
+        next.set("view", merged.view);
+      } else {
+        next.delete("view");
+      }
+
+      const qs = next.toString();
+      router.replace(qs ? `/blog?${qs}` : "/blog", { scroll: false });
+    },
+    [router, searchParams, activeCat, search, sort, view]
+  );
+
+  // Counts per category for chip labels
+  const counts = useMemo(() => {
+    const c: Record<string, number> = { all: posts.length };
+    for (const cat of CAT_ORDER) {
+      if (cat.id !== ALL) {
+        c[cat.id] = posts.filter((p) => p.category === cat.id).length;
+      }
     }
-  }, [searchParams]);
+    return c;
+  }, [posts]);
 
-  const categories = [...new Set(posts.map((p) => p.category))] as Category[];
-
-  const filtered = posts.filter((p) => {
-    const matchCat = filter === ALL || p.category === filter;
-    const matchSearch =
-      !search ||
-      p.title.toLowerCase().includes(search.toLowerCase()) ||
-      p.description.toLowerCase().includes(search.toLowerCase()) ||
-      p.tags.some((t) => t.toLowerCase().includes(search.toLowerCase()));
-    return matchCat && matchSearch;
-  });
+  // Filtered + sorted posts
+  const filtered = useMemo(() => {
+    let res = [...posts];
+    if (activeCat !== ALL) {
+      res = res.filter((p) => p.category === activeCat);
+    }
+    if (search) {
+      const q = search.toLowerCase();
+      res = res.filter(
+        (p) =>
+          p.title.toLowerCase().includes(q) ||
+          p.description.toLowerCase().includes(q) ||
+          p.tags.join(" ").toLowerCase().includes(q)
+      );
+    }
+    if (sort === "long") {
+      res.sort((a, b) => b.readingTime - a.readingTime);
+    } else if (sort === "short") {
+      res.sort((a, b) => a.readingTime - b.readingTime);
+    } else {
+      res.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    }
+    return res;
+  }, [posts, activeCat, search, sort]);
 
   return (
     <>
-      {/* Filters */}
-      <div className="mb-10 space-y-4">
-        {/* Search */}
-        <div className="relative">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-3 text-sm font-mono">
-            ⌕
-          </span>
-          <input
-            type="text"
-            placeholder="글 검색..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-surface border border-border rounded-sm pl-10 pr-4 py-3 text-sm text-text placeholder-text-3 outline-none focus:border-border-2 transition-colors font-sans"
-          />
-        </div>
-
-        {/* Category tabs */}
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => setFilter(ALL)}
-            className={`text-xs font-mono font-bold tracking-[0.15em] uppercase px-4 py-2 rounded-sm border transition-all duration-150 ${
-              filter === ALL
-                ? "bg-accent text-bg border-accent"
-                : "bg-surface text-text-3 border-border hover:border-border-2 hover:text-text-2"
-            }`}
+      {/* ── Sticky controls bar ── */}
+      <div className="controls-bar">
+        <div
+          className="container"
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "space-between",
+            alignItems: "center",
+            paddingTop: "var(--s-4)",
+            paddingBottom: "var(--s-4)",
+            gap: "var(--s-4)",
+          }}
+        >
+          {/* Category chips */}
+          <div
+            role="group"
+            aria-label="카테고리 필터"
+            style={{ display: "flex", gap: "var(--s-2)", flexWrap: "wrap" }}
           >
-            ALL
-          </button>
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setFilter(cat === filter ? ALL : cat)}
-              className={`inline-flex items-center gap-2 text-xs font-mono font-bold tracking-[0.15em] uppercase px-4 py-2 rounded-sm border transition-all duration-150 ${
-                filter === cat
-                  ? "bg-surface-2 border-border-2 text-text"
-                  : "bg-surface text-text-3 border-border hover:border-border-2 hover:text-text-2"
-              }`}
+            {CAT_ORDER.map((cat) => (
+              <button
+                key={cat.id}
+                type="button"
+                className="chip"
+                aria-pressed={activeCat === cat.id}
+                onClick={() => pushParams({ category: cat.id })}
+              >
+                <span>{cat.label}</span>
+                <span className="count">
+                  {String(counts[cat.id] ?? 0).padStart(2, "0")}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          {/* Right-side controls: search · sort · view */}
+          <div style={{ display: "flex", alignItems: "center", gap: "var(--s-3)", flexWrap: "wrap" }}>
+            {/* Search */}
+            <div className="search-box">
+              <span className="mono-label" style={{ color: "var(--color-text-3)" }} aria-hidden="true">
+                ⌕
+              </span>
+              <input
+                type="search"
+                aria-label="Search posts"
+                placeholder="Search title, desc, tags…"
+                value={search}
+                onChange={(e) => pushParams({ q: e.target.value })}
+              />
+              <span className="mono-label" style={{ color: "var(--color-text-3)" }} aria-hidden="true">
+                ⌘K
+              </span>
+            </div>
+
+            {/* Sort segmented control */}
+            <div
+              className="seg-ctrl"
+              role="group"
+              aria-label="정렬"
             >
-              <CategoryBadge category={cat} size="sm" />
-            </button>
-          ))}
+              {(
+                [
+                  ["new", "Newest"],
+                  ["long", "Longest"],
+                  ["short", "Shortest"],
+                ] as [SortKey, string][]
+              ).map(([key, label]) => (
+                <button
+                  key={key}
+                  type="button"
+                  aria-pressed={sort === key}
+                  onClick={() => pushParams({ sort: key })}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            {/* View toggle */}
+            <div
+              className="seg-ctrl"
+              role="group"
+              aria-label="뷰 전환"
+            >
+              {(
+                [
+                  ["grid", "Grid"],
+                  ["index", "Index"],
+                ] as [ViewKey, string][]
+              ).map(([key, label]) => (
+                <button
+                  key={key}
+                  type="button"
+                  aria-pressed={view === key}
+                  onClick={() => pushParams({ view: key })}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Count */}
-      <div className="flex items-center justify-between mb-6">
-        <p className="text-xs font-mono text-text-3">
-          {filtered.length}개의 글
-          {filter !== ALL && (
-            <span className="ml-2 text-text-2">in {CATEGORY_LABELS[filter as Category]}</span>
+      {/* ── Results count row ── */}
+      <div className="container" style={{ paddingTop: "var(--s-6)", paddingBottom: "var(--s-32)" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "var(--s-6)",
+          }}
+        >
+          <p className="mono-label tabular" style={{ color: "var(--color-text-3)" }}>
+            {String(filtered.length).padStart(3, "0")} / {String(posts.length).padStart(3, "0")} essays
+          </p>
+          {(activeCat !== ALL || search) && (
+            <button
+              type="button"
+              className="mono-label"
+              style={{ color: "var(--color-text-3)", cursor: "pointer", background: "none", border: 0, padding: 0 }}
+              onClick={() => pushParams({ category: ALL, q: "", sort: "new" })}
+            >
+              초기화 ×
+            </button>
           )}
-        </p>
-        {(filter !== ALL || search) && (
-          <button
-            onClick={() => { setFilter(ALL); setSearch(""); }}
-            className="text-xs font-mono text-text-3 hover:text-accent transition-colors"
+        </div>
+
+        {/* Post grid / index placeholder */}
+        {filtered.length > 0 ? (
+          <div
+            className={
+              view === "grid"
+                ? "grid grid-cols-1 md:grid-cols-2 gap-4"
+                : "grid grid-cols-1 gap-4"
+            }
           >
-            초기화 ×
-          </button>
+            {filtered.map((post) => (
+              <PostCard key={post.slug} post={post} />
+            ))}
+          </div>
+        ) : (
+          <div style={{ textAlign: "center", padding: "var(--s-24) 0" }}>
+            <p
+              style={{
+                fontFamily: "var(--font-serif)",
+                fontSize: "clamp(22px,2.8vw,32px)",
+                color: "var(--color-text-3)",
+                marginBottom: "var(--s-3)",
+              }}
+            >
+              검색 결과가 없습니다.
+            </p>
+            <p className="mono-label" style={{ color: "var(--color-text-3)" }}>
+              다른 검색어나 카테고리를 시도해보세요.
+            </p>
+          </div>
         )}
       </div>
-
-      {/* Post grid */}
-      {filtered.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {filtered.map((post) => (
-            <PostCard key={post.slug} post={post} />
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-24">
-          <p className="font-serif text-3xl font-bold text-text-3 mb-3">검색 결과가 없습니다.</p>
-          <p className="text-sm text-text-3 font-mono">다른 검색어나 카테고리를 시도해보세요.</p>
-        </div>
-      )}
     </>
   );
 }
