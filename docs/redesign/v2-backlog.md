@@ -18,12 +18,6 @@ PM 가이드: `CLAUDE.md`
 
 ## M2 — Core pages  ·  `priority:p1`
 
-### M2-3 (#9). Home — Featured 카드 + Recent 6 그리드 + Marquee
-- **라벨**: `type:design` `area:home` `priority:p1`
-- **목표**: 마키 라인(stationary band of serif 큰 글자), 큰 featured 카드, recent 6개 grid (3→2→1 반응형), pull quote, 태그 인덱스.
-- **디자인 참조**: `docs/redesign/v2-bundle/project/blog-pages.jsx`, `styles.css:521~570`
-- **의존**: M2-1
-
 ### M2-4 (#10). Blog 목록 — 컨트롤 바 (chips + 검색 + 정렬 + 뷰토글)
 - **라벨**: `type:design` `area:blog-list` `priority:p1`
 - **목표**: 카테고리 chip(active = white-inverted), 검색 박스, 정렬 셀렉트, Index ↔ Grid 뷰 토글. URL query 동기화.
@@ -122,6 +116,7 @@ PM 가이드: `CLAUDE.md`
 - **M1-4 · Shiki 코드블록 + 컨테이너 디자인** — #6 · [#28](https://github.com/smc5720/smc5720.github.io/pull/28) · 2026-05-17. `@shikijs/rehype` 테마 tokyo-night → vitesse-dark, 코드펜스 메타에서 `filename="..."`을 파싱해 `data-filename`/`data-language`로 lift, 클라이언트 `CodeBlock` 컴포넌트가 헤드바(점 3개 + 파일명 + 언어 칩 + Copy 버튼)를 렌더. `navigator.clipboard` 복사 · 1.4s `ok` 상태 · `:focus-visible` 링 · `prefers-reduced-motion` 가드. 줄번호는 M4로 이관.
 - **M2-1 · Home — Hero 재구성** — #7 · [`ed0cf19`](https://github.com/smc5720/smc5720.github.io/commit/ed0cf19) · 2026-05-17. 거대 serif 타이틀(italic `Rico` + `Cheese` + accent 마침표, Fraunces opsz/SOFT axes) · 메타 스트립(`EST. 2022` + `NOW PLAYING ● featured`) · ASCII pre · 한국어 lede · CTA 두 개(`/blog` `/about`) · Scroll 인디케이터로 hero 재구성. `globals.css`에 `.display(-hero)` / `.lede` / `.mono-label(.tabular)` / `.btn(-primary/-ghost)` 공통 유틸 + `.hero-grid` 반응형(모바일 1열·ASCII 숨김, 태블릿 gap 축소) + `prefers-reduced-motion` 가드 추가. hero 아래 카테고리/Featured/Recent 블록은 M2-2/M2-3로 분리.
 - **M2-2 · Home — 카테고리 카운터 그리드 (.cat-grid)** — #8 · [#29](https://github.com/smc5720/smc5720.github.io/pull/29) · 2026-05-17. 기존 CategoryBadge chip 가로 나열을 v2 디자인의 `.cat-grid` 6셀(Total + CAT_ORDER 순 5개 카테고리)로 교체. 셀 구조: mono-label(`Total` 또는 `01 · 뉴스`) + 44px Fraunces 카운트(`padStart(2,"0")`, 카테고리는 8px `--cat-*` dot 동반) + mono-label 캡션. 셀 클릭 → Total `/blog`, 카테고리 `/blog?category=<cat>` (`<Link>`). 반응형 보더 규칙: 데스크탑 6열, 태블릿(≤1100) 3열 + 4번째부터 상단 보더 + nth(3n+1) 좌측 보더 제거, 모바일(≤600) 2열 + 3번째부터 상단 보더 + nth(2n+1) 좌측 보더 제거. hover는 `color-mix`로 4% 텍스트 오버레이, `prefers-reduced-motion` 가드 + 전역 `:focus-visible` 룰 적용. hex/rgb 하드코딩 0건.
+- **M2-3 · Home — Marquee · Featured · Recent6 · Pull quote · Tag index** — #9 · [`7a40557`](https://github.com/smc5720/smc5720.github.io/commit/7a40557) · 2026-05-17. cat-grid 뒤의 레거시 섹션을 v2 5블록으로 교체. `<Marquee>` (한·영 serif 7문구 × 2 seamless loop, 60s linear infinite, hover/`prefers-reduced-motion` paused) → 01 Featured (`<PostCardFeatured>` 2열 카드 — CategoryBadge(md) + `★ Featured · 날짜` + 큰 serif 제목 hover accent + lede + Read essay arrow-link / 인라인 `FeaturedArtwork` — radial gradient + 32px fine grid mask + slug 기반 거대 serif 글리프 + spec 라벨/카운터) → 02 Recent6 (`.recent-grid` 3→2→1 + `<PostCardCompact>` 셀 — `.card` hairline + Badge(sm) + 날짜 + `.post-title` hover accent + line-clamp 2 desc + bottom strip Showing N of M · oldest essay + Read all 버튼) → 03 Pull quote (1fr 2fr 그리드, serif italic 거대 인용 + accent 양념표) → 04 Tag index (실 빈도 집계 상위 16개 `<Link>` chip). 재사용 `<SectionHead>` (`§ {num}` + kicker + `display-h2` + right slot, 900px 이하 stack). 기존 `PostCard.tsx`는 BlogList 호환 위해 보존 — M2-4에서 정리. 토큰화: artwork radial은 `var(--color-accent-soft)`, 미세 그리드/큰 글리프는 `color-mix(in srgb, var(--color-text) 6%, transparent)`. 하드코딩 hex/rgb 0건.
 
 ---
 
