@@ -18,12 +18,6 @@ PM 가이드: `CLAUDE.md`
 
 ## M2 — Core pages  ·  `priority:p1`
 
-### M2-6 (#12). Blog 목록 — Empty 상태 + 검색 결과 없음
-- **라벨**: `type:design` `area:blog-list` `priority:p2`
-- **목표**: ASCII 박스 + 검색어 echo 포함된 empty 상태.
-- **디자인 참조**: `docs/redesign/v2-bundle/project/blog-pages.jsx` (EmptyState)
-- **의존**: M2-4
-
 ### M2-7 (#13). Blog 상세 — 헤더 + 메타 + 커버
 - **라벨**: `type:design` `area:blog-detail` `priority:p1`
 - **목표**: 카테고리 배지 · 거대 serif 타이틀 · lede · 메타 줄(날짜 · 읽기시간 · 태그) · 옵션 cover 이미지.
@@ -98,6 +92,7 @@ PM 가이드: `CLAUDE.md`
 
 ## Shipped
 
+- **M2-6 · Blog 목록 — Empty 상태 + 검색 결과 없음** — #12 · [`2bd98cd`](https://github.com/smc5720/smc5720.github.io/commit/2bd98cd) · 2026-05-17. M2-4에서 placeholder로 남겨둔 빈 결과 처리를 v2 EmptyState 디자인으로 본구현. `src/components/EmptyResults.tsx` 신규 — `.empty-card`(1px dashed `var(--color-border-2)`, padding 80×40, flex column gap 18) 안에 ASCII 박스 `<pre>`(mono 11px, color-text-3, `╭─...╮` 4줄) + `.display .display-h3` 한국어 제목 + `.small` 본문(max-width 420) + `.btn.btn-primary` Reset CTA(`↺` opacity 0.6) 구성. 카피 3분기: ① `search` 있을 때 `"<검색어>"에 해당하는 글이 아직 없습니다.…` (검색어 토큰 `var(--color-text)`로 강조) ② `search` 없고 카테고리 필터만 있을 때 `이 카테고리에 해당하는 글이 아직 없습니다.…` ③ 전체 글 0개일 때 `아직 발행된 글이 없습니다.` (Reset 숨김). `BlogList.tsx` 인라인 placeholder(254~268) → `<EmptyResults search activeCat onReset={() => pushParams({ category: ALL, q: "", sort: "new" })}/>`로 교체, 기존 필터 초기화 로직 재사용. globals.css에 `.empty-card`/`.display-h3`/`.small` 유틸 추가 + `@media (max-width:600px)`에서 `.empty-card` padding을 `var(--s-12) var(--s-6)`로 축소. 토큰만 사용(하드코딩 hex/rgb 0건), `pnpm build` 통과. 모션 없음 → reduced-motion 가드 불필요, Reset 포커스 링은 `.btn.btn-primary` 상속.
 - **M1-1 · `@theme` 토큰 전체 이식** — #3 · [#25](https://github.com/smc5720/smc5720.github.io/pull/25) · 2026-05-17. prototype 다크 토큰 31종 이식 + CategoryBadge 토큰화 (release red→orange). 라이트 테마는 M4-1로 분리.
 - **M1-2 · 폰트 로더 확장 (Inter body + Noto KR fallback)** — #4 · [#26](https://github.com/smc5720/smc5720.github.io/pull/26) · 2026-05-17. next/font에 Inter·Noto Sans KR·Noto Serif KR 추가, `@theme` 4종 스택을 `var(--font-*)`로 정합, `body` 기본 폰트를 Syne → Inter로 분리.
 - **M1-3 · prose / MDX 스타일 재작성** — #5 · [#27](https://github.com/smc5720/smc5720.github.io/pull/27) · 2026-05-17. `.prose` 전면 교체 — h2 decimal-leading-zero 카운터, h2 serif + 상단 보더, blockquote 좌측 2px accent, table bottom-border, ul/ol `::marker`, 본문 폰트 Syne→Inter, 모바일 다운스케일. `.prose pre`는 M1-4로 분리.
