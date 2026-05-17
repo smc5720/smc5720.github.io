@@ -56,10 +56,7 @@ export default function HomePage() {
           }}
         />
 
-        <div
-          className="relative w-full mx-auto px-8"
-          style={{ maxWidth: "var(--container)" }}
-        >
+        <div className="container relative">
           {/* ── Meta strip ── */}
           <div
             className="mono-label flex justify-between items-center flex-wrap"
