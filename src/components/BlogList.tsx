@@ -4,6 +4,7 @@ import { useMemo, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { PostCard } from "./PostCard";
 import { BlogIndexList } from "./BlogIndexList";
+import { EmptyResults } from "./EmptyResults";
 import type { PostMeta, Category } from "@/types/post";
 import { CAT_ORDER } from "@/lib/constants";
 
@@ -251,21 +252,11 @@ export function BlogList({ posts }: Props) {
             </div>
           )
         ) : (
-          <div style={{ textAlign: "center", padding: "var(--s-24) 0" }}>
-            <p
-              style={{
-                fontFamily: "var(--font-serif)",
-                fontSize: "clamp(22px,2.8vw,32px)",
-                color: "var(--color-text-3)",
-                marginBottom: "var(--s-3)",
-              }}
-            >
-              검색 결과가 없습니다.
-            </p>
-            <p className="mono-label" style={{ color: "var(--color-text-3)" }}>
-              다른 검색어나 카테고리를 시도해보세요.
-            </p>
-          </div>
+          <EmptyResults
+            search={search}
+            activeCat={activeCat}
+            onReset={() => pushParams({ category: ALL, q: "", sort: "new" })}
+          />
         )}
       </div>
     </>
