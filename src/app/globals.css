@@ -1612,6 +1612,48 @@ a {
   }
 }
 
+/* ── 404 Not-Found page layout ── */
+
+/* nf-grid: 2-col (404 number | description) */
+.nf-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+/* nf-grid-3: 3-col post suggestions */
+.nf-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: 40px;
+  row-gap: 0;
+  border-bottom: 1px solid var(--color-border-2);
+}
+
+/* Tablet ≤900px: nf-grid stays 2-col but tighter gap */
+@media (max-width: 900px) {
+  .nf-grid {
+    gap: 40px;
+  }
+
+  .nf-grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Mobile ≤600px: nf-grid stacks to 1-col */
+@media (max-width: 600px) {
+  .nf-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .nf-grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ── About page layout ── */
 
 /* about-hero-grid: 2-col (title + lede) */
