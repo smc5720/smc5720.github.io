@@ -1213,3 +1213,138 @@ a {
     border-top: 1px solid var(--color-border-2);
   }
 }
+
+/* ── Blog Index list (.yr-row · .row) ── */
+
+.index-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-16);
+}
+
+.yr-row {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: var(--s-10);
+  align-items: start;
+}
+
+.yr-col {
+  position: sticky;
+  top: 128px;
+}
+
+.yr-num {
+  font-size: 60px;
+  line-height: 1;
+  margin: 0;
+}
+
+/* .yr-rows: plain column container — no extra styles needed */
+
+/* ── Index row (.row) ── */
+.row {
+  display: grid;
+  grid-template-columns: 92px 1fr auto;
+  align-items: baseline;
+  gap: 24px;
+  padding: 18px 12px 18px 0;
+  border-top: 1px solid var(--color-border);
+  position: relative;
+  transition: padding-left .25s var(--ease-out), color .2s;
+  text-decoration: none;
+  color: inherit;
+}
+
+.row::before {
+  content: "";
+  position: absolute;
+  left: -16px;
+  top: 50%;
+  transform: translate(-100%, -50%);
+  width: 6px;
+  height: 6px;
+  background: var(--color-accent);
+  border-radius: var(--r-full);
+  opacity: 0;
+  transition: opacity .2s, transform .25s var(--ease-out);
+}
+
+.row:hover {
+  padding-left: 14px;
+}
+
+.row:hover::before {
+  opacity: 1;
+  transform: translate(0, -50%);
+}
+
+.row-title {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: 22px;
+  line-height: 1.2;
+  letter-spacing: -.01em;
+  font-weight: 400;
+  color: var(--color-text);
+  transition: color .2s;
+}
+
+.row:hover .row-title {
+  color: var(--color-accent);
+}
+
+.row-desc {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: var(--color-text-2);
+  font-size: 14px;
+  line-height: 1.5;
+  margin-top: 4px;
+}
+
+/* ── Index list responsive ── */
+@media (max-width: 900px) {
+  .yr-row {
+    grid-template-columns: 1fr;
+    gap: var(--s-6);
+  }
+
+  .yr-col {
+    position: static;
+    top: auto;
+  }
+
+  .yr-num {
+    font-size: 40px;
+  }
+}
+
+@media (max-width: 600px) {
+  .row {
+    grid-template-columns: 1fr;
+    gap: var(--s-2);
+    padding: var(--s-4) 0;
+  }
+
+  .row::before {
+    display: none;
+  }
+
+  .row:hover {
+    padding-left: 0;
+  }
+}
+
+/* ── Reduced-motion guards (Index list) ── */
+@media (prefers-reduced-motion: reduce) {
+  .row {
+    transition: none;
+  }
+
+  .row::before {
+    transition: none;
+  }
+}

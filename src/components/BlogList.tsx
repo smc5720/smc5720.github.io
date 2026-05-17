@@ -3,6 +3,7 @@
 import { useMemo, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { PostCard } from "./PostCard";
+import { BlogIndexList } from "./BlogIndexList";
 import type { PostMeta, Category } from "@/types/post";
 import { CAT_ORDER } from "@/lib/constants";
 
@@ -238,19 +239,17 @@ export function BlogList({ posts }: Props) {
           )}
         </div>
 
-        {/* Post grid / index placeholder */}
+        {/* Post grid / index list */}
         {filtered.length > 0 ? (
-          <div
-            className={
-              view === "grid"
-                ? "grid grid-cols-1 md:grid-cols-2 gap-4"
-                : "grid grid-cols-1 gap-4"
-            }
-          >
-            {filtered.map((post) => (
-              <PostCard key={post.slug} post={post} />
-            ))}
-          </div>
+          view === "index" ? (
+            <BlogIndexList posts={filtered} />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {filtered.map((post) => (
+                <PostCard key={post.slug} post={post} />
+              ))}
+            </div>
+          )
         ) : (
           <div style={{ textAlign: "center", padding: "var(--s-24) 0" }}>
             <p
