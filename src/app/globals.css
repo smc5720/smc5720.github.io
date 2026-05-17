@@ -696,3 +696,105 @@ a {
   transition: width 0.05s linear;
   box-shadow: 0 0 8px var(--color-accent);
 }
+
+/* ── Category counter grid (.cat-grid) ── */
+.cat-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  border-top: 1px solid var(--color-border-2);
+  border-bottom: 1px solid var(--color-border-2);
+}
+
+.cat-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 28px 24px;
+  background: transparent;
+  text-align: left;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  border-left: 1px solid var(--color-border-2);
+  transition: background 0.2s var(--ease-out);
+}
+
+/* first cell: no left border */
+.cat-cell:first-child {
+  border-left: none;
+}
+
+.cat-cell:hover {
+  background: color-mix(in srgb, var(--color-text) 4%, transparent);
+}
+
+/* cat-cell count — large serif number */
+.cat-cell-count {
+  font-family: var(--font-serif);
+  font-size: 44px;
+  line-height: 1;
+  color: var(--color-text);
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+/* cat-cell dot — 8×8 colored circle */
+.cat-cell-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--r-full);
+  flex-shrink: 0;
+  align-self: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cat-cell {
+    transition: none;
+  }
+}
+
+/* Tablet ≤1100px: 3 columns */
+@media (max-width: 1100px) {
+  .cat-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* rows 2+: top border to separate row break */
+  .cat-grid > a:nth-child(n+4) {
+    border-top: 1px solid var(--color-border-2);
+  }
+
+  /* leftmost cell in each 3-col row has no left border */
+  .cat-grid > a:nth-child(3n+1) {
+    border-left: none;
+  }
+}
+
+/* Mobile ≤600px: 2 columns */
+@media (max-width: 600px) {
+  .cat-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* reset tablet overrides then re-apply for 2-col */
+  .cat-grid > a:nth-child(n+4) {
+    border-top: none;
+  }
+
+  .cat-grid > a:nth-child(3n+1) {
+    border-left: 1px solid var(--color-border-2);
+  }
+
+  /* leftmost cell in each 2-col row has no left border */
+  .cat-grid > a:nth-child(2n+1) {
+    border-left: none;
+  }
+
+  /* rows 2+: top border */
+  .cat-grid > a:nth-child(n+3) {
+    border-top: 1px solid var(--color-border-2);
+  }
+}
