@@ -17,65 +17,177 @@ export default function HomePage() {
   return (
     <>
       {/* ── Hero ── */}
-      <section className="relative min-h-screen flex items-center bg-grid overflow-hidden">
+      <section
+        className="relative bg-grid overflow-hidden"
+        style={{ paddingTop: 48, paddingBottom: 80 }}
+      >
+        {/* radial gradient atmosphere */}
         <div
           className="absolute inset-0 pointer-events-none"
+          aria-hidden="true"
           style={{
             background:
-              "radial-gradient(ellipse 80% 60% at 20% 60%, rgba(200,255,0,0.04) 0%, transparent 60%), radial-gradient(ellipse 50% 40% at 80% 30%, rgba(77,158,255,0.03) 0%, transparent 50%)",
+              "radial-gradient(1200px 600px at 80% -10%, rgba(200,255,0,0.04), transparent 60%), radial-gradient(900px 500px at -10% 20%, rgba(167,139,250,0.03), transparent 60%)",
           }}
         />
 
-        <div className="relative max-w-6xl mx-auto px-6 pt-32 pb-24 w-full">
-          <div className="max-w-4xl">
-            <div className="animate-fade-up flex items-center gap-3 mb-10">
-              <span className="inline-block w-8 h-px bg-accent" />
-              <span className="font-mono text-xs tracking-[0.25em] text-text-3 uppercase">
-                Est. 2024
-              </span>
+        <div
+          className="relative w-full mx-auto px-8"
+          style={{ maxWidth: "var(--container)" }}
+        >
+          {/* ── Meta strip ── */}
+          <div
+            className="mono-label flex justify-between items-center flex-wrap"
+            style={{ marginBottom: 56, gap: 12 }}
+          >
+            {/* left: RICOCHEESE / STUDIO LOG / EST. 2022 */}
+            <div className="flex items-center flex-wrap" style={{ gap: 14 }}>
+              <span>RICOCHEESE / STUDIO LOG</span>
+              <span style={{ color: "var(--color-text-3)" }}>/</span>
+              <span style={{ color: "var(--color-text-3)" }}>EST. 2022</span>
             </div>
 
-            <h1 className="font-serif font-black leading-none tracking-tight">
-              <span className="animate-fade-up delay-1 block text-[clamp(4rem,12vw,9rem)] text-text">
-                Rico
-              </span>
-              <span
-                className="animate-fade-up delay-2 block text-[clamp(4rem,12vw,9rem)]"
+            {/* right: NOW PLAYING — only when there is at least one post */}
+            {featured && (
+              <div
+                className="mono-label tabular flex items-center"
+                style={{ gap: 10, maxWidth: 360, overflow: "hidden" }}
+              >
+                <span style={{ whiteSpace: "nowrap" }}>NOW PLAYING</span>
+                <span
+                  style={{
+                    color: "var(--color-accent)",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  ●{" "}
+                  {featured.title.length > 24
+                    ? featured.title.slice(0, 24) + "…"
+                    : featured.title}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* ── 2-col hero grid ── */}
+          <div
+            className="hero-grid animate-fade-up"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "auto 1fr",
+              gap: 80,
+              alignItems: "end",
+              marginBottom: 48,
+            }}
+          >
+            {/* Left: giant serif title */}
+            <div>
+              <h1
+                className="display display-hero"
+                style={{ margin: 0, color: "var(--color-text)" }}
+              >
+                <span
+                  style={{
+                    fontStyle: "italic",
+                    fontVariationSettings: '"opsz" 144, "SOFT" 100',
+                  }}
+                >
+                  Rico
+                </span>
+                <br />
+                Cheese
+                <span
+                  style={{
+                    color: "var(--color-accent)",
+                    display: "inline-block",
+                    transform: "translateY(.1em)",
+                  }}
+                >
+                  .
+                </span>
+              </h1>
+            </div>
+
+            {/* Right: ASCII + lede + CTA */}
+            <div
+              className="animate-fade-up delay-2"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 24,
+                alignItems: "flex-end",
+                paddingBottom: 18,
+              }}
+            >
+              {/* ASCII art */}
+              <pre
+                aria-hidden="true"
                 style={{
-                  background: "linear-gradient(100deg, #C8FF00 0%, rgba(200,255,0,0.5) 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
+                  margin: 0,
+                  fontFamily: "var(--font-mono)",
+                  fontSize: 10,
+                  color: "var(--color-text-3)",
+                  lineHeight: 1.3,
+                  textAlign: "right",
+                  letterSpacing: 0,
+                }}
+              >{`         ╱╲    ╱╲
+        ╱  ╲  ╱  ╲
+       ╱    ╲╱    ╲
+       ──── ✦ ────
+       writing as
+       making things`}</pre>
+
+              {/* Lede copy */}
+              <p
+                className="lede"
+                style={{
+                  maxWidth: 380,
+                  textAlign: "right",
+                  color: "var(--color-text-2)",
+                  margin: 0,
                 }}
               >
-                Cheese.
-              </span>
-            </h1>
+                개발자 한 명이 쓰는 작업실 일지.
+                <br />
+                <span style={{ color: "var(--color-text)" }}>코드</span>,{" "}
+                <span style={{ color: "var(--color-text)" }}>회고</span>,{" "}
+                <span style={{ color: "var(--color-text)" }}>릴리스 노트</span>
+                를 한 곳에 모읍니다 — 천천히, 그러나 꾸준히.
+              </p>
 
-            <p className="animate-fade-up delay-3 mt-8 text-lg text-text-2 max-w-xl leading-relaxed">
-              개발 이야기, 기술 뉴스, 회고, 그리고 만들어가는 것들을 기록합니다.
-            </p>
-
-            <div className="animate-fade-up delay-4 mt-10 flex items-center gap-6">
-              <Link
-                href="/blog"
-                className="group inline-flex items-center gap-3 bg-accent text-bg font-bold text-sm px-6 py-3 rounded-sm hover:bg-white transition-colors duration-200"
-              >
-                글 보러가기
-                <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
-              </Link>
-              <Link
-                href="/about"
-                className="text-sm text-text-3 hover:text-text transition-colors duration-200 font-medium"
-              >
-                소개 →
-              </Link>
+              {/* CTA buttons */}
+              <div style={{ display: "flex", gap: 10 }}>
+                <Link href="/blog" className="btn btn-primary">
+                  <span>글 보러가기</span>
+                  <span style={{ opacity: 0.6 }}>→</span>
+                </Link>
+                <Link href="/about" className="btn btn-ghost">
+                  소개
+                </Link>
+              </div>
             </div>
           </div>
 
-          <div className="absolute bottom-10 left-6 flex items-center gap-3 animate-fade-in delay-6">
+          {/* ── Scroll indicator ── */}
+          <div
+            className="flex items-center gap-3 animate-fade-in delay-6"
+            style={{ marginTop: 0 }}
+          >
             <div className="w-px h-10 bg-border-2" />
-            <span className="text-[10px] font-mono tracking-[0.2em] text-text-3 uppercase">Scroll</span>
+            <span
+              style={{
+                fontSize: 10,
+                fontFamily: "var(--font-mono)",
+                letterSpacing: "0.2em",
+                color: "var(--color-text-3)",
+                textTransform: "uppercase",
+              }}
+            >
+              Scroll
+            </span>
           </div>
         </div>
       </section>

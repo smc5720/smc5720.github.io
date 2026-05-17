@@ -213,6 +213,150 @@ a {
 .delay-5 { animation-delay: 400ms; }
 .delay-6 { animation-delay: 480ms; }
 
+/* reduced-motion: disable keyframe animations */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up,
+  .animate-fade-in {
+    opacity: 1;
+    animation: none;
+    transform: none;
+  }
+}
+
+/* ── Typography utilities (shared across hero, cards, sections) ── */
+
+/* display — giant serif headline base */
+.display {
+  font-family: var(--font-serif);
+  font-weight: 360;
+  font-style: normal;
+  letter-spacing: -0.025em;
+  line-height: 0.98;
+  font-variation-settings: "opsz" 144, "SOFT" 30, "WONK" 0;
+}
+
+/* display-hero — the full-bleed hero size */
+.display-hero {
+  font-size: clamp(72px, 11.5vw, 188px);
+}
+
+/* lede — serif sub-headline / intro copy */
+.lede {
+  font-family: var(--font-serif);
+  font-size: clamp(20px, 1.8vw, 24px);
+  line-height: 1.45;
+  color: var(--color-text);
+  font-weight: 350;
+  letter-spacing: -0.005em;
+}
+
+/* mono-label — uppercase tracking mono tag */
+.mono-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-2);
+}
+
+/* tabular variant for mono-label */
+.mono-label.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* btn — base button */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 2px;
+  border: 1px solid var(--color-border-2);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition: background 0.2s var(--ease-out), border-color 0.2s var(--ease-out), color 0.2s;
+  background: rgba(255, 255, 255, 0.012);
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn:hover {
+  border-color: var(--color-border-3);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* btn-primary — accent filled */
+.btn-primary {
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+  border-color: var(--color-accent);
+}
+
+.btn-primary:hover {
+  background: #d4ff2e;
+  border-color: #d4ff2e;
+}
+
+/* btn-ghost — transparent with subtle border */
+.btn-ghost {
+  background: transparent;
+  border-color: var(--color-border);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transition: none;
+  }
+}
+
+/* ── Hero grid responsive ── */
+/* Mobile ≤600px: stack to single column */
+@media (max-width: 600px) {
+  .hero-grid {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+  }
+
+  /* left col: full-width title, smaller font */
+  .hero-grid .display-hero {
+    font-size: clamp(56px, 14vw, 96px);
+  }
+
+  /* right col: switch to left-aligned */
+  .hero-grid > div:last-child {
+    align-items: flex-start !important;
+    padding-bottom: 0 !important;
+  }
+
+  /* hide ASCII art on small screens to avoid overflow */
+  .hero-grid pre[aria-hidden] {
+    display: none;
+  }
+
+  /* lede: left-align on mobile */
+  .hero-grid .lede {
+    text-align: left !important;
+    max-width: 100% !important;
+  }
+}
+
+/* Tablet 601–900px: preserve 2-col but tighter gap */
+@media (min-width: 601px) and (max-width: 900px) {
+  .hero-grid {
+    gap: 40px !important;
+  }
+
+  .hero-grid .display-hero {
+    font-size: clamp(56px, 10vw, 120px);
+  }
+}
+
 /* ── MDX Prose ── */
 .prose {
   counter-reset: h2;
