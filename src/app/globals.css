@@ -1,11 +1,11 @@
 @import "tailwindcss";
 
 @theme {
-  /* fonts */
-  --font-serif: var(--font-fraunces), "Noto Serif KR", "Georgia", serif;
-  --font-sans: var(--font-syne), "Noto Sans KR", sans-serif;
-  --font-body: "Inter", "Noto Sans KR", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-mono: var(--font-jetbrains), "JetBrains Mono", "Fira Code", monospace;
+  /* fonts — all 4 role stacks reference next/font CSS variables */
+  --font-serif: var(--font-fraunces), var(--font-noto-serif-kr), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-syne), var(--font-noto-sans-kr), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-body: var(--font-inter), var(--font-noto-sans-kr), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-jetbrains), "JetBrains Mono", "Fira Code", ui-monospace, Menlo, monospace;
 
   /* color · base */
   --color-bg: #07070A;
@@ -102,7 +102,7 @@ html {
 body {
   background-color: var(--color-bg);
   color: var(--color-text);
-  font-family: var(--font-sans);
+  font-family: var(--font-body);
   min-height: 100vh;
   line-height: 1.6;
   word-break: keep-all;
