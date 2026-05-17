@@ -11,6 +11,15 @@ interface TocItem {
 export function TableOfContents() {
   const [items, setItems] = useState<TocItem[]>([]);
   const [active, setActive] = useState<string>("");
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReducedMotion(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
 
   useEffect(() => {
     const headings = Array.from(
@@ -49,33 +58,52 @@ export function TableOfContents() {
 
   if (items.length === 0) return null;
 
+  // Build h2 counter map for numbering
+  let h2Count = 0;
+  const numberedItems = items.map((item) => {
+    if (item.level === 2) {
+      h2Count++;
+      return { ...item, num: String(h2Count).padStart(2, "0") };
+    }
+    return { ...item, num: "" };
+  });
+
   return (
-    <nav className="space-y-1">
-      <p className="text-[10px] font-mono font-bold tracking-[0.2em] text-text-3 uppercase mb-4">
-        목차
-      </p>
-      {items.map(({ id, text, level }) => (
-        <a
-          key={id}
-          href={`#${id}`}
-          onClick={(e) => {
-            e.preventDefault();
-            document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-          }}
-          className={`block text-xs leading-relaxed transition-colors duration-150 py-0.5 ${
-            level === 3 ? "pl-3" : ""
-          } ${
-            active === id
-              ? "text-accent font-medium"
-              : "text-text-3 hover:text-text-2"
-          }`}
-        >
-          {active === id && (
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-accent mr-1.5 mb-0.5" />
-          )}
-          {text}
-        </a>
-      ))}
+    <nav className="toc" aria-label="Table of contents">
+      <div className="toc-title">On this page</div>
+      <ul className="toc-list">
+        {numberedItems.map(({ id, text, level, num }) => {
+          const isActive = active === id;
+          const isH3 = level === 3;
+          const className = [
+            "toc-item",
+            isH3 ? "h3" : "",
+            isActive ? "active" : "",
+          ]
+            .filter(Boolean)
+            .join(" ");
+
+          return (
+            <li key={id}>
+              <a
+                href={`#${id}`}
+                className={className}
+                aria-current={isActive ? "location" : undefined}
+                onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById(id)?.scrollIntoView({
+                    behavior: reducedMotion ? "auto" : "smooth",
+                    block: "start",
+                  });
+                }}
+              >
+                {num && <span className="num">{num}</span>}
+                <span>{text}</span>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
     </nav>
   );
 }

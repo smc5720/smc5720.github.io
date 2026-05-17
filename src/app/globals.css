@@ -1434,3 +1434,115 @@ a {
     padding: var(--s-12) var(--s-6);
   }
 }
+
+/* ── Blog detail: body + TOC grid ── */
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr min(720px, 100%) 1fr;
+  gap: 56px;
+  align-items: start;
+  padding-top: var(--s-8);
+  padding-bottom: var(--s-32);
+}
+
+/* TOC aside — sticky in the left column */
+.toc-aside {
+  position: sticky;
+  top: 110px;
+  justify-self: end;
+  width: 100%;
+  max-width: 220px;
+}
+
+/* ── TOC component ── */
+.toc { font-family: var(--font-body); }
+
+.toc-title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--color-text-3);
+  margin-bottom: 12px;
+}
+
+.toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.toc-item {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  padding: 6px 0;
+  padding-left: 12px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--color-text-2);
+  border-left: 1px solid var(--color-border-2);
+  transition: color .15s, border-color .15s, padding-left .2s var(--ease-out);
+  cursor: pointer;
+  text-align: left;
+  text-decoration: none;
+}
+
+.toc-item:hover { color: var(--color-text); }
+
+.toc-item.active {
+  color: var(--color-text);
+  border-left-color: var(--color-accent);
+  padding-left: 14px;
+}
+
+.toc-item .num {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-text-3);
+  letter-spacing: .1em;
+}
+
+.toc-item.h3 { padding-left: 28px; font-size: 12.5px; }
+.toc-item.h3.active { padding-left: 30px; }
+
+/* Reduce motion: disable TOC padding transition */
+@media (prefers-reduced-motion: reduce) {
+  .toc-item {
+    transition: color .15s, border-color .15s;
+  }
+}
+
+/* ── Blog detail: mobile/tablet responsive (≤900px) ── */
+@media (max-width: 900px) {
+  /* Blog detail layout — collapse to single column, TOC above article */
+  .detail-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0 !important;
+  }
+
+  .detail-grid > aside {
+    position: static !important;
+    max-width: none !important;
+    width: 100% !important;
+    justify-self: start !important;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--color-border-2);
+  }
+
+  /* Hide the empty right spacer aside on mobile */
+  .detail-grid > aside:last-child {
+    display: none;
+  }
+
+  /* TOC aside: override sticky + width when inside detail-grid on mobile */
+  .detail-grid > .toc-aside {
+    position: static !important;
+    max-width: none !important;
+    width: 100% !important;
+    top: auto;
+  }
+}

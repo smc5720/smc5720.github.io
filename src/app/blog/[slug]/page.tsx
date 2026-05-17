@@ -129,10 +129,15 @@ export default async function PostPage({ params }: Props) {
       )}
 
       {/* ── Body + TOC ── */}
-      <div className="max-w-6xl mx-auto px-6 pb-32">
-        <div className="flex gap-16">
-          {/* ── Main content ── */}
-          <article className="flex-1 min-w-0 max-w-2xl">
+      <section>
+        <div className="container detail-grid">
+          {/* ── TOC sidebar (left column) ── */}
+          <aside className="toc-aside">
+            <TableOfContents />
+          </aside>
+
+          {/* ── Main content (center column) ── */}
+          <article className="prose-col">
             {/* MDX Content */}
             <MDXContent source={post.content} />
 
@@ -166,14 +171,10 @@ export default async function PostPage({ params }: Props) {
             </div>
           </article>
 
-          {/* ── TOC sidebar ── */}
-          <aside className="hidden xl:block w-56 shrink-0">
-            <div className="sticky top-24">
-              <TableOfContents />
-            </div>
-          </aside>
+          {/* ── Right spacer (third column balances the grid) ── */}
+          <aside aria-hidden="true" />
         </div>
-      </div>
+      </section>
     </>
   );
 }
