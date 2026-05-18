@@ -39,7 +39,7 @@ export default function SystemPage() {
   const [tab, setTab] = useState<Tab>("tokens");
 
   return (
-    <div>
+    <div data-theme="dark" style={{ background: "var(--color-bg)" }}>
       {/* Hero */}
       <section style={{ paddingTop: 32, paddingBottom: 40, borderBottom: "1px solid var(--color-border)" }}>
         <div className="container">

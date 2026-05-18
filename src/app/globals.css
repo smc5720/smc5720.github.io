@@ -2406,3 +2406,49 @@ html[data-theme="light"] .codeblock pre code {
   border-color: transparent;
   color: inherit;
 }
+
+/* ──────────────────────────────────────────────────────────────
+   [data-theme="dark"] — explicit dark override
+   Used by /system page to stay dark inside a light-mode document
+   ─────────────────────────────────────────────────────────── */
+[data-theme="dark"] {
+  --color-bg: #07070A;
+  --color-surface: #0E0E14;
+  --color-surface-2: #141419;
+  --color-surface-3: #1B1B22;
+  --color-border: #1C1C28;
+  --color-border-2: #28283A;
+  --color-border-3: #3A3A50;
+
+  --color-text: #EDEDEF;
+  --color-text-2: #8A8A9A;
+  --color-text-3: #484858;
+
+  --color-accent: #C8FF00;
+  --color-accent-ink: #07070A;
+  --color-accent-soft: rgba(200,255,0,.10);
+  --color-accent-line: rgba(200,255,0,.24);
+  --color-accent-hover: #D4FF33;
+
+  --color-red: #FF4060;
+  --color-blue: #4D9EFF;
+  --color-purple: #A78BFA;
+  --color-orange: #FF8C42;
+  --color-green: #4ADE80;
+
+  --color-bg-glass: rgba(7,7,10,.82);
+  --color-nav-pill-bg: rgba(255,255,255,.06);
+  --color-nav-item-active-bg: rgba(255,255,255,.08);
+  --color-scrim: rgba(7,7,10,.72);
+
+  --sh-1: 0 1px 0 rgba(255,255,255,.04) inset, 0 1px 2px rgba(0,0,0,.4);
+  --sh-2: 0 1px 0 rgba(255,255,255,.04) inset, 0 8px 24px rgba(0,0,0,.4);
+
+  --bg-grid-line: rgba(255,255,255,.03);
+  --text-gradient-end: #07070A;
+
+  --btn-bg: rgba(255,255,255,.04);
+  --btn-hover-bg: rgba(255,255,255,.08);
+
+  --badge-bg: rgba(255,255,255,.05);
+}
