@@ -209,7 +209,7 @@ function ProfileCard() {
               left: 10,
               top: 10,
               padding: "3px 6px",
-              background: "rgba(7,7,10,.65)",
+              background: "var(--color-scrim)",
               backdropFilter: "blur(4px)",
             }}
           >
@@ -222,7 +222,7 @@ function ProfileCard() {
               right: 10,
               bottom: 10,
               padding: "3px 6px",
-              background: "rgba(7,7,10,.65)",
+              background: "var(--color-scrim)",
               backdropFilter: "blur(4px)",
               color: "var(--color-accent)",
             }}

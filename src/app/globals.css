@@ -77,6 +77,12 @@
   --sh-2: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 8px 24px rgba(0, 0, 0, 0.5);
   --sh-glow: 0 0 0 1px var(--color-accent-line), 0 8px 40px color-mix(in srgb, var(--color-accent) 8%, transparent);
 
+  /* glass / overlay tokens — toggled per-theme */
+  --color-bg-glass: rgba(7,7,10,.78);
+  --color-nav-pill-bg: rgba(14,14,20,.6);
+  --color-nav-item-active-bg: rgba(255,255,255,.04);
+  --color-scrim: rgba(7,7,10,.65);
+
   /* hover accent — dark default: slightly lighter lime; light override: dark olive */
   --color-accent-hover: #d4ff2e;
 
@@ -2328,6 +2334,12 @@ html[data-theme="light"] {
   --color-purple: #6A4DE0;
   --color-orange: #C25A1A;
   --color-green: #2E8B57;
+
+  /* glass / overlay tokens — light overrides */
+  --color-bg-glass: rgba(250,249,244,.82);
+  --color-nav-pill-bg: rgba(255,255,255,.65);
+  --color-nav-item-active-bg: rgba(0,0,0,.06);
+  --color-scrim: rgba(250,249,244,.72);
 
   /* hover accent — dark olive for light surfaces */
   --color-accent-hover: #6A8C00;

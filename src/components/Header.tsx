@@ -58,7 +58,7 @@ export function Header() {
         position: "sticky",
         top: 0,
         zIndex: 50,
-        background: scrolled ? "rgba(7,7,10,.78)" : "transparent",
+        background: scrolled ? "var(--color-bg-glass)" : "transparent",
         backdropFilter: scrolled ? "blur(14px) saturate(140%)" : "none",
         WebkitBackdropFilter: scrolled ? "blur(14px) saturate(140%)" : "none",
         borderBottom: scrolled
@@ -172,7 +172,7 @@ export function Header() {
             padding: 4,
             border: "1px solid var(--color-border)",
             borderRadius: 2,
-            background: "rgba(14,14,20,.6)",
+            background: "var(--color-nav-pill-bg)",
           }}
         >
           {NAV.map(({ href, label }) => {
@@ -193,7 +193,7 @@ export function Header() {
                     ? "var(--color-text)"
                     : "var(--color-text-2)",
                   background: active
-                    ? "rgba(255,255,255,.04)"
+                    ? "var(--color-nav-item-active-bg)"
                     : "transparent",
                   transition: "color .15s, background .15s",
                   textDecoration: "none",
