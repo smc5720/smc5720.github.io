@@ -43,7 +43,7 @@ export function Header() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 motion-reduce:transition-none ${
         scrolled
           ? "bg-bg/90 backdrop-blur-xl border-b border-border"
           : "bg-transparent"
@@ -55,8 +55,8 @@ export function Header() {
           href="/"
           className="group flex items-center gap-2"
         >
-          <span className="inline-block w-2 h-2 rounded-full bg-accent group-hover:scale-150 transition-transform duration-300" />
-          <span className="font-serif text-lg font-black tracking-tight text-text group-hover:text-accent transition-colors duration-200">
+          <span className="inline-block w-2 h-2 rounded-full bg-accent group-hover:scale-150 transition-transform duration-300 motion-reduce:transition-none" />
+          <span className="font-serif text-lg font-black tracking-tight text-text group-hover:text-accent transition-colors duration-200 motion-reduce:transition-none">
             RicoCheese
           </span>
         </Link>
@@ -69,7 +69,7 @@ export function Header() {
               <Link
                 key={href}
                 href={href}
-                className={`relative text-xs font-bold tracking-[0.15em] transition-colors duration-200 ${
+                className={`relative text-xs font-bold tracking-[0.15em] transition-colors duration-200 motion-reduce:transition-none ${
                   active ? "text-accent" : "text-text-3 hover:text-text"
                 }`}
               >
@@ -87,7 +87,7 @@ export function Header() {
           <button
             onClick={toggleTheme}
             aria-label={isLight ? "다크 모드로 전환" : "라이트 모드로 전환"}
-            className="p-2 text-text-3 hover:text-text transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent rounded-sm"
+            className="p-2 text-text-3 hover:text-text transition-colors duration-200 motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent rounded-sm"
           >
             {isLight ? (
               /* Sun icon — shown in light mode */
@@ -116,13 +116,13 @@ export function Header() {
             aria-label="메뉴"
           >
             <span
-              className={`block h-px w-5 bg-text-2 transition-all duration-200 ${mobileOpen ? "rotate-45 translate-y-2.5" : ""}`}
+              className={`block h-px w-5 bg-text-2 transition-all duration-200 motion-reduce:transition-none ${mobileOpen ? "rotate-45 translate-y-2.5" : ""}`}
             />
             <span
-              className={`block h-px w-5 bg-text-2 transition-all duration-200 ${mobileOpen ? "opacity-0" : ""}`}
+              className={`block h-px w-5 bg-text-2 transition-all duration-200 motion-reduce:transition-none ${mobileOpen ? "opacity-0" : ""}`}
             />
             <span
-              className={`block h-px w-5 bg-text-2 transition-all duration-200 ${mobileOpen ? "-rotate-45 -translate-y-2.5" : ""}`}
+              className={`block h-px w-5 bg-text-2 transition-all duration-200 motion-reduce:transition-none ${mobileOpen ? "-rotate-45 -translate-y-2.5" : ""}`}
             />
           </button>
         </div>
@@ -135,7 +135,7 @@ export function Header() {
             <Link
               key={href}
               href={href}
-              className="text-sm font-bold tracking-[0.15em] text-text-2 hover:text-accent transition-colors"
+              className="text-sm font-bold tracking-[0.15em] text-text-2 hover:text-accent transition-colors motion-reduce:transition-none"
             >
               {label}
             </Link>

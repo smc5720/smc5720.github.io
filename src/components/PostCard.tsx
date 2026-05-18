@@ -16,10 +16,10 @@ export function PostCard({ post, featured = false }: Props) {
     return (
       <Link
         href={`/blog/${post.slug}`}
-        className="group relative block bg-surface border border-border rounded-lg p-8 md:p-10 overflow-hidden transition-all duration-300 hover:border-border-2 hover:bg-surface-2"
+        className="group relative block bg-surface border border-border rounded-lg p-8 md:p-10 overflow-hidden transition-all duration-300 motion-reduce:transition-none hover:border-border-2 hover:bg-surface-2"
       >
         {/* Accent glow on hover */}
-        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 motion-reduce:transition-none pointer-events-none"
           style={{ background: "radial-gradient(ellipse 60% 50% at 30% 50%, rgba(200,255,0,0.04), transparent)" }}
         />
 
@@ -29,7 +29,7 @@ export function PostCard({ post, featured = false }: Props) {
               <CategoryBadge category={post.category} />
               <span className="text-xs font-mono text-text-3">FEATURED</span>
             </div>
-            <h2 className="font-serif text-2xl md:text-3xl lg:text-4xl font-bold text-text group-hover:text-accent transition-colors duration-200 leading-tight mb-3">
+            <h2 className="font-serif text-2xl md:text-3xl lg:text-4xl font-bold text-text group-hover:text-accent transition-colors duration-200 motion-reduce:transition-none leading-tight mb-3">
               {post.title}
             </h2>
             {post.description && (
@@ -44,7 +44,7 @@ export function PostCard({ post, featured = false }: Props) {
             </div>
           </div>
 
-          <div className="shrink-0 flex items-center gap-2 text-text-3 group-hover:text-accent transition-colors duration-200 md:self-center">
+          <div className="shrink-0 flex items-center gap-2 text-text-3 group-hover:text-accent transition-colors duration-200 motion-reduce:transition-none md:self-center">
             <span className="text-xs font-mono tracking-widest uppercase">Read</span>
             <span className="text-lg">→</span>
           </div>
@@ -56,16 +56,16 @@ export function PostCard({ post, featured = false }: Props) {
   return (
     <Link
       href={`/blog/${post.slug}`}
-      className="group block bg-surface border border-border rounded-lg p-6 transition-all duration-300 hover:border-border-2 hover:bg-surface-2 relative overflow-hidden"
+      className="group block bg-surface border border-border rounded-lg p-6 transition-all duration-300 motion-reduce:transition-none hover:border-border-2 hover:bg-surface-2 relative overflow-hidden"
     >
-      <div className="absolute top-0 left-0 w-0 group-hover:w-full h-px bg-accent transition-all duration-500 ease-out" />
+      <div className="absolute top-0 left-0 w-0 group-hover:w-full h-px bg-accent transition-all duration-500 ease-out motion-reduce:transition-none" />
 
       <div className="flex items-start justify-between gap-4 mb-3">
         <CategoryBadge category={post.category} size="sm" />
         <time className="text-xs font-mono text-text-3 shrink-0">{date}</time>
       </div>
 
-      <h3 className="font-serif text-lg font-bold text-text group-hover:text-accent transition-colors duration-200 leading-snug mb-2 line-clamp-2">
+      <h3 className="font-serif text-lg font-bold text-text group-hover:text-accent transition-colors duration-200 motion-reduce:transition-none leading-snug mb-2 line-clamp-2">
         {post.title}
       </h3>
 

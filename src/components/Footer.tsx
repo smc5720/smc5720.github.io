@@ -24,20 +24,20 @@ export function Footer() {
               href={href}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs font-medium tracking-widest text-text-3 hover:text-accent transition-colors uppercase"
+              className="text-xs font-medium tracking-widest text-text-3 hover:text-accent transition-colors motion-reduce:transition-none uppercase"
             >
               {label}
             </a>
           ))}
           <Link
             href="/blog"
-            className="text-xs font-medium tracking-widest text-text-3 hover:text-accent transition-colors uppercase"
+            className="text-xs font-medium tracking-widest text-text-3 hover:text-accent transition-colors motion-reduce:transition-none uppercase"
           >
             Blog
           </Link>
           <Link
             href="/about"
-            className="text-xs font-medium tracking-widest text-text-3 hover:text-accent transition-colors uppercase"
+            className="text-xs font-medium tracking-widest text-text-3 hover:text-accent transition-colors motion-reduce:transition-none uppercase"
           >
             About
           </Link>
