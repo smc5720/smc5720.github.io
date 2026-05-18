@@ -49,7 +49,7 @@ PM 가이드: `CLAUDE.md`
 
 ## M4 — Polish  ·  `priority:p3`
 
-### M4-1 (#20). 라이트 테마 + 토글 UI
+### ~~M4-1 (#20). 라이트 테마 + 토글 UI~~ · **Shipped** (1fc997e)
 - **라벨**: `type:design` `area:design-system` `priority:p3`
 - **목표**: `[data-theme="light"]` 토큰 한 벌 추가 + 헤더에 토글. 코드블록은 의도적으로 다크 유지.
 - **디자인 참조**: `docs/redesign/v2-bundle/project/styles.css:707~768`
