@@ -7,9 +7,10 @@ import { CategoryBadge } from "./CategoryBadge";
 interface Props {
   post: PostMeta;
   featured?: boolean;
+  hairline?: boolean;
 }
 
-export function PostCard({ post, featured = false }: Props) {
+export function PostCard({ post, featured = false, hairline = false }: Props) {
   const date = format(new Date(post.date), "yyyy.MM.dd", { locale: ko });
 
   if (featured) {
@@ -48,6 +49,41 @@ export function PostCard({ post, featured = false }: Props) {
             <span className="text-xs font-mono tracking-widest uppercase">Read</span>
             <span className="text-lg">→</span>
           </div>
+        </div>
+      </Link>
+    );
+  }
+
+  if (hairline) {
+    return (
+      <Link
+        href={`/blog/${post.slug}`}
+        className="card"
+        style={{ display: "block", textDecoration: "none" }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
+          <CategoryBadge category={post.category} size="sm" />
+          <time className="mono-label tabular" style={{ color: "var(--color-text-3)" }}>{date}</time>
+        </div>
+        <h3 className="post-title">{post.title}</h3>
+        {post.description && (
+          <p
+            className="post-desc"
+            style={{
+              WebkitLineClamp: 2,
+              overflow: "hidden",
+              display: "-webkit-box",
+              WebkitBoxOrient: "vertical",
+            }}
+          >
+            {post.description}
+          </p>
+        )}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 18 }}>
+          <span className="mono-label" style={{ color: "var(--color-text-3)" }}>
+            {post.readingTime}분 · {post.tags[0] ? `#${post.tags[0]}` : ""}
+          </span>
+          <span className="mono-label" style={{ color: "var(--color-text-3)" }} aria-hidden="true">→</span>
         </div>
       </Link>
     );

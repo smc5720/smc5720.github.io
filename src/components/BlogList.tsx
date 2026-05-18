@@ -257,9 +257,18 @@ export function BlogList({ posts }: Props) {
           view === "index" ? (
             <BlogIndexList posts={paginated} />
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div
+              className="blog-card-grid"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(3, 1fr)",
+                columnGap: 40,
+                rowGap: 0,
+                borderBottom: "1px solid var(--color-border-2)",
+              }}
+            >
               {paginated.map((post) => (
-                <PostCard key={post.slug} post={post} />
+                <PostCard key={post.slug} post={post} hairline />
               ))}
             </div>
           )
