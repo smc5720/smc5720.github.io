@@ -14,7 +14,7 @@ export function EmptyResults({ search, activeCat, onReset }: Props) {
 
   return (
     <div className="empty-card">
-      <pre aria-hidden="true" style={{ margin: 0, fontFamily: "var(--font-mono)", color: "var(--color-text-3)", fontSize: 11, lineHeight: 1.3, whiteSpace: "pre" }}>{`╭─────────────────╮\n│   404 in scope  │\n│   not the page  │\n╰─────────────────╯`}</pre>
+      <pre aria-hidden="true" className="ascii-box" style={{ margin: 0, color: "var(--color-text-3)", fontSize: 11, lineHeight: 1.3 }}>{`╭─────────────────╮\n│   404 in scope  │\n│   not the page  │\n╰─────────────────╯`}</pre>
 
       <h2 className="display display-h3" style={{ margin: 0 }}>
         해당 조건의 글이 없어요

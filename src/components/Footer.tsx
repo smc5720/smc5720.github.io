@@ -106,13 +106,12 @@ export function Footer() {
           }}
         >
           <pre
+            className="ascii-box"
             style={{
               margin: 0,
-              fontFamily: "var(--font-mono)",
               color: "var(--color-text-3)",
               fontSize: 10,
               lineHeight: 1.2,
-              letterSpacing: 0,
               overflow: "hidden",
             }}
           >

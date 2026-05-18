@@ -6,6 +6,9 @@
   --font-sans: var(--font-syne), var(--font-noto-sans-kr), ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-body: var(--font-inter), var(--font-noto-sans-kr), ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: var(--font-jetbrains), "JetBrains Mono", "Fira Code", ui-monospace, Menlo, monospace;
+  /* Box-drawing characters (U+2500–U+257F) are not in JetBrains Mono latin subset.
+     Use system mono first so ╭ ╮ ╰ ╯ ─ │ render from a single font, not a mix. */
+  --font-mono-box: ui-monospace, Consolas, "SF Mono", Menlo, monospace;
 
   /* color · base */
   --color-bg: #07070A;
@@ -221,6 +224,13 @@ a {
     animation: none;
     transform: none;
   }
+}
+
+/* ── ASCII box utility — system mono only, no JetBrains, so box-drawing chars render correctly ── */
+.ascii-box {
+  font-family: var(--font-mono-box);
+  white-space: pre;
+  letter-spacing: 0;
 }
 
 /* ── Typography utilities (shared across hero, cards, sections) ── */

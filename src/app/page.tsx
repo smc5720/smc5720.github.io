@@ -146,14 +146,13 @@ export default function HomePage() {
               {/* ASCII art */}
               <pre
                 aria-hidden="true"
+                className="ascii-box"
                 style={{
                   margin: 0,
-                  fontFamily: "var(--font-mono)",
                   fontSize: 10,
                   color: "var(--color-text-3)",
                   lineHeight: 1.3,
                   textAlign: "right",
-                  letterSpacing: 0,
                 }}
               >{`         ╱╲    ╱╲
         ╱  ╲  ╱  ╲
