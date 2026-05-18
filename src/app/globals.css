@@ -1654,6 +1654,226 @@ a {
   }
 }
 
+/* ── System page layout ── */
+
+/* Sticky tab bar — top 64px = header height */
+.sys-sticky {
+  position: sticky;
+  top: 64px;
+  z-index: 30;
+  background: color-mix(in srgb, var(--color-bg) 85%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* sys-row — 260px + 1fr, stacks on ≤900px */
+.sys-row {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 56px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .sys-row {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+/* sys-tokens — 4-col swatch grid */
+.sys-tokens {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 600px) {
+  .sys-tokens {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* type-row — 4col table row */
+.type-row {
+  display: grid;
+  grid-template-columns: 160px 80px 1fr 220px;
+  gap: 24px;
+  align-items: baseline;
+}
+
+@media (max-width: 900px) {
+  .type-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  .type-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+
+/* sys-spacing — 12-col spacing grid */
+.sys-spacing {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+}
+
+@media (max-width: 900px) {
+  .sys-spacing {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .sys-spacing {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* sys-radius — 6-col radius grid */
+.sys-radius {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+}
+
+@media (max-width: 600px) {
+  .sys-radius {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* sys-ease — 3-col easing grid */
+.sys-ease {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+@media (max-width: 600px) {
+  .sys-ease {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* dur-row — 3-col duration row */
+.dur-row {
+  display: grid;
+  grid-template-columns: 180px 1fr 240px;
+  gap: 24px;
+  align-items: center;
+}
+
+@media (max-width: 600px) {
+  .dur-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+
+/* choreo-row — 4-col choreography table */
+.choreo-row {
+  display: grid;
+  grid-template-columns: 1.2fr 0.7fr 0.8fr 2fr;
+  gap: 24px;
+}
+
+@media (max-width: 900px) {
+  .choreo-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+
+/* contrast-row — 5-col contrast table */
+.contrast-row {
+  display: grid;
+  grid-template-columns: 2.4fr 1.2fr 0.7fr 0.9fr 1.8fr;
+  gap: 12px;
+}
+
+@media (max-width: 900px) {
+  .contrast-row {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* state-matrix — auto-fill repeat */
+.state-matrix {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+}
+
+@media (max-width: 600px) {
+  .state-matrix {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* motion-pair — 2-col side-by-side */
+.motion-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 600px) {
+  .motion-pair {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* type-pair — 2-col side-by-side for KR fallback boxes */
+.type-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 600px) {
+  .type-pair {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* grid-spec — 3-col grid spec */
+.grid-spec {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  .grid-spec {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* EasingDemo keyframes — used by sys-slide-N animations */
+@keyframes sys-slide-0 {
+  from { left: 4px; }
+  to   { left: calc(100% - 24px); }
+}
+
+@keyframes sys-slide-1 {
+  from { left: 4px; }
+  to   { left: calc(100% - 24px); }
+}
+
+@keyframes sys-slide-2 {
+  from { left: 4px; }
+  to   { left: calc(100% - 24px); }
+}
+
+/* prefers-reduced-motion: stop EasingDemo animations */
+@media (prefers-reduced-motion: reduce) {
+  [style*="sys-slide"] {
+    animation: none !important;
+  }
+}
+
 /* ── About page layout ── */
 
 /* about-hero-grid: 2-col (title + lede) */
