@@ -322,6 +322,73 @@ a {
   }
 }
 
+/* ── Hairline divider ── */
+.hairline {
+  height: 1px;
+  background: var(--color-border);
+}
+
+/* ── Inline link ── */
+.link {
+  color: var(--color-text-2);
+  text-decoration: none;
+  transition: color 0.15s;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+}
+
+.link:hover {
+  color: var(--color-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link {
+    transition: none;
+  }
+}
+
+/* ── Footer 4-col grid ── */
+.ft-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
+  gap: 48px;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .ft-grid {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+}
+
+/* ── Header: pill nav + live meta — hidden on mobile ── */
+@media (max-width: 767px) {
+  .hdr-pill-nav  { display: none !important; }
+  .hdr-live-meta { display: none !important; }
+  .hdr-read-btn  { display: none !important; }
+  .hdr-hamburger { display: flex !important; }
+}
+
+/* ── Header: hamburger — hidden on desktop ── */
+.hdr-hamburger {
+  display: none;
+}
+
+/* ── Header: nav item transitions ── */
+.hdr-nav-item {
+  transition: color .15s, background .15s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hdr-nav-item {
+    transition: none;
+  }
+}
+
 /* ── Hero grid responsive ── */
 /* Mobile ≤600px: stack to single column */
 @media (max-width: 600px) {
@@ -872,6 +939,18 @@ a {
   }
 }
 
+/* ── Blog list card grid ── */
+@media (max-width: 900px) {
+  .blog-card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .blog-card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ── Pull quote section ── */
 .pull-quote-grid {
   display: grid;
@@ -952,7 +1031,7 @@ a {
 /* ── Blog controls bar (sticky strip above post list) ── */
 .controls-bar {
   position: sticky;
-  top: 64px; /* matches header h-16 = 64px */
+  top: 72px; /* matches header height 72px */
   z-index: 30;
   background: color-mix(in srgb, var(--color-bg) 85%, transparent);
   backdrop-filter: blur(14px);
@@ -1319,7 +1398,7 @@ a {
 
 .yr-col {
   position: sticky;
-  top: 128px;
+  top: 144px; /* 72px header + 72px controls-bar */
 }
 
 .yr-num {
@@ -1715,10 +1794,10 @@ a {
 
 /* ── System page layout ── */
 
-/* Sticky tab bar — top 64px = header height */
+/* Sticky tab bar — top 72px = header height */
 .sys-sticky {
   position: sticky;
-  top: 64px;
+  top: 72px;
   z-index: 30;
   background: color-mix(in srgb, var(--color-bg) 85%, transparent);
   backdrop-filter: blur(14px);

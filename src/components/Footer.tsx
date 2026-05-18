@@ -1,51 +1,130 @@
 import Link from "next/link";
 
-const LINKS = [
-  { href: "https://github.com/smc5720", label: "GitHub" },
+const NAVIGATE = [
+  { href: "/",       label: "Home" },
+  { href: "/blog",   label: "Blog" },
+  { href: "/about",  label: "About" },
+  { href: "/system", label: "System" },
 ];
 
+const SUBSCRIBE = [
+  { href: "/feed.xml", label: "RSS feed" },
+  { href: "#",         label: "Atom" },
+  { href: "#",         label: "JSON feed" },
+];
+
+const ELSEWHERE = [
+  { href: "https://github.com/smc5720", label: "GitHub · smc5720", external: true },
+  { href: "#",                           label: "Twitter / X",      external: false },
+  { href: "#",                           label: "hello@ricocheese.dev", external: false },
+];
+
+const ASCII = `╭─────────────────────────────────────────╮
+│  RICOCHEESE · STUDIO LOG · EST. 2022    │
+│  built with next.js · mdx · shiki       │
+│  hosted on github pages · main branch   │
+╰─────────────────────────────────────────╯`;
+
 export function Footer() {
-  const year = new Date().getFullYear();
-
   return (
-    <footer className="mt-32 border-t border-border">
-      <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <span className="inline-block w-1.5 h-1.5 rounded-full bg-accent" />
-          <span className="font-serif font-black text-sm text-text-3">
-            RicoCheese&apos;s Blog
-          </span>
+    <footer style={{ marginTop: 120, paddingBottom: 64, position: "relative" }}>
+      <div className="container">
+        {/* hairline */}
+        <div className="hairline" style={{ marginBottom: 40 }} />
+
+        {/* 4-col grid */}
+        <div className="ft-grid">
+          {/* Col 1 — brand */}
+          <div>
+            <div className="display display-h3" style={{ marginBottom: 16 }}>
+              한 주에 한 편씩,<br />천천히.
+            </div>
+            <p className="small" style={{ maxWidth: 360 }}>
+              RicoCheese&#39;s Blog는 한 사람이 운영하는 기술·회고·릴리스 노트 모음입니다.
+              글의 호흡은 짧을 수도, 길 수도 있습니다.
+            </p>
+          </div>
+
+          {/* Col 2 — Navigate */}
+          <div>
+            <div className="mono-label" style={{ marginBottom: 14 }}>Navigate</div>
+            <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 8 }}>
+              {NAVIGATE.map(({ href, label }) => (
+                <li key={href}>
+                  <Link href={href} className="link" style={{ fontSize: 14 }}>
+                    {label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Col 3 — Subscribe */}
+          <div>
+            <div className="mono-label" style={{ marginBottom: 14 }}>Subscribe</div>
+            <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 8 }}>
+              {SUBSCRIBE.map(({ href, label }) => (
+                <li key={label}>
+                  <a href={href} className="link" style={{ fontSize: 14 }}>
+                    {label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Col 4 — Elsewhere */}
+          <div>
+            <div className="mono-label" style={{ marginBottom: 14 }}>Elsewhere</div>
+            <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 8 }}>
+              {ELSEWHERE.map(({ href, label, external }) => (
+                <li key={label}>
+                  <a
+                    href={href}
+                    className="link"
+                    style={{ fontSize: 14 }}
+                    {...(external
+                      ? { target: "_blank", rel: "noopener noreferrer" }
+                      : {})}
+                  >
+                    {label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
-        <div className="flex items-center gap-6">
-          {LINKS.map(({ href, label }) => (
-            <a
-              key={href}
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs font-medium tracking-widest text-text-3 hover:text-accent transition-colors motion-reduce:transition-none uppercase"
-            >
-              {label}
-            </a>
-          ))}
-          <Link
-            href="/blog"
-            className="text-xs font-medium tracking-widest text-text-3 hover:text-accent transition-colors motion-reduce:transition-none uppercase"
+        {/* Bottom row: ASCII box + copyright */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr auto",
+            alignItems: "end",
+            marginTop: 64,
+            gap: 24,
+          }}
+        >
+          <pre
+            style={{
+              margin: 0,
+              fontFamily: "var(--font-mono)",
+              color: "var(--color-text-3)",
+              fontSize: 10,
+              lineHeight: 1.2,
+              letterSpacing: 0,
+              overflow: "hidden",
+            }}
           >
-            Blog
-          </Link>
-          <Link
-            href="/about"
-            className="text-xs font-medium tracking-widest text-text-3 hover:text-accent transition-colors motion-reduce:transition-none uppercase"
+            {ASCII}
+          </pre>
+          <div
+            className="mono-label tabular"
+            style={{ textAlign: "right", whiteSpace: "nowrap" }}
           >
-            About
-          </Link>
+            © 2022–2026 · all writing CC BY 4.0
+          </div>
         </div>
-
-        <p className="text-xs text-text-3 font-mono">
-          © {year} RicoCheese
-        </p>
       </div>
     </footer>
   );

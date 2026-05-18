@@ -15,7 +15,7 @@ export default function BlogPage() {
       {/* ── Header strip ── */}
       <section
         style={{
-          paddingTop: "calc(64px + var(--s-8))", /* header offset + spacing */
+          paddingTop: "calc(72px + var(--s-8))", /* header offset (72px) + spacing */
           paddingBottom: "var(--s-10)",
           borderBottom: "1px solid var(--color-border)",
         }}
