@@ -75,7 +75,10 @@
   /* shadow */
   --sh-1: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 1px 2px rgba(0, 0, 0, 0.4);
   --sh-2: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 8px 24px rgba(0, 0, 0, 0.5);
-  --sh-glow: 0 0 0 1px var(--color-accent-line), 0 8px 40px rgba(200, 255, 0, 0.08);
+  --sh-glow: 0 0 0 1px var(--color-accent-line), 0 8px 40px color-mix(in srgb, var(--color-accent) 8%, transparent);
+
+  /* hover accent — dark default: slightly lighter lime; light override: dark olive */
+  --color-accent-hover: #d4ff2e;
 
   /* layout */
   --container: 1320px;
@@ -148,8 +151,8 @@ a {
 /* ── Grid texture background ── */
 .bg-grid {
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+    linear-gradient(var(--bg-grid-line, rgba(255, 255, 255, 0.025)) 1px, transparent 1px),
+    linear-gradient(90deg, var(--bg-grid-line, rgba(255, 255, 255, 0.025)) 1px, transparent 1px);
   background-size: 48px 48px;
 }
 
@@ -167,11 +170,13 @@ a {
 
 /* ── Accent glow helpers ── */
 .glow-accent {
-  box-shadow: 0 0 24px rgba(200, 255, 0, 0.15), 0 0 48px rgba(200, 255, 0, 0.05);
+  box-shadow:
+    0 0 24px color-mix(in srgb, var(--color-accent) 15%, transparent),
+    0 0 48px color-mix(in srgb, var(--color-accent) 5%, transparent);
 }
 
 .text-gradient-accent {
-  background: linear-gradient(120deg, var(--color-accent) 0%, #ffffff 100%);
+  background: linear-gradient(120deg, var(--color-accent) 0%, var(--text-gradient-end, #ffffff) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -297,7 +302,7 @@ a {
   letter-spacing: 0.14em;
   text-transform: uppercase;
   transition: background 0.2s var(--ease-out), border-color 0.2s var(--ease-out), color 0.2s;
-  background: rgba(255, 255, 255, 0.012);
+  background: var(--btn-bg, rgba(255, 255, 255, 0.012));
   cursor: pointer;
   text-decoration: none;
   white-space: nowrap;
@@ -305,7 +310,7 @@ a {
 
 .btn:hover {
   border-color: var(--color-border-3);
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--btn-hover-bg, rgba(255, 255, 255, 0.03));
 }
 
 /* btn-primary — accent filled */
@@ -316,8 +321,8 @@ a {
 }
 
 .btn-primary:hover {
-  background: #d4ff2e;
-  border-color: #d4ff2e;
+  background: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
 }
 
 /* btn-ghost — transparent with subtle border */
@@ -1540,7 +1545,7 @@ a {
   color: var(--color-text-2);
   border: 1px solid var(--color-border-2);
   border-radius: 2px;
-  background: rgba(255, 255, 255, 0.012);
+  background: var(--badge-bg, rgba(255, 255, 255, 0.012));
   white-space: nowrap;
 }
 
@@ -2323,6 +2328,26 @@ html[data-theme="light"] {
   --color-purple: #6A4DE0;
   --color-orange: #C25A1A;
   --color-green: #2E8B57;
+
+  /* hover accent — dark olive for light surfaces */
+  --color-accent-hover: #6A8C00;
+
+  /* shadows — softer inset (no white), gentle drop */
+  --sh-1: 0 1px 0 rgba(0, 0, 0, 0.04) inset, 0 1px 2px rgba(0, 0, 0, 0.12);
+  --sh-2: 0 1px 0 rgba(0, 0, 0, 0.05) inset, 0 8px 24px rgba(0, 0, 0, 0.1);
+
+  /* grid texture — dark lines visible on cream background */
+  --bg-grid-line: rgba(0, 0, 0, 0.06);
+
+  /* text gradient end — olive/accent so text doesn't vanish on cream */
+  --text-gradient-end: #FAF9F4;
+
+  /* btn frost — slightly darker tint on cream */
+  --btn-bg: rgba(0, 0, 0, 0.025);
+  --btn-hover-bg: rgba(0, 0, 0, 0.055);
+
+  /* badge frost — faint shadow on cream */
+  --badge-bg: rgba(0, 0, 0, 0.025);
 }
 
 html[data-theme="light"] body {
@@ -2360,3 +2385,12 @@ html[data-theme="light"] .prose code {
   background: #F1EFE6; border-color: #E2DFD2; color: #3F5400;
 }
 html[data-theme="light"] ::selection { background: #C8FF00; color: #07070A; }
+
+/* P1 코드블록 라이트 회귀 fix:
+   .prose code (0,2,1) background:#F1EFE6 가 .codeblock pre code (0,1,2) background:transparent를 이기므로
+   specificity를 높인 선택자로 명시적으로 재정의한다. */
+html[data-theme="light"] .codeblock pre code {
+  background: transparent;
+  border-color: transparent;
+  color: inherit;
+}

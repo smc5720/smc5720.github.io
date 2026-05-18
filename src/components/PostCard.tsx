@@ -21,7 +21,7 @@ export function PostCard({ post, featured = false, hairline = false }: Props) {
       >
         {/* Accent glow on hover */}
         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 motion-reduce:transition-none pointer-events-none"
-          style={{ background: "radial-gradient(ellipse 60% 50% at 30% 50%, rgba(200,255,0,0.04), transparent)" }}
+          style={{ background: "radial-gradient(ellipse 60% 50% at 30% 50%, color-mix(in srgb, var(--color-accent) 4%, transparent), transparent)" }}
         />
 
         <div className="relative flex flex-col md:flex-row md:items-start gap-6">
