@@ -39,11 +39,11 @@ PM 가이드: `CLAUDE.md`
 - **목표**: 거대 serif `404.`, 시도한 경로 echo, ASCII 코드 레인 배경, suggested posts 3편.
 - **디자인 참조**: `docs/redesign/v2-bundle/project/blog-404.jsx`
 
-### M3-3 (#19). /system 페이지 (디자인 시스템 핸드오프)
+### ~~M3-3 (#19). /system 페이지 (디자인 시스템 핸드오프)~~ · **Shipped** (fa41d06)
 - **라벨**: `type:design` `area:system` `priority:p3`
 - **목표**: 6탭 — Tokens / Type / Spacing / Motion / A11y / States. 본 블로그 사이트에 노출할지(라우트로) 또는 별도 도메인으로 분리할지 PM 결정 필요.
 - **디자인 참조**: `docs/redesign/v2-bundle/project/blog-system.jsx`
-- **노트**: 우선순위 낮음. 라이브에 굳이 필요하지 않다면 internal docs로만 유지 검토.
+- **노트**: 라이브 라우트(/system) + robots noindex 적용.
 
 ---
 
