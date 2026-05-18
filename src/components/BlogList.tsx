@@ -9,6 +9,7 @@ import type { PostMeta, Category } from "@/types/post";
 import { CAT_ORDER } from "@/lib/constants";
 
 const ALL = "all" as const;
+const PAGE_SIZE = 6;
 type SortKey = "new" | "long" | "short";
 type ViewKey = "grid" | "index";
 
@@ -21,6 +22,7 @@ export function BlogList({ posts }: Props) {
   const searchParams = useSearchParams();
 
   // Read state from URL (single source of truth)
+  const rawPage = parseInt(searchParams.get("page") ?? "1", 10);
   const rawCat = searchParams.get("category") ?? ALL;
   const activeCat: "all" | Category = (
     CAT_ORDER.some((c) => c.id === rawCat) ? rawCat : ALL
@@ -33,7 +35,7 @@ export function BlogList({ posts }: Props) {
 
   /** Push a partial URL update, omitting keys whose value is the default */
   const pushParams = useCallback(
-    (patch: Partial<{ category: string; q: string; sort: string; view: string }>) => {
+    (patch: Partial<{ category: string; q: string; sort: string; view: string; page: number }>) => {
       const next = new URLSearchParams(searchParams.toString());
 
       const merged = {
@@ -41,6 +43,7 @@ export function BlogList({ posts }: Props) {
         q: search,
         sort,
         view,
+        page: 1, // default: filter changes reset to page 1
         ...patch,
       };
 
@@ -65,6 +68,11 @@ export function BlogList({ posts }: Props) {
       } else {
         next.delete("view");
       }
+      if (merged.page && merged.page > 1) {
+        next.set("page", String(merged.page));
+      } else {
+        next.delete("page");
+      }
 
       const qs = next.toString();
       router.replace(qs ? `/blog?${qs}` : "/blog", { scroll: false });
@@ -83,7 +91,7 @@ export function BlogList({ posts }: Props) {
     return c;
   }, [posts]);
 
-  // Filtered + sorted posts
+  // Filtered + sorted posts, then paginated
   const filtered = useMemo(() => {
     let res = [...posts];
     if (activeCat !== ALL) {
@@ -107,6 +115,10 @@ export function BlogList({ posts }: Props) {
     }
     return res;
   }, [posts, activeCat, search, sort]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const page = Math.max(1, Math.min(isNaN(rawPage) ? 1 : rawPage, totalPages));
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
     <>
@@ -243,10 +255,10 @@ export function BlogList({ posts }: Props) {
         {/* Post grid / index list */}
         {filtered.length > 0 ? (
           view === "index" ? (
-            <BlogIndexList posts={filtered} />
+            <BlogIndexList posts={paginated} />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {filtered.map((post) => (
+              {paginated.map((post) => (
                 <PostCard key={post.slug} post={post} />
               ))}
             </div>
@@ -257,6 +269,38 @@ export function BlogList({ posts }: Props) {
             activeCat={activeCat}
             onReset={() => pushParams({ category: ALL, q: "", sort: "new" })}
           />
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="pagination-bar">
+            <button
+              type="button"
+              className="pagination-btn"
+              disabled={page <= 1}
+              onClick={() => pushParams({ page: page - 1 })}
+              aria-label="이전 페이지"
+            >
+              ← PREV
+            </button>
+            <span className="pagination-indicator mono-label tabular">
+              PAGE {String(page).padStart(2, "0")} / {String(totalPages).padStart(2, "0")}
+            </span>
+            <button
+              type="button"
+              className="pagination-btn"
+              disabled={page >= totalPages}
+              onClick={() => pushParams({ page: page + 1 })}
+              aria-label="다음 페이지"
+            >
+              NEXT →
+            </button>
+          </div>
+        )}
+
+        {/* End marker: last page OR single page with at least one post */}
+        {page >= totalPages && filtered.length > 0 && (
+          <div className="end-marker mono-label">— END OF INDEX —</div>
         )}
       </div>
     </>
