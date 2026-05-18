@@ -1938,15 +1938,29 @@ a {
   }
 }
 
-/* state-matrix — auto-fill repeat */
+/* state-matrix — column count set via inline style on each instance */
 .state-matrix {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); /* fallback */
+}
+
+.state-matrix-cell {
+  border-left: 1px solid var(--color-border);
+}
+
+.state-matrix-cell:first-child {
+  border-left: none;
+}
+
+@media (max-width: 900px) {
+  .state-matrix {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)) !important;
+  }
 }
 
 @media (max-width: 600px) {
   .state-matrix {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr) !important;
   }
 }
 

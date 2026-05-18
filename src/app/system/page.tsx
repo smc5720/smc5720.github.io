@@ -793,11 +793,16 @@ function StateMatrix({ label, items }: { label: string; items: [string, ReactNod
   return (
     <div>
       <div className="mono-label" style={{ marginBottom: 14 }}>{label}</div>
-      <div className="state-matrix" style={{ border: "1px solid var(--color-border-2)" }}>
-        {items.map(([state, node], i) => (
-          <div key={state} style={{
+      <div
+        className="state-matrix"
+        style={{
+          gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))`,
+          border: "1px solid var(--color-border-2)",
+        }}
+      >
+        {items.map(([state, node]) => (
+          <div key={state} className="state-matrix-cell" style={{
             padding: "28px 20px",
-            borderLeft: i > 0 ? "1px solid var(--color-border)" : "none",
             display: "flex", flexDirection: "column", gap: 18,
             minHeight: 130, justifyContent: "space-between",
           }}>
