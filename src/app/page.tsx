@@ -46,16 +46,6 @@ export default function HomePage() {
         className="relative bg-grid overflow-hidden"
         style={{ paddingTop: 48, paddingBottom: 80 }}
       >
-        {/* radial gradient atmosphere */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          aria-hidden="true"
-          style={{
-            background:
-              "radial-gradient(1200px 600px at 80% -10%, rgba(200,255,0,0.04), transparent 60%), radial-gradient(900px 500px at -10% 20%, rgba(167,139,250,0.03), transparent 60%)",
-          }}
-        />
-
         <div className="container relative">
           {/* ── Meta strip ── */}
           <div
