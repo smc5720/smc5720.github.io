@@ -64,9 +64,10 @@ PM 가이드: `CLAUDE.md`
 - **목표**: 페이지 진입·카드 호버·TOC 활성·Reading Progress 거동 표 (duration · easing · property). 모든 transition/animation에 `@media (prefers-reduced-motion)` 가드 확인.
 - **커밋**: `5f0c56d` · 2026-05-18
 
-### M4-4 (#23). A11y 대비비 표 + 포커스 링 문서
+### ~~M4-4 (#23). A11y 대비비 표 + 포커스 링 문서~~ · **Shipped** (eb912c9)
 - **라벨**: `type:docs` `area:design-system` `priority:p3`
 - **목표**: 모든 텍스트/액션 컬러 페어의 WCAG 2.1 대비비를 표로. 4.5(AA) / 7(AAA) / 3(AA large) 임계점 표기.
+- **커밋**: `eb912c9` · 2026-05-18
 
 ### M4-5 (#24). Cover 이미지 영역 — 있는 글/없는 글 2종
 - **라벨**: `type:design` `area:blog-detail` `priority:p3`
