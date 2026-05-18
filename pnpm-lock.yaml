@@ -60,6 +60,9 @@ importers:
       eslint-config-next:
         specifier: 16.2.6
         version: 16.2.6(@typescript-eslint/parser@8.59.3(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3))(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
+      png-to-ico:
+        specifier: ^3.0.1
+        version: 3.0.1
       tailwindcss:
         specifier: ^4
         version: 4.3.0
@@ -627,6 +630,9 @@ packages:
 
   '@types/node@20.19.41':
     resolution: {integrity: sha1-uyZqHgqqL0U30Uro6/I43ZynPOY=}
+
+  '@types/node@22.19.19':
+    resolution: {integrity: sha1-MSS/Jt7VQWi3aBODIf75m0IMYRI=}
 
   '@types/react-dom@19.2.3':
     resolution: {integrity: sha1-weMF0VpSo+UI1U3Kdw0gLLY6vyw=}
@@ -2065,6 +2071,15 @@ packages:
     resolution: {integrity: sha1-/W9eAKFDCG4HTf/kySS4+yk7BYk=}
     engines: {node: '>=12'}
 
+  png-to-ico@3.0.1:
+    resolution: {integrity: sha1-atUL7J/6QKp0Jl3q3FEo+kCX374=}
+    engines: {node: '>=20'}
+    hasBin: true
+
+  pngjs@7.0.0:
+    resolution: {integrity: sha1-qLdEYCDrvGrHOdtsVBWmXRcJDiY=}
+    engines: {node: '>=14.19.0'}
+
   possible-typed-array-names@1.1.0:
     resolution: {integrity: sha1-k+NYK8DlQmWG2dB7ee5A/IQd5K4=}
     engines: {node: '>= 0.4'}
@@ -3048,6 +3063,10 @@ snapshots:
   '@types/ms@2.1.0': {}
 
   '@types/node@20.19.41':
+    dependencies:
+      undici-types: 6.21.0
+
+  '@types/node@22.19.19':
     dependencies:
       undici-types: 6.21.0
 
@@ -4956,6 +4975,14 @@ snapshots:
   picomatch@2.3.2: {}
 
   picomatch@4.0.4: {}
+
+  png-to-ico@3.0.1:
+    dependencies:
+      '@types/node': 22.19.19
+      minimist: 1.2.8
+      pngjs: 7.0.0
+
+  pngjs@7.0.0: {}
 
   possible-typed-array-names@1.1.0: {}
 

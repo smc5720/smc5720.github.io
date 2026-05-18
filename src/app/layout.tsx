@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import {
   Fraunces,
   Syne,
@@ -72,6 +72,13 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: dark)', color: '#07070A' },
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+  ],
 };
 
 export default function RootLayout({
