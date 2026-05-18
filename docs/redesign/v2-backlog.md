@@ -34,7 +34,7 @@ PM 가이드: `CLAUDE.md`
 - **디자인 참조**: `docs/redesign/v2-bundle/project/blog-about.jsx`
 - **참고**: `image-slot.js`는 프로토타입 도구 — 실제 사이트는 정적 이미지로
 
-### M3-2 (#18). 404 페이지
+### M3-2 (#18). 404 페이지 ✅ Shipped
 - **라벨**: `type:design` `area:404` `priority:p2`
 - **목표**: 거대 serif `404.`, 시도한 경로 echo, ASCII 코드 레인 배경, suggested posts 3편.
 - **디자인 참조**: `docs/redesign/v2-bundle/project/blog-404.jsx`
