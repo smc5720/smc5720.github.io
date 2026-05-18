@@ -8,6 +8,7 @@ export interface PostMeta {
   category: Category;
   tags: string[];
   cover?: string;
+  coverAlt?: string;
   readingTime: number;
 }
 

@@ -108,16 +108,16 @@ export default async function PostPage({ params }: Props) {
           <div className="container-narrow">
             <div
               style={{
-                aspectRatio: "16 / 8",
+                aspectRatio: "16 / 9",
                 border: "1px solid var(--color-border-2)",
-                borderRadius: 2,
+                borderRadius: "var(--r-xs)",
                 position: "relative",
                 overflow: "hidden",
               }}
             >
               <Image
                 src={post.cover}
-                alt={post.title}
+                alt={post.coverAlt ?? post.title}
                 fill
                 style={{ objectFit: "cover" }}
               />

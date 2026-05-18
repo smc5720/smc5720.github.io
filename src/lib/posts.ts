@@ -26,6 +26,10 @@ export function getPostBySlug(slug: string): Post | null {
   const { data, content } = matter(raw);
   const { minutes } = readingTime(content);
 
+  if (data.cover && !data.coverAlt) {
+    console.warn(`[M4-5] cover 있음, coverAlt 없음: ${slug}`);
+  }
+
   return {
     slug,
     title: data.title ?? "Untitled",
@@ -34,6 +38,7 @@ export function getPostBySlug(slug: string): Post | null {
     category: (data.category as Category) ?? "etc",
     tags: data.tags ?? [],
     cover: data.cover,
+    coverAlt: data.coverAlt,
     readingTime: Math.ceil(minutes),
     content,
   };
