@@ -59,9 +59,10 @@ PM 가이드: `CLAUDE.md`
 - **목표**: 6개씩 페이지네이션 + 종료 마커. 글 수 적은 동안은 `All` 모드만.
 - **커밋**: `19344ed` · 2026-05-18
 
-### M4-3 (#22). 모션 스펙 시트 + reduced-motion 가드
+### M4-3 (#22). 모션 스펙 시트 + reduced-motion 가드 — **Shipped**
 - **라벨**: `type:docs` `area:design-system` `priority:p3`
 - **목표**: 페이지 진입·카드 호버·TOC 활성·Reading Progress 거동 표 (duration · easing · property). 모든 transition/animation에 `@media (prefers-reduced-motion)` 가드 확인.
+- **커밋**: `5f0c56d` · 2026-05-18
 
 ### M4-4 (#23). A11y 대비비 표 + 포커스 링 문서
 - **라벨**: `type:docs` `area:design-system` `priority:p3`
