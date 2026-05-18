@@ -84,6 +84,12 @@ export default function RootLayout({
       lang="ko"
       className={`${fraunces.variable} ${syne.variable} ${jetbrains.variable} ${inter.variable} ${notoSansKR.variable} ${notoSerifKR.variable}`}
     >
+      <head>
+        {/* FOUC prevention: apply saved theme before first paint */}
+        <script dangerouslySetInnerHTML={{
+          __html: `(function(){try{var t=localStorage.getItem('rico-theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})()`
+        }} />
+      </head>
       <body className="noise-overlay flex flex-col min-h-screen bg-bg">
         <Header />
         <main className="flex-1">{children}</main>

@@ -12,6 +12,7 @@ const NAV = [
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isLight, setIsLight] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -23,6 +24,22 @@ export function Header() {
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    setIsLight(document.documentElement.getAttribute("data-theme") === "light");
+  }, []);
+
+  function toggleTheme() {
+    const next = !isLight;
+    setIsLight(next);
+    if (next) {
+      document.documentElement.setAttribute("data-theme", "light");
+      localStorage.setItem("rico-theme", "light");
+    } else {
+      document.documentElement.removeAttribute("data-theme");
+      localStorage.removeItem("rico-theme");
+    }
+  }
 
   return (
     <header
@@ -65,22 +82,50 @@ export function Header() {
           })}
         </nav>
 
-        {/* Mobile menu button */}
-        <button
-          className="md:hidden flex flex-col gap-1.5 p-2"
-          onClick={() => setMobileOpen((v) => !v)}
-          aria-label="메뉴"
-        >
-          <span
-            className={`block h-px w-5 bg-text-2 transition-all duration-200 ${mobileOpen ? "rotate-45 translate-y-2.5" : ""}`}
-          />
-          <span
-            className={`block h-px w-5 bg-text-2 transition-all duration-200 ${mobileOpen ? "opacity-0" : ""}`}
-          />
-          <span
-            className={`block h-px w-5 bg-text-2 transition-all duration-200 ${mobileOpen ? "-rotate-45 -translate-y-2.5" : ""}`}
-          />
-        </button>
+        {/* Theme toggle + mobile menu button */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleTheme}
+            aria-label={isLight ? "다크 모드로 전환" : "라이트 모드로 전환"}
+            className="p-2 text-text-3 hover:text-text transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent rounded-sm"
+          >
+            {isLight ? (
+              /* Sun icon — shown in light mode */
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="5"/>
+                <line x1="12" y1="1" x2="12" y2="3"/>
+                <line x1="12" y1="21" x2="12" y2="23"/>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                <line x1="1" y1="12" x2="3" y2="12"/>
+                <line x1="21" y1="12" x2="23" y2="12"/>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+              </svg>
+            ) : (
+              /* Moon icon — shown in dark mode */
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+              </svg>
+            )}
+          </button>
+
+          <button
+            className="md:hidden flex flex-col gap-1.5 p-2"
+            onClick={() => setMobileOpen((v) => !v)}
+            aria-label="메뉴"
+          >
+            <span
+              className={`block h-px w-5 bg-text-2 transition-all duration-200 ${mobileOpen ? "rotate-45 translate-y-2.5" : ""}`}
+            />
+            <span
+              className={`block h-px w-5 bg-text-2 transition-all duration-200 ${mobileOpen ? "opacity-0" : ""}`}
+            />
+            <span
+              className={`block h-px w-5 bg-text-2 transition-all duration-200 ${mobileOpen ? "-rotate-45 -translate-y-2.5" : ""}`}
+            />
+          </button>
+        </div>
       </div>
 
       {/* Mobile nav */}

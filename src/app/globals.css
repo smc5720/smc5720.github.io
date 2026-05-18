@@ -2132,3 +2132,69 @@ a {
     transition: none;
   }
 }
+
+/* ──────────────────────────────────────────────────────────────
+   Light theme — opt-in via [data-theme="light"] on <html>
+   Code blocks stay dark for legibility (Linear/Vercel convention)
+   ─────────────────────────────────────────────────────────── */
+
+html[data-theme="light"] {
+  --color-bg: #FAF9F4;
+  --color-surface: #FFFFFF;
+  --color-surface-2: #F1EFE6;
+  --color-surface-3: #E8E5D9;
+  --color-border: #E2DFD2;
+  --color-border-2: #CFCBBA;
+  --color-border-3: #A8A38F;
+
+  --color-text: #0B0B10;
+  --color-text-2: #4A4A55;
+  --color-text-3: #8A8675;
+
+  --color-accent: #5C7A00;        /* darker lime for AA */
+  --color-accent-ink: #FAF9F4;
+  --color-accent-soft: rgba(92,122,0,.10);
+  --color-accent-line: rgba(92,122,0,.32);
+
+  --color-red: #D03050;
+  --color-blue: #2E6FE0;
+  --color-purple: #6A4DE0;
+  --color-orange: #C25A1A;
+  --color-green: #2E8B57;
+}
+
+html[data-theme="light"] body {
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(92,122,0,.05), transparent 60%),
+    radial-gradient(900px 500px at -10% 20%, rgba(106,77,224,.03), transparent 60%),
+    var(--color-bg);
+}
+
+html[data-theme="light"] .codeblock {
+  background: #0E0E14; border-color: #28283A;
+}
+
+html[data-theme="light"] .codeblock-head {
+  background: linear-gradient(180deg, rgba(255,255,255,.018), transparent);
+  border-bottom-color: #28283A;
+}
+
+html[data-theme="light"] .codeblock-head .filename { color: #8A8A9A; }
+html[data-theme="light"] .codeblock-head .lang { color: #484858; }
+html[data-theme="light"] .codeblock pre { color: #d1d4dc; }
+html[data-theme="light"] .codeblock .ln { color: #484858; }
+html[data-theme="light"] .copy-btn { color: #8A8A9A; border-color: #28283A; }
+html[data-theme="light"] .copy-btn:hover { color: #EDEDEF; }
+html[data-theme="light"] .codeblock .tok-c { color: #4a4a5a; }
+html[data-theme="light"] .codeblock .tok-k { color: #a78bfa; }
+html[data-theme="light"] .codeblock .tok-s { color: #c8ff00; }
+html[data-theme="light"] .codeblock .tok-n { color: #ff8c42; }
+html[data-theme="light"] .codeblock .tok-t { color: #4d9eff; }
+html[data-theme="light"] .codeblock .tok-f { color: #edff7a; }
+html[data-theme="light"] .codeblock .tok-p { color: #6a6a7a; }
+html[data-theme="light"] .codeblock .tok-v { color: #ededef; }
+html[data-theme="light"] .codeblock .tok-b { color: #ededef; }
+html[data-theme="light"] .prose code {
+  background: #F1EFE6; border-color: #E2DFD2; color: #3F5400;
+}
+html[data-theme="light"] ::selection { background: #C8FF00; color: #07070A; }
