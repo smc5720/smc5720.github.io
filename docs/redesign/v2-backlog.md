@@ -54,9 +54,10 @@ PM 가이드: `CLAUDE.md`
 - **목표**: `[data-theme="light"]` 토큰 한 벌 추가 + 헤더에 토글. 코드블록은 의도적으로 다크 유지.
 - **디자인 참조**: `docs/redesign/v2-bundle/project/styles.css:707~768`
 
-### M4-2 (#21). 페이지네이션 (Load more 또는 paged)
+### ~~M4-2 (#21). 페이지네이션 (Load more 또는 paged)~~ — Shipped
 - **라벨**: `type:feature` `area:blog-list` `priority:p3`
 - **목표**: 6개씩 페이지네이션 + 종료 마커. 글 수 적은 동안은 `All` 모드만.
+- **커밋**: `19344ed` · 2026-05-18
 
 ### M4-3 (#22). 모션 스펙 시트 + reduced-motion 가드
 - **라벨**: `type:docs` `area:design-system` `priority:p3`
