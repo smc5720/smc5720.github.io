@@ -10,7 +10,27 @@
       "Bash(npx create-next-app@latest *)",
       "Bash(npm install *)",
       "Bash(npm run *)",
-      "Bash(git *)"
+      "Bash(git *)",
+      "Bash(gh api *)",
+      "Bash(gh run *)",
+      "Bash(pnpm import *)",
+      "Bash(pnpm install *)",
+      "Bash(pnpm approve-builds *)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(gh issue *)",
+      "Bash(Get-Content \"D:\\\\Git\\\\smc5720.github.io\\\\src\\\\app\\\\globals.css\")",
+      "Bash(Select-Object -Last 30)",
+      "Bash(pnpm build *)",
+      "Bash(dir \"D:\\\\Git\\\\smc5720.github.io\\\\node_modules\\\\next\\\\dist\")",
+      "Bash(dir *)",
+      "Bash(pnpm *)",
+      "Bash(Select-String -Pattern \"##|###|Todo|Ready|WIP\")",
+      "Bash(Select-Object -First 30)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); deps={**d.get\\('dependencies',{}\\),**d.get\\('devDependencies',{}\\)}; [print\\(k,v\\) for k,v in deps.items\\(\\) if k in \\('sharp','png-to-ico','@vercel/og'\\)]\")",
+      "Bash(node *)",
+      "WebSearch",
+      "WebFetch(domain:docs.umami.is)",
+      "Bash(python3 *)"
     ]
   }
 }
