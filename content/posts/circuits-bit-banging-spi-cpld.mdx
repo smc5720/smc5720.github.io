@@ -1,0 +1,61 @@
+---
+title: "Bit-Banging, SPI, 그리고 CPLD"
+description: "소프트웨어로 해야 할 일을 하드웨어에 맡겨야 하는 이유 — ESP32와 CPLD를 SPI로 연결해 타이밍 문제를 해결하는 과정을 살펴본다."
+date: "2026-05-20"
+category: "news"
+tags: ["esp32", "learning", "circuits", "hardware"]
+source_id: "devto-3672528"
+source_url: "https://dev.to/annavi11arrea1/circuits-bit-banging-spi-and-cpld-3b5o"
+source_title: "Circuits: Bit-Banging, SPI, and CPLD"
+source_author: "Anna Villarreal"
+source_published: "2026-05-14"
+readingTime: 2
+---
+
+> **원문:** [Circuits: Bit-Banging, SPI, and CPLD](https://dev.to/annavi11arrea1/circuits-bit-banging-spi-and-cpld-3b5o) — Anna Villarreal (2026-05-14)
+
+## 개요
+
+소프트웨어로 해야 할 일을 하드웨어로 처리하려는 시도, 즉 "bit-banging"에 관한 작은 탐구. 오늘의 초점은 SPI(Serial Peripheral Interface) 프로토콜이다.
+
+전 세계에는 최대 7,000개에 달하는 통신 프로토콜이 존재한다는 주장도 있지만, 실제로 쓰는 것은 소수에 불과하다. 하드웨어 영역에서 쓰이는 프로토콜도 마찬가지다.
+
+## 본문
+
+### Bit-Banging이란
+
+**Bit-banging**은 하드웨어가 처리해야 할 작업을 소프트웨어로 구현하려는 접근 방식이다. 소프트웨어 개발자가 외면하기 쉬운 영역이지만, 하드웨어와 소프트웨어가 원활하게 통신하려면 이 경계를 이해할 필요가 있다.
+
+### SPI — Serial Peripheral Interface
+
+**SPI**는 마이크로컨트롤러와 주변 장치 사이의 동기식 통신을 위한 4선(four-wire), 고속, 전이중(full-duplex) 프로토콜이다.
+
+### ESP32와 LED 스트립의 타이밍 문제
+
+수업 프로젝트에서 PLD를 회로에 구현하는 과제를 수행하던 중, 타이밍이 절대적으로 중요한 경우에 CPLD가 유용하다는 것을 발견했다.
+
+프로그래머블 LED는 ESP32와 직접 연결할 수 있지만, 직접 연결 시 다음과 같은 문제가 발생한다.
+
+- ESP32는 멀티태스킹 운영체제를 실행하며, Wi-Fi 인터럽트가 타이밍 정밀도를 저하시킬 수 있다.
+- 타이밍이 어긋나면 LED가 잘못된 색상을 표시하거나 글리치가 발생한다.
+- 인터럽트를 비활성화하면 Wi-Fi 패킷이 누락되어 연결 불안정 문제가 심화된다.
+
+bit-banging 소프트웨어 방식은 Wi-Fi, 타이머, 시리얼 포트 인터럽트로 인해 타이밍 불일치를 더욱 악화시킨다. 적당한 신뢰성을 얻기 위해 CPU 사용률이 높아지는 문제도 있다.
+
+### 해결책: ESP32 + CPLD + SPI
+
+멀티태스킹 OS와 유동적인 라이트 쇼를 함께 실행하려면, 타이밍이 중요한 LED 구동을 하드웨어에 오프로드하면 된다. ESP32는 SPI를 통해 CPLD(Complex Programmable Logic Device)와 통신한다. 이 구성에서는 데이터, 클록, 셀렉트, 그라운드 각각에 와이어 한 줄씩 사용한다.
+
+CPLD는 ESP32 컨트롤러로부터 시리얼 데이터를 받아 메모리에 저장한다. 또한 CPLD의 일부로 펄스 생성기(pulse generator)를 구성해 타이밍 문제를 방지한다. SPI 프로토콜의 고유한 특징은 **데이터 전송 중 인터럽트 없이 (without interruption)** 데이터를 전달할 수 있다는 점이다.
+
+데이터 전송 속도는 클록 신호의 주파수로 결정된다. 클록 속도가 빠를수록 LED 업데이트가 잦아지고, 느릴수록 업데이트 주기가 길어진다.
+
+### 실제 하드웨어에서의 구현
+
+실제 하드웨어에서는 CPLD의 두 부분(SPI 수신기와 펄스 생성기)을 기술하는 코드를 작성한다. 합성 도구(synthesis tool)가 이를 실제 논리 게이트와 플립플롭으로 변환한다.
+
+이와 같은 프로젝트에 사용할 수 있는 보드 중 하나로 **Altera MAX II EPM240 CPLD Development Learning Board**가 있다. 상단에는 GND와 +5V가 배치된 입력 핀 열이, 중앙의 검은 사각형 안에 CPLD의 프로그래머블 로직이, 하단에는 출력 핀 열이 정렬되어 있다. 납땜 없이 핀을 연결하는 것만으로도 사용 가능하다.
+
+---
+
+*이 글은 위 출처의 내용을 바탕으로 작성된 초안입니다. 원문의 의견과 정보를 그대로 전달하며, 별도의 견해를 포함하지 않습니다.*
