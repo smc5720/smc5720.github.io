@@ -161,12 +161,10 @@ export default function HomePage() {
                   margin: 0,
                 }}
               >
-                개발자 한 명이 쓰는 작업실 일지.
-                <br />
                 <span style={{ color: "var(--color-text)" }}>코드</span>,{" "}
                 <span style={{ color: "var(--color-text)" }}>회고</span>,{" "}
                 <span style={{ color: "var(--color-text)" }}>릴리스 노트</span>
-                를 한 곳에 모읍니다 — 천천히, 그러나 꾸준히.
+                를 기록하는 블로그.
               </p>
 
               {/* CTA buttons */}
@@ -374,20 +372,19 @@ export default function HomePage() {
                       color: "var(--color-text-2)",
                     }}
                   >
-                    매번 더 좋은 글을 쓰려다 보니, 매번 시작하지 못했습니다.
-                    2026년부터는 다른 규칙으로 운영합니다.
+                    2026년 블로깅 운영 규칙.
                   </p>
                 </div>
                 <blockquote className="pull-quote">
                   <span style={{ color: "var(--color-accent)", marginRight: 6 }}>
                     &ldquo;
                   </span>
-                  주 한 편. 길어도 좋고 짧아도 좋다.
+                  주 한 편.
                   <span style={{ color: "var(--color-text-2)" }}>
                     {" "}
                     빠지는 주는 메모로 대체.
                   </span>{" "}
-                  초안은 한 번에 끝낸다 — 다듬기는 다음 날 30분
+                  초안은 한 번에, 다듬기는 다음 날 30분
                   <span style={{ color: "var(--color-accent)" }}>.</span>
                 </blockquote>
               </div>

@@ -6,7 +6,7 @@ import type { PostMeta } from "@/types/post";
 
 export const metadata = {
   title: "About",
-  description: "RicoCheese — Frontend & Design Engineer. 한 사람이 만들고 운영하는 작은 작업실.",
+  description: "RicoCheese — Backend Engineer. 코드, 회고, 릴리스 노트를 기록하는 기술 블로그.",
 };
 
 // ──────────────────────────────────────────────────────────────
@@ -156,22 +156,10 @@ const ELSEWHERE = [
     href: "https://github.com/smc5720",
   },
   {
-    label: "TWITTER",
-    handle: "@ricocheese",
-    note: "short notes, mostly about typography",
-    href: "https://twitter.com/ricocheese",
-  },
-  {
-    label: "READING",
-    handle: "are.na/ricocheese",
-    note: "what I am collecting this season",
-    href: "https://www.are.na/ricocheese",
-  },
-  {
     label: "MAIL",
-    handle: "hello@ricocheese.dev",
+    handle: "smc5720@gmail.com",
     note: "best for long-form questions",
-    href: "mailto:hello@ricocheese.dev",
+    href: "mailto:smc5720@gmail.com",
   },
 ];
 
@@ -243,10 +231,10 @@ function ProfileCard() {
               lineHeight: 1.1,
             }}
           >
-            송민철
+            서민철
           </div>
           <div className="small" style={{ color: "var(--color-text-2)", marginTop: 2 }}>
-            Frontend · Design Engineer
+            Backend Engineer
           </div>
         </div>
 
@@ -296,7 +284,7 @@ function ProfileCard() {
           }}
         >
           <a
-            href="mailto:hello@ricocheese.dev"
+            href="mailto:smc5720@gmail.com"
             className="btn"
             style={{ height: 36, padding: "0 12px", flex: 1, justifyContent: "center" }}
           >
@@ -571,7 +559,7 @@ export default async function AboutPage() {
               briefly<span style={{ color: "var(--color-accent)" }}>.</span>
             </h1>
             <p className="lede" style={{ maxWidth: 460, color: "var(--color-text-2)" }}>
-              한 사람이 만들고 운영하는 작은 작업실. 이 페이지는{" "}
+              이 페이지는{" "}
               <span style={{ color: "var(--color-text)" }}>지금 무엇을 만들고 있는지</span>, 어떤
               도구를 어떻게 쓰는지, 그리고 어디서 더 볼 수 있는지를 정리해 둔 자리입니다.
             </p>
@@ -591,8 +579,8 @@ export default async function AboutPage() {
               </div>
               <p className="lede" style={{ color: "var(--color-text)", maxWidth: 640 }}>
                 안녕하세요,{" "}
-                <span style={{ fontFamily: "var(--font-serif)", fontStyle: "italic" }}>송민철</span>
-                입니다. 서울에서 일하는 프론트엔드/디자인 엔지니어이고, 인터넷에서는 보통{" "}
+                <span style={{ fontFamily: "var(--font-serif)", fontStyle: "italic" }}>서민철</span>
+                입니다. 서울에서 일하는 백엔드 엔지니어이고, 인터넷에서는 보통{" "}
                 <span style={{ color: "var(--color-accent)" }}>RicoCheese</span>라는 이름을 씁니다.
                 이 블로그는 제가 일하면서 배운 것, 만들어 본 것, 가끔은 실패한 것을 정리해두는
                 작업실 일지입니다.
@@ -823,8 +811,8 @@ export default async function AboutPage() {
                 If you want to write back
               </div>
               <div className="display display-h2" style={{ margin: 0 }}>
-                <a href="mailto:hello@ricocheese.dev" style={{ color: "var(--color-text)" }}>
-                  hello@ricocheese.dev
+                <a href="mailto:smc5720@gmail.com" style={{ color: "var(--color-text)" }}>
+                  smc5720@gmail.com
                 </a>
               </div>
             </div>

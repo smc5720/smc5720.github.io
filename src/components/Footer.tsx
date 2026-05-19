@@ -9,14 +9,11 @@ const NAVIGATE = [
 
 const SUBSCRIBE = [
   { href: "/feed.xml", label: "RSS feed" },
-  { href: "#",         label: "Atom" },
-  { href: "#",         label: "JSON feed" },
 ];
 
 const ELSEWHERE = [
-  { href: "https://github.com/smc5720", label: "GitHub · smc5720", external: true },
-  { href: "#",                           label: "Twitter / X",      external: false },
-  { href: "#",                           label: "hello@ricocheese.dev", external: false },
+  { href: "https://github.com/smc5720", label: "GitHub · smc5720",   external: true },
+  { href: "mailto:smc5720@gmail.com",   label: "smc5720@gmail.com", external: false },
 ];
 
 const ASCII = `╭─────────────────────────────────────────╮
@@ -37,11 +34,10 @@ export function Footer() {
           {/* Col 1 — brand */}
           <div>
             <div className="display display-h3" style={{ marginBottom: 16 }}>
-              한 주에 한 편씩,<br />천천히.
+              RicoCheese&#39;s Blog
             </div>
             <p className="small" style={{ maxWidth: 360 }}>
-              RicoCheese&#39;s Blog는 한 사람이 운영하는 기술·회고·릴리스 노트 모음입니다.
-              글의 호흡은 짧을 수도, 길 수도 있습니다.
+              코드, 회고, 릴리스 노트를 기록하는 기술 블로그. 2022년 시작.
             </p>
           </div>
 
