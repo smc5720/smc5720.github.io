@@ -18,8 +18,8 @@ const NOW_ITEMS = [
     bucket: "Building",
     status: "● in-flight",
     color: "var(--color-accent)",
-    title: "생각날 때마다 이것저것 만든다",
-    body: "이 블로그도 그중 하나입니다. 최근엔 반복적인 작업을 자동화하는 스크립트와 도구들을 즐겨 만들고 있습니다.",
+    title: "개인 토이 프로젝트를 하나씩 만들어 가는 중",
+    body: "업무에서 반복적인 작업을 마주칠 때마다 자동화 아이디어가 쌓입니다. 그 중 몇 가지를 개인 프로젝트로 꺼내 직접 만들어보고 있습니다. 이 블로그도 그 중 하나입니다.",
   },
   {
     bucket: "Writing",
@@ -32,8 +32,8 @@ const NOW_ITEMS = [
     bucket: "Learning",
     status: "○ obsession",
     color: "var(--color-purple)",
-    title: "AI 도구들을 직접 만져보며 익숙해지는 중",
-    body: "연봉보다 더 많은 AI 토큰을 소모하는 게 올해 목표입니다.",
+    title: "Harness 엔지니어링 공부 중",
+    body: "CI/CD 파이프라인 고도화에 관심이 생겨 Harness를 파고들고 있습니다. 배포 자동화와 릴리스 관리를 더 잘하고 싶은 마음에서 시작했습니다.",
   },
   {
     bucket: "Automating",
@@ -53,25 +53,39 @@ const NOW_ITEMS = [
 
 const INTERESTS = [
   {
-    tag: "TYPOGRAPHY",
+    tag: "AUTOMATION",
     color: "var(--color-accent)",
-    title: "한국어 본문 타이포그래피",
-    body: "Noto Sans KR + 영문 디스플레이체를 같이 쓸 때 마주치는 베이스라인·자간·자형 폭 문제에 관심이 많습니다.",
-    refs: ["#typography", "#korean", "#css"],
+    title: "반복을 발견하면 자동화부터 생각한다",
+    body: "업무든 일상이든 같은 일을 두 번 하면 어떻게 줄일 수 있을지 먼저 생각합니다. 작은 스크립트 하나가 하루의 리듬을 바꾼다고 믿습니다.",
+    refs: ["#automation", "#scripting", "#tools"],
   },
   {
-    tag: "BUILD",
+    tag: "CONCURRENCY",
     color: "var(--cat-news)",
-    title: "정적 사이트 빌드 파이프라인",
-    body: "MDX·Shiki·sitemap·RSS·OG 이미지까지 빌드 타임 안에 모두 결정 짓는 단순한 파이프라인을 좋아합니다.",
-    refs: ["#next.js", "#mdx", "#shiki"],
+    title: "동시성과 분산 락",
+    body: "대규모 트래픽 환경에서 동시 요청을 어떻게 제어할 것인가. Redis 분산 락, Cache Stampede 방지 같은 문제를 실무에서 자주 마주치고, 그럴수록 더 깊이 파고들게 됩니다.",
+    refs: ["#concurrency", "#redis", "#distributed-systems"],
   },
   {
-    tag: "DX",
+    tag: "OBSERVABILITY",
     color: "var(--cat-release)",
-    title: "내부 도구의 작은 UX",
-    body: "CLI 한 줄, 에러 메시지 한 줄, 빌드 로그 한 줄. 가장 자주 보는 곳일수록 신경 써야 한다고 믿습니다.",
-    refs: ["#dx", "#tooling", "#monorepo"],
+    title: "모니터링과 관측 가능성",
+    body: "시스템이 지금 어떤 상태인지 눈으로 볼 수 있어야 합니다. OpenTelemetry, Grafana, 메트릭/트레이스 파이프라인 구성에 관심이 많습니다.",
+    refs: ["#opentelemetry", "#grafana", "#observability"],
+  },
+  {
+    tag: "CI/CD",
+    color: "var(--color-purple)",
+    title: "배포 파이프라인 설계",
+    body: "Jenkins, GitHub Actions, 그리고 요즘은 Harness까지. 릴리스가 두렵지 않은 파이프라인을 만드는 게 목표입니다. 자동화가 가장 빛나는 순간입니다.",
+    refs: ["#cicd", "#harness", "#devops"],
+  },
+  {
+    tag: "PERFORMANCE",
+    color: "var(--color-accent)",
+    title: "SQL 튜닝과 응답 속도",
+    body: "쿼리 하나가 DB 전체 부하를 바꿉니다. 슬로우 쿼리를 잡고 인덱스를 설계하는 과정이 퍼즐 같아서 좋습니다.",
+    refs: ["#sql", "#performance", "#mysql"],
   },
   {
     tag: "WRITING",
@@ -80,67 +94,45 @@ const INTERESTS = [
     body: "글이 사고를 따라가는 게 아니라, 글이 사고를 압축한다고 생각합니다. 그래서 메모는 항상 글의 형태로 남깁니다.",
     refs: ["#writing", "#retro"],
   },
-  {
-    tag: "AUTOMATION",
-    color: "var(--cat-news)",
-    title: "반복을 발견하면 자동화한다",
-    body: "업무든 일상이든 같은 일을 두 번 하면 스크립트부터 만든다. 작은 자동화가 하루의 리듬을 바꾼다.",
-    refs: ["#automation", "#scripting", "#tools"],
-  },
-  {
-    tag: "DESIGN ENG",
-    color: "var(--color-accent)",
-    title: "디자인과 코드 사이",
-    body: "디자인 결정의 8할은 코드에서 끝납니다. 그래서 디자인 토큰이 어떻게 변수에 옮겨지는지가 중요합니다.",
-    refs: ["#design-eng", "#tokens"],
-  },
 ];
 
 const STACK = [
   {
     label: "Backend",
     items: [
-      { name: "Java", note: "Spring Boot", daily: true, years: "" },
-      { name: "JavaScript", note: "Node.js", daily: true, years: "" },
+      { name: "Java", note: "Spring Boot / WebFlux", daily: true, years: "" },
       { name: "Python", note: "scripting · automation", daily: false, years: "" },
     ],
   },
   {
-    label: "Language",
+    label: "Database",
     items: [
-      { name: "TypeScript", note: "strict", daily: true, years: "7Y" },
-      { name: "JavaScript", note: "es-next", daily: true, years: "10Y" },
-      { name: "CSS", note: "v4 / @theme", daily: true, years: "10Y" },
-      { name: "Rust", note: "learning", daily: false, years: "1Y" },
-      { name: "Python", note: "scripting", daily: false, years: "4Y" },
+      { name: "MySQL", note: "primary", daily: true, years: "" },
+      { name: "Redis", note: "Redisson · Sentinel", daily: true, years: "" },
+      { name: "Oracle", note: "legacy", daily: false, years: "" },
     ],
   },
   {
-    label: "Frameworks · runtime",
+    label: "Frontend",
     items: [
-      { name: "React", note: "18 → 19", daily: true, years: "7Y" },
-      { name: "Next.js", note: "16 · app router", daily: true, years: "5Y" },
-      { name: "Tailwind CSS", note: "v4", daily: true, years: "4Y" },
-      { name: "Vite · Vitest", note: "tooling", daily: false, years: "3Y" },
-      { name: "Astro", note: "occasional", daily: false, years: "2Y" },
+      { name: "Vue.js", note: "Nuxt.js", daily: false, years: "" },
+      { name: "TypeScript", note: "strict", daily: false, years: "" },
     ],
   },
   {
-    label: "Design · craft",
+    label: "DevOps & Infra",
     items: [
-      { name: "Figma", note: "tokens · dev mode", daily: true, years: "6Y" },
-      { name: "Linear", note: "issues", daily: true, years: "4Y" },
-      { name: "Obsidian", note: "notes", daily: true, years: "3Y" },
-      { name: "Affinity Designer", note: "vectors", daily: false, years: "3Y" },
+      { name: "Docker", note: "containerization", daily: true, years: "" },
+      { name: "Kubernetes", note: "k8s", daily: true, years: "" },
+      { name: "Jenkins", note: "CI/CD", daily: false, years: "" },
+      { name: "GitHub Actions", note: "CI/CD", daily: true, years: "" },
     ],
   },
   {
-    label: "Editor · daily",
+    label: "Monitoring",
     items: [
-      { name: "Cursor", note: "primary", daily: true, years: "1Y" },
-      { name: "VS Code", note: "secondary", daily: true, years: "8Y" },
-      { name: "Vim", note: "still in muscle memory", daily: false, years: "10Y" },
-      { name: "iTerm2", note: "+ fish + starship", daily: true, years: "5Y" },
+      { name: "OpenTelemetry", note: "tracing · metrics", daily: false, years: "" },
+      { name: "Grafana", note: "visualization", daily: false, years: "" },
     ],
   },
 ];
@@ -239,7 +231,7 @@ function ProfileCard() {
               lineHeight: 1.1,
             }}
           >
-            서민철
+            RicoCheese
           </div>
           <div className="small" style={{ color: "var(--color-text-2)", marginTop: 2 }}>
             Backend Engineer
@@ -589,28 +581,20 @@ export default async function AboutPage() {
               </div>
               <p className="lede" style={{ color: "var(--color-text)", maxWidth: 640 }}>
                 안녕하세요,{" "}
-                <span style={{ fontFamily: "var(--font-serif)", fontStyle: "italic" }}>서민철</span>
-                입니다. 서울에서 일하는 백엔드 엔지니어이고, 인터넷에서는 보통{" "}
-                <span style={{ color: "var(--color-accent)" }}>RicoCheese</span>라는 이름을 씁니다.
-                이 블로그는 제가 일하면서 배운 것, 만들어 본 것, 가끔은 실패한 것을 정리해두는
-                작업실 일지입니다.
+                <span style={{ fontFamily: "var(--font-serif)", fontStyle: "italic" }}>RicoCheese</span>
+                입니다. 서울에서 일하는 백엔드 엔지니어이고,{" "}
+                <strong>Java / Spring Boot</strong>를 주력으로 게임 업계 대형 서비스 백엔드를
+                개발하고 있습니다. 이 블로그는 제가 일하면서 배운 것, 만들어 본 것, 가끔은 실패한
+                것을 정리해두는 작업실 일지입니다.
               </p>
               <p>
-                일은 주로 <strong>Java / Spring Boot</strong> 기반 서버사이드 백엔드 개발입니다.
-                업무든 취미든 반복 작업을 발견하면 자연스럽게 프로세스 자동화로 해결하려 합니다.
-                좋은 도구를 만드는 일은 결국 동료의 시간을 줄여주는 일이고, 그게 제가 이 직업에서
-                가장 좋아하는 부분입니다.
+                반복 작업을 발견하면 자연스럽게 자동화로 해결하려 합니다. 좋은 도구를 만드는 일은
+                결국 동료의 시간을 줄여주는 일이고, 그게 제가 이 직업에서 가장 좋아하는 부분입니다.
               </p>
               <p>
                 글을 쓰는 이유는 단순합니다 —{" "}
                 <em>한 달 뒤의 제가 검색해서 도움을 받기 위해서</em>입니다. 그렇게 쓰다 보니 가끔은
                 다른 분에게도 닿더라고요. 그게 부수적인 즐거움입니다.
-              </p>
-              <p>
-                지금까지 일한 곳은 두 곳입니다. 첫 회사에서는 사내 디자인 시스템을 처음부터
-                만들었고, 지금 회사에서는 200개가 넘는 패키지가 사는 모노레포의 개발자 도구를 다시
-                디자인하고 있습니다. 둘 다 "도구의 가장 중요한 사용자는 도구를 잘 다루지 못하는
-                동료"라는 같은 결론에 닿아 있습니다.
               </p>
             </div>
           </div>
