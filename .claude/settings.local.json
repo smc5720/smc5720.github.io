@@ -30,7 +30,8 @@
       "Bash(node *)",
       "WebSearch",
       "WebFetch(domain:docs.umami.is)",
-      "Bash(python3 *)"
+      "Bash(python3 *)",
+      "Bash(Select-Object Name)"
     ]
   }
 }

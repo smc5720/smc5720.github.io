@@ -42,6 +42,18 @@ When work tied to an issue is done, run this sequence by default:
 
 For work *not* tied to an issue, stop after step 2 unless the user says otherwise.
 
+## News post workflow
+
+트리거: 사용자가 "뉴스 초안", "뉴스 글 써줘", "news post" 등을 언급할 때.
+
+1. **목록 조회** — `node scripts/fetch-news.mjs` 실행해 최근 7일 인기글 출력.
+2. **글 선택** — 사용자가 고르거나, 지시 없으면 반응수 상위 글을 추천.
+3. **본문 조회** — `node scripts/fetch-news.mjs --id <ID>` 실행.
+4. **초안 작성** — `docs/news-post-template.md` 규칙을 엄수해 `content/posts/<slug>.mdx` 생성.
+   - `source_id: devto-<ID>` 필드 필수 (중복 방지 식별자).
+   - 원문 내용만 옮길 것. 개인 의견·해설·추측 일절 금지.
+   - 출처 블록(`> **원문:** ...`)을 본문 최상단에 배치.
+
 ## When unsure
 
 Ask one short clarifying question quoting the specific ambiguity.
