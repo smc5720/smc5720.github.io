@@ -41,6 +41,10 @@ jobs:
           NEXT_PUBLIC_ADSENSE_SLOT_TOP: "5754924099"
           NEXT_PUBLIC_ADSENSE_SLOT_BOTTOM: "1259445654"
           NEXT_PUBLIC_UMAMI_WEBSITE_ID: ${{ secrets.NEXT_PUBLIC_UMAMI_WEBSITE_ID }}
+          NEXT_PUBLIC_GISCUS_REPO: smc5720/smc5720.github.io
+          NEXT_PUBLIC_GISCUS_REPO_ID: R_kgDOGkqz4Q
+          NEXT_PUBLIC_GISCUS_CATEGORY: Announcements
+          NEXT_PUBLIC_GISCUS_CATEGORY_ID: DIC_kwDOGkqz4c4C9Wgf
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
