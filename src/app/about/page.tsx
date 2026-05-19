@@ -18,36 +18,36 @@ const NOW_ITEMS = [
     bucket: "Building",
     status: "● in-flight",
     color: "var(--color-accent)",
-    title: "사내 모노레포 도구 v3 — 200+ 패키지의 일관된 개발 경험",
-    body: "Turbo, pnpm workspaces, codegen 파이프라인을 한 곳에서 다루는 작은 GUI 도구. 동료 다섯 명과 사내 dogfooding 중입니다.",
+    title: "생각날 때마다 이것저것 만든다",
+    body: "이 블로그도 그중 하나입니다. 최근엔 반복적인 작업을 자동화하는 스크립트와 도구들을 즐겨 만들고 있습니다.",
   },
   {
     bucket: "Writing",
     status: "● weekly cadence",
     color: "var(--color-accent)",
-    title: "주 1편 · 짧아도 좋고 길어도 좋다",
-    body: "v2 리브랜딩 이후 한 주에 한 편의 글을 올리는 리듬을 잡고 있습니다. 다음 글 후보는 RSC 두 번째 멘탈 모델, 그리고 한국어 타이포 실전 메모.",
-  },
-  {
-    bucket: "Reading",
-    status: "○ on the desk",
-    color: "var(--color-purple)",
-    title: "<<쓰지 않으면 사라지는 것들>> · 빌 와츠",
-    body: "잘 쓰는 사람의 글이 아니라, 매일 쓰는 사람의 노트에 관한 책. 작년 '일기 30일 챌린지' 이후로 가끔 다시 꺼내 봅니다.",
+    title: "개발하며 새로 알게 된 것, 또는 관심 가는 이슈",
+    body: "개발하면서 새로 알게 된 것, 또는 관심 가는 사회 이슈를 가져와서 씁니다. 잘 쓰는 것보다 꾸준히 쓰는 게 먼저입니다.",
   },
   {
     bucket: "Learning",
+    status: "○ obsession",
+    color: "var(--color-purple)",
+    title: "AI 도구들을 직접 만져보며 익숙해지는 중",
+    body: "연봉보다 더 많은 AI 토큰을 소모하는 게 올해 목표입니다.",
+  },
+  {
+    bucket: "Automating",
     status: "○ slow burn",
     color: "var(--color-purple)",
-    title: "Rust · 빌드 도구의 안쪽을 들여다 보려고",
-    body: "직접 프로덕션에 쓰진 않지만, 우리가 매일 쓰는 도구의 안쪽이 어떻게 굴러가는지 이해해보려고 합니다.",
+    title: "반복을 발견하면 자동화부터 생각한다",
+    body: "업무든 일상이든 같은 일을 두 번 하면 어떻게 줄일 수 있을지 먼저 생각합니다.",
   },
   {
     bucket: "Resting",
     status: "○ off the grid",
     color: "var(--color-text-2)",
-    title: "주말의 산책, 그리고 오래된 라디오 방송 듣기",
-    body: "주말 두 시간은 화면 없이 보내려고 합니다. 매번 성공하는 건 아니지만.",
+    title: "쉴 땐 그냥 집에 늘어져 있기",
+    body: "쉴 땐 그냥 집에 늘어져 있는 걸 좋아합니다.",
   },
 ];
 
@@ -81,11 +81,11 @@ const INTERESTS = [
     refs: ["#writing", "#retro"],
   },
   {
-    tag: "TOOLS",
+    tag: "AUTOMATION",
     color: "var(--cat-news)",
-    title: "100줄짜리 작은 도구들",
-    body: "큰 프로젝트 다섯 개보다 작은 도구 다섯 개가 매일의 일을 더 많이 바꿉니다.",
-    refs: ["#tools", "#side"],
+    title: "반복을 발견하면 자동화한다",
+    body: "업무든 일상이든 같은 일을 두 번 하면 스크립트부터 만든다. 작은 자동화가 하루의 리듬을 바꾼다.",
+    refs: ["#automation", "#scripting", "#tools"],
   },
   {
     tag: "DESIGN ENG",
@@ -97,6 +97,14 @@ const INTERESTS = [
 ];
 
 const STACK = [
+  {
+    label: "Backend",
+    items: [
+      { name: "Java", note: "Spring Boot", daily: true, years: "" },
+      { name: "JavaScript", note: "Node.js", daily: true, years: "" },
+      { name: "Python", note: "scripting · automation", daily: false, years: "" },
+    ],
+  },
   {
     label: "Language",
     items: [
@@ -250,7 +258,7 @@ function ProfileCard() {
           {(
             [
               ["LOCATION", "서울 · UTC+9"],
-              ["DAY JOB", "Developer Tooling · 모노레포"],
+              ["DAY JOB", "Backend Engineer · Java / Spring Boot"],
               ["WRITING", "since 2022"],
               ["PRONOUNS", "he / him"],
               ["KEYBOARD", "HHKB Pro · JIS / KR"],
@@ -475,9 +483,11 @@ function StackGroup({ group }: { group: (typeof STACK)[number] }) {
                 {it.note}
               </span>
             </div>
-            <span className="mono-label tabular" style={{ color: "var(--color-text-3)" }}>
-              {it.years}
-            </span>
+            {it.years && (
+              <span className="mono-label tabular" style={{ color: "var(--color-text-3)" }}>
+                {it.years}
+              </span>
+            )}
           </li>
         ))}
       </ul>
@@ -586,10 +596,10 @@ export default async function AboutPage() {
                 작업실 일지입니다.
               </p>
               <p>
-                일은 보통 <strong>웹 인터페이스</strong>를 만드는 일입니다. 디자인 시스템, 빌드
-                파이프라인, 그리고 한국어를 잘 다루는 타이포그래피에 시간을 가장 많이 씁니다. 좋은
-                도구를 만드는 일은 결국 동료의 시간을 줄여주는 일이고, 그게 제가 이 직업에서 가장
-                좋아하는 부분입니다.
+                일은 주로 <strong>Java / Spring Boot</strong> 기반 서버사이드 백엔드 개발입니다.
+                업무든 취미든 반복 작업을 발견하면 자연스럽게 프로세스 자동화로 해결하려 합니다.
+                좋은 도구를 만드는 일은 결국 동료의 시간을 줄여주는 일이고, 그게 제가 이 직업에서
+                가장 좋아하는 부분입니다.
               </p>
               <p>
                 글을 쓰는 이유는 단순합니다 —{" "}
