@@ -767,7 +767,33 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      {/* ===== §07 Elsewhere ===== */}
+      {/* ===== §07 Live Stats ===== */}
+      <section style={{ paddingTop: 0, paddingBottom: 96 }}>
+        <div className="container">
+          <SectionHead num="07" kicker="Transparency · live data" title="지금 이 블로그의 방문 현황" />
+
+          <div style={{
+            border: "1px solid var(--color-border)",
+            background: "var(--color-surface)",
+            overflow: "hidden",
+            marginTop: 40,
+          }}>
+            <iframe
+              src="https://cloud.umami.is/share/Q3X37TvfLIZzXwI8"
+              className="stats-iframe"
+              style={{ border: "none", display: "block" }}
+              loading="lazy"
+              title="Blog analytics — powered by Umami"
+            />
+          </div>
+
+          <p className="mono-label" style={{ marginTop: 12, color: "var(--color-text-3)", fontSize: 11 }}>
+            powered by Umami · cookie-free · EU-hosted
+          </p>
+        </div>
+      </section>
+
+      {/* ===== §08 Elsewhere ===== */}
       <section style={{ paddingTop: 0, paddingBottom: 120 }}>
         <div className="container">
           <SectionHead num="06" kicker="Elsewhere · say hi" title="어디서 더 찾을 수 있나요" />
