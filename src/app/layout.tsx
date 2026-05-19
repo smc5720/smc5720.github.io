@@ -7,6 +7,7 @@ import {
   Noto_Sans_KR,
   Noto_Serif_KR,
 } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -82,6 +83,7 @@ export const viewport: Viewport = {
 };
 
 const adsensePublisherId = process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID;
+const umamiWebsiteId = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID;
 
 export default function RootLayout({
   children,
@@ -111,6 +113,13 @@ export default function RootLayout({
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
+        {umamiWebsiteId && (
+          <Script
+            src="https://cloud.umami.is/script.js"
+            data-website-id={umamiWebsiteId}
+            strategy="afterInteractive"
+          />
+        )}
       </body>
     </html>
   );

@@ -153,7 +153,7 @@ const COLOPHON: [string, string][] = [
   ["FONTS", "Fraunces · Syne · JetBrains Mono · Noto KR"],
   ["HOSTING", "GitHub Pages · auto-deploy on main push"],
   ["LICENSE", "writing CC BY 4.0 · code MIT"],
-  ["ANALYTICS", "none. seriously, none."],
+  ["ANALYTICS", "Umami — cookie-free, EU-hosted, no personal data"],
 ];
 
 const ELSEWHERE = [
