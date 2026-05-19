@@ -2174,25 +2174,11 @@ a {
   }
 }
 
-/* elsewhere-grid: 4-col */
+/* elsewhere-grid: 2-col (matches 2 items in ELSEWHERE array) */
 .elsewhere-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   border: 1px solid var(--color-border-2);
-}
-
-@media (max-width: 900px) {
-  .elsewhere-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .elsewhere-grid > a:nth-child(2n+1) {
-    border-left: none;
-  }
-
-  .elsewhere-grid > a:nth-child(n+3) {
-    border-top: 1px solid var(--color-border-2);
-  }
 }
 
 @media (max-width: 600px) {

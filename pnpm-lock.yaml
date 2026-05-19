@@ -17,6 +17,9 @@ importers:
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
+      feed:
+        specifier: ^5.2.1
+        version: 5.2.1
       gray-matter:
         specifier: ^4.0.3
         version: 4.0.3
@@ -1317,6 +1320,10 @@ packages:
       picomatch:
         optional: true
 
+  feed@5.2.1:
+    resolution: {integrity: sha1-lSLZj6wYWx8upy1/FuE5XahEmpE=}
+    engines: {node: '>=20', pnpm: '>=10'}
+
   file-entry-cache@8.0.0:
     resolution: {integrity: sha1-d4e93PETG/+5JjbGlFe7wO3W2B8=}
     engines: {node: '>=16.0.0'}
@@ -2240,6 +2247,10 @@ packages:
     resolution: {integrity: sha1-f4fftnoxUHguqvGFg/9dFxGsEME=}
     engines: {node: '>= 0.4'}
 
+  sax@1.6.0:
+    resolution: {integrity: sha1-2lljdikwe5fnxMso4ICnvDhWDVs=}
+    engines: {node: '>=11.0.0'}
+
   scheduler@0.27.0:
     resolution: {integrity: sha1-DE74LWfR5cHjWej8dtOofwRf5b0=}
 
@@ -2527,6 +2538,10 @@ packages:
   word-wrap@1.2.5:
     resolution: {integrity: sha1-0sRcbdT7zmIaZvE2y+Mor9BBCzQ=}
     engines: {node: '>=0.10.0'}
+
+  xml-js@1.6.11:
+    resolution: {integrity: sha1-kn0vaUf38cGaMW3Y7qNhTosY+Ok=}
+    hasBin: true
 
   yallist@3.1.1:
     resolution: {integrity: sha1-27fa+b/YusmrRev2ArjLrQ1dCP0=}
@@ -3937,6 +3952,10 @@ snapshots:
     optionalDependencies:
       picomatch: 4.0.4
 
+  feed@5.2.1:
+    dependencies:
+      xml-js: 1.6.11
+
   file-entry-cache@8.0.0:
     dependencies:
       flat-cache: 4.0.1
@@ -5250,6 +5269,8 @@ snapshots:
       es-errors: 1.3.0
       is-regex: 1.2.1
 
+  sax@1.6.0: {}
+
   scheduler@0.27.0: {}
 
   section-matter@1.0.0:
@@ -5684,6 +5705,10 @@ snapshots:
       isexe: 2.0.0
 
   word-wrap@1.2.5: {}
+
+  xml-js@1.6.11:
+    dependencies:
+      sax: 1.6.0
 
   yallist@3.1.1: {}
 
