@@ -10,6 +10,7 @@ import { TableOfContents } from "@/components/TableOfContents";
 import { MDXContent } from "@/components/MDXContent";
 import { PrevNextCards } from "@/components/PrevNextCards";
 import { AdUnit } from "@/components/AdUnit";
+import { GiscusComments } from "@/components/GiscusComments";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -203,6 +204,13 @@ export default async function PostPage({ params }: Props) {
           <AdUnit slot={adSlotBottom} />
         </div>
       )}
+
+      {/* ── Comments ── */}
+      <section style={{ marginTop: 56 }}>
+        <div className="container-narrow">
+          <GiscusComments />
+        </div>
+      </section>
 
       {/* ── Prev / Next ── */}
       <section style={{ marginTop: 40, paddingBottom: 96 }}>

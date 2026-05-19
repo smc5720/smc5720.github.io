@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@giscus/react':
+        specifier: ^3.1.0
+        version: 3.1.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@shikijs/rehype':
         specifier: ^4.0.2
         version: 4.0.2
@@ -189,6 +192,12 @@ packages:
   '@eslint/plugin-kit@0.4.1':
     resolution: {integrity: sha1-l3nj/Zt+4zVxpXQ1z0M1oXlKbLI=}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@giscus/react@3.1.0':
+    resolution: {integrity: sha1-Crd8yA12WYnodAPqf1C6enkKNsc=}
+    peerDependencies:
+      react: ^16 || ^17 || ^18 || ^19
+      react-dom: ^16 || ^17 || ^18 || ^19
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha1-qCcsoDsqz0kmcCIrIyC2xCG/3mA=}
@@ -378,6 +387,12 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha1-2xXWeByTHzolGj2sOVAcmKYIL9A=}
+
+  '@lit-labs/ssr-dom-shim@1.6.0':
+    resolution: {integrity: sha1-aT4Sm4CXQf0j6Y/LV+Qf09CC2xo=}
+
+  '@lit/reactive-element@2.1.2':
+    resolution: {integrity: sha1-TGr5BCYDyY5hupCylGB5BNUbYcs=}
 
   '@mdx-js/mdx@3.1.1':
     resolution: {integrity: sha1-xf/ZkadTaxSeFxde7lehoqURxtE=}
@@ -641,6 +656,9 @@ packages:
 
   '@types/react@19.2.14':
     resolution: {integrity: sha1-OWBJKbXjlX46b6AAHa+xfHr3C60=}
+
+  '@types/trusted-types@2.0.7':
+    resolution: {integrity: sha1-usywepcLkXB986PoumiWxX6tLRE=}
 
   '@types/unist@2.0.11':
     resolution: {integrity: sha1-Ea9XsSfjJId3SEH3pOVOqxZtA8Q=}
@@ -1355,6 +1373,9 @@ packages:
   get-tsconfig@4.14.0:
     resolution: {integrity: sha1-mF2FxSqZA4ZCgMzCRI1BP78e/tg=}
 
+  giscus@1.6.0:
+    resolution: {integrity: sha1-lsWS4BgpcHs6C6csJjbAeii1wZ0=}
+
   github-slugger@2.0.0:
     resolution: {integrity: sha1-Us8vknmiHrbFndOFtBDwwK3ajxo=}
 
@@ -1735,6 +1756,15 @@ packages:
   lightningcss@1.32.0:
     resolution: {integrity: sha1-uFqulkhtyxv0mnyFcSISc/Tx5Kk=}
     engines: {node: '>= 12.0.0'}
+
+  lit-element@4.2.2:
+    resolution: {integrity: sha1-90/L++qUXq5WFOziKmdPpSyjNls=}
+
+  lit-html@3.3.3:
+    resolution: {integrity: sha1-pj/QL7jBx7cFfugFq2xhL96+8LE=}
+
+  lit@3.3.3:
+    resolution: {integrity: sha1-k1eYheUaIKdyxoSCo0cG/hY26PA=}
 
   locate-path@6.0.0:
     resolution: {integrity: sha1-VTIeswn+u8WcSAHZMackUqaB0oY=}
@@ -2688,6 +2718,12 @@ snapshots:
       '@eslint/core': 0.17.0
       levn: 0.4.1
 
+  '@giscus/react@3.1.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
+    dependencies:
+      giscus: 1.6.0
+      react: 19.2.4
+      react-dom: 19.2.4(react@19.2.4)
+
   '@humanfs/core@0.19.2':
     dependencies:
       '@humanfs/types': 0.15.0
@@ -2819,6 +2855,12 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
+
+  '@lit-labs/ssr-dom-shim@1.6.0': {}
+
+  '@lit/reactive-element@2.1.2':
+    dependencies:
+      '@lit-labs/ssr-dom-shim': 1.6.0
 
   '@mdx-js/mdx@3.1.1':
     dependencies:
@@ -3077,6 +3119,8 @@ snapshots:
   '@types/react@19.2.14':
     dependencies:
       csstype: 3.2.3
+
+  '@types/trusted-types@2.0.7': {}
 
   '@types/unist@2.0.11': {}
 
@@ -3962,6 +4006,10 @@ snapshots:
     dependencies:
       resolve-pkg-maps: 1.0.0
 
+  giscus@1.6.0:
+    dependencies:
+      lit: 3.3.3
+
   github-slugger@2.0.0: {}
 
   glob-parent@5.1.2:
@@ -4351,6 +4399,22 @@ snapshots:
       lightningcss-linux-x64-musl: 1.32.0
       lightningcss-win32-arm64-msvc: 1.32.0
       lightningcss-win32-x64-msvc: 1.32.0
+
+  lit-element@4.2.2:
+    dependencies:
+      '@lit-labs/ssr-dom-shim': 1.6.0
+      '@lit/reactive-element': 2.1.2
+      lit-html: 3.3.3
+
+  lit-html@3.3.3:
+    dependencies:
+      '@types/trusted-types': 2.0.7
+
+  lit@3.3.3:
+    dependencies:
+      '@lit/reactive-element': 2.1.2
+      lit-element: 4.2.2
+      lit-html: 3.3.3
 
   locate-path@6.0.0:
     dependencies:
