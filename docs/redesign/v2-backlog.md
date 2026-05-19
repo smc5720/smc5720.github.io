@@ -34,6 +34,10 @@ PM 가이드: `CLAUDE.md`
 - **디자인 참조**: `docs/redesign/v2-bundle/project/blog-about.jsx`
 - **참고**: `image-slot.js`는 프로토타입 도구 — 실제 사이트는 정적 이미지로
 
+### ~~M3-1b (#39). About 페이지 — 이력서 기반 콘텐츠 재작성~~ · **Shipped** (19a05ae)
+- **라벨**: `type:content` `area:about` `priority:p2`
+- **목표**: 실명 제거(RicoCheese 닉네임), 실제 백엔드 스택·경력 기반으로 STACK/INTERESTS/NOW/Intro 전면 교체.
+
 ### M3-2 (#18). 404 페이지 ✅ Shipped
 - **라벨**: `type:design` `area:404` `priority:p2`
 - **목표**: 거대 serif `404.`, 시도한 경로 echo, ASCII 코드 레인 배경, suggested posts 3편.
