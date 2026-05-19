@@ -1,0 +1,131 @@
+---
+title: "Veo 3.1과 NanoBanana 2로 완벽한 정사각형 AI 영상 만들기"
+description: "AI 영상 생성 시 정사각형(1:1) 포맷을 얻기 위해 NanoBanana 2, Veo 3.1 Lite, FFmpeg를 조합한 Python 파이프라인을 소개한다."
+date: "2026-05-20"
+category: "news"
+tags: ["python", "ai", "videogen", "webdev"]
+source_id: "devto-3657907"
+source_url: "https://dev.to/googleai/hacking-perfectly-square-ai-videos-with-veo-31-and-nanobanana-2-5cpn"
+source_title: "Hacking perfectly square AI videos with Veo 3.1 and NanoBanana 2"
+source_author: "Paige Bailey"
+source_published: "2026-05-12"
+readingTime: 3
+---
+
+> **원문:** [Hacking perfectly square AI videos with Veo 3.1 and NanoBanana 2](https://dev.to/googleai/hacking-perfectly-square-ai-videos-with-veo-31-and-nanobanana-2-5cpn) — Paige Bailey (2026-05-12)
+
+## 개요
+
+AI 영상 생성 분야는 놀랍도록 발전했지만, 원하는 포맷을 정확히 출력하는 것은 여전히 까다롭다. Google의 새 영상 모델로 오디오가 포함된 **정사각형(1:1) 루프 영상**을 생성해야 할 때, 네이티브 종횡비 지원이 모델 티어에 따라 불안정할 수 있고, 생성된 16:9 또는 9:16 영상을 크롭하면 프레이밍이 망가지거나 가장자리에 아티팩트가 생기는 경우가 많다.
+
+**NanoBanana 2**, **Veo 3.1 Lite**, **FFmpeg**를 조합한 우회 파이프라인으로 이 문제를 해결한다.
+
+## 요약
+
+1. 정사각형 이미지 개념으로 시작한다.
+2. NanoBanana 2에게 위아래에 검은 바(black bars)를 패딩해 9:16 종횡비로 변환하도록 요청한다.
+3. 해당 9:16 이미지를 Veo 3.1 Lite에 시작·끝 프레임으로 전달해 루프를 강제한다.
+4. Python `ffmpeg` 스크립트로 검은 바를 잘라낸다.
+
+## 본문
+
+### Step 1: NanoBanana 2로 9:16 패딩 프레임 생성
+
+[Gemini API SDK](https://github.com/googleapis/python-genai)를 사용해 NanoBanana 2에 9:16 이미지를 생성하도록 프롬프트한다. 핵심은 주요 피사체를 중앙의 정사각형 영역에 배치하고 위아래를 검은 바로 채우도록 프롬프트를 구성하는 것이다.
+
+```python
+from google import genai
+from google.genai import types
+
+client = genai.Client(api_key="YOUR_API_KEY")
+
+def generate_padded_frame(prompt, output_filename):
+    hacked_prompt = (
+        f"{prompt}. Keep the main subject perfectly square in the center, "
+        "and pad the top and bottom with solid black bars to make the overall aspect ratio 9:16."
+    )
+
+    result = client.models.generate_images(
+        model='nanobanana-2',
+        prompt=hacked_prompt,
+        config=types.GenerateImagesConfig(
+            number_of_images=1,
+            aspect_ratio="9:16",
+            output_mime_type="image/jpeg"
+        )
+    )
+
+    for generated_image in result.generated_images:
+        image = generated_image.image
+        image.save(output_filename)
+
+generate_padded_frame("A majestic pink flamingo standing in a serene pond", "flamingo_padded.jpg")
+```
+
+### Step 2: Veo 3.1 Lite로 영상 생성
+
+검은 바가 포함된 9:16 이미지를 Veo 3.1 Lite에 전달한다. 동일한 이미지를 시각적 프롬프트로 사용하면 생성 과정 전반에 걸쳐 검은 바가 유지된다.
+
+*(Veo 웹 UI에서는 시작·끝 프레임으로 설정해 완벽한 루프를 만들 수 있다. 아래는 이미지로부터 영상을 생성하는 API 방식이다.)*
+
+```python
+import time
+
+def generate_video(image_path, video_prompt, output_filename):
+    initial_frame = client.files.upload(file=image_path)
+
+    while initial_frame.state.name == "PROCESSING":
+        print(".", end="", flush=True)
+        time.sleep(2)
+        initial_frame = client.files.get(name=initial_frame.name)
+
+    response = client.models.generate_content(
+        model='veo-3.1-lite',
+        contents=[
+            initial_frame,
+            f"{video_prompt}. The flamingo moves slightly, but the black bars at the top and bottom must remain exactly the same."
+        ]
+    )
+
+    with open(output_filename, "wb") as f:
+        f.write(response.text.encode('utf-8'))  # 실제 반환 형식에 따라 처리 방식이 달라짐
+
+generate_video("flamingo_padded.jpg", "Cinematic shot of a flamingo looking around", "raw_veo_output.mp4")
+```
+
+### Step 3: FFmpeg로 검은 바 제거
+
+9:16 영상에서 위아래 검은 바를 잘라내 1:1 정사각형을 만든다. MoviePy 같은 Python 라이브러리를 쓸 수도 있지만, `subprocess`를 통한 `ffmpeg`가 훨씬 빠르고 메모리를 적게 사용하며, **오디오 스트림을 재인코딩 없이 그대로 보존**한다.
+
+9:16 영상에서 `crop=iw:iw`(입력 너비 × 입력 너비)를 적용하면 FFmpeg가 자동으로 중앙을 기준으로 크롭해 위아래 검은 바를 제거한다.
+
+```python
+import subprocess
+
+def crop_to_square(input_video, output_video):
+    command = [
+        'ffmpeg',
+        '-y',
+        '-i', input_video,
+        '-vf', 'crop=iw:iw',
+        '-c:a', 'copy',
+        output_video
+    ]
+
+    try:
+        subprocess.run(command, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except subprocess.CalledProcessError as e:
+        print(f"FFmpeg failed: {e}")
+
+crop_to_square("raw_veo_output.mp4", "final_square_flamingo.mp4")
+```
+
+### 이 우회법이 작동하는 이유
+
+1. **프레이밍 제어:** AI에게 먼저 검은 바를 outpaint하도록 강제하면, 피사체 프레이밍을 영상 모델 추측에 맡기지 않아도 된다.
+2. **오디오 보존:** FFmpeg의 `-c:a copy` 플래그가 영상 조작 시 오디오 품질 손실을 방지한다.
+3. **아티팩트 없음:** 영상 모델이 검은 바를 유지하도록 명시적으로 지시받으므로, 극단적인 상하단 가장자리에 배경 디테일을 생성하는 데 컴퓨팅을 낭비하지 않는다.
+
+---
+
+*이 글은 위 출처의 내용을 바탕으로 작성된 초안입니다. 원문의 의견과 정보를 그대로 전달하며, 별도의 견해를 포함하지 않습니다.*
