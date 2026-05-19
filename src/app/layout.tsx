@@ -7,7 +7,6 @@ import {
   Noto_Sans_KR,
   Noto_Serif_KR,
 } from "next/font/google";
-import Script from "next/script";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -99,20 +98,20 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{
           __html: `(function(){try{var t=localStorage.getItem('rico-theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})()`
         }} />
+        {adsensePublisherId && (
+          // eslint-disable-next-line @next/next/no-sync-scripts
+          <script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsensePublisherId}`}
+            crossOrigin="anonymous"
+          />
+        )}
       </head>
       <body className="noise-overlay flex flex-col min-h-screen bg-bg">
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
       </body>
-      {adsensePublisherId && (
-        <Script
-          id="adsense-init"
-          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsensePublisherId}`}
-          strategy="afterInteractive"
-          crossOrigin="anonymous"
-        />
-      )}
     </html>
   );
 }
