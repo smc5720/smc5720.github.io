@@ -9,6 +9,7 @@ import { ReadingProgress } from "@/components/ReadingProgress";
 import { TableOfContents } from "@/components/TableOfContents";
 import { MDXContent } from "@/components/MDXContent";
 import { PrevNextCards } from "@/components/PrevNextCards";
+import { AdUnit } from "@/components/AdUnit";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -60,6 +61,9 @@ export default async function PostPage({ params }: Props) {
   if (!post) notFound();
 
   const { prev, next } = getPrevNextPosts(slug);
+
+  const adSlotTop = process.env.NEXT_PUBLIC_ADSENSE_SLOT_TOP ?? "";
+  const adSlotBottom = process.env.NEXT_PUBLIC_ADSENSE_SLOT_BOTTOM ?? "";
 
   const date = format(new Date(post.date), "yyyy년 M월 d일", { locale: ko });
 
@@ -167,6 +171,13 @@ export default async function PostPage({ params }: Props) {
         </section>
       )}
 
+      {/* ── Ad: top (below cover / above body) ── */}
+      {adSlotTop && (
+        <div className="container-narrow" style={{ marginBottom: 32 }}>
+          <AdUnit slot={adSlotTop} />
+        </div>
+      )}
+
       {/* ── Body + TOC ── */}
       <section>
         <div className="container detail-grid">
@@ -186,8 +197,15 @@ export default async function PostPage({ params }: Props) {
         </div>
       </section>
 
+      {/* ── Ad: bottom (below body / above prev-next) ── */}
+      {adSlotBottom && (
+        <div className="container-narrow" style={{ marginTop: 56 }}>
+          <AdUnit slot={adSlotBottom} />
+        </div>
+      )}
+
       {/* ── Prev / Next ── */}
-      <section style={{ marginTop: 96, paddingBottom: 96 }}>
+      <section style={{ marginTop: 40, paddingBottom: 96 }}>
         <div className="container-narrow">
           <PrevNextCards prev={prev} next={next} />
         </div>

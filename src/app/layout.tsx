@@ -7,6 +7,7 @@ import {
   Noto_Sans_KR,
   Noto_Serif_KR,
 } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -81,6 +82,8 @@ export const viewport: Viewport = {
   ],
 };
 
+const adsensePublisherId = process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID;
+
 export default function RootLayout({
   children,
 }: {
@@ -102,6 +105,14 @@ export default function RootLayout({
         <main className="flex-1">{children}</main>
         <Footer />
       </body>
+      {adsensePublisherId && (
+        <Script
+          id="adsense-init"
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsensePublisherId}`}
+          strategy="afterInteractive"
+          crossOrigin="anonymous"
+        />
+      )}
     </html>
   );
 }
