@@ -1,0 +1,152 @@
+---
+title: "채팅으로 나만의 Hacker News 이메일 다이제스트 만들고 스케줄링하기"
+description: "LLM 채팅 에디터로 HN 섹션을 구성하고 React Email로 미리보기한 뒤 QStash로 개인 스케줄을 등록하는 오픈소스 프로젝트 HN Digest 소개."
+date: "2026-05-19"
+category: "news"
+tags: ["showdev", "react", "opensource", "programming"]
+source_id: "devto-3522448"
+source_url: "https://dev.to/anmolbaranwal/chat-to-build-and-schedule-your-own-personal-hacker-news-email-digest-42a4"
+source_title: "Chat to build and schedule your own personal Hacker News email digest!"
+source_author: "Anmol Baranwal"
+source_published: "2026-05-16"
+readingTime: 6
+---
+
+> **원문:** [Chat to build and schedule your own personal Hacker News email digest!](https://dev.to/anmolbaranwal/chat-to-build-and-schedule-your-own-personal-hacker-news-email-digest-42a4) — Anmol Baranwal (2026-05-16)
+
+## 개요
+
+Hacker News는 기술 트렌드를 파악하고 좋은 토론을 접하기에 좋은 곳이다. 하지만 하루에 두 번 확인해도 자신이 관심 있는 글을 놓치기 일쑤고, 기존 HN 뉴스레터는 모두에게 동일한 상위 글을 전달하는 방식이라 개인화가 되지 않는다.
+
+그래서 직접 만든 것이 **HN Digest**다. 실시간 HN 데이터를 기반으로 자신만의 이메일 다이제스트를 채팅으로 구성하고, 미리보기한 뒤, 원하는 시간에 발송 스케줄을 등록할 수 있다. 일간·주간·월간, 70개 이상의 타임존을 지원하며 비밀번호 없이 무료로 이용 가능하다.
+
+- GitHub: [github.com/Anmol-Baranwal/hndigest](https://github.com/Anmol-Baranwal/hndigest)
+- 라이브: [hndigest.vercel.app](https://hndigest.vercel.app)
+
+## 기능
+
+채팅 에디터에 원하는 내용을 입력하면 된다. 보안 뉴스, Ask HN, 트렌딩 글, 토론, Show HN 등을 추가할 수 있다.
+
+섹션 타입은 10가지이며 각 섹션별로 키워드, 기간(24h~30d), 최소 upvote 수, 스토리 수 필터를 설정할 수 있다. 예를 들어 "지난 48시간의 보안 뉴스와 최근 Show HN"처럼 입력하면 적절한 섹션이 추가되고 필터가 적용된다.
+
+미리보기는 React Email 실시간 렌더링으로, 실제 이메일과 동일하게 보인다. 스토리 제목을 클릭하면 원문 사이트로, 댓글 링크를 클릭하면 HN 게시물로 이동한다.
+
+채팅에서 할 수 있는 것들:
+- 사용 가능한 섹션 목록 표시
+- 섹션 삭제 또는 순서 변경
+- 뉴스레터 테마(라이트/다크) 변경
+
+구성이 완료되면 magic link로 활성화한다. Resend API 키가 필요하며 무료 티어는 월 3,000건 — 매일 발송해도 약 30건 정도 사용한다. 발송은 본인의 Resend 키와 쿼터를 통해 이루어지며 대시보드에서 언제든지 일시 중지하거나 삭제할 수 있다.
+
+**사용 스택:**
+- Resend + React Email — 이메일 발송
+- CopilotKit + Next.js — 채팅 에디터
+- Neon Postgres — 데이터베이스
+- Upstash QStash — 스케줄링
+- Firebase Hacker News API + Algolia — 실시간 데이터
+- AES-256-GCM — 키 암호화 / JWT — 인증
+
+## 동작 방식
+
+전체 흐름은 다음과 같다.
+
+```plaintext
+Browser (editor + chat + live preview)
+ ├→ /api/copilotkit  → LLM이 tool call 반환
+ ├→ /api/preview     → React Email 렌더 → iframe
+ └→ /api/activate    → 키 암호화 → Neon → QStash 스케줄 생성
+                                           ↓ (HTTP cron callback)
+                                    /api/send → Neon (스케줄 조회)
+                                             → 사용자의 Resend (발송)
+```
+
+채팅은 데이터베이스에 직접 쓰지 않는다. LLM의 tool call은 브라우저 상태만 업데이트한다. "Activate"를 누르는 시점에만 DB에 기록되고 QStash 스케줄이 생성된다.
+
+### 에디터와 실시간 미리보기
+
+에디터의 모든 변경은 JSON blob이 아닌 타입이 지정된 함수 호출로 처리된다. CopilotKit의 `useFrontendTool` hook은 zod 스키마와 핸들러를 받으며, LLM이 툴을 선택하고 파라미터를 채우면 핸들러가 허용 범위를 강제한다.
+
+```tsx
+useFrontendTool({
+  name: "add_section",
+  parameters: z.object({
+    type: z.enum(["hn-stories", "topic", "recent-gems", "high-signal", ...]),
+    count: z.number().min(1).max(30).optional(),
+    query: z.string().optional(),
+    hours: z.number().optional(),
+    minPoints: z.number().optional(),
+  }),
+  handler: async ({ type, count, query, hours, minPoints }) => {
+    const section = {
+      id: `${type}-${Date.now()}`,
+      type,
+      props: { count, query, hours, minPoints },
+    };
+    setConfig(prev => ({ ...prev, sections: [...prev.sections, section] }));
+    return `Added ${type} section`;
+  },
+});
+```
+
+LLM은 HTML을 작성하거나 별도로 검증해야 하는 JSON을 내보내지 않는다. 가드레일은 핸들러 안에 있다 — 싱글톤 섹션 중복 방지, 표준 섹션의 지원하지 않는 `hours`/`minPoints` 무시 등.
+
+설정이 변경될 때마다 `/api/preview`를 호출해 React Email 템플릿을 서버 사이드 렌더링한다. 에디터는 설정 해시로 캐시하므로 반복 편집 시 중복 요청이 발생하지 않는다.
+
+### 활성화와 키 암호화
+
+Resend API 키와 수신자를 입력하고 activate를 누르면, 키는 DB에 저장되기 전에 AES-256-GCM으로 암호화된다. 복호화는 발송 시점에 메모리 내에서만 이루어지며 로그에 기록되거나 브라우저로 반환되지 않는다.
+
+```ts
+export function encrypt(text: string): string {
+  const iv = crypto.randomBytes(16);
+  const cipher = crypto.createCipheriv("aes-256-gcm", getKey(), iv);
+  let enc = cipher.update(text, "utf8", "hex") + cipher.final("hex");
+  return `${iv.toString("hex")}:${cipher.getAuthTag().toString("hex")}:${enc}`;
+}
+```
+
+magic link는 서명된 JWT(만료 30분)로 발급되어 본인의 Resend 키를 통해 전송된다. 링크를 클릭하면 대시보드로 접속된다.
+
+### QStash를 이용한 사용자별 스케줄링
+
+Vercel Hobby cron은 프로젝트 전체에서 하루 한 번만 실행되므로, 각 사용자가 원하는 시간과 타임존을 설정하는 이 요구사항에는 맞지 않았다. QStash는 활성화할 때마다 각자의 스케줄을 생성할 수 있다.
+
+```ts
+const cron = toCron(frequency, time, day);  // 예: 월요일 오전 9시 → "0 9 * * 1"
+await client.schedules.create({
+  destination: `${baseUrl}/api/send?id=${scheduleId}`,
+  cron,
+  headers: { "x-cron-secret": process.env.CRON_SECRET },
+});
+```
+
+타임존 변환은 클라이언트 사이드에서 처리된다 — `Asia/Tokyo 8am`을 선택하면 에디터가 `23:00 UTC`로 변환해 저장하고 스케줄링한다.
+
+### 발송 엔드포인트
+
+cron 트리거 시 복호화 → HN 데이터 fetch → 렌더 → 발송 순서로 실행된다. 공유 헤더 시크릿으로 보호되어 QStash만 호출할 수 있다.
+
+```ts
+// /api/send
+if (req.headers.get("x-cron-secret") !== process.env.CRON_SECRET) return 401;
+
+const record = await getScheduleById(id);
+const data = await fetchNewsletterData(record);
+const html = await render(<NewsletterEmail config={record} data={data} ... />);
+
+const resend = new Resend(decrypt(record.encryptedResendKey));
+await resend.emails.send({
+  from: "HN Digest <onboarding@resend.dev>",
+  to: record.recipients,
+  subject,
+  html,
+});
+```
+
+매 발송 시 Hacker News 데이터를 새로 가져온다. 사전 렌더링 없이 항상 최신 데이터를 사용한다. 발송은 사용자의 Resend 키와 쿼터를 사용하며, 원클릭 구독 취소로 스케줄도 함께 삭제된다.
+
+이 패턴은 다른 소스에도 그대로 적용할 수 있다. Hacker News API를 Product Hunt, GitHub trending, Reddit, 또는 임의의 RSS 피드로 교체하면 해당 소스의 개인화 다이제스트 빌더가 된다. 암호화, 채팅 에디터, 사용자별 스케줄 구조는 동일하게 재사용 가능하다.
+
+---
+
+*이 글은 위 출처의 내용을 바탕으로 작성된 초안입니다. 원문의 의견과 정보를 그대로 전달하며, 별도의 견해를 포함하지 않습니다.*

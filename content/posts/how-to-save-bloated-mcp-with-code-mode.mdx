@@ -1,0 +1,106 @@
+---
+title: "비대해진 MCP를 Code Mode로 구하는 방법"
+description: "MCP의 context bloating 문제와 Cloudflare가 제안한 Code Mode 접근법, 그리고 ZenStack이 이를 어떻게 적용해 토큰 사용량을 대폭 줄였는지를 다룬다."
+date: "2026-05-19"
+category: "news"
+tags: ["ai", "webdev", "agents", "database"]
+source_id: "devto-3663201"
+source_url: "https://dev.to/zenstack/how-to-save-bloated-mcp-with-code-mode-33e3"
+source_title: "How to Save Bloated MCP with Code Mode"
+source_author: "JS"
+source_published: "2026-05-13"
+readingTime: 5
+---
+
+> **원문:** [How to Save Bloated MCP with Code Mode](https://dev.to/zenstack/how-to-save-bloated-mcp-with-code-mode-33e3) — JS (2026-05-13)
+
+## Agent Skills 때문에 MCP는 죽었는가?
+
+AI가 SaaS 같은 구세계만 파괴하는 게 아니라 자신이 낳은 신세계의 자식들까지 잡아먹고 있다는 느낌이 들 때가 있다. 1년이 채 되지 않아 MCP(Model Context Protocol)는 업계의 "황금 아이"였고, 모든 벤더와 플랫폼이 통합에 열을 올렸다. 그런데 6개월 후 스포트라이트는 다시 이동했다—이번엔 Agent Skills로, MCP의 많은 영광을 가로챈 듯한 동생의 등장이었다.
+
+소셜 미디어에는 갑자기 "MCP is dead"가 넘쳐났다. 마치 이전의 "SaaS is dead"처럼. 그러나 이는 감정을 자극하고 바이럴을 만들기 위한 소셜 미디어 특유의 극단적 표현이다. Anthropic이 2025년 말 MCP를 Linux Foundation에 기증하고 Agent Skills를 오픈 스탠다드로 공개할 때 한 발언을 먼저 들어보자.
+
+> Skills와 MCP 서버가 얼마나 상호 보완적인지도 확인했습니다. MCP는 외부 소프트웨어와 데이터에 대한 안전한 연결을 제공하고, Skills는 해당 도구들을 효과적으로 활용하기 위한 절차적 지식을 제공합니다. 강력한 MCP 통합에 투자한 파트너들이 자연스러운 출발점이었습니다.
+> — Mahesh Murag, Anthropic Product Manager
+
+실제 산업 현장에서 이것이 어떻게 작동하는지에 대한 경험은 [Skills vs MCP tools for agents: when to use what](https://www.llamaindex.ai/blog/skills-vs-mcp-tools-for-agents-when-to-use-what)에서 확인할 수 있다.
+
+remote HTTP MCP 서버는 실제 판도를 바꾸는 요소이며, vibe-coding에서 agentic engineering으로의 전환에서 조직 및 엔터프라이즈 도입의 핵심 연결고리가 될 것이라는 저자의 관점이 제시되어 있다.
+
+그 결과로, OAuth에 대한 기본 지원이 추가된 것은 좋은 기능이다. 이는 조직 및 엔터프라이즈 도입에서 가장 중요한 사항 중 하나로, 아래 예시로 잘 설명된다.
+
+> 엔지니어가 팀을 떠났나요? 그들의 OAuth 토큰을 취소하면 MCP 서버 접근이 차단됩니다. 처음부터 다른 키나 시크릿에 대한 접근 권한이 없었으니까요.
+
+## MCP는 비대해진다
+
+ZenStack 커뮤니티 내에서 관련 블로그 포스트가 꽤 많은 주목을 받았다. ZenStack 솔루션이 얼마나 깔끔한지를 감안하면, Auth가 통합된 다양한 MCP 서버가 릴리스될 것으로 기대되었다.
+
+그러나 그런 일은 일어나지 않았다. 그 이유는 한 사용자가 GitHub 이슈를 생성하고 나서야 알게 됐다.
+
+요약하자면, MCP 서버가 제공하는 단 하나의 도구를 로드하려 했을 때도 context window가 40만 토큰으로 부풀어 올라 실사용이 불가능해졌다. 이 "context bloating" 문제는 MCP에서 가장 많이 비판받는 문제 중 하나이며, 사람들이 Skills로 전환하는 이유이기도 하다. 예를 들어, 공식 Playwright GitHub에서는 Playwright CLI와 Playwright MCP를 이렇게 비교한다.
+
+> 현대의 코딩 에이전트는 MCP보다 SKILL로 노출된 CLI 기반 워크플로우를 점점 더 선호합니다. CLI 호출이 더 토큰 효율적이기 때문입니다. 큰 tool schema와 장황한 accessibility tree를 모델 컨텍스트에 로드하는 것을 피할 수 있고, 에이전트가 간결하고 목적에 맞는 명령을 통해 행동할 수 있습니다.
+
+ZenStack의 접근 방식은 이 문제를 최대한으로 증폭시켰다. ZenStack MCP 서버가 노출하는 도구들이 ORM의 쿼리 API인데, 이는 Prisma ORM 쿼리 API의 상위 집합(superset)이기 때문이다. 이 API의 강점 중 하나는 중첩 관계 쿼리(nested relation queries)를 허용한다는 것이다. 단일 함수 호출로 전체 데이터베이스의 모든 모델을 순회할 수 있다.
+
+물이 배를 띄울 수도 있지만 뒤집을 수도 있다. 단 하나의 MCP server tool에 대해 생성된 JSON schema조차도, 애플리케이션 전체 schema를 포함해 비대해진다.
+
+간단한 해결책은 중첩 관계 순회 깊이를 제한해 JSON schema를 단순화하는 것이다. 그러나 이는 진짜 해결책이라기보다는 임시방편에 가깝다.
+
+- 모델의 일부만 선택할 수 있어 실용적이지도 않고 확장 가능하지도 않으며, 대규모 프로젝트에서는 실행 불가능하다.
+- 쿼리 API의 강점을 잃게 된다.
+
+## Code Mode MCP의 등장
+
+소프트웨어 개발 세계의 좋은 점 한 가지는, 어떤 문제를 만나든 대부분의 경우 처음으로 맞닥뜨린 것이 아니라는 것이다. 여기서 Cloudflare가 내놓은 솔루션이 있다: [Code Mode MCP](https://blog.cloudflare.com/code-mode-mcp/)
+
+이들이 채택한 해결책은, 모든 작업을 별도의 tool로 설명하는 대신 LLM이 코드를 직접 작성하게 하는 것이다. 이를 Code Mode라고 명명했다. 구체적으로는, Cloudflare API 전체를 위한 MCP 서버가 단 두 개의 tool만 노출한다: `search`와 `execute`. 그러면 API 엔드포인트가 아무리 많아져도 footprint는 고정 상태를 유지한다. 그 결과로 입력 토큰 사용량을 99.9% 줄여 약 1천 토큰 수준으로 낮추는 데 성공했다.
+
+## ZenStack의 솔루션
+
+Cloudflare와 동일하게 `search`와 `execute` tool을 노출하는 방법을 사용할 수도 있었다. 하지만 ZenStack의 경우에는 두 가지 고유한 특성 덕분에 더 잘할 수 있었다.
+
+- 하나의 모델은 기술적으로 전체 데이터베이스의 모든 다른 모델과 연결되어 있다.
+- LLM은 이미 Query API 작성 방법에 꽤 익숙하다. Prisma 덕분에 훈련 데이터셋의 GitHub과 블로그 포스트에서 무수히 많은 예시를 접했기 때문이다.
+
+그 결과로 3개의 tool을 제공한다.
+
+### schema
+
+`search` tool 대신, 애플리케이션 전체 그림과 간단한 예시를 포함한 전체 schema를 LLM에 전달하는 `schema` tool을 제공한다.
+
+### execute
+
+`execute`는 그 이상이 아니다. 실제로는 더 단순하다. 임의의 코드 대신 `findMany`, `createMany`, `updateMany` 등 쿼리 API에 해당하는 고정된 수의 함수 호출만 실행하기 때문이다.
+
+### check
+
+이 tool은 `execute` 전에 LLM이 구성한 함수 호출의 파라미터가 유효한지 확인하는 데 사용된다. `execute`의 반환된 오류 메시지로도 LLM이 올바른 파라미터를 파악할 수 있기 때문에 이것은 일종의 보너스(icing on the cake)다.
+
+`execute`의 prompt에 다음 내용을 반드시 추가해야 한다.
+
+```
+You MUST use the "check" tool first to validate the query before calling this tool
+```
+
+이 `check`를 추가한 이유는 사람과 AI 모두에게 이점이 되는 소프트웨어 엔지니어링 원칙인 "높은 응집도와 낮은 결합도(High cohesion and low coupling)"를 준수하기 위해서다.
+
+## Claude로 테스트
+
+50개 이상의 모델과 AI 생성 목(mock) 데이터로 복잡한 헬스장 애플리케이션을 시뮬레이션하고, Sonnet 4.6을 사용한 Claude 데스크탑으로 플레이했다. 결과는 상당히 견고하다.
+
+10개 이상의 모델이 관련된 매우 복잡한 중첩 쿼리를 생성할 수 있었으며, 렌더링된 결과도 꽤 양호했다.
+
+하나의 작업으로 완료할 수 없는 경우, 여러 작업을 사용해 처리하는 방법을 파악한다.
+
+더 인상적인 것은, 전체 실험에서 LLM이 생성한 초기 함수 호출이 잘못된 경우는 딱 한 번뿐이었는데, 이것이 `check` tool에 의해 잡혔다. 그리고 단순히 다른 경로로 작업을 완료했다.
+
+## 직접 애플리케이션에서 시도해보기
+
+로컬에서 실행해볼 수 있는 간단한 프로젝트가 있다: [zenstack-code-mode-mcp](https://github.com/jiashengguo/zenstack-code-mode-mcp)
+
+`schema.zmodel`을 자신의 애플리케이션에 맞게 변경하면 바로 테스트해볼 수 있다.
+
+---
+
+*이 글은 위 출처의 내용을 바탕으로 작성된 초안입니다. 원문의 의견과 정보를 그대로 전달하며, 별도의 견해를 포함하지 않습니다.*
