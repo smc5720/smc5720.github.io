@@ -22,9 +22,35 @@ export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
   const post = getPostBySlug(slug);
   if (!post) return {};
+
+  const ogImages = post.cover
+    ? [{ url: post.cover, alt: post.coverAlt ?? post.title }]
+    : [{ url: '/opengraph-image.png', alt: "RicoCheese's Blog" }];
+
+  const twitterImages = post.cover ? [post.cover] : ['/opengraph-image.png'];
+
   return {
     title: post.title,
     description: post.description,
+    openGraph: {
+      type: 'article',
+      title: post.title,
+      description: post.description,
+      url: `https://smc5720.github.io/blog/${slug}`,
+      images: ogImages,
+      publishedTime: post.date,
+      authors: ['RicoCheese'],
+      tags: post.tags,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description: post.description,
+      images: twitterImages,
+    },
+    alternates: {
+      canonical: `https://smc5720.github.io/blog/${slug}`,
+    },
   };
 }
 
@@ -37,8 +63,23 @@ export default async function PostPage({ params }: Props) {
 
   const date = format(new Date(post.date), "yyyy년 M월 d일", { locale: ko });
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: post.description,
+    datePublished: post.date,
+    author: { '@type': 'Person', name: 'RicoCheese' },
+    image: post.cover ?? '/opengraph-image.png',
+    url: `https://smc5720.github.io/blog/${slug}`,
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <ReadingProgress />
 
       {/* ── Hero header ── */}
