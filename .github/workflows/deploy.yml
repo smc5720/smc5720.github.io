@@ -36,6 +36,10 @@ jobs:
 
       - name: Build
         run: pnpm build
+        env:
+          NEXT_PUBLIC_ADSENSE_PUBLISHER_ID: ca-pub-8344215225561043
+          NEXT_PUBLIC_ADSENSE_SLOT_TOP: "5754924099"
+          NEXT_PUBLIC_ADSENSE_SLOT_BOTTOM: "1259445654"
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
