@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getAllPosts } from "@/lib/posts";
 import { SectionHead } from "@/components/SectionHead";
 import { CategoryBadge } from "@/components/CategoryBadge";
@@ -180,7 +181,6 @@ function ProfileCard() {
           gap: 14,
         }}
       >
-        {/* Portrait placeholder — no image-slot web component */}
         <div
           style={{
             position: "relative",
@@ -190,19 +190,13 @@ function ProfileCard() {
             background: "var(--color-surface-2)",
           }}
         >
-          <span
-            className="mono-label"
-            style={{
-              position: "absolute",
-              left: 10,
-              top: 10,
-              padding: "3px 6px",
-              background: "var(--color-scrim)",
-              backdropFilter: "blur(4px)",
-            }}
-          >
-            FIG · A
-          </span>
+          <Image
+            src="/images/profile.jpg"
+            alt="서민철 프로필 사진"
+            fill
+            style={{ objectFit: "cover" }}
+            priority
+          />
           <span
             className="mono-label tabular"
             style={{
