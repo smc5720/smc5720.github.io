@@ -1788,6 +1788,125 @@ a {
   }
 }
 
+/* ── LinkCard — OG preview card used in MDX (e.g. news posts) ── */
+.link-card {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--color-border-2);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  background: var(--color-surface);
+  transition: border-color 0.2s var(--ease-out), box-shadow 0.2s var(--ease-out);
+  margin: 1.6em 0;
+  /* Prevent prose <a> underline override */
+  border-bottom: 1px solid var(--color-border-2) !important;
+}
+
+.link-card:hover {
+  border-color: var(--color-accent-line) !important;
+  box-shadow: var(--sh-2);
+}
+
+/* OG image — fixed 140px wide strip */
+.link-card-img {
+  flex-shrink: 0;
+  width: 140px;
+  min-height: 108px;
+  background: var(--color-surface-3);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Text body — fills remaining width */
+.link-card-body {
+  flex: 1;
+  min-width: 0;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Domain row: site name + external icon */
+.link-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.link-card-domain {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Title */
+.link-card-title {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--color-text);
+  margin: 0;
+  /* 2-line clamp */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.link-card:hover .link-card-title {
+  color: var(--color-accent);
+}
+
+/* Description — 2-line clamp */
+.link-card-desc {
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-text-2);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Author / date footer */
+.link-card-footer {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-3);
+  margin: 2px 0 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Mobile ≤600px: hide image, full-width text only */
+@media (max-width: 600px) {
+  .link-card-img {
+    display: none;
+  }
+
+  .link-card-body {
+    padding: 14px 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link-card {
+    transition: none;
+  }
+}
+
 /* ── 404 Not-Found page layout ── */
 
 /* nf-grid: 2-col (404 number | description) */

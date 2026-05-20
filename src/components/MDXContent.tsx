@@ -4,6 +4,7 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import remarkGfm from "remark-gfm";
 import rehypeShiki from "@shikijs/rehype";
 import { CodeBlock } from "./CodeBlock";
+import { LinkCard } from "./LinkCard";
 import { parseMetaString, dataLanguageTransformer } from "@/lib/shiki-meta-transformer";
 
 interface Props {
@@ -12,6 +13,7 @@ interface Props {
 
 const components = {
   pre: CodeBlock,
+  LinkCard,
 };
 
 export async function MDXContent({ source }: Props) {
