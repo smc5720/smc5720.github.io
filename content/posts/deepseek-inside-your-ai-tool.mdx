@@ -1,0 +1,85 @@
+---
+title: "DeepSeek가 당신의 AI 도구 안에서 돌아가고 있다 — 아무도 알려주지 않은 채로 (DeepSeek Is Running Inside Your Favorite AI Tool – And Nobody Told You)"
+description: "네트워크 탭을 열면 드러나는 진실: 마케팅은 독자 개발 모델을 주장하지만 API 트래픽은 DeepSeek·Qwen·Kimi를 가리킨다."
+date: "2026-05-20"
+category: "news"
+tags: ["ai", "opensource", "transparency", "discuss"]
+source_id: "devto-3693064"
+source_url: "https://dev.to/harsh2644/deepseek-is-running-inside-your-favorite-ai-tool-and-nobody-told-you-5g47"
+source_title: "DeepSeek Is Running Inside Your Favorite AI Tool – And Nobody Told You"
+source_author: "Harsh"
+source_published: "2026-05-18"
+readingTime: 4
+---
+
+> **원문:** [DeepSeek Is Running Inside Your Favorite AI Tool – And Nobody Told You](https://dev.to/harsh2644/deepseek-is-running-inside-your-favorite-ai-tool-and-nobody-told-you-5g47) — Harsh (2026-05-18)
+
+## 개요
+
+저자는 지난 화요일 HuggingChat에서 느린 응답을 디버깅하던 중 DevTools 네트워크 탭을 열었다. 그리고 채팅 UI에서 다음 문구를 발견했다.
+
+```
+agentic with Kimi-K2.6 via 🤗 together
+```
+
+HuggingChat은 사용 중인 모델(Kimi-K2.6)과 추론 제공자(Together AI)를 UI에 그대로 표시하고 있었다. Kimi-K2.6은 HuggingChat이 직접 만든 것이 아니라 중국 AI 기업 Moonshot AI의 모델이다. 제3자 API 호출이 화면에 명시된 것이다. 그러나 다른 도구들을 확인했을 때 분위기는 달랐다.
+
+## 본문
+
+## API 트래픽이 실제로 보여주는 것
+
+DeepSeek, Kimi, Qwen — 중국 오픈소스 모델들이 현재 광범위하게 쓰이고 있다. 저자가 확인한 다수의 도구들은 마케팅 페이지에서 독자 개발을 주장하면서도 실제로는 이들 API를 호출하고 있었다. 패턴은 일관됐다. 마케팅 문구와 네트워크 트래픽이 서로 다른 말을 했다.
+
+- 한 도구의 웹사이트: *"처음부터 구축한 최전선 인텔리전스(frontier intelligence built from scratch)"* → API 응답: `kimi-k2p5-rl-0317`
+- 다른 도구: *"자체 개발 AI, 완전 사내 개발(self-developed AI, fully in-house)"* → 네트워크 트래픽: `deepseek-coder-v2`
+- 또 다른 도구: *"차세대 독자 모델(next-generation proprietary model)"* → DevTools: `qwen-2.5-72b`
+
+## 왜 중요한가
+
+저자는 "어차피 잘 작동하면 됐지"라는 반응에 반박한다.
+
+**의사결정에 영향을 준다.** 도구를 선택할 때 독자적인 모델을 가졌다는 주장이 비교 요소가 된다. 두 도구가 동일한 제3자 API를 호출하고 있다면 그 차별화는 실재하지 않는다. 차이에 프리미엄을 지불하는 셈이다.
+
+**데이터 문제다.** 도구가 "데이터가 서버 밖을 나가지 않는다"고 말하지만 API 트래픽이 `api.together.ai`나 `api.moonshot.cn`으로 향하고 있다면 그것은 다른 서버, 다른 국가, 경우에 따라 다른 데이터 보호법의 적용을 받는다. 기업 사용에서 특히 중요하다.
+
+**신뢰의 문제다.** 사용하는 모델을 속이는 도구라면 제품 설명의 다른 항목도 신뢰하기 어렵다. 가격, 데이터 처리, 기능 명세 모두.
+
+**디버깅에 영향을 준다.** 예상치 못한 출력이 나왔을 때 실제 모델을 알면 원인 추적이 훨씬 쉬워진다. "중국어 입력에 왜 이상하게 반응하지?"라는 질문은 뒤에서 중국 모델이 라우팅되고 있다는 사실을 알 때 비로소 맥락이 생긴다.
+
+## HuggingChat이 좋은 예인 이유
+
+저자는 이 글의 발단이 된 HuggingChat 스크린샷이 실은 HuggingChat이 올바른 일을 하고 있는 사례라고 명확히 한다.
+
+HuggingChat은 모델 이름과 추론 제공자를 채팅 UI에 직접 표시한다. DevTools가 필요 없다. 이것은 구현 난이도의 문제가 아니라 설계 선택의 문제다.
+
+> 모델을 공개하는 것은 "우리는 당신이 무엇을 쓰는지 알 권리가 있다고 생각한다"는 태도다. 공개하지 않는 것은 "이 부분을 생각하지 않는 편이 낫다"는 태도다.
+
+저자는 HuggingChat이 기준선(baseline)이 되어야 한다고 주장한다. 대부분의 도구가 이 기준을 충족하지 못하는 것이 현실이다.
+
+## 직접 확인하는 방법 (5분)
+
+특별한 도구는 필요 없다. 브라우저와 5분이면 충분하다.
+
+1. Chrome 또는 Edge에서 확인할 AI 도구를 연다.
+2. `F12`로 DevTools를 열고 **Network** 탭으로 이동한다.
+3. **Fetch/XHR**로 필터링한다.
+4. 간단한 질문을 입력한다. 예: "Python을 한 줄로 설명해줘"
+5. 발생한 API 요청을 클릭하고 **Response** 탭을 확인한다.
+
+확인 포인트:
+
+- JSON 응답의 `model` 필드
+- 요청 URL의 제3자 도메인: `together.ai`, `openai.com`, `anthropic.com`, `moonshot.cn`, `deepseek.com`
+- 페이로드의 모델 ID: `kimi-k2p5-rl-0317`, `deepseek-coder-v2`, `qwen-2.5-72b-instruct` 형태
+
+## 더 넓은 맥락
+
+현재 AI 도구들은 어색한 중간 단계에 있다. 기반 모델은 대부분 범용품(commodity)에 가깝다. OpenAI, Anthropic, Together AI, Moonshot, Mistral, DeepSeek — 모두가 같은 API들을 호출하고 있다. 실질적인 차별화는 UX, 컨텍스트 처리, 통합, 워크플로에서 나와야 한다.
+
+그러나 일부 기업들은 여전히 모델 자체로 경쟁하려 한다. 직접 만들 수 없을 때, 일부는 그냥 만든 것처럼 말한다. 마케팅에 "독자 개발"을 넣고 아무도 DevTools를 열지 않기를 바란다.
+
+저자는 이렇게 마무리한다. 대부분의 사람들은 확인하지 않는다. 바쁘고, 도구는 작동하고, 넘어간다. 그러나 *작동한다*와 *사용하는 것에 대해 솔직하다*는 다른 것이다. 그리고 두 번째가 업계가 현재 인정하는 것보다 더 중요하다.
+
+---
+
+*이 글은 위 출처의 내용을 바탕으로 작성된 초안입니다. 원문의 의견과 정보를 그대로 전달하며, 별도의 견해를 포함하지 않습니다.*

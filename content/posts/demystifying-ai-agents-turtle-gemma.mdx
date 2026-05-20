@@ -1,0 +1,61 @@
+---
+title: "Turtle & Gemma로 AI 에이전트 이해하기"
+description: "Logo 언어의 거북이 그래픽을 Gemma 모델과 연결한 Turtle-Gemma 프로젝트로 AI 에이전트의 '툴 호출(tool calling)' 동작 방식을 시각적으로 설명한다."
+date: "2026-05-20"
+category: "news"
+tags: ["turtle", "gemma", "ai", "agents"]
+source_id: "devto-3696406"
+source_url: "https://dev.to/googleai/demystifying-ai-agents-with-turtle-gemma-4ajj"
+source_title: "Demystifying AI Agents with Turtle & Gemma"
+source_author: "bebechien"
+source_published: "2026-05-19"
+readingTime: 3
+---
+
+> **원문:** [Demystifying AI Agents with Turtle & Gemma](https://dev.to/googleai/demystifying-ai-agents-with-turtle-gemma-4ajj) — bebechien (2026-05-19)
+
+## 개요
+
+CRT 모니터 위의 작은 삼각형에 `FORWARD 100`을 입력하던 Logo 언어의 경험을 현대 AI 환경에 재현한 프로젝트, **Turtle-Gemma**가 소개됐다.
+
+브라우저에서 마이크를 클릭하고 "빨간 별을 그려줘"라고 말하면, AI 에이전트가 Logo 코드를 작성하고 실행해 디지털 캔버스에 결과를 그린다. 이 프로젝트는 현대 AI 에이전트가 실제로 어떻게 동작하는지 이해하는 데 효과적인 방법으로 소개된다.
+
+## 아키텍처: 세 가지 구성 요소
+
+Turtle-Gemma의 파이프라인은 단순하다.
+
+1. **귀(The Ears):** Gradio 웹 인터페이스가 음성 또는 텍스트 요청을 입력받는다.
+2. **뇌(The Brain):** Google의 Gemma 모델이 입력을 받아 에이전트로서 동작한다.
+3. **손(The Hands):** 커스텀 "헤드리스(headless)" 거북이 엔진(`turtle_engine.py`)이 에이전트의 지시를 받아 PIL(Python Imaging Library) 이미지에 그린다.
+
+대규모 엔터프라이즈 스택 없이도 Python 환경, 오픈 웨이트(open-weights) 모델, 간단한 UI 라이브러리만으로 음성 입력을 렌더링된 이미지로 바꿀 수 있음을 보여준다.
+
+## 툴 호출(Tool Calling) 시각화
+
+"에이전틱 워크플로(Agentic Workflows)"나 "툴 호출(Tool Calling)"은 AI 분야에서 자주 언급되지만 추상적으로 느껴지는 개념이다. Turtle-Gemma는 이를 눈에 보이는 방식으로 표현한다.
+
+"빨간 별을 그려줘"라고 요청하면 모델은 이미지를 직접 출력하는 대신, 주어진 도구들을 사용해 단계별로 추론한다. 이 경우 도구는 `move_turtle()`, `turn_turtle()`, `set_pen_state()`, `set_pen_color()`다.
+
+추론 과정은 다음과 같이 펼쳐진다.
+
+- *"사용자가 거북이 그래픽으로 빨간 별을 그리길 원한다. 별은 특정 각도를 반복해 앞으로 이동하는 다각형 형태로 그릴 수 있다."*
+- 툴 호출 1: `set_pen_color("red")`
+- 툴 호출 2: `move_turtle(100)`
+- 툴 호출 3: `turn_turtle(144)`
+- *(5회 반복)*
+
+LLM이 캔버스 위에 물리적이고 순차적인 단계를 출력해야 하기 때문에, AI 추론의 추상적인 "블랙박스"가 완전히 시각화된다. AI가 논리를 잘못 추론해도 코드 오류 없이 화면에 찌그러진 별이 그려지는 것으로 즉시 확인할 수 있다.
+
+## 실수도 경험의 일부
+
+AI가 2D 공간을 탐색하는 과정에서 결과가 항상 완벽하지는 않다. 크리스마스 트리를 요청했을 때 트렁크를 빠뜨린 채 삼각형만 그리거나, 현재 방향을 혼동해 이상한 선이 추가되기도 한다.
+
+이런 "실수"들은 LLM이 오류 없는 마법의 두뇌가 아니라, 언어를 기하학으로 매핑하려는 추론 엔진임을 상기시킨다.
+
+## 직접 시험해보기
+
+Turtle-Gemma는 AI를 진지한 업무 도구로만 쓰는 것이 아니라, 놀이로서의 프로그래밍을 경험할 수 있는 프로젝트다. 툴 호출 동작을 직접 확인하고 싶다면 레포를 클론해 Gradio 앱을 실행한 뒤 거북이에게 별을 그리게 해보라고 소개한다.
+
+---
+
+*이 글은 위 출처의 내용을 바탕으로 작성된 초안입니다. 원문의 의견과 정보를 그대로 전달하며, 별도의 견해를 포함하지 않습니다.*
