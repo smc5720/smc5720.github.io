@@ -914,6 +914,12 @@ a {
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}
+
 /* ── Post cards (.card) ── */
 .card {
   position: relative;
