@@ -88,7 +88,7 @@ export default async function PostPage({ params }: Props) {
       <ReadingProgress />
 
       {/* ── Hero header ── */}
-      <section style={{ paddingTop: 56, paddingBottom: 24 }}>
+      <section style={{ paddingTop: 56, paddingBottom: 8 }}>
         <div className="container-narrow">
           {/* Back link */}
           <Link
@@ -206,7 +206,7 @@ export default async function PostPage({ params }: Props) {
       )}
 
       {/* ── Comments ── */}
-      <section style={{ marginTop: 56 }}>
+      <section style={{ marginTop: 32 }}>
         <div className="container-narrow">
           <GiscusComments />
         </div>

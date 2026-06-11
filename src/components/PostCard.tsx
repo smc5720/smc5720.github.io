@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import type { PostMeta } from "@/types/post";
@@ -65,6 +66,26 @@ export function PostCard({ post, featured = false, hairline = false }: Props) {
           <CategoryBadge category={post.category} size="sm" />
           <time className="mono-label tabular" style={{ color: "var(--color-text-3)" }}>{date}</time>
         </div>
+        {post.cover && (
+          <div
+            style={{
+              position: "relative",
+              aspectRatio: "16 / 9",
+              marginBottom: 14,
+              borderRadius: "var(--r-xs)",
+              overflow: "hidden",
+              border: "1px solid var(--color-border-2)",
+            }}
+          >
+            <Image
+              src={post.cover}
+              alt={post.coverAlt ?? post.title}
+              fill
+              style={{ objectFit: "cover" }}
+              sizes="(max-width: 768px) 100vw, 33vw"
+            />
+          </div>
+        )}
         <h3 className="post-title">{post.title}</h3>
         {post.description && (
           <p
@@ -100,6 +121,20 @@ export function PostCard({ post, featured = false, hairline = false }: Props) {
         <CategoryBadge category={post.category} size="sm" />
         <time className="text-xs font-mono text-text-3 shrink-0">{date}</time>
       </div>
+
+      {post.cover && (
+        <div className="relative mb-3 rounded-[var(--r-xs)] overflow-hidden border border-border-2"
+          style={{ aspectRatio: "16 / 9" }}
+        >
+          <Image
+            src={post.cover}
+            alt={post.coverAlt ?? post.title}
+            fill
+            style={{ objectFit: "cover" }}
+            sizes="(max-width: 768px) 100vw, 33vw"
+          />
+        </div>
+      )}
 
       <h3 className="font-serif text-lg font-bold text-text group-hover:text-accent transition-colors duration-200 motion-reduce:transition-none leading-snug mb-2 line-clamp-2">
         {post.title}
