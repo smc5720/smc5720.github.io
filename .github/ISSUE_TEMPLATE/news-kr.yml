@@ -1,0 +1,55 @@
+name: "[news-kr] 국내 뉴스 포스트"
+description: Google News Korea 기반 국내 뉴스 포스트 기획
+title: "[news-kr] "
+labels: ["type:content", "area:news-kr", "status:needs-spec"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        국내 뉴스 기사를 기반으로 블로그 포스트를 작성합니다.
+        `scripts/fetch-kr-news.mjs --create-issue <N>`으로 자동 생성하거나 직접 작성하세요.
+        초안 작성은 `blog-writer` 에이전트에게 위임하는 것을 권장합니다.
+
+  - type: input
+    id: article-title
+    attributes:
+      label: 기사 제목
+      placeholder: 원문 기사 제목 그대로 입력
+    validations:
+      required: true
+
+  - type: input
+    id: article-url
+    attributes:
+      label: 원문 URL
+      placeholder: https://...
+    validations:
+      required: true
+
+  - type: input
+    id: published-date
+    attributes:
+      label: 발행일
+      placeholder: YYYY-MM-DD
+
+  - type: input
+    id: source-name
+    attributes:
+      label: 출처 (언론사)
+      placeholder: 예) 조선일보, 한겨레, ZDNet Korea
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: 요약 (RSS)
+      description: RSS description 또는 직접 작성한 요약
+    validations:
+      required: true
+
+  - type: textarea
+    id: article-body
+    attributes:
+      label: 원문 내용
+      description: 원문을 읽고 여기에 붙여넣기 (초안 작성 전 필수)
+      placeholder: |
+        <!-- 원문을 읽고 여기에 붙여넣기 -->

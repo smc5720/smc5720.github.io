@@ -42,6 +42,17 @@ When work tied to an issue is done, run this sequence by default:
 
 For work *not* tied to an issue, stop after step 2 unless the user says otherwise.
 
+## 로컬 환경 설정
+
+스크립트 실행 전 프로젝트 루트에 `.env.local` 파일이 필요합니다 (`.gitignore`에 포함되어 있어 커밋되지 않음).
+
+```
+PEXELS_API_KEY=발급받은_키
+```
+
+키가 없으면 `node scripts/fetch-news.mjs --id <ID>` 실행 시 설정 안내가 출력됩니다.
+Pexels API 키 발급: https://www.pexels.com/api/
+
 ## News post workflow
 
 트리거: 사용자가 "뉴스 초안", "뉴스 글 써줘", "news post" 등을 언급할 때.
@@ -51,8 +62,21 @@ For work *not* tied to an issue, stop after step 2 unless the user says otherwis
 3. **본문 조회** — `node scripts/fetch-news.mjs --id <ID>` 실행.
 4. **초안 작성** — `docs/news-post-template.md` 규칙을 엄수해 `content/posts/<slug>.mdx` 생성.
    - `source_id: devto-<ID>` 필드 필수 (중복 방지 식별자).
+   - `cover_image` 값이 있으면 `cover` + `coverAlt`(원문 제목 영어) 필드도 포함.
    - 원문 내용만 옮길 것. 개인 의견·해설·추측 일절 금지.
    - 출처 블록(`> **원문:** ...`)을 본문 최상단에 배치.
+   - 스크립트 출력에 Pexels 이미지 제안이 있으면, 내용 흐름상 자연스러운 위치에 삽입 (attribution 필수). 없으면 생략.
+
+## News KR workflow
+
+트리거: 사용자가 "국내 뉴스 이슈 만들어줘", "kr 뉴스" 등을 언급할 때.
+
+1. **목록 조회** — `node scripts/fetch-kr-news.mjs` 실행해 Google News Korea 인기글 출력.
+2. **글 선택** — 사용자가 고르거나, 지시 없으면 상위 글 추천.
+3. **이슈 생성** — `node scripts/fetch-kr-news.mjs --create-issue <N>` 실행.
+   - 이슈 제목: `[news-kr] <기사 제목>`
+   - 라벨: `type:content`, `area:news-kr`, `status:needs-spec`
+4. 사용자가 원문 읽고 이슈에 내용 추가 후 → `"뉴스 초안 써줘 #<이슈번호>"`로 포스트 초안 요청.
 
 ## When unsure
 

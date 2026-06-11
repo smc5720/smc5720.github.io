@@ -63,6 +63,9 @@
 - name: "area:content"
   color: "4a5060"
   description: "글 콘텐츠 자체"
+- name: "area:news-kr"
+  color: "4a5060"
+  description: "국내 뉴스 기반 블로그 글"
 
 # ── priority ───────────────────────────────────────────────────
 - name: "priority:p0"

@@ -11,6 +11,10 @@ Claude에게 초안 작성을 요청할 때 이 문서를 참고하세요.
 3. **중복 방지.** `source_id` 필드는 `devto-{숫자}` 형식으로 고정. 기존 MDX 파일에 같은 값이 있으면 작성하지 않는다.
 4. **번역 시 뉘앙스 유지.** 의역보다 직역을 우선하고, 애매한 부분은 영어 원문을 병기한다.
 5. **readingTime**은 본문 단어 수 기준 분당 200단어로 계산해 정수로 입력한다.
+6. **본문 이미지 삽입 규칙:**
+   - 원문 `body_markdown`에 이미 이미지가 있으면 위치 그대로 유지한다.
+   - 스크립트가 출력한 Pexels 이미지 제안이 있으면, 내용 흐름상 자연스러운 섹션 경계(## 소제목 직후)에 적절히 배치한다. 억지로 끼워 넣지 않는다.
+   - Pexels 이미지에는 반드시 아래 형식으로 attribution을 붙인다.
 
 ---
 
@@ -23,6 +27,8 @@ description: ""        # 원문 요약 1-2문장
 date: "YYYY-MM-DD"     # 초안 작성일
 category: "news"
 tags: []               # 원문 tag_list 그대로 사용
+cover: ""              # cover_image 값 그대로. 없으면 필드 생략
+coverAlt: ""           # 원문 제목(영어) 그대로. cover 있을 때만 필수
 source_id: "devto-"    # 중복 식별자. devto-{article.id} 형식 필수
 source_url: ""         # 원문 URL
 source_title: ""       # 원문 제목 (영어 원문 그대로)
@@ -50,6 +56,10 @@ readingTime: 5
 ### 소제목 1
 
 ...
+
+(Pexels 이미지를 삽입하는 경우 아래 형식 사용 — 섹션 내용과 관련 없으면 생략)
+![이미지 설명](https://images.pexels.com/photos/xxx/pexels-photo-xxx.jpeg)
+*Photo by [작가명](https://www.pexels.com/@username) on [Pexels](https://www.pexels.com/photo/xxx)*
 
 ### 소제목 2
 
