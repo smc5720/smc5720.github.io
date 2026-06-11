@@ -76,7 +76,9 @@ Pexels API 키 발급: https://www.pexels.com/api/
 3. **이슈 생성** — `node scripts/fetch-kr-news.mjs --create-issue <N>` 실행.
    - 이슈 제목: `[news-kr] <기사 제목>`
    - 라벨: `type:content`, `area:news-kr`, `status:needs-spec`
-4. 사용자가 원문 읽고 이슈에 내용 추가 후 → `"뉴스 초안 써줘 #<이슈번호>"`로 포스트 초안 요청.
+   - Playwright가 자동으로 실제 기사 URL 해소 + 원문 본문을 `## 원문 내용`에 수집.
+   - 본문 수집 실패(페이월 등)시 `<!-- 원문 내용 수집 실패 -->` 플레이스홀더가 남음.
+4. `"뉴스 초안 써줘 #<이슈번호>"` → 이슈의 `## 원문 내용`을 읽고 바로 초안 작성.
 
 ## When unsure
 
