@@ -11,7 +11,7 @@ import { readFileSync, readdirSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { createHash } from 'crypto';
-import { execSync } from 'child_process';
+import { execSync, spawnSync } from 'child_process';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -179,9 +179,34 @@ async function createIssue(n) {
   const pubDateFormatted = item.pubDate ? formatDate(item.pubDate) : '날짜 미상';
   const descClean = stripHtml(item.description);
 
+  // Playwright로 실제 기사 URL 해소 및 본문 추출
+  console.log('\n기사 원문 수집 중 (Playwright)...');
+  let resolvedUrl = null;
+  let articleContent = '<!-- 원문 내용 수집 실패 — 직접 붙여넣기 필요 -->';
+  try {
+    const { fetchArticle } = await import('./lib/gnews-resolver.mjs');
+    const result = await fetchArticle(item.link);
+    if (result.resolvedUrl) {
+      resolvedUrl = result.resolvedUrl;
+      console.log(`  → ${resolvedUrl}`);
+    }
+    if (result.textContent) {
+      articleContent = result.textContent;
+      console.log(`  → 본문 ${articleContent.length}자 수집 완료`);
+    } else {
+      console.warn('  → 본문 추출 실패 (페이월 또는 파싱 불가)');
+    }
+  } catch (e) {
+    console.warn('  → 원문 수집 오류:', e.message);
+  }
+
+  const urlLine = resolvedUrl
+    ? `- **URL:** ${resolvedUrl}\n- **Google News:** ${item.link}`
+    : `- **URL:** ${item.link}`;
+
   const issueTitle = `[news-kr] ${item.title}`;
   const issueBody = `## 원문
-- **URL:** ${item.link}
+${urlLine}
 - **발행:** ${pubDateFormatted}
 - **출처:** ${item.source || '(미상)'}
 - **source_id:** \`${sourceId}\`
@@ -190,23 +215,23 @@ async function createIssue(n) {
 ${descClean || '(RSS에 요약 없음)'}
 
 ## 원문 내용
-<!-- 원문을 읽고 여기에 붙여넣기 -->
+${articleContent}
 `;
 
   console.log(`\n이슈 생성 중: ${issueTitle}\n`);
 
-  try {
-    const result = execSync(
-      `gh issue create --title ${JSON.stringify(issueTitle)} --label "type:content,area:news-kr,status:needs-spec" --body ${JSON.stringify(issueBody)}`,
-      { encoding: 'utf-8', cwd: ROOT }
-    );
-    console.log('이슈 생성 완료:');
-    console.log(result.trim());
-  } catch (err) {
+  const result = spawnSync(
+    'gh',
+    ['issue', 'create', '--title', issueTitle, '--label', 'type:content,area:news-kr,status:needs-spec', '--body', issueBody],
+    { encoding: 'utf-8', cwd: ROOT }
+  );
+  if (result.status !== 0) {
     console.error('gh issue create 실행 실패:');
-    console.error(err.message);
+    console.error(result.stderr || result.error?.message);
     process.exit(1);
   }
+  console.log('이슈 생성 완료:');
+  console.log(result.stdout.trim());
 }
 
 const args = process.argv.slice(2);
