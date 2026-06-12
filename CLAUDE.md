@@ -83,6 +83,7 @@ Pexels API 키 발급: https://www.pexels.com/api/
 4. `"뉴스 초안 써줘 #<이슈번호>"` → 이슈의 `## 원문 내용`을 읽고 바로 초안 작성.
    - `- **커버 이미지:** <URL>`이 있으면 frontmatter의 `cover` + `coverAlt`(기사 제목 영어) 필드에 포함.
    - `## 이미지 제안 (Pexels)` 섹션이 있으면 Dev.to 뉴스와 동일하게 흐름상 자연스러운 위치에 삽입 (attribution 필수). 없으면 생략.
+   - **커버 이미지 누락 방지:** `- **커버 이미지:**` 줄이 없어 `cover` 필드를 설정하지 못한 경우, `## 이미지 제안 (Pexels)` 첫 번째 이미지를 `cover` + `coverAlt`(Pexels 이미지 영문 설명)로 사용한다. Pexels 제안도 없으면 본문에 삽입한 Pexels 이미지의 URL을 `cover`로 승격한다. **모든 포스트는 반드시 `cover` 필드를 가져야 한다.**
    - `## 원문 내용`이 비어있거나 `<!-- ... -->` 플레이스홀더만 있으면, 이슈의 `## 원문` URL로 직접 수집:
      ```
      node -e "import('./scripts/lib/gnews-resolver.mjs').then(async ({fetchArticle})=>{ const r=await fetchArticle('<URL>'); console.log(r.resolvedUrl); console.log(r.coverImage); console.log(r.textContent) })"
