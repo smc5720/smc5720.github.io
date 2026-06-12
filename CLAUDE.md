@@ -50,7 +50,7 @@ For work *not* tied to an issue, stop after step 2 unless the user says otherwis
 PEXELS_API_KEY=발급받은_키
 ```
 
-키가 없으면 `node scripts/fetch-news.mjs --id <ID>` 및 `node scripts/fetch-kr-news.mjs --create-issue <N>` 실행 시 설정 안내가 출력됩니다.
+키가 없으면 `node scripts/fetch-news.mjs --id <ID>` 및 `node scripts/fetch-kr-news.mjs --fetch <N>` 실행 시 설정 안내가 출력됩니다.
 Pexels API 키 발급: https://www.pexels.com/api/
 
 ## News post workflow
@@ -69,22 +69,20 @@ Pexels API 키 발급: https://www.pexels.com/api/
 
 ## News KR workflow
 
-트리거: 사용자가 "국내 뉴스 이슈 만들어줘", "kr 뉴스" 등을 언급할 때.
+트리거: 사용자가 "국내 뉴스", "kr 뉴스" 등을 언급할 때.
 
 1. **목록 조회** — `node scripts/fetch-kr-news.mjs` 실행해 Google News Korea 인기글 출력.
 2. **글 선택** — 사용자가 고르거나, 지시 없으면 상위 글 추천.
-3. **이슈 생성** — `node scripts/fetch-kr-news.mjs --create-issue <N>` 실행.
-   - 이슈 제목: `[news-kr] <기사 제목>`
-   - 라벨: `type:content`, `area:news-kr`, `status:needs-spec`
-   - Playwright가 자동으로 실제 기사 URL 해소 + 원문 본문을 `## 원문 내용`에 수집.
-   - 본문 수집 실패(페이월 등)시 `<!-- 원문 내용 수집 실패 -->` 플레이스홀더가 남음.
-   - `og:image`가 있으면 `- **커버 이미지:** <URL>` 줄이 `## 원문` 섹션에 포함됨.
-   - `PEXELS_API_KEY`가 설정되어 있으면 `## 이미지 제안 (Pexels)` 섹션에 보조 이미지 3장 제안이 포함됨.
-4. `"뉴스 초안 써줘 #<이슈번호>"` → 이슈의 `## 원문 내용`을 읽고 바로 초안 작성.
-   - `- **커버 이미지:** <URL>`이 있으면 frontmatter의 `cover` + `coverAlt`(기사 제목 영어) 필드에 포함.
-   - `## 이미지 제안 (Pexels)` 섹션이 있으면 Dev.to 뉴스와 동일하게 흐름상 자연스러운 위치에 삽입 (attribution 필수). 없으면 생략.
-   - **커버 이미지 누락 방지:** `- **커버 이미지:**` 줄이 없어 `cover` 필드를 설정하지 못한 경우, `## 이미지 제안 (Pexels)` 첫 번째 이미지를 `cover` + `coverAlt`(Pexels 이미지 영문 설명)로 사용한다. Pexels 제안도 없으면 본문에 삽입한 Pexels 이미지의 URL을 `cover`로 승격한다. **모든 포스트는 반드시 `cover` 필드를 가져야 한다.**
-   - `## 원문 내용`이 비어있거나 `<!-- ... -->` 플레이스홀더만 있으면, 이슈의 `## 원문` URL로 직접 수집:
+3. **본문 조회** — `node scripts/fetch-kr-news.mjs --fetch <N>` 실행.
+   - Playwright가 실제 기사 URL 해소 + 원문 본문 수집.
+   - `cover_image` 줄이 있으면 frontmatter의 `cover` + `coverAlt`(기사 제목 영어) 필드에 포함.
+   - Pexels 이미지 제안이 있으면 Dev.to 뉴스와 동일하게 흐름상 자연스러운 위치에 삽입 (attribution 필수). 없으면 생략.
+4. **초안 작성** — `docs/news-post-template.md` 규칙을 엄수해 `content/posts/<slug>.mdx` 생성.
+   - `source_id: kr-news-<stamp>-<hash>` 필드 필수 (스크립트 출력의 `source_id` 값 그대로 사용).
+   - 원문 내용만 옮길 것. 개인 의견·해설·추측 일절 금지.
+   - 출처 블록(`> **원문:** ...`)을 본문 최상단에 배치.
+   - **커버 이미지 누락 방지:** `cover_image`가 없으면 Pexels 첫 번째 이미지를 `cover` + `coverAlt`(Pexels 이미지 영문 설명)로 사용한다. Pexels 제안도 없으면 본문에 삽입한 Pexels 이미지의 URL을 `cover`로 승격한다. **모든 포스트는 반드시 `cover` 필드를 가져야 한다.**
+   - 본문 수집 실패 시 직접 재수집:
      ```
      node -e "import('./scripts/lib/gnews-resolver.mjs').then(async ({fetchArticle})=>{ const r=await fetchArticle('<URL>'); console.log(r.resolvedUrl); console.log(r.coverImage); console.log(r.textContent) })"
      ```

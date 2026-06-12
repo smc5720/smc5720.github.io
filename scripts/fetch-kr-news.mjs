@@ -3,15 +3,14 @@
  * Google News Korea RSS 수집 스크립트
  *
  * 사용법:
- *   node scripts/fetch-kr-news.mjs                      # Google News Korea 인기글 목록 출력
- *   node scripts/fetch-kr-news.mjs --create-issue <N>   # N번째 기사로 GitHub 이슈 생성
+ *   node scripts/fetch-kr-news.mjs             # Google News Korea 인기글 목록 출력
+ *   node scripts/fetch-kr-news.mjs --fetch <N> # N번째 기사 본문 전체 출력
  */
 
 import { readFileSync, readdirSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { createHash } from 'crypto';
-import { execSync, spawnSync } from 'child_process';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -194,20 +193,11 @@ async function listArticles() {
     console.log();
   });
 
-  console.log('이슈 생성: node scripts/fetch-kr-news.mjs --create-issue <번호>');
+  console.log('본문 보기: node scripts/fetch-kr-news.mjs --fetch <번호>');
 }
 
-/** N번째 기사로 GitHub 이슈 생성 */
-async function createIssue(n) {
-  // gh CLI 존재 여부 확인
-  try {
-    execSync('gh --version', { stdio: 'ignore' });
-  } catch {
-    console.error('오류: gh CLI가 설치되어 있지 않거나 PATH에 없습니다.');
-    console.error('설치 안내: https://cli.github.com/');
-    process.exit(1);
-  }
-
+/** N번째 기사 본문을 수집해 stdout으로 출력 */
+async function fetchAndShow(n) {
   const xml = await fetchRss();
   const items = parseRssItems(xml);
   const writtenIds = getWrittenIds();
@@ -234,13 +224,12 @@ async function createIssue(n) {
   const hash = makeHash(item.link);
   const dateStamp = item.pubDate ? toDateStamp(item.pubDate) : toDateStamp(new Date().toISOString());
   const sourceId = `kr-news-${dateStamp}-${hash}`;
-  const pubDateFormatted = item.pubDate ? formatDate(item.pubDate) : '날짜 미상';
   const descClean = stripHtml(item.description);
 
   // Playwright로 실제 기사 URL 해소 및 본문 추출
   console.log('\n기사 원문 수집 중 (Playwright)...');
-  let resolvedUrl = null;
-  let articleContent = '<!-- 원문 내용 수집 실패 — 직접 붙여넣기 필요 -->';
+  let resolvedUrl = item.link;
+  let articleContent = '(본문 수집 실패 — 페이월 또는 파싱 불가)';
   let coverImage = '';
   try {
     const { fetchArticle } = await import('./lib/gnews-resolver.mjs');
@@ -263,55 +252,41 @@ async function createIssue(n) {
     console.warn('  → 원문 수집 오류:', e.message);
   }
 
-  // Pexels 이미지 제안 수집
-  const pexelsSuggestions = await fetchPexelsImages(item.title);
+  const sep = '='.repeat(64);
+  console.log(`\n${sep}`);
+  console.log(`source_id  : ${sourceId}`);
+  console.log(`title      : ${item.title}`);
+  console.log(`published  : ${item.pubDate ? formatDate(item.pubDate) : '날짜 미상'}`);
+  console.log(`source     : ${item.source || '(미상)'}`);
+  console.log(`url        : ${resolvedUrl}`);
+  if (resolvedUrl !== item.link) console.log(`google_news: ${item.link}`);
+  console.log(`cover_image: ${coverImage || '(없음)'}`);
+  console.log(sep);
+  console.log('\n--- 요약 (RSS) ---\n');
+  console.log(descClean || '(RSS에 요약 없음)');
+  console.log('\n--- 본문 ---\n');
+  console.log(articleContent);
+  console.log(`\n${sep}`);
 
-  const urlLine = resolvedUrl
-    ? `- **URL:** ${resolvedUrl}\n- **Google News:** ${item.link}`
-    : `- **URL:** ${item.link}`;
+  await fetchPexelsImages(item.title);
 
-  const issueTitle = `[news-kr] ${item.title}`;
-  const issueBody = `## 원문
-${urlLine}
-- **발행:** ${pubDateFormatted}
-- **출처:** ${item.source || '(미상)'}
-- **source_id:** \`${sourceId}\`${coverImage ? `\n- **커버 이미지:** ${coverImage}` : ''}
-
-## 요약 (RSS)
-${descClean || '(RSS에 요약 없음)'}
-
-## 원문 내용
-${articleContent}
-${pexelsSuggestions ? `\n## 이미지 제안 (Pexels)\n${pexelsSuggestions}` : ''}
-`;
-
-  console.log(`\n이슈 생성 중: ${issueTitle}\n`);
-
-  const result = spawnSync(
-    'gh',
-    ['issue', 'create', '--title', issueTitle, '--label', 'type:content,area:news-kr,status:needs-spec', '--body', issueBody],
-    { encoding: 'utf-8', cwd: ROOT }
-  );
-  if (result.status !== 0) {
-    console.error('gh issue create 실행 실패:');
-    console.error(result.stderr || result.error?.message);
-    process.exit(1);
-  }
-  console.log('이슈 생성 완료:');
-  console.log(result.stdout.trim());
+  console.log(`\n${sep}`);
+  console.log('초안 작성 완료 후, 위 source_id를 MDX frontmatter에 포함하세요.');
+  console.log('템플릿: docs/news-post-template.md');
+  console.log(sep);
 }
 
 const args = process.argv.slice(2);
-const createIssueIdx = args.indexOf('--create-issue');
+const fetchIdx = args.indexOf('--fetch');
 
-if (createIssueIdx !== -1) {
-  const n = args[createIssueIdx + 1];
+if (fetchIdx !== -1) {
+  const n = args[fetchIdx + 1];
   if (!n) {
-    console.error('오류: --create-issue 다음에 번호를 입력하세요.');
-    console.error('사용법: node scripts/fetch-kr-news.mjs --create-issue <N>');
+    console.error('오류: --fetch 다음에 번호를 입력하세요.');
+    console.error('사용법: node scripts/fetch-kr-news.mjs --fetch <N>');
     process.exit(1);
   }
-  createIssue(n).catch(e => { console.error(e.message); process.exit(1); });
+  fetchAndShow(n).catch(e => { console.error(e.message); process.exit(1); });
 } else {
   listArticles().catch(e => { console.error(e.message); process.exit(1); });
 }
