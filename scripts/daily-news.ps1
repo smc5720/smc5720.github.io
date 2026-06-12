@@ -40,80 +40,34 @@ function Invoke-ClaudeGenerate {
     $postDir = Join-Path $ProjectRoot "content/posts"
     $before  = Get-ChildItem $postDir -Filter "*.mdx" | Select-Object -ExpandProperty Name
 
-    # Read article data in PowerShell — claude needs no file-read permission
+    # Read article data and template in PowerShell — claude needs no file-read permission
     $articleData = [System.IO.File]::ReadAllText($TempFile, [System.Text.Encoding]::UTF8)
+    $templatePath = Join-Path $ProjectRoot "docs/news-post-template.md"
+    $template = [System.IO.File]::ReadAllText($templatePath, [System.Text.Encoding]::UTF8)
 
     $prompt = @"
 You are running in a non-interactive automation pipeline. You have NO tools available.
 Do NOT call Write, Edit, Read, or Bash. Your only output channel is stdout.
 
-Generate a complete MDX blog post following docs/news-post-template.md EXACTLY.
-
 CRITICAL: Your ENTIRE response must be raw MDX. Start with ---. No preamble. No code fences. No explanations.
 
-== FRONTMATTER ==
-Output ALL of the following fields (all string values must be quoted):
+Follow the template below EXACTLY:
 
-title: "..."               # Korean translation of article title
-description: "..."         # 1-2 sentence Korean summary of the article
-date: "YYYY-MM-DD"        # use the "published" date from article data
-category: "news"
-tags: [...]                # copy tag_list as a YAML array; use [] if none
-cover: "..."               # cover_image URL; OMIT this field entirely if no image available
-coverAlt: "..."            # English original title; include ONLY when cover is present
-source_id: "..."           # exact value from the "source_id  :" line
-source_url: "..."          # URL from the "url        :" line
-source_title: "..."        # English original title
-source_author: "..."       # author name (Dev.to) or news outlet name (kr-news)
-source_published: "YYYY-MM-DD"  # date from the "published  :" line
-slug: "..."                # kebab-case English slug for the filename
+=== NEWS POST TEMPLATE ===
+$template
+=== END TEMPLATE ===
 
-== BODY FOR Dev.to POSTS (article data contains "--- body_markdown ---") ==
-
-<LinkCard url="SOURCE_URL" author="AUTHOR_NAME" date="PUBLISHED_DATE" />
-
-## 개요
-
-(Intro paragraphs in Korean — 1-3 paragraphs from the article opening)
-
-## 본문
-
-(Main content in Korean, preserving original heading hierarchy as ### subheadings)
-(Insert Pexels images only at natural section boundaries — after a subheading or between sections)
-(Image format:  ![설명](URL)
-                *Photo by [작가명](작가URL) on [Pexels](출처URL)* )
-
----
-
-*이 글은 위 출처의 내용을 바탕으로 작성된 초안입니다. 원문의 의견과 정보를 그대로 전달하며, 별도의 견해를 포함하지 않습니다.*
-
-== BODY FOR kr-news POSTS (article data contains "--- 본문 ---") ==
-
-> **원문:** [ARTICLE_TITLE](SOURCE_URL) — OUTLET_NAME
-
-## 개요
-
-(Opening paragraph in Korean — 1-2 sentences introducing the article topic)
-
-## 본문
-
-(Full article content in Korean, preserving paragraph structure)
-(Insert Pexels images only at natural section boundaries)
-(Image format:  ![설명](URL)
-                *Photo by [작가명](작가URL) on [Pexels](출처URL)* )
-
----
-
-*이 글은 위 출처의 내용을 바탕으로 작성된 초안입니다. 원문의 의견과 정보를 그대로 전달하며, 별도의 견해를 포함하지 않습니다.*
-
-== RULES ==
-- Korean only — no personal opinions, commentary, or additions
-- cover (kr-news without cover_image): use the first Pexels suggestion URL as cover; coverAlt = Pexels photo description in English
-- Dev.to Liquid tags MUST be converted:
-    "{% embed URL %}"             → [링크 보기 →](URL)
-    "{% youtube VIDEO_ID %}"      → [YouTube 영상 보기 →](https://www.youtube.com/watch?v=VIDEO_ID)
-    "{% link URL %}"              → [링크 보기 →](URL)
-    "{% raw %}...{% endraw %}"    → remove entirely, or replace with a code block
+== AUTOMATION-SPECIFIC RULES (override template where they conflict) ==
+- readingTime: OMIT from frontmatter — the app calculates it automatically
+- slug: ADD to frontmatter as a kebab-case English slug — used to determine the output filename
+- description: ADD to frontmatter — 1-2 sentence Korean summary
+- source_url: ADD to frontmatter — URL from the "url        :" line
+- source_author: ADD to frontmatter — author name (Dev.to) or news outlet name (kr-news)
+- source_published: ADD to frontmatter — date from the "published  :" line
+- date: use the "published" date from article data (YYYY-MM-DD)
+- Dev.to posts (article data contains "--- body_markdown ---"): use <LinkCard url="..." author="..." date="..." /> as the first body line
+- kr-news posts (article data contains "--- 본문 ---"): use > **원문:** [제목](URL) — 언론사명 as the first body line
+- cover (kr-news without cover_image): use the first Pexels suggestion URL; coverAlt = Pexels photo description in English
 
 === ARTICLE DATA ===
 $articleData
