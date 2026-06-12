@@ -1,0 +1,78 @@
+﻿---
+title: "AI 기반 레트로 던전 게임 AIventure 제작기"
+slug: aiventure-ai-retro-dungeon-jejakgi
+date: 2026-06-10
+tags: [GameDev, Gemini, Gemma, AI]
+source_id: devto-3862070
+cover: https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fbebechien.github.io%2Fcozy-corner-future%2Fimages%2Fhow-we-built-aiventure.png
+coverAlt: How we built AIventure, an AI-Powered Retro Dungeon
+---
+
+> **원문:** [How we built AIventure, an AI-Powered Retro Dungeon](https://dev.to/googleai/how-we-built-aiventure-an-ai-powered-retro-dungeon-2f54)
+
+작은 팀이 하나의 아이디어를 살아 숨쉬는 웹 게임으로 만들어 낸 이야기를 소개한다.
+
+지난 몇 년간 Google I/O를 접해본 적이 있다면 *Adventure*를 기억할지도 모른다. 팬데믹 기간 주요 Google 행사를 지원했던 가상 컨퍼런스 기술로, 방대하고 아름다운 일러스트로 가득한 협업 공간이었다. 그러나 규모가 크고, 일회성에 그쳤으며, 수많은 인간 모더레이터가 필요했다.
+
+몇 달 전, 필자와 Tom은 스스로에게 질문을 던졌다. *Adventure를 새롭게 재해석하면 어떨까?* 일회성 컨퍼런스가 아니라, 개발자들이 딱딱한 문서 대신 **"바이브 코딩"** 과 게임플레이를 통해 생성형 AI 원리를 배울 수 있는 아늑한 레트로 퍼시스턴트 월드를 만들면 어떨까?
+
+![aiventure](https://bebechien.github.io/cozy-corner-future/images/aiventure.png)
+
+그것이 **[AIventure](https://developers.google.com/solutions/learn/aiventure)** 의 출발점이었다. 아래는 실제 제작 과정이다.
+
+## Step 1: Gemini Canvas에서의 스케치와 프로토타이핑
+
+좋은 게임은 프로토타입에서 시작한다. AIventure의 경우, 복잡한 엔진 코드를 작성하는 것이 아니라 Gemini 안에서 개념을 탐색하는 것으로 시작했다.
+
+UI 레이아웃은 분할 구조로 가져가기로 했다. 실제 게임 엔진에는 레트로 캔버스를 구동하는 **Phaser.JS**를, UI 패널과 레이아웃 관리에는 고품질 프론트엔드 프레임워크인 **Angular**를 사용하는 방식이다. 이는 이전 I/O 데모인 "Living Canvas"에서도 동일하게 적용했던 접근법이다.
+
+다양한 스타일로 간단한 교육용 퍼즐 게임을 먼저 제작했고, 최종적으로 원하는 "바이브"와 잘 맞는 탑다운 레트로 던전 방식으로 방향을 잡았다. 이 시점에 Tom이 자신의 이전 프로젝트 "Adventure"의 정신과 미학을 되살려 세계관에 일관된 정체성을 부여하자는 아이디어를 제안했다.
+
+> [Gemini Canvas](https://gemini.google/overview/canvas/)에서의 초기 프로토타입 스크린샷
+
+![screenshot01](https://bebechien.github.io/cozy-corner-future/images/aiventure-prototype-1.png)
+![screenshot02](https://bebechien.github.io/cozy-corner-future/images/aiventure-prototype-2.png)
+
+## Step 2: 룸 설계 (바이브 코딩 & 에이전트 로봇)
+
+기본 로직이 동작한다는 것을 확인한 후, Tom과 함께 더 고급스러운 퍼즐 메커니즘을 구상했다. AI가 단순한 자물쇠-열쇠 역할에 그치는 것이 아니라, 현대 LLM이 가진 마법 같은 특성을 직접 보여주기를 원했다.
+
+이로부터 두 가지 주요 창작물이 탄생했다.
+
+1. **바이브 코딩 룸:** AI 보조 UI 설계 개념을 플레이어에게 소개하기 위한 공간이다. 이 룸에서는 게임이 iFrame 탭을 열고, 플레이어가 *"먹기와 자기 버튼만 있는 닭을 위한 할 일 앱 만들어줘"* 같은 프롬프트를 입력하면 AI가 즉석에서 웹 페이지를 생성한다. 플레이어는 게임 환경 안에서 코드와 결과물을 바로 확인하고 수정할 수 있다.
+
+![vibe coding room](https://bebechien.github.io/cozy-corner-future/images/aiventure-vibe-coding-room.png)
+
+2. **에이전트 퍼즐:** 자연어 명령을 받아 Phaser 그리드 월드 안에서 실행하는 작은 로봇 NPC 캐릭터를 도입했다. 플레이어가 *"스위치를 눌러"* 라고 말하면 모델이 툴 호출과 추론을 활용해 명령을 구체적인 단계별 게임 액션으로 분해해 수행한다.
+
+![agent puzzle](https://bebechien.github.io/cozy-corner-future/images/aiventure-agent-puzzle.png)
+
+## Step 3: Gemini에서 Gemma로
+
+초기 빌드 및 테스트 단계에서는 클라우드 엔드포인트, 구체적으로는 Gemini API를 통해 플레이어 명령과 코드 생성 요청을 Gemini 모델로 전달했다. 결과는 완벽했지만, 현대 웹 앱의 가능성을 더 밀어붙이고 싶었다. 완전히 자립적이고 누구나 접근 가능한 게임을 목표로 삼았다.
+
+그것이 **[Gemma 4](https://deepmind.google/models/gemma/)** 도입의 배경이다.
+
+Gemma 4 모델을 대상으로 퍼즐 테스트를 시작했다. E2B와 E4B 등 다양한 크기와 Ollama, LM Studio, Transformers, Vertex AI 같은 프레임워크를 실험하며 모델이 함수 호출과 에이전트 워크플로우를 얼마나 잘 처리하는지 추적했다.
+
+## Step 4: MediaPipe로 브라우저에서 실행하기
+
+마지막 과제는 배포였다. Google Developers 사이트를 통해 수백만 명의 개발자에게 AI 기반 게임을 제공하면서, 클라우드 백엔드 아키텍처 구성이나 개인 API 키 입력을 요구하지 않으려면 어떻게 해야 할까?
+
+해답은 모델을 **사용자의 브라우저 안에서 직접 로컬 실행**하는 것이었다.
+
+**MediaPipe**와 LiteRT 팀의 [사전 변환 포맷](https://huggingface.co/litert-community/gemma-4-E4B-it-litert-lm)을 활용해 웹사이트 인터페이스에서 바로 모델을 호스팅하고 제공했다. 클라이언트 측 웹 기술을 활용함으로써 전체 경험이 사용자의 로컬 머신에서 동작한다. 플레이어가 NPC에게 프롬프트를 보내거나 게임 내에서 코드를 작성하면, 추론은 전적으로 클라이언트 측에서 처리된다. 프론트엔드는 간단한 이벤트 버스를 통해 요청을 브라우저에 로드된 모델로 직접 전달한다.
+
+소스 코드를 직접 탐색하는 개발자를 위해 동일한 게임 루프를 로컬 호스팅 LM Studio 엔드포인트나 [Vertex AI](https://github.com/bebechien/AIventure/blob/main/python-llm-service/main.py)로 연결할 수 있는 [토글](https://github.com/bebechien/AIventure/blob/main/src/app/app.config.ts)도 제공한다.
+
+## 추가 개발 중인 기능
+
+현재 퍼즐 외에도 Gemma의 멀티모달 기능을 탐색 중이다. 아직 작업이 진행 중이지만, [GitHub 저장소](https://github.com/bebechien/AIventure)를 클론해 직접 실험해볼 수 있다.
+
+![draw puzzle](https://bebechien.github.io/cozy-corner-future/images/aiventure-draw-puzzle.png)
+
+## 데모 및 소스 코드
+
+AIventure는 데모와 함께 공개되어 있으며, 진행 과정에서 개발자 프로필 배지를 획득할 수 있다. 솔루션 확인, 전체 아키텍처 검토, 프롬프트 탐색을 원한다면 공식 페이지에서 확인할 수 있다.
+
+👉 [AIventure 솔루션 보러 가기](https://developers.google.com/solutions/learn/aiventure)
