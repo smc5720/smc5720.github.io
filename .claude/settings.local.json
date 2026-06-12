@@ -49,7 +49,11 @@
       "Bash(python -c \"import sys,json; print\\(len\\(json.load\\(sys.stdin\\)\\)\\)\")",
       "Bash(python -c \"import sys; body=sys.stdin.read\\(\\); sections=[l for l in body.split\\('\\\\n'\\) if l.startswith\\('## '\\)]; print\\('\\\\n'.join\\(sections\\)\\)\")",
       "Bash(grep -v '\\\\\\\\\\\\\"')",
-      "Bash(grep -v '\\\\\\\\\"')"
+      "Bash(grep -v '\\\\\\\\\"')",
+      "Bash(grep -v \"^$\")",
+      "Bash(grep -E \"\\(number|title|## 원문$|https://news.google\\)\")",
+      "Bash(xargs -I{} head -20 {})",
+      "Skill(schedule)"
     ]
   }
 }
