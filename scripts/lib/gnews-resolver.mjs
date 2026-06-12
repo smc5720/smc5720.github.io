@@ -29,11 +29,13 @@ export async function fetchArticle(gnewsUrl) {
     const html = await page.content();
     const dom = new JSDOM(html, { url: resolvedUrl });
     const article = new Readability(dom.window.document).parse();
+    const coverImage = dom.window.document.querySelector('meta[property="og:image"]')?.getAttribute('content') ?? '';
 
     return {
       resolvedUrl,
       title: article?.title?.trim() ?? '',
       textContent: article?.textContent?.replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim() ?? '',
+      coverImage,
     };
   } finally {
     await browser.close();

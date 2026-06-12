@@ -15,6 +15,64 @@ import { execSync, spawnSync } from 'child_process';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
+
+/** .env.local 파일을 읽어 process.env에 주입 */
+function loadEnvLocal() {
+  const envPath = join(ROOT, '.env.local');
+  if (!existsSync(envPath)) return;
+  for (const line of readFileSync(envPath, 'utf-8').split('\n')) {
+    const match = line.match(/^\s*([^#=\s]+)\s*=\s*(.*)$/);
+    if (match) process.env[match[1]] ??= match[2].replace(/^['"]|['"]$/g, '').trim();
+  }
+}
+loadEnvLocal();
+
+const STOP_WORDS = new Set(['a','an','the','and','or','but','in','on','at','to','for','of','with','by','from','is','are','was','were','be','been','i','you','we','it','if','as','so','do','my','your','its','not','only','just','this','that','how','what','why','when','who','which','about','after','before','can','will','would','could','should','have','has','had','more','some','all','any','up','out','into','than','over','here','there','이','가','을','를','은','는','에','의','로','으로','도','와','과','그','이것','저것','것','등','및','또는','그리고','하지만','그러나','때문에','위해','대해','통해']);
+
+function extractKeywords(title) {
+  return title
+    .replace(/[^\w\sㄱ-힣]/g, ' ')
+    .split(/\s+/)
+    .filter(w => w.length > 1 && !STOP_WORDS.has(w.toLowerCase()))
+    .slice(0, 2);
+}
+
+/** Pexels 이미지를 검색하고 이슈 본문용 마크다운 문자열을 반환 */
+async function fetchPexelsImages(title) {
+  const apiKey = process.env.PEXELS_API_KEY;
+  if (!apiKey) {
+    console.log('\n[이미지 제안 비활성화] PEXELS_API_KEY가 설정되지 않았습니다.');
+    console.log('  프로젝트 루트 .env.local 에 PEXELS_API_KEY=발급받은_키 를 추가하세요.');
+    return null;
+  }
+
+  const keywords = extractKeywords(title);
+  if (keywords.length === 0) return null;
+  const query = keywords.join(' ');
+
+  const res = await fetch(
+    `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=3&orientation=landscape`,
+    { headers: { Authorization: apiKey } }
+  );
+  if (!res.ok) {
+    console.log(`Pexels API 오류: ${res.status}`);
+    return null;
+  }
+
+  const { photos = [] } = await res.json();
+  if (photos.length === 0) return null;
+
+  console.log(`\n[ Pexels 이미지 제안 — "${query}" 검색 결과 ]\n`);
+  let md = `\n<!-- 삽입 형식: ![설명](URL)\\n*Photo by [작가명](작가URL) on [Pexels](출처URL)* -->\n`;
+  photos.forEach((photo, i) => {
+    console.log(`${i + 1}. ${photo.src.large}`);
+    console.log(`   작가: ${photo.photographer}  출처: ${photo.url}`);
+    console.log();
+    md += `${i + 1}. ${photo.src.large}\n`;
+    md += `   작가: [${photo.photographer}](${photo.photographer_url})  출처: ${photo.url}\n\n`;
+  });
+  return md;
+}
 const POSTS_DIR = join(ROOT, 'content', 'posts');
 
 const RSS_URL = 'https://news.google.com/rss?hl=ko&gl=KR&ceid=KR:ko';
@@ -183,22 +241,30 @@ async function createIssue(n) {
   console.log('\n기사 원문 수집 중 (Playwright)...');
   let resolvedUrl = null;
   let articleContent = '<!-- 원문 내용 수집 실패 — 직접 붙여넣기 필요 -->';
+  let coverImage = '';
   try {
     const { fetchArticle } = await import('./lib/gnews-resolver.mjs');
-    const result = await fetchArticle(item.link);
-    if (result.resolvedUrl) {
-      resolvedUrl = result.resolvedUrl;
+    const fetched = await fetchArticle(item.link);
+    if (fetched.resolvedUrl) {
+      resolvedUrl = fetched.resolvedUrl;
       console.log(`  → ${resolvedUrl}`);
     }
-    if (result.textContent) {
-      articleContent = result.textContent;
+    if (fetched.textContent) {
+      articleContent = fetched.textContent;
       console.log(`  → 본문 ${articleContent.length}자 수집 완료`);
     } else {
       console.warn('  → 본문 추출 실패 (페이월 또는 파싱 불가)');
     }
+    if (fetched.coverImage) {
+      coverImage = fetched.coverImage;
+      console.log(`  → 커버 이미지: ${coverImage}`);
+    }
   } catch (e) {
     console.warn('  → 원문 수집 오류:', e.message);
   }
+
+  // Pexels 이미지 제안 수집
+  const pexelsSuggestions = await fetchPexelsImages(item.title);
 
   const urlLine = resolvedUrl
     ? `- **URL:** ${resolvedUrl}\n- **Google News:** ${item.link}`
@@ -209,13 +275,14 @@ async function createIssue(n) {
 ${urlLine}
 - **발행:** ${pubDateFormatted}
 - **출처:** ${item.source || '(미상)'}
-- **source_id:** \`${sourceId}\`
+- **source_id:** \`${sourceId}\`${coverImage ? `\n- **커버 이미지:** ${coverImage}` : ''}
 
 ## 요약 (RSS)
 ${descClean || '(RSS에 요약 없음)'}
 
 ## 원문 내용
 ${articleContent}
+${pexelsSuggestions ? `\n## 이미지 제안 (Pexels)\n${pexelsSuggestions}` : ''}
 `;
 
   console.log(`\n이슈 생성 중: ${issueTitle}\n`);

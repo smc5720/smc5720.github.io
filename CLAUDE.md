@@ -50,7 +50,7 @@ For work *not* tied to an issue, stop after step 2 unless the user says otherwis
 PEXELS_API_KEY=발급받은_키
 ```
 
-키가 없으면 `node scripts/fetch-news.mjs --id <ID>` 실행 시 설정 안내가 출력됩니다.
+키가 없으면 `node scripts/fetch-news.mjs --id <ID>` 및 `node scripts/fetch-kr-news.mjs --create-issue <N>` 실행 시 설정 안내가 출력됩니다.
 Pexels API 키 발급: https://www.pexels.com/api/
 
 ## News post workflow
@@ -78,7 +78,15 @@ Pexels API 키 발급: https://www.pexels.com/api/
    - 라벨: `type:content`, `area:news-kr`, `status:needs-spec`
    - Playwright가 자동으로 실제 기사 URL 해소 + 원문 본문을 `## 원문 내용`에 수집.
    - 본문 수집 실패(페이월 등)시 `<!-- 원문 내용 수집 실패 -->` 플레이스홀더가 남음.
+   - `og:image`가 있으면 `- **커버 이미지:** <URL>` 줄이 `## 원문` 섹션에 포함됨.
+   - `PEXELS_API_KEY`가 설정되어 있으면 `## 이미지 제안 (Pexels)` 섹션에 보조 이미지 3장 제안이 포함됨.
 4. `"뉴스 초안 써줘 #<이슈번호>"` → 이슈의 `## 원문 내용`을 읽고 바로 초안 작성.
+   - `- **커버 이미지:** <URL>`이 있으면 frontmatter의 `cover` + `coverAlt`(기사 제목 영어) 필드에 포함.
+   - `## 이미지 제안 (Pexels)` 섹션이 있으면 Dev.to 뉴스와 동일하게 흐름상 자연스러운 위치에 삽입 (attribution 필수). 없으면 생략.
+   - `## 원문 내용`이 비어있거나 `<!-- ... -->` 플레이스홀더만 있으면, 이슈의 `## 원문` URL로 직접 수집:
+     ```
+     node -e "import('./scripts/lib/gnews-resolver.mjs').then(async ({fetchArticle})=>{ const r=await fetchArticle('<URL>'); console.log(r.resolvedUrl); console.log(r.coverImage); console.log(r.textContent) })"
+     ```
 
 ## When unsure
 
