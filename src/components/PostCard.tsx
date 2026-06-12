@@ -113,7 +113,7 @@ export function PostCard({ post, featured = false, hairline = false }: Props) {
   return (
     <Link
       href={`/blog/${post.slug}`}
-      className="group block bg-surface border border-border rounded-lg p-6 transition-all duration-300 motion-reduce:transition-none hover:border-border-2 hover:bg-surface-2 relative overflow-hidden"
+      className="group flex flex-col bg-surface border border-border rounded-lg p-6 transition-all duration-300 motion-reduce:transition-none hover:border-border-2 hover:bg-surface-2 relative overflow-hidden"
     >
       <div className="absolute top-0 left-0 w-0 group-hover:w-full h-px bg-accent transition-all duration-500 ease-out motion-reduce:transition-none" />
 
@@ -122,10 +122,10 @@ export function PostCard({ post, featured = false, hairline = false }: Props) {
         <time className="text-xs font-mono text-text-3 shrink-0">{date}</time>
       </div>
 
-      {post.cover && (
-        <div className="relative mb-3 rounded-[var(--r-xs)] overflow-hidden border border-border-2"
-          style={{ aspectRatio: "16 / 9" }}
-        >
+      <div className="relative mb-3 rounded-[var(--r-xs)] overflow-hidden border border-border-2"
+        style={{ aspectRatio: "16 / 9" }}
+      >
+        {post.cover ? (
           <Image
             src={post.cover}
             alt={post.coverAlt ?? post.title}
@@ -133,10 +133,17 @@ export function PostCard({ post, featured = false, hairline = false }: Props) {
             style={{ objectFit: "cover" }}
             sizes="(max-width: 768px) 100vw, 33vw"
           />
-        </div>
-      )}
+        ) : (
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `radial-gradient(ellipse at 30% 40%, color-mix(in srgb, var(--cat-${post.category}) 22%, var(--color-surface-2)) 0%, var(--color-surface-2) 70%)`,
+            }}
+          />
+        )}
+      </div>
 
-      <h3 className="font-serif text-lg font-bold text-text group-hover:text-accent transition-colors duration-200 motion-reduce:transition-none leading-snug mb-2 line-clamp-2">
+      <h3 className="font-serif text-lg font-bold text-text group-hover:text-accent transition-colors duration-200 motion-reduce:transition-none leading-snug mb-2 line-clamp-2 min-h-[3.1rem]">
         {post.title}
       </h3>
 
@@ -146,7 +153,7 @@ export function PostCard({ post, featured = false, hairline = false }: Props) {
         </p>
       )}
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mt-auto">
         <div className="flex flex-wrap gap-1.5">
           {post.tags.slice(0, 3).map((tag) => (
             <span
