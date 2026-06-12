@@ -31,7 +31,25 @@
       "WebSearch",
       "WebFetch(domain:docs.umami.is)",
       "Bash(python3 *)",
-      "Bash(Select-Object Name)"
+      "Bash(Select-Object Name)",
+      "Bash(python -c ' *)",
+      "Bash(Get-ChildItem *)",
+      "Bash(Format-List)",
+      "Bash(Select-Object FullName)",
+      "Bash(Sort-Object)",
+      "Bash(Select-Object -Last 10)",
+      "Bash(bash *)",
+      "Bash(Get-Content -Path \"content\\\\posts\\\\*.mdx\" -TotalCount 1000)",
+      "Bash(Select-String -Pattern \"^cover:\")",
+      "Bash(Head -20)",
+      "Bash(Test-Path *)",
+      "Bash(sed *)",
+      "Bash(grep -n \"gh issue create\\\\|body\\\\|\\\\\\\\\\\\\\\\n\" D:/Git/smc5720.github.io/scripts/fetch-kr-news.mjs)",
+      "WebFetch(domain:news.google.com)",
+      "Bash(python -c \"import sys,json; print\\(len\\(json.load\\(sys.stdin\\)\\)\\)\")",
+      "Bash(python -c \"import sys; body=sys.stdin.read\\(\\); sections=[l for l in body.split\\('\\\\n'\\) if l.startswith\\('## '\\)]; print\\('\\\\n'.join\\(sections\\)\\)\")",
+      "Bash(grep -v '\\\\\\\\\\\\\"')",
+      "Bash(grep -v '\\\\\\\\\"')"
     ]
   }
 }
