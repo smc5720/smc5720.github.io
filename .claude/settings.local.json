@@ -53,7 +53,8 @@
       "Bash(grep -v \"^$\")",
       "Bash(grep -E \"\\(number|title|## 원문$|https://news.google\\)\")",
       "Bash(xargs -I{} head -20 {})",
-      "Skill(schedule)"
+      "Skill(schedule)",
+      "Bash(grep \"\\\\.mdx$\")"
     ]
   }
 }
