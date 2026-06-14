@@ -1,0 +1,112 @@
+﻿---
+title: "10년 이상 개발하며 힘들게 배운 12가지 코딩의 진실"
+description: "개발 경력 10년 이상의 개발자가 해고, 데이터베이스 장애, FAANG 탈락을 겪으며 깨달은 코딩과 소프트웨어 엔지니어링에 대한 냉정한 진실 12가지를 공유합니다."
+date: "2026-06-08"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2Fa8z4ys631zyjcgqykss1.png"
+coverAlt: "12 Hard Truths About Coding I Learned the Hard Way After 10+ Years"
+slug: "12-hard-truths-about-coding-i-learned-the-hard-way"
+source_id: "devto-2414922"
+source_url: "https://dev.to/canro91/12-hard-truths-about-coding-i-learned-the-hard-way-after-10-years-124j"
+source_title: "12 Hard Truths About Coding I Learned the Hard Way After 10+ Years"
+source_author: "Cesar Aguirre"
+source_published: "2026-06-08"
+---
+
+<LinkCard url="https://dev.to/canro91/12-hard-truths-about-coding-i-learned-the-hard-way-after-10-years-124j" author="Cesar Aguirre" date="2026-06-08" />
+
+## 개요
+
+첫 직장에서 해고당하고, 잘못 작성한 쿼리로 데이터베이스 서버를 다운시키고, FAANG 면접에서 탈락했다. 이 모든 일이 지난 10년 동안 일어났다.
+
+하지만 그 과정에서 코딩에 대해 한두 가지 교훈을 얻었다.
+
+## 본문
+
+### 1. 예상 일정은 그냥 추측일 뿐이다
+
+문제는 자신의 추측이 다른 사람들의 추측과 맞지 않을 때 생긴다.
+
+### 2. 실제 작업보다 진행 상황을 보여주는 것이 낫다
+
+작업을 4일 안에 끝낼 수 있다고 예상했는가? 그렇지 않다. 진행 상황을 보여주기 위해 작업을 더 작게 나누는 편이 훨씬 낫다.
+
+### 3. 아무도 읽지 않을 긴 문서보다 개념 증명(PoC)이 낫다
+
+문서를 2~3페이지 이상 읽은 게 언제였는가?
+
+아이디어나 프로토타입을 보여주기 위해 빠르고 거칠더라도 Pull Request를 만드는 편이 낫다. *"문서보다 동작하는 코드."*
+
+### 4. 코딩을 끝냈다고 일이 끝난 게 아니다
+
+코딩 다음에는 배포, 테스트, 사용자 적응, 고객 지원, 사후 관리가 이어진다.
+
+### 5. 시니어가 될수록 코딩보다 회의가 더 많아진다
+
+코딩이 좋아서 소프트웨어 엔지니어링을 선택했는가? 그 생각은 접어두자.
+
+더 많은 시간을 회의에 쏟게 된다:
+- 1:1 미팅
+- 데일리 미팅
+- 회고
+- 스프린트 플래닝
+- 얼라인먼트 미팅
+- 브레인스토밍 세션
+- 포커 추정 세션
+- 1년 전에 본인이 작성했지만 이제는 기억도 안 나는 코드를 건드려야 하는 다른 팀 동료와의 짧은 미팅
+
+등등…
+
+이상적인 하루라면 방해 없이 1~2시간 코딩할 수 있다.
+
+![Brown wooden scrabble tiles on white background](https://images.pexels.com/photos/8274656/pexels-photo-8274656.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Brett Jordan](https://www.pexels.com/@brettjordan) on [Pexels](https://www.pexels.com/photo/brown-wooden-scrabble-tiles-on-white-background-8274656/)*
+
+### 6. 레거시 앱을 다루다 보면 테스트를 사랑하게 된다
+
+단위 테스트, 통합 테스트, E2E, TDD, BDD 등 무엇이든 좋다.
+
+코드를 배포하기 전에 무언가가 망가졌는지 알려주는 수단이 있다면 그걸로 충분하다.
+
+### 7. 아무도 요청하지 않은 대규모 리팩토링을 시작하지 마라
+
+이것을 [대규모 무요청 리팩토링(Massive Unrequested Refactorings)](https://canro91.github.io/2023/09/04/AgainstMassiveUnrequestedRefactorings/)이라고 부른다.
+
+현재 작업의 일환으로 리팩토링을 하거나(기존 예상 일정을 지키면서), 스프린트 플래닝에 공식적으로 포함시키거나 둘 중 하나다. 그 사이 어딘가는 없다.
+
+### 8. 도구나 기술에 대한 무의미한 논쟁에 시간을 낭비하지 마라
+
+"Entity Framework가 최고야." "아니, 너무 느려." "아니, 저장 프로시저가 최고지."
+
+도구는 그냥 도구일 뿐이다. 그게 바로 우리 개발자들이 고집스럽고 불만이 많다는 평판을 얻는 이유다.
+
+### 9. 코드 스타일과 모범 사례는 항상 자동화하라
+
+사람에게 기계가 할 일을 시키지 마라. [코드 스타일은 기계가 하기에 딱 맞는 종류의 작업이다.](https://canro91.github.io/2025/03/10/AutomateCodeStyle/)
+
+### 10. 프로젝트는 커뮤니케이션 문제로 실패한다
+
+결혼에 대해서도 똑같은 말을 들어봤을 것이다.
+
+이전 직장에서 3~6개월짜리 프로젝트들을 맡았다. 가장 최신의 화려한 도구와 프레임워크를 사용했다. 하지만 일부 프로젝트는 결국 탈선했다.
+
+유일한 변수는 커뮤니케이션 패턴이었다: 기대치, 프로젝트 목표와 범위, 실행 계획, 기술적 문제를 제때 전달하지 못하는 것.
+
+### 11. 모든 기술 문제는 커뮤니케이션 문제다
+
+10번의 결론이다.
+
+이전 직장에서 ASP.NET Core가 처음이었을 때, 코드를 테스트하려다 설정 파일의 연결 문자열을 변경하다가 다른 환경의 데이터베이스를 삭제해버렸다. 실수였다!
+
+잘못된 환경에서 잘못된 설정 파일을 사용한 것이다. 물어보지도 않았고, 아무도 알려주지 않았으며, 코드에 제한이나 안전장치도 없었다.
+
+커뮤니케이션 문제였다.
+
+### 12. 오늘 가진 문제를 해결하라
+
+섣부른 최적화든 그냥 게으름이든, 아직 갖고 있지도 않은 문제를 미리 해결하고 최적화하려 하지 마라. 혹시나 싶어 작성하는 코드(just-in-case code)는 피하라.
+
+---
+
+*이 글은 위 출처의 내용을 바탕으로 작성된 초안입니다. 원문의 의견과 정보를 그대로 전달하며, 별도의 견해를 포함하지 않습니다.*

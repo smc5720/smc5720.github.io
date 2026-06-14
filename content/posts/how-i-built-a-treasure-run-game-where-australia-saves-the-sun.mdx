@@ -1,0 +1,257 @@
+﻿---
+title: "호주가 태양을 구하는 보물 달리기 게임을 만든 방법"
+description: "June Solstice 게임 잼 출품작 Dawn Dashers 개발기. 호주 지형을 배경으로 태양 파편을 모아 일출을 복원하는 러너 게임을 Vanilla JS와 Three.js로 제작한 과정을 소개한다."
+date: "2026-06-10"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2Ffzglr8qqem7l036xdd9d.gif"
+coverAlt: "How I Built a Treasure-Run Game Where Australia Saves the Sun"
+slug: "how-i-built-a-treasure-run-game-where-australia-saves-the-sun"
+source_id: "devto-3855546"
+source_url: "https://dev.to/ujja/how-i-built-a-treasure-run-game-where-australia-saves-the-sun-kck"
+source_title: "How I Built a Treasure-Run Game Where Australia Saves the Sun"
+source_author: "ujja"
+source_published: "2026-06-10"
+---
+
+<LinkCard url="https://dev.to/ujja/how-i-built-a-treasure-run-game-where-australia-saves-the-sun-kck" author="ujja" date="2026-06-10" />
+
+## 개요
+
+이 글은 [June Solstice Game Jam](https://dev.to/challenges/june-game-jam-2026-06-03) 출품작이다.
+
+이번 게임 잼에서 나는 **Dawn Dashers**를 제작했다. 호주에서 낮이 가장 짧은 **6월 동지(June Solstice)**를 배경으로 한 어드벤처 러너 게임이다.
+
+![Dawn Dashers](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/16y6v7b129gqa9ah1wfh.png)
+
+아이디어의 출발점은 단순한 질문이었다.
+
+> 가장 긴 밤이 끝나지 않는다면?
+
+Dawn Dashers에서는 **Turing Engine**이라는 불량 기계가 일출을 훔쳐 호주 전역에 7개의 **태양 파편(Sun Fragments)**을 흩뿌려놓았다. 플레이어는 사막, 덤불 숲 길, 해안 절벽, 숨겨진 유적을 질주하며 파편을 회수하고 낮을 되찾아야 한다.
+
+## 본문
+
+### 게임 소개
+
+게임은 6월 동지에서 영감을 받았지만, 호주식 보물 찾기의 요소를 더했다. 장애물을 피하고, 유물을 수집하고, 동물 능력을 해금하며, Alan Turing에서 영감을 얻은 즉석 논리 퍼즐을 풀어나간다.
+
+동지를 단순한 배경 설정으로 두지 않고 게임플레이 자체에 녹여넣는 것이 목표였다. 게임 시작 시 세계는 어둠에 갇혀 있으며, 태양 파편을 회수할수록 환경이 점점 밝아지고 따뜻해지며 생동감을 되찾는다.
+
+**재미를 최우선으로 만들되, June Solstice를 모험의 핵심으로 삼는다.**
+
+### 영상 데모
+
+[YouTube 영상 보기 →](https://youtu.be/x-U4mGISDJw)
+
+직접 플레이해볼 수도 있다(Vercel 배포):
+
+[게임 플레이하기 →](https://dawn-dashers.vercel.app/)
+
+- 호주 아웃백 달리기
+- 보물 단서 발견
+- Turing 영감 논리 챌린지 풀기
+- 태양 파편 수집
+- 동물 능력 해금
+- 가장 긴 밤에서 낮으로 세계가 변화하는 것을 지켜보기
+
+### 코드
+
+[GitHub 저장소](https://github.com/ujjavala/dawn-dashers)
+
+사용 기술:
+
+- Vanilla JavaScript — game.js가 전체 게임 엔진(~6500줄 이상)
+- Three.js — 2D 게임플레이 HUD 뒤의 3D 지형 렌더링
+- Web Audio API
+- HTML/CSS — index.html, 인라인 UI 모달, HUD
+- GitHub Copilot
+
+### 제작 과정
+
+핵심 게임 루프에서 시작했다.
+
+> 달리기 → 피하기 → 수집 → 발견 → 빛 복원
+
+이동이 재미있어진 후 나머지 요소를 하나씩 쌓아 올렸다.
+
+### 동지를 게임 메커니즘으로
+
+가장 큰 디자인 결정은 June Solstice를 배경 설정이 아닌 실제 게임 메커니즘으로 만드는 것이었다.
+
+게임은 1년 중 가장 긴 밤에 시작된다. 태양 파편을 하나씩 회수할수록 세계가 여명에 가까워진다.
+
+플레이어가 진행할수록:
+
+- 어둠이 서서히 물러난다
+- 새로운 지역이 모습을 드러낸다
+- 조명이 따뜻해진다
+- 세계에 희망이 깃든다
+
+게임 마지막에 플레이어는 말 그대로 일출을 복원한다.
+
+![sunrise](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/z8whca9yjdou397ijbrs.png)
+
+### 호주를 배경으로 한 모험
+
+일반적인 판타지 배경 대신 뚜렷하게 호주적인 느낌을 주고자 했다.
+
+모험은 다음 장소들을 지나간다.
+
+- 아웃백 유적
+
+![Outback ruins](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/c5eb17t5589234ik89b6.png)
+
+- 덤불 숲 길
+
+![Bushland trails](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/ef58l291wdj82rhb9he7.png)
+
+- 독특한 길가 주유소
+
+![A quirky roadside servo](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/ukoa6ijxa1dqa06nu2r5.png)
+
+- 해안 등대 절벽
+
+![Coastal lighthouse cliffs](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/etnel2w3xcvxyyprkpzs.png)
+
+- 맹그로브 숲
+
+![Mangroves](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/g0ztu58sdhu4qhjp85jo.png)
+
+- 블루 마운틴
+
+![Blue Mountains](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/mlc2jsga9j9bg74gz8md.png)
+
+- 눌라보
+
+![Nullarbor](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/uw812u5j9mrvkods4374.png)
+
+- 천문대
+
+![Observatory](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/c2nbxpisx4c9180rbmn0.png)
+
+- 오로라가 빛나는 태즈매니아
+
+![Aurora-lit Tasmania](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/3np9bqwy5v1e8sgucpyr.png)
+
+각 지역은 새로운 장애물과 시각적 테마를 도입하면서도 액션의 흐름을 유지한다.
+
+![이미지 설명](https://images.pexels.com/photos/366791/pexels-photo-366791.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [David Bartus](https://www.pexels.com/@davidbartus) on [Pexels](https://www.pexels.com/photo/light-inside-chest-box-366791/)*
+
+### Alan Turing에 대한 헌사
+
+6월은 Alan Turing의 생일이 있는 달이기도 하다. 게임을 역사 수업으로 만들지 않으면서도 그에 대한 헌사를 담고자 했다.
+
+게임의 악당인 **Turing Engine**은 끝없는 밤이 가장 논리적인 존재 상태라고 믿는다.
+
+플레이어는 다음에 기반한 즉석 퍼즐을 만난다.
+
+- 패턴 인식
+- 이진 스위치
+- 신호 라우팅
+- 광회로
+
+![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/4y3cf5wd54puvigy02px.png)
+
+퍼즐은 짧고, 액션을 방해하지 않고 보조하도록 설계되었다.
+
+### 아트 디렉션
+
+개발 중 가장 큰 방향 전환은 밝은 아케이드 미학에서 벗어나 보물 탐험 어드벤처 스타일로 선회한 것이었다.
+
+세계는 다음 요소를 사용한다.
+
+- 따뜻한 사막 색상
+- 고대 유적
+- 먼지 파티클
+- 황금빛 햇살 효과
+- 보물 지도에서 영감을 받은 UI
+
+이 방향은 동지, 탐험, 보물 찾기의 테마를 하나로 묶는 데 도움이 되었다.
+
+### 기술 스택
+
+게임은 다음을 사용해 제작되었다.
+
+- Vanilla JavaScript — game.js가 전체 게임 엔진(~6500줄 이상)
+- Three.js — 2D 게임플레이 HUD 뒤의 3D 지형 렌더링
+- Web Audio API
+- HTML/CSS — index.html, 인라인 UI 모달, HUD
+- Vercel 배포
+- 개발 가속을 위한 GitHub Copilot
+
+프로젝트 전반에 걸쳐 경량화, 반응성, 브라우저 직접 플레이 가능성에 집중했다.
+
+### 수상 부문
+
+**Best Ode to Alan Turing**
+
+Dawn Dashers는 Alan Turing의 유산에 대한 헌사다. 역사적 사건에 집중하는 대신, 그의 작업을 그토록 영향력 있게 만든 아이디어—논리, 패턴, 문제 해결, 계산—를 기념하고자 했다.
+
+Turing Engine이 주요 악당으로 등장하며, 플레이어는 계산적 사고에서 영감을 받은 빠른 퍼즐을 통해 그것의 도전을 극복한다.
+
+![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/fvxsvf7aop53f5rhsjg7.png)
+
+**_P.S. 동료 너드들을 위해(나처럼 😄), 각 퍼즐에는 약간의 추가 지식이 담겨 있다. "Learn why this puzzle matters"를 클릭하면 된다._**
+
+**Best Google AI Usage**
+
+나는 시스템 구축과 백엔드 코드 작성에 훨씬 익숙하고, 아름다운 인터페이스를 디자인하는 것은 내 강점이 아니다.
+
+이 프로젝트에서 어려웠던 점 중 하나는 Dawn Dashers를 시각적으로 일관성 있게 만드는 방법을 찾는 것이었다. 원하는 분위기는 대략 알고 있었지만—호주 보물 탐험 어드벤처—그것을 색상, 레이아웃, 타이포그래피, UI 디자인으로 변환하는 것은 내가 자신 있는 영역이 아니다.
+
+바로 그 부분에서 **Google Stitch**가 도움이 되었다.
+
+Stitch를 사용해 빠르게 탐색했다:
+
+- UI 레이아웃 및 화면 구조
+- 메뉴 및 HUD 디자인
+- 색상 팔레트
+- 타이포그래피 조합
+- 시각적 계층 구조
+- 전반적인 아트 디렉션
+
+가장 인상적이었던 점은 반복 작업의 용이성이었다. 디자인 도구에서 요소를 몇 시간씩 옮기는 대신, 원하는 느낌을 설명하면 평가할 여러 방향을 빠르게 생성할 수 있었다.
+
+예를 들어, 처음에는 꽤 일반적인 아케이드 스타일로 시작했지만, Stitch에서 몇 번의 반복을 통해 훨씬 강력한 시각적 정체성을 완성했다:
+
+- 따뜻한 사막 색상
+- 보물 지도에서 영감을 받은 UI
+- 금색 악센트
+- 빛바랜 양피지 스타일
+- 어드벤처 게임 미학
+
+이러한 탐색이 게임의 최종 디자인 언어에 직접적인 영향을 미쳤다.
+
+디자인 단계에서는 Gemini도 광범위하게 활용했다.
+
+한 가지 과제는 게임을 교실 연습처럼 느껴지게 하지 않으면서 Alan Turing에서 영감을 받은 퍼즐을 포함시키는 것이었다. 논리, 패턴, 계산을 기반으로 한 퍼즐이 필요했지만, 호주 보물 탐험 어드벤처에 자연스럽게 어울려야 했다.
+
+Gemini는 다음과 같은 퍼즐 개념을 브레인스토밍하고 다듬는 데 도움을 주었다:
+
+- 패턴 인식 챌린지
+- 이진 스위치 퍼즐
+- 신호 라우팅 메커니즘
+- 호주 위치 및 야생 동물과 연계된 보물 단서
+- 게임 중 빠르게 풀 수 있는 Turing 영감 논리 챌린지
+
+예를 들어, Gemini를 사용해 추상적인 퍼즐 아이디어를 호주 맥락으로 재구성했다. 일반적인 논리 퍼즐을 등대, 아웃백 랜드마크, 야생 동물, 숨겨진 태양 파편과 연관된 단서로 변환했다.
+
+Stitch와 Gemini의 조합은 내가 보통 많은 시간을 쓰는 두 영역—디자인 탐색과 콘텐츠 생성—을 연결하는 데 도움이 되었다. 빈 페이지에서 시작하는 대신 아이디어를 빠르게 반복하고, 옵션을 평가하며, 게임 자체를 만들고 다듬는 데 더 많은 시간을 집중할 수 있었다.
+
+AI 도구가 창의적인 결정을 대체한 것이 아니라, 더 나은 결정을 더 빠르게 내릴 수 있게 도왔다.
+
+솔로 개발자로서 "이렇게 느껴지길 원한다"와 "어떻게 디자인해야 하는지 안다" 사이의 간극을 메워주는 도구는 매우 가치 있었다. 게임플레이를 구축하는 데 더 많은 시간을 쓰면서도 훨씬 더 완성도 높은 시각적 경험을 얻을 수 있었다.
+
+Google Stitch는 디자인 결정을 대체한 것이 아니라, 훨씬 빠르게 발견하고 다듬을 수 있게 해주었다.
+
+### Happy Dashing!!!
+
+Dawn Dashers를 확인해 주셔서 감사합니다 🌅
+
+June Solstice, 호주 풍경, 보물 찾기, 아케이드 러너, Alan Turing에 대한 작은 헌사를 하나의 모험으로 결합하는 것은 정말 즐거운 경험이었습니다.
+
+---
+
+*이 글은 위 출처의 내용을 바탕으로 작성된 초안입니다. 원문의 의견과 정보를 그대로 전달하며, 별도의 견해를 포함하지 않습니다.*
