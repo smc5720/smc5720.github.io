@@ -5,6 +5,7 @@ export interface PostMeta {
   title: string;
   description: string;
   date: string;
+  published_at?: string;
   category: Category;
   tags: string[];
   cover?: string;

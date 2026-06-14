@@ -35,6 +35,7 @@ export function getPostBySlug(slug: string): Post | null {
     title: data.title ?? "Untitled",
     description: data.description ?? "",
     date: data.date ? new Date(data.date).toISOString() : new Date().toISOString(),
+    published_at: data.published_at ? new Date(data.published_at).toISOString() : undefined,
     category: (data.category as Category) ?? "etc",
     tags: data.tags ?? [],
     cover: data.cover,
@@ -49,7 +50,11 @@ export function getAllPosts(): PostMeta[] {
     .map((slug) => getPostBySlug(slug))
     .filter((p): p is Post => p !== null)
     .map(({ content: _content, ...meta }) => meta)
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    .sort((a, b) => {
+      const ta = new Date(a.published_at ?? a.date).getTime();
+      const tb = new Date(b.published_at ?? b.date).getTime();
+      return tb - ta;
+    });
 }
 
 export function getPostsByCategory(category: Category): PostMeta[] {

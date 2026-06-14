@@ -29,7 +29,8 @@ Claude에게 초안 작성을 요청할 때 이 문서를 참고하세요.
 ---
 title: ""              # 원문 제목 (한국어 번역 가능, 원문 병기 권장)
 description: ""        # 원문 요약 1-2문장
-date: "YYYY-MM-DD"     # 초안 작성일
+date: "YYYY-MM-DD"     # 원문 게시일 (source_published와 동일)
+published_at: "YYYY-MM-DD"  # 블로그 포스팅일 (배치 실행일 = 오늘 날짜). 정렬 기준.
 category: "news"
 tags: []               # 원문 tag_list 그대로 사용
 cover: ""              # cover_image 값 그대로. 없으면 필드 생략

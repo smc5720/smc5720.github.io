@@ -62,6 +62,8 @@ Pexels API 키 발급: https://www.pexels.com/api/
 3. **본문 조회** — `node scripts/fetch-news.mjs --id <ID>` 실행.
 4. **초안 작성** — `docs/news-post-template.md` 규칙을 엄수해 `content/posts/<slug>.mdx` 생성.
    - `source_id: devto-<ID>` 필드 필수 (중복 방지 식별자).
+   - `published_at: <오늘 날짜 YYYY-MM-DD>` 필드 필수 (블로그 포스팅일 = 배치 실행일. 정렬 기준).
+   - `date`는 원문 게시일(`published` 필드)로 설정.
    - `cover_image` 값이 있으면 `cover` + `coverAlt`(원문 제목 영어) 필드도 포함.
    - 원문 내용만 옮길 것. 개인 의견·해설·추측 일절 금지.
    - 출처 블록(`> **원문:** ...`)을 본문 최상단에 배치.
@@ -79,6 +81,8 @@ Pexels API 키 발급: https://www.pexels.com/api/
    - Pexels 이미지 제안이 있으면 Dev.to 뉴스와 동일하게 흐름상 자연스러운 위치에 삽입 (attribution 필수). 없으면 생략.
 4. **초안 작성** — `docs/news-post-template.md` 규칙을 엄수해 `content/posts/<slug>.mdx` 생성.
    - `source_id: kr-news-<stamp>-<hash>` 필드 필수 (스크립트 출력의 `source_id` 값 그대로 사용).
+   - `published_at: <오늘 날짜 YYYY-MM-DD>` 필드 필수 (블로그 포스팅일 = 배치 실행일. 정렬 기준).
+   - `date`는 원문 게시일로 설정.
    - 원문 내용만 옮길 것. 개인 의견·해설·추측 일절 금지.
    - 출처 블록(`> **원문:** ...`)을 본문 최상단에 배치.
    - **커버 이미지 누락 방지:** `cover_image`가 없으면 Pexels 첫 번째 이미지를 `cover` + `coverAlt`(Pexels 이미지 영문 설명)로 사용한다. Pexels 제안도 없으면 본문에 삽입한 Pexels 이미지의 URL을 `cover`로 승격한다. **모든 포스트는 반드시 `cover` 필드를 가져야 한다.**
