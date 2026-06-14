@@ -12,7 +12,7 @@ interface Props {
 }
 
 export function PostCard({ post, featured = false, hairline = false }: Props) {
-  const date = format(new Date(post.date), "yyyy.MM.dd", { locale: ko });
+  const date = format(new Date(post.published_at ?? post.date), "yyyy.MM.dd", { locale: ko });
 
   if (featured) {
     return (
