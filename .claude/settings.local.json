@@ -54,7 +54,9 @@
       "Bash(grep -E \"\\(number|title|## 원문$|https://news.google\\)\")",
       "Bash(xargs -I{} head -20 {})",
       "Skill(schedule)",
-      "Bash(grep \"\\\\.mdx$\")"
+      "Bash(grep \"\\\\.mdx$\")",
+      "Bash(python3 -c ' *)",
+      "Read(//tmp/**)"
     ]
   }
 }
