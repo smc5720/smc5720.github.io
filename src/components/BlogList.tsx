@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useCallback } from "react";
+import { useMemo, useCallback, useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { PostCard } from "./PostCard";
 import { BlogIndexList } from "./BlogIndexList";
@@ -32,6 +32,17 @@ export function BlogList({ posts }: Props) {
   const sort: SortKey = (["new", "long", "short"].includes(rawSort) ? rawSort : "new") as SortKey;
   const rawView = searchParams.get("view") ?? "grid";
   const view: ViewKey = (["grid", "index"].includes(rawView) ? rawView : "grid") as ViewKey;
+
+  // Local input state to avoid re-render interrupting Korean IME composition
+  const [localSearch, setLocalSearch] = useState(search);
+  const composingRef = useRef(false);
+
+  // Sync local state when URL param changes externally (e.g. reset button)
+  useEffect(() => {
+    if (!composingRef.current) {
+      setLocalSearch(search);
+    }
+  }, [search]);
 
   /** Push a partial URL update, omitting keys whose value is the default */
   const pushParams = useCallback(
@@ -111,7 +122,7 @@ export function BlogList({ posts }: Props) {
     } else if (sort === "short") {
       res.sort((a, b) => a.readingTime - b.readingTime);
     } else {
-      res.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      res.sort((a, b) => new Date(b.published_at ?? b.date).getTime() - new Date(a.published_at ?? a.date).getTime());
     }
     return res;
   }, [posts, activeCat, search, sort]);
@@ -169,8 +180,18 @@ export function BlogList({ posts }: Props) {
                 type="search"
                 aria-label="Search posts"
                 placeholder="Search title, desc, tags…"
-                value={search}
-                onChange={(e) => pushParams({ q: e.target.value })}
+                value={localSearch}
+                onChange={(e) => {
+                  setLocalSearch(e.target.value);
+                  if (!composingRef.current) {
+                    pushParams({ q: e.target.value });
+                  }
+                }}
+                onCompositionStart={() => { composingRef.current = true; }}
+                onCompositionEnd={(e) => {
+                  composingRef.current = false;
+                  pushParams({ q: (e.target as HTMLInputElement).value });
+                }}
               />
               <span className="mono-label" style={{ color: "var(--color-text-3)" }} aria-hidden="true">
                 ⌘K
