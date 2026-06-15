@@ -56,7 +56,12 @@
       "Skill(schedule)",
       "Bash(grep \"\\\\.mdx$\")",
       "Bash(python3 -c ' *)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "WebFetch(domain:www.skills.sh)",
+      "Bash(cd /d \"D:\\\\Git\\\\smc5720.github.io\")",
+      "Bash(npx skills *)",
+      "Edit",
+      "Write"
     ]
   }
 }

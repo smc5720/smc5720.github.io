@@ -17,15 +17,13 @@ readingTime: 5
 
 <LinkCard url="https://dev.to/googleai/building-sweets-vault-a-multimodal-gemini-agent-with-physical-hardware-integration-1nmh" author="Remigiusz Samborski" date="2026-05-15" />
 
-## 개요
+일곱 살 아이에게 매일 독서와 필기 연습을 시키는 건 쉽지 않다. 전통적인 보상 방식은 한동안 효과가 있지만, 매번 수작업으로 확인해야 한다는 한계가 있다.
 
-일곱 살 아이에게 매일 독서와 필기 연습을 시키는 것은 쉽지 않은 육아 과제다. 전통적인 보상 방식은 한동안 효과가 있지만, 상호작용이 없고 매번 수작업으로 확인해야 한다는 한계가 있다.
-
-이 문제를 자동화로 해결하기 위해 고안된 것이 **Sweets Vault**다. [Google Agent Development Kit(ADK)](https://github.com/google-gemini/adk)와 [Gemini API](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/start)를 기반으로 한 인터랙티브 에이전트로, 아이들과 대화하고 업로드된 노트 이미지를 시각적으로 검사하며 독해력을 테스트한 후 모든 과제 완료 시 간식이 담긴 서랍의 물리적 잠금장치를 해제한다.
+그래서 만든 게 **Sweets Vault**다. [Google Agent Development Kit(ADK)](https://github.com/google-gemini/adk)와 [Gemini API](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/start) 기반의 인터랙티브 에이전트로, 아이와 대화하고 업로드된 노트 이미지를 직접 들여다보며 독해력을 테스트한다. 모든 과제를 완료하면 간식이 담긴 서랍의 잠금장치가 실제로 열린다.
 
 ![Sweets Vault — AI로 교육 게이미피케이션](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/wgwj7pwtinpglk4sxu9u.jpg)
 
-이 글에서는 다음 내용을 다룬다.
+이 글에서 다루는 내용은 다음과 같다.
 
 - **멀티모달 에이전트 구조화** — Agent Development Kit(ADK) 활용
 - **시각·언어 검증 구현** — Gemini의 멀티모달 기능 사용
@@ -33,9 +31,7 @@ readingTime: 5
 - **에이전트 tool call을 실물 하드웨어 인터페이스와 연결**
 - **로컬 개발 및 실행** — 물리 하드웨어 접근을 위한 로컬 실행 환경
 
-전체 코드는 [GitHub 저장소](https://github.com/rsamborski/sweets-vault)에서 확인할 수 있다.
-
-## 본문
+전체 코드는 [GitHub 저장소](https://github.com/rsamborski/sweets-vault)에서 볼 수 있다.
 
 ### 시스템 아키텍처
 
@@ -52,13 +48,13 @@ readingTime: 5
 - 자기(磁氣) 서랍: [FT232H](https://www.adafruit.com/product/2264) USB-GPIO 변환기로 제어
 - LED Matrix: [Raspberry Pi](https://www.raspberrypi.com/) 위에서 동작하는 REST API로 제어
 
-LED Matrix는 처음에 두 번째 FT232H로 제어할 계획이었으나 라이브러리 지원 부족으로 Raspberry Pi를 중간 레이어로 사용하게 됐다. Wi-Fi 범위 안이라면 집 어디서든 LED Matrix를 배치할 수 있다.
+LED Matrix는 처음에 두 번째 FT232H로 제어할 계획이었으나 라이브러리 지원 부족으로 Raspberry Pi를 중간 레이어로 쓰게 됐다. Wi-Fi 범위 안이라면 집 어디서든 LED Matrix를 배치할 수 있다.
 
 ### Root agent 구성
 
 에이전트 개발 시작을 위해 [`agent-starter-pack` 템플릿](https://googlecloudplatform.github.io/agent-starter-pack/)을 활용했다. FastAPI, 프론트엔드 UI 통합, 빌트인 관찰가능성(observability)을 갖춘 프로덕션 준비 기반을 제공한다.
 
-핵심 코드는 [`agent/app/agent.py`](https://github.com/rsamborski/sweets-vault/blob/main/agent/app/agent.py)에 위치한다. 환경 설정과 [Gemini Enterprise Agent Platform](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models)(구 Vertex AI) 초기화부터 시작한다.
+핵심 코드는 [`agent/app/agent.py`](https://github.com/rsamborski/sweets-vault/blob/main/agent/app/agent.py)에 있다. 환경 설정과 [Gemini Enterprise Agent Platform](https://docs.cloud.google.com/gemini-enterprise-agent-platform/models)(구 Vertex AI) 초기화부터 시작한다.
 
 ```python
 load_dotenv()
@@ -77,7 +73,7 @@ vertexai.init(project=project_id, location=location)
 AGENT_LANGUAGE = os.getenv("AGENT_LANGUAGE", "en")
 ```
 
-실제 에이전트(`root_agent`)는 다음과 같이 생성한다.
+실제 에이전트(`root_agent`)는 이렇게 생성한다.
 
 ```python
 root_agent = Agent(
@@ -95,7 +91,7 @@ root_agent = Agent(
 
 ### 상태 관리
 
-대화형 AI에서 흔한 실패 패턴은 컨텍스트 손실 또는 과제 완료 여부의 환각이다. 이를 방지하기 위해 `ToolContext`를 사용한 명시적 상태 관리를 구현한다. 모델의 메모리에 의존하는 대신, 에이전트가 [세션 state](https://adk.dev/sessions/state/)에 완료 플래그를 직접 읽고 쓴다.
+대화형 AI에서 흔한 실패 패턴은 컨텍스트 손실이나 과제 완료 여부 환각이다. 이를 막기 위해 `ToolContext`를 사용한 명시적 상태 관리를 구현했다. 모델의 메모리에 의존하는 대신, 에이전트가 [세션 state](https://adk.dev/sessions/state/)에 완료 플래그를 직접 읽고 쓴다.
 
 ```python
 def _get_task_status(user_key: str, task_id: str, tool_context: ToolContext) -> bool:
@@ -122,11 +118,11 @@ def _set_task_status(user_key: str, task_id: str, is_done: bool, tool_context: T
 
 ### 에이전트 tool
 
-에이전트에는 진행 상황 확인, 과제 완료 처리, 서랍 잠금 해제의 세 가지 tool이 제공된다.
+에이전트에는 세 가지 tool이 제공된다. 진행 상황 확인, 과제 완료 처리, 서랍 잠금 해제다.
 
 #### 진행 상황 확인
 
-`get_progress` 함수는 현재 세션 state를 기반으로 특정 사용자의 과제 체크리스트를 조회하고 완료/미완료 상태를 포함해 반환한다.
+`get_progress` 함수는 현재 세션 state를 바탕으로 특정 사용자의 과제 체크리스트를 조회하고 완료/미완료 상태를 포함해 반환한다.
 
 ```python
 def get_progress(user_name: str, tool_context: ToolContext) -> str:
@@ -173,7 +169,7 @@ def complete_task(user_name: str, task_id: str, tool_context: ToolContext) -> st
     )
 ```
 
-반환값은 에이전트가 사용자와의 커뮤니케이션을 처리하고, 피드백을 제공하며, 남은 과제를 완료하도록 동기를 부여할 수 있게끔 의도적으로 서술적으로 작성됐다.
+반환값은 에이전트가 사용자와 커뮤니케이션하고 남은 과제를 완료하도록 동기를 부여할 수 있게 의도적으로 서술적으로 작성했다.
 
 #### 실물 하드웨어 연동
 
@@ -223,11 +219,11 @@ Task B: Calligraphy — Ask child to show the completed workbook page to camera.
 ![진열대에 놓인 다양한 케이크와 디저트 — Sweets Vault의 보상](https://images.pexels.com/photos/12478605/pexels-photo-12478605.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
 *Photo by [Brett Sayles](https://www.pexels.com/@brett-sayles) on [Pexels](https://www.pexels.com/photo/cakes-and-sweets-in-a-shop-display-12478605/)*
 
-### 결론 및 향후 계획
+### 앞으로의 계획
 
-Gemini API, Agent Development Kit, 간단한 하드웨어 릴레이를 결합해 멀티모달 검증과 구조화된 tool calling이 실제 문제를 해결하는 물리적으로 연결된 AI 에이전트를 구축할 수 있다.
+Gemini API, Agent Development Kit, 간단한 하드웨어 릴레이를 조합하면 멀티모달 검증과 구조화된 tool calling이 실제 문제를 해결하는 물리적 AI 에이전트를 만들 수 있다는 걸 보여줬다.
 
-현재 구현은 Gemini Flash를 사용해 고성능, 멀티모달리티, tool calling을 지원하나 텍스트 입력과 출력만 처리한다. 향후 음성·영상·텍스트를 입력으로 받고 대화형 오디오를 출력하는 Gemini Live API 실험을 계획 중이며, 전자석을 사용한 물리적 잠금 장치 통합도 완료할 예정이다.
+현재 구현은 Gemini Flash를 사용해 고성능·멀티모달·tool calling을 지원하지만 텍스트 입력과 출력만 처리한다. 앞으로는 음성·영상·텍스트를 입력으로 받고 대화형 오디오를 출력하는 Gemini Live API를 실험할 계획이며, 전자석을 사용한 물리적 잠금 장치 통합도 완료할 예정이다.
 
 관련 링크:
 

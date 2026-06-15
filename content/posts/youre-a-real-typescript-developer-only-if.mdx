@@ -1,4 +1,4 @@
-﻿---
+---
 title: "진짜 TypeScript 개발자라면 반드시 겪었을 일들"
 description: "TypeScript 개발자라면 누구나 공감할 경험들 — any 타입 남용부터 타입 에러와의 전쟁까지, 우리 모두가 겪어온 혼돈의 기록."
 date: "2026-06-08"
@@ -17,15 +17,11 @@ source_published: "2026-06-08"
 
 <LinkCard url="https://dev.to/hadil/youre-a-real-typescript-developer-only-if-1d9o" author="Hadil Ben Abdallah" date="2026-06-08" />
 
-## 개요
-
 몇 달 전, [진짜 JavaScript 개발자라면 반드시 겪었을 일들](https://dev.to/hadil/youre-a-real-javascript-developer-only-if-294c)이라는 글이 많은 공감을 얻었다. 신비로운 버그, npm 대재앙, `console.log` 디버깅, 아무도 이유를 모르지만 작동하는 코드들 — 개발자라면 누구나 한 번쯤 겪는 이야기들이다.
 
-이번에는 JavaScript를 넘어, 우리를 우리 자신으로부터 보호하는 데 절반의 시간을 쏟는 언어, TypeScript 이야기다.
+이번에는 TypeScript(자바스크립트에 정적 타입을 더한 언어) 이야기다. 우리를 우리 자신의 실수로부터 보호하는 데 절반의 시간을 쓰게 만드는 그 언어.
 
 ![TypeScript developer girl image](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/jtkvqz415va7z0qcgwpp.png)
-
-## 본문
 
 ### 첫 번째 TypeScript 현실 확인
 
@@ -39,7 +35,7 @@ JavaScript 프로젝트를 TypeScript로 전환하면서 이렇게 생각한 적
 
 에러를 없애려고 `any`를 추가한 뒤, 나중에 다시 돌아와서 고치겠다고 다짐했다.
 
-그리고 다시는 돌아오지 않았다.
+다시는 돌아오지 않았다.
 
 ---
 
@@ -57,7 +53,7 @@ TypeScript 에러 하나를 고쳤더니...
 
 ---
 
-아래처럼 작성하고 약간의 죄책감을 느꼈다:
+아래처럼 쓰고 약간의 죄책감을 느꼈다:
 
 ```ts
 as any
@@ -70,17 +66,17 @@ as any
 
 하루 종일 TypeScript에 불평하다가...
 
-막상 순수 JavaScript를 쓰려니 완전히 길을 잃은 기분이 든 적 있다.
+막상 순수 JavaScript를 쓰려니 완전히 길을 잃은 기분이 든다.
 
 ---
 
-"단순화하려고" 타입 어노테이션을 제거했다.
+"단순화하려고" 타입 어노테이션을 지웠다.
 
 TypeScript는 강하게 반대했다.
 
 ---
 
-실제 비즈니스 로직보다 타입을 설계하는 데 더 많은 시간을 쏟은 적 있다.
+실제 비즈니스 로직보다 타입을 설계하는 데 더 많은 시간을 쏟은 날이 있었다.
 
 ---
 
@@ -88,7 +84,7 @@ TypeScript는 강하게 반대했다.
 
 > "이걸 누가 이렇게 잘 만들었지?"
 
-그리고 6개월 전의 내가 만들었다는 걸 발견했다.
+6개월 전의 내가 만들었다는 걸 발견했다.
 
 ---
 
@@ -100,7 +96,7 @@ TypeScript는 강하게 반대했다.
 
 ---
 
-`string | number | null | undefined`로 타입을 지정한 적 있다.
+`string | number | null | undefined`로 타입을 지정했다.
 
 왜냐하면 인생은 복잡하니까.
 
@@ -118,17 +114,17 @@ type Result<T extends keyof U, U extends object>
 
 TypeScript와 한 시간째 싸우다가...
 
-결국 TypeScript가 처음부터 옳았다는 걸 깨달은 적 있다.
+결국 TypeScript가 처음부터 옳았다는 걸 깨달았다.
 
 ---
 
-IDE에서 빨간 물결선이 마침내 사라졌을 때 환호한 적 있다.
+IDE에서 빨간 물결선이 마침내 사라졌을 때 환호가 나왔다.
 
 ---
 
 한 곳에서 프로퍼티 이름을 바꿨더니...
 
-TypeScript가 스무 개의 파일이 깨지는 걸 막아준 적 있다.
+TypeScript가 스무 개의 파일이 깨지는 걸 막아줬다.
 
 그 순간만큼은 진심으로 감사했다.
 
@@ -140,11 +136,11 @@ TypeScript가 스무 개의 파일이 깨지는 걸 막아준 적 있다.
 
 ---
 
-자동완성을 너무 많이 써서 프로퍼티 이름을 직접 타이핑하는 게 어색해진 적 있다.
+자동완성을 너무 많이 써서 프로퍼티 이름을 직접 타이핑하는 게 어색해졌다.
 
 ### 비상구 해결책들
 
-아래 코드를 작성하고 아무도 못 봤으면 했다:
+아래 코드를 쓰고 아무도 못 봤으면 했다:
 
 ```ts
 // @ts-ignore
@@ -152,7 +148,7 @@ TypeScript가 스무 개의 파일이 깨지는 걸 막아준 적 있다.
 
 ---
 
-타입을 너무 복잡하게 만들어서, 미래의 내가 이해하려면 문서가 필요한 적 있다.
+타입을 너무 복잡하게 만들어서 미래의 내가 이해하려면 문서가 필요할 것 같았다.
 
 ---
 
@@ -162,7 +158,7 @@ TypeScript 에러를 Google에 복붙했다.
 
 ---
 
-같은 디버깅 세션에서 이런 말을 동시에 한 적 있다:
+같은 디버깅 세션에서 이런 말을 동시에 했다:
 
 > "타입은 맞다. 코드가 틀렸다."
 
@@ -174,7 +170,7 @@ TypeScript 에러를 Google에 복붙했다.
 
 버그를 드디어 고쳤더니...
 
-TypeScript가 이틀 전부터 이미 경고하고 있었다는 걸 깨달은 적 있다.
+TypeScript가 이틀 전부터 이미 경고하고 있었다는 걸 깨달았다.
 
 ## 진짜 TypeScript 개발자인가?
 

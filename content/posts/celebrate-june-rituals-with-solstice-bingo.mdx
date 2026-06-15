@@ -17,19 +17,17 @@ slug: "celebrate-june-rituals-with-solstice-bingo"
 
 <LinkCard url="https://dev.to/klaudiagrz/celebrate-june-rituals-with-solstice-bingo-1al6" author="Klaudia Grzondziel" date="2026-06-11" />
 
-## 개요
-
 이 글은 [June Solstice Game Jam](https://dev.to/challenges/june-game-jam-2026-06-03) 제출작입니다.
 
-의식과 작은 축하 행사를 좋아하는 저자는, 친구에게 받은 봄맞이 빙고 창작 키트에서 영감을 받아 [**Solstice Bingo**](https://solstice-bingo.netlify.app/)를 만들었습니다. 민들레 씨앗 불기, 봄 폭풍 즐기기, 네잎 클로버 찾기처럼 소소한 활동을 체크해 나가는 경험이 좋은 기분을 가져다줬고, 이를 6월 하지 버전으로 만들게 되었습니다.
+Klaudia는 의식과 작은 축하 행사를 즐기는 편이라, 친구에게 받은 봄맞이 빙고 창작 키트에서 영감을 받아 [**Solstice Bingo**](https://solstice-bingo.netlify.app/)를 만들었다고 합니다. 민들레 씨앗 불기, 봄 폭풍 즐기기, 네잎 클로버 찾기처럼 소소한 활동을 체크해 나가는 게 기분 좋았고, 그걸 6월 하지 버전으로 옮겨보고 싶었던 거죠.
 
-이런 작은 축하 행사는 기쁨을 가져다주고, 기분을 개선하며, 자연 속에서 즐기거나 창의적인 활동 또는 자기 돌봄을 통해 스트레스를 줄여줍니다.
+이런 작은 축하 행사는 기쁨을 주고 스트레스를 줄여줍니다. 자연 속에서 즐기거나 창의적인 활동, 자기 돌봄으로 이어지기도 하고요.
 
 ## 만든 것
 
-[**Solstice Bingo**](https://solstice-bingo.netlify.app/)는 전 세계의 6월 전통을 모아 브라우저 기반 빙고 게임으로 구현한 프로젝트입니다. 활동을 완료하고 표시하면 배경 하늘이 깊은 밤에서 하지의 정오로 점차 변해갑니다.
+[**Solstice Bingo**](https://solstice-bingo.netlify.app/)는 전 세계의 6월 전통을 모아 브라우저에서 즐기는 빙고 게임입니다. 활동을 완료할수록 배경 하늘이 깊은 밤에서 하지의 정오로 서서히 바뀝니다.
 
-게임은 단순히 체크박스를 채우는 것 이상입니다. 각 카드는 전 세계 사람들이 어떻게 6월 의식을 기념하는지 그 이야기를 담고 있습니다. 일부 카드에는 더 깊이 탐구할 수 있는 기사나 YouTube 영상 링크도 포함되어 있습니다. 흑인 작가의 문학 읽기, 소풍 가기, 또는 단순히 수분을 충분히 섭취하기 같은 의식에 직접 참여해볼 수 있는 기회이기도 합니다.
+단순히 체크박스를 채우는 게 아닙니다. 각 카드에는 전 세계 사람들이 6월을 어떻게 기념하는지에 대한 이야기가 담겨 있고, 더 깊이 들여다볼 수 있는 기사나 YouTube 영상 링크도 있습니다. 흑인 작가의 문학 읽기, 소풍 가기, 수분 충분히 섭취하기 같은 활동에 직접 참여해보는 기회이기도 합니다.
 
 ## 동영상 데모
 
@@ -41,29 +39,29 @@ slug: "celebrate-june-rituals-with-solstice-bingo"
 
 ## 제작 방법
 
-전체 게임은 단 하나의 HTML 파일 안에 담겨 있습니다 — 이는 의도적인 선택이었습니다. 프레임워크도, 번들러도, 거대한 `node_modules` 폴더도 없습니다. 순수한 HTML, CSS, 그리고 약간의 JavaScript만 사용했습니다. 이 규모의 프로젝트에서는 모든 것을 한 곳에 두는 것이 합리적이었습니다.
+전체 게임은 HTML 파일 하나에 다 들어 있습니다. 의도적인 선택이었습니다. 프레임워크도, 번들러도, 거대한 `node_modules` 폴더도 없이, HTML과 CSS, JavaScript만으로 만들었습니다. 이 규모의 프로젝트에서는 한 파일에 다 담는 게 훨씬 합리적이었습니다.
 
-가장 마음에 드는 부분은 하늘 애니메이션입니다. 의식을 완료할수록 배경이 깊은 밤 블루에서 따뜻한 하지의 정오 색으로 변해갑니다. CSS 커스텀 속성과 작은 색상 보간 함수를 사용해 전환을 부드럽게 구현했습니다. 게임을 하면서 태양이 실제로 떠오릅니다.
+가장 마음에 드는 부분은 하늘 애니메이션입니다. 의식을 하나씩 완료할수록 배경이 깊은 밤의 블루에서 하지 정오의 따뜻한 색으로 바뀝니다. CSS 커스텀 속성(변수)과 색상 보간 함수를 써서 전환을 부드럽게 만들었는데, 게임을 하는 동안 태양이 진짜로 떠오르는 것처럼 느껴집니다.
 
-진행 상황은 `localStorage`에 저장되므로 탭을 닫아도 이어서 플레이할 수 있습니다. 각 카드는 33개의 의식 풀에서 무작위로 뽑히므로, 다시 섞으면 매번 새로운 경험을 할 수 있습니다.
+진행 상황은 브라우저의 `localStorage`(로컬 저장소)에 저장되어 탭을 닫아도 이어서 플레이할 수 있습니다. 카드는 33개의 의식 풀에서 무작위로 뽑히기 때문에, 섞을 때마다 새로운 조합을 경험할 수 있습니다.
 
-이 프로젝트는 AI(Gemini와 Claude)를 코딩 파트너로 삼아 제작했습니다. CSS와 JavaScript를 아직 배우고 있는 단계라, 원하는 것을 설명하고 출력을 검토하며 마음에 들지 않으면 수정하고 반복하는 방식으로 작업했습니다. 페어 프로그래밍과 매우 비슷한 느낌이었다고 합니다.
+AI(Gemini와 Claude)를 코딩 파트너로 활용해서 만들었다고 합니다. CSS와 JavaScript를 배우는 중이라, 원하는 게 뭔지 설명하고 결과를 검토하고 마음에 안 들면 수정하는 식으로 작업했다고요. 페어 프로그래밍과 비슷한 느낌이었다고 합니다.
 
 ![Ferns and flowers surrounding a calendar](https://images.pexels.com/photos/5498340/pexels-photo-5498340.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
 *Photo by Boris Pavlikovsky on [Pexels](https://www.pexels.com/photo/ferns-and-flowers-surrounding-a-calendar-5498340/)*
 
 ## 수상 카테고리
 
-저자는 두 카테고리 모두에 지원했습니다.
+두 카테고리 모두에 지원했다고 합니다.
 
 - **Best Ode to Alan Turing** — 빙고 카드 중 Alan Turing에게 헌정된 카드가 하나 있습니다.
-- **Best Google AI Usage** — Gemini를 프롬프트 엔지니어링에 활용했습니다. 아이디어를 상담하고 프로젝트의 방향을 안내하는 협력자이자 검토자로 사용했으며, 기사 배너 이미지도 Gemini로 생성했습니다.
+- **Best Google AI Usage** — Gemini를 프롬프트 엔지니어링에 활용했습니다. 아이디어를 함께 다듬고 프로젝트 방향을 잡는 협력자이자 검토자로 썼고, 기사 배너 이미지도 Gemini로 만들었습니다.
 
-## 결론
+## 마치며
 
-이번 챌린지와 게임 설계 전체가 매우 재미있었다고 합니다. HTML, CSS, JavaScript를 다루고, Netlify를 처음 사용해보았으며, 이전에 알지 못했던 6월 기념 행사들을 새롭게 알게 되었습니다. 이를 계기로 [Responsive Web Design](https://www.freecodecamp.org/learn/responsive-web-design-v9/) 강좌도 시작하게 되었습니다.
+챌린지 전체가 무척 즐거웠다고 합니다. HTML, CSS, JavaScript를 직접 다뤄보고, Netlify도 처음 써봤으며, 몰랐던 6월 기념 행사들도 새로 알게 됐다고요. 이 계기로 [Responsive Web Design](https://www.freecodecamp.org/learn/responsive-web-design-v9/) 강좌도 시작했다고 합니다.
 
-활동을 공유하고 싶다면 소셜 미디어에 **#solsticebingo** 해시태그와 함께 활동 사진을 올려보세요.
+활동을 공유하고 싶다면 소셜 미디어에 **#solsticebingo** 해시태그를 달아 사진을 올려보세요.
 
 ---
 
