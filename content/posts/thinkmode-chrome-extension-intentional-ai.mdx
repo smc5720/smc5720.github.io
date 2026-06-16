@@ -1,0 +1,72 @@
+﻿---
+title: "AI 사용을 더 의식적으로 만드는 크롬 익스텐션 ThinkMode"
+description: "AI 프롬프트 전에 사고 모드를 선택하고, 사용 후 인지 비용을 추적하는 크롬 익스텐션 ThinkMode를 소개한다. 속도보다 반성을 우선하는 개발자 도구다."
+date: "2026-06-15"
+published_at: "2026-06-16"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2Ffmn4im76t1lgd9ttfath.png"
+coverAlt: "Building a Chrome Extension to Make AI Use More Intentional"
+slug: "thinkmode-chrome-extension-intentional-ai"
+source_id: "devto-3703634"
+source_url: "https://dev.to/javz/building-a-chrome-extension-to-make-ai-use-more-intentional-20k0"
+source_title: "Building a Chrome Extension to Make AI Use More Intentional"
+source_author: "Julien Avezou"
+source_published: "2026-06-15"
+---
+
+<LinkCard url="https://dev.to/javz/building-a-chrome-extension-to-make-ai-use-more-intentional-20k0" author="Julien Avezou" date="2026-06-15" />
+
+## 개요
+
+AI가 개발자에게 미치는 영향을 다룬 글들을 연재해온 저자가 직접 만든 도구를 공개했다. **ThinkMode**라는 크롬 익스텐션으로, AI에 프롬프트를 입력하기 전에 사고 모드를 선택하고 사용 후 인지 비용을 계산하는 기능을 제공한다.
+
+AI는 생각을 건너뛰게 만들기 쉽다. ThinkMode는 그 흐름에 제동을 걸어, 프롬프트 전후로 스스로 생각하는 습관을 만들도록 돕는다. 브라우저 익스텐션이라 일상적인 LLM 채팅 워크플로에 자연스럽게 녹아든다.
+
+## 작동 방식
+
+### 프롬프트 전: 사고 모드 선택
+
+프롬프트를 열기 전에 ThinkMode가 먼저 묻는다 — 지금 무엇을 하려고 하는지. 답변에 따라 다섯 가지 모드 중 하나를 추천한다:
+
+- **Explore**: 문제를 풀기 전에 먼저 이해한다
+- **Challenge**: 기존 계획의 약점을 검증한다
+- **Decide**: 선택지와 트레이드오프를 비교한다
+- **Audit**: 품질, 정확성, 테스트, 엣지 케이스를 점검한다
+- **Reflect**: 방금 한 작업에서 무언가를 배운다
+
+목표는 프롬프트와 작업의 성격을 맞추는 것이다.
+
+### 프롬프트 후: AI 사용 로그
+
+AI를 사용한 뒤에는 어떻게 활용했는지 직접 기록할 수 있다. 사용 방식은 세 카테고리로 나뉜다:
+
+- **Supportive**: AI가 사고를 확장하도록 돕는다
+- **Mixed**: 시간을 아끼지만 이해를 압축할 수 있다
+- **Risky**: AI가 판단을 대신할 수 있다
+
+각 기록은 **인지 비용 미터**에 누적된다. 위험도가 높은 사용일수록 미터가 빨리 찬다. 미터가 가득 차면 ThinkMode가 지원하는 AI 채팅 페이지를 5분간 일시 차단한다.
+
+![ThinkMode 인지 비용 미터 화면](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/d2qzsfjv0ae152wi27n0.png)
+
+## 기술 구조
+
+ThinkMode는 Manifest V3 기반의 크롬 익스텐션으로, React + TypeScript + Vite로 만들었다. 구성 요소는 다음과 같다:
+
+- 콘텐츠 스크립트: 지원하는 AI 채팅 페이지 감지
+- 플로팅 버튼: 익스텐션 실행
+- 백그라운드 서비스 워커: 사이드 패널 조율
+- React 사이드 패널: 주요 워크플로 처리
+- 공유 TypeScript 모듈: 추천 로직과 프롬프트 생성 담당
+
+현재 ChatGPT, Claude, Gemini 페이지를 지원한다.
+
+**백엔드나 LLM API 호출은 없다.** ThinkMode는 대화를 읽거나, 페이지 콘텐츠를 스크래핑하거나, 분석 데이터를 전송하거나, 원격으로 데이터를 저장하지 않는다. 추천 엔진은 결정론적이며 단순한 키워드 규칙으로 사고 모드를 선택한다.
+
+## 설치 방법
+
+[크롬 웹스토어에서 무료로 설치](https://chromewebstore.google.com/detail/nbecnbmefilkkijpldhnbmmbcochhdpo)할 수 있다. 개발자 모드를 활성화해 로컬에서 직접 실행하는 것도 가능하다. 소스 코드는 [GitHub에 공개](https://github.com/JulienAvezou/ai-thinking-mode-browser-extension)되어 있어 포크 후 자유롭게 수정할 수 있다.
+
+---
+
+*이 글은 위 출처의 내용을 바탕으로 작성된 초안입니다. 원문의 의견과 정보를 그대로 전달하며, 별도의 견해를 포함하지 않습니다.*

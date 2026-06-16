@@ -1,0 +1,114 @@
+﻿---
+title: "Gemma 4로 고전 한국어 번역기 만들기"
+description: "Gemma 4 E2B 모델을 LoRA로 파인튜닝해 조선 시대 고전 문학을 현대 한국어로 번역하는 도구를 만드는 과정을 소개한다."
+date: "2026-06-15"
+published_at: "2026-06-16"
+category: "news"
+tags: ["Finetuning", "Gemma", "AI"]
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fbebechien.github.io%2Fcozy-corner-future%2Fimages%2Ftuning-gemma-4-into-an-old-korean-translator.png"
+coverAlt: "Turning Gemma 4 into an Old Korean Translator"
+source_id: "devto-3903687"
+source_url: "https://dev.to/googleai/turning-gemma-4-into-an-old-korean-translator-hop"
+source_title: "Turning Gemma 4 into an Old Korean Translator"
+source_author: "bebechien"
+source_published: "2026-06-15"
+slug: "gemma-4-old-korean-translator"
+---
+
+<LinkCard url="https://dev.to/googleai/turning-gemma-4-into-an-old-korean-translator-hop" author="bebechien" date="2026-06-15" />
+
+## 개요
+
+오래된 책에는 독특한 아름다움이 있다. 빛바랜 종이 냄새, 페이지의 질감, 세대를 넘어 살아남은 이야기들. 그런데 조선 시대 소설 *[홍길동전](https://en.wikipedia.org/wiki/Hong_Gildong_jeon)*을 펼쳐보면, 시간이 언어에도 흔적을 남긴다는 걸 금방 깨닫게 된다.
+
+띄어쓰기가 없는 것은 물론이고, 아래아(ㆍ)나 여린히읗(ㆆ) 같은 사라진 글자들 때문에 읽는 일 자체가 아름다운 고대 퍼즐을 푸는 것과 다름없다. 원어민 한국인에게도 언어적 간격이 만만치 않다.
+
+이 튜토리얼은 그 간격을 좁히기 위한 시도다. **[Gemma 4 E2B (IT)](https://huggingface.co/google/gemma-4-E2B-it)** 모델을 활용해 고전 한국어를 자연스러운 현대 한국어로 옮기는 번역기를 만드는 과정을 담았다.
+
+## 훈련 준비
+
+Google Colab의 NVIDIA T4 GPU(16GB) 단일 환경에서 실행할 수 있도록 설계했다.
+
+### 환경 설정
+
+필요한 오픈소스 도구를 먼저 갖춘다. Hugging Face의 `transformers`, 훈련 루프를 담당하는 `trl`, 그리고 대규모 서버 없이 파인튜닝을 가능하게 해주는 LoRA(Low-Rank Adaptation)용 `peft`다.
+
+### 데이터 준비
+
+학습 데이터로는 퍼블릭 도메인 *[홍길동전](https://ko.wikisource.org/wiki/%ED%99%8D%EA%B8%B8%EB%8F%99%EC%A0%84_(36%EC%9E%A5_%EC%99%84%ED%8C%90%EB%B3%B8))* 원문과 `직지프로`가 제작한 [현대어 번역본](https://ko.wikisource.org/wiki/%EB%B2%88%EC%97%AD:%ED%99%8D%EA%B8%B8%EB%8F%99%EC%A0%84_(36%EC%9E%A5_%EC%99%84%ED%8C%90%EB%B3%B8))(Creative Commons 라이선스)을 활용했다.
+
+Gemma가 학습하기 좋은 형태로 데이터를 대화 구조로 정리하고, 명확한 `system` 프롬프트를 설정했다:
+
+```json
+[
+  {"role": "system", "content": "Translate Classical Korean into Modern Korean."},
+  {"role": "user", "content": "됴션국셰둉ᄃᆡ왕즉위십오연의홍희문밧긔ᄒᆞᆫᄌᆡ상이잇스되"},
+  {"role": "assistant", "content": "조선국 세종대왕 즉위 십오년에 홍회문 밖에 한 재상이 있으되,"}
+]
+```
+
+*(이 문장은 세종대왕 즉위 15년, 홍화문 밖에 사는 한 재상을 소개하는 장면이다.)*
+
+## 파인튜닝 전 결과
+
+특별한 훈련 없이 기본 모델로 먼저 테스트해봤다. 기본 모델도 영리하지만, 고어 문법은 매우 좁은 전문 영역이다. 튜닝 없이는 과도하게 직역한 결과물이 나왔다:
+
+- **고전 원문:** ᄇᆡᆨ씨듯고ᄂᆡ심의탄복왈그근본을ᄀᆞᆷ초지아니ᄒᆞ니장부로다ᄒᆞ고ᄌᆡ삼위로ᄒᆞ더라
+- **인간 번역:** 백씨 듣고 내심에 탄복 왈, "그 근본을 감추지 아니하니 장부로다!" 하고, 재삼 위로하더라.
+- **Gemma 초기 결과:** *"Like the color, the heart's praise said, 'The foundation cannot be deeply felt...'"*
+- **초기 유사도 점수:** **4.85%**
+
+*(실제 의미: 백씨가 듣고 마음속으로 탄복하며 "그 근본을 숨기지 않으니 진정한 장부로다!"라 하고, 거듭 위로했다는 뜻이다.)*
+
+기본 모델은 고전 언어 앞에서 방향을 잃었다.
+
+## LoRA 파인튜닝
+
+효율적인 훈련을 위해 PEFT와 LoRA를 조합했다:
+
+```python
+from peft import LoraConfig
+
+peft_config = LoraConfig(
+    lora_alpha=16,
+    lora_dropout=0.05,
+    r=16,
+    bias="none",
+    target_modules="all-linear",
+    task_type="CAUSAL_LM",
+)
+```
+
+**핵심 기법: `collate_fn`**
+
+챗 모델을 특정 도구처럼 동작하도록 파인튜닝할 때, 모델이 프롬프트 재작성에 에너지를 쏟게 두면 안 된다. 커스텀 데이터 콜레이터를 사용해 `system`과 `user` 입력의 레이블을 `-100`으로 마스킹했다. 이렇게 하면 Gemma의 손실 계산이 올바른 현대어 응답 생성에만 집중하게 된다.
+
+하이퍼파라미터는 학습률 `2e-5`로 5 에포크를 진행하도록 설정했다.
+
+## 파인튜닝 후 결과
+
+훈련이 끝나고 결과를 확인하면 성과가 눈에 띄게 달라진다. 문자 단위 유사도 점수가 **79.93%**까지 올라갔다.
+
+동일한 고전 문장에 대한 비교:
+
+- **고전 원문:** ᄇᆡᆨ씨듯고ᄂᆡ심의탄복왈그근본을ᄀᆞᆷ초지아니ᄒᆞ니장부로다ᄒᆞ고ᄌᆡ삼위로ᄒᆞ더라
+- **인간 번역:** 백씨 듣고 내심에 탄복 왈, "그 근본을 감추지 아니하니 장부로다!" 하고, 재삼 위로하더라.
+- **Gemma 파인튜닝 결과:** 백씨듯 고내심에 탄복 왈, "그 근본을 감초지 아니하니 장부로다." 하고 제삼 위로 하더라.
+- **새 유사도 점수:** **85.71%**
+
+## 마무리
+
+자신의 도메인에 파인튜닝을 적용할 때의 기본 흐름을 정리하면 다음과 같다:
+
+1. 명확한 목표 설정
+2. 고품질 데이터셋과 평가 계획 준비
+3. 모델이 제대로 학습하는지 검증
+4. 지표와 인간 판단을 조합해 평가
+5. 배포 후 반복 개선
+
+- [튜토리얼 노트북 (Colab)](https://colab.research.google.com/github/google-gemma/cookbook/blob/main/tutorials/Translator_of_Old_Korean_Literature.ipynb)
+- [Gemma Cookbook 저장소](https://github.com/google-gemma/cookbook)
+
+---
+
+*이 글은 위 출처의 내용을 바탕으로 작성된 초안입니다. 원문의 의견과 정보를 그대로 전달하며, 별도의 견해를 포함하지 않습니다.*
