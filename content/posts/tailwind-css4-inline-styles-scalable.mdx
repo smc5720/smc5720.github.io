@@ -1,0 +1,70 @@
+﻿---
+title: "Tailwind CSS의 인라인 스타일이 오히려 확장성 높은 이유"
+description: "유틸리티 클래스가 지저분해 보여도 기존 CSS보다 유지보수하기 쉬운 이유를 시니어 CSS 개발자 관점에서 풀어본다."
+date: "2026-06-16"
+published_at: "2026-06-17"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2F1nobdtllgoxlxl4fb48w.png"
+coverAlt: "Tailwind CSS4: Why Those Inline Styles Are Actually More Scalable - A Senior CSS Developer's Guide"
+slug: "tailwind-css4-inline-styles-scalable"
+source_id: "devto-3910960"
+source_url: "https://dev.to/cathylai/tailwind-css4-why-those-inline-styles-are-actually-more-scalable-a-senior-css-developers-guide-hdj"
+source_title: "Tailwind CSS4: Why Those Inline Styles Are Actually More Scalable - A Senior CSS Developer's Guide"
+source_author: "Cathy Lai"
+source_published: "2026-06-16"
+---
+
+<LinkCard url="https://dev.to/cathylai/tailwind-css4-why-those-inline-styles-are-actually-more-scalable-a-senior-css-developers-guide-hdj" author="Cathy Lai" date="2026-06-16" />
+
+## 개요
+
+Tailwind CSS를 처음 접하면 `className="text-mint-500 bg-gray-100 rounded-lg p-4"` 같은 코드에 거부감이 든다. 과거에 지양하라고 배웠던 `style="font-size: 12px; color: green;"` 방식과 뭐가 다르냐는 것이다. Cathy Lai는 이 질문에 대해 "우리는 예쁜 마크업을 포기하는 대신 깨지지 않는 유지보수성을 얻었다"고 답한다.
+
+## 전통적인 CSS가 만드는 문제
+
+큰 코드베이스를 유지해본 개발자라면 이런 상황을 한 번쯤 겪었을 것이다.
+
+```css
+/* 2년 전 개발자 A가 작성 */
+.card-variant-3 {
+  background-color: #f3f4f6;
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+```
+
+2년이 지나면 스타일시트는 5,000줄을 넘는다. `.card-variant-3`이 어느 마케팅 페이지에서 쓰이는지 아무도 확신할 수 없다. 결국 개발자 B는 기존 클래스를 수정하지 못하고 `.card-variant-3-updated`라는 새 클래스를 파일 맨 아래에 덧붙인다.
+
+이 패턴이 반복되면 두 가지 문제가 생긴다. 번들 크기가 앱 규모에 비례해 선형으로 늘어나고, 개발자는 의미 없는 클래스명 짓기(`.main-content-inner`, `.card-body-flex`)와 HTML·CSS 파일 사이 탐색에 시간을 낭비한다.
+
+![Abstract 3D graphic art](https://images.pexels.com/photos/13807427/pexels-photo-13807427.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Steve A Johnson](https://www.pexels.com/@steve-a-johnson) on [Pexels](https://www.pexels.com/photo/abstract-3d-graphic-art-13807427/)*
+
+## Tailwind가 문제를 푸는 방식
+
+Tailwind는 CSS 변수에서 유틸리티 클래스를 만들어 HTML에서 바로 쓸 수 있게 한다.
+
+```jsx
+<h1 className="text-mint-500">Introduction</h1>
+```
+
+이 방식이 주는 이점은 두 가지다.
+
+**CSS 번들 크기 고정.** `bg-mint-500`이나 `p-4`는 페이지가 10개든 10,000개든 동일한 클래스를 재사용한다. 새 CSS 줄을 쓸 일이 없으니 프로덕션 CSS 크기는 거의 늘지 않는다.
+
+**리팩토링 리스크 제거.** 어떤 요소의 스타일을 결정하는 코드가 해당 컴포넌트 블록 안에만 존재한다. 컴포넌트를 삭제하면 스타일도 함께 사라진다. 앱의 다른 사이드바가 깨질 걱정이 없다.
+
+## "지저분해 보인다"는 문제
+
+유틸리티 클래스가 한 줄에 몰리면 읽기 불편하다는 지적은 타당하다. Cathy Lai의 반론은 "자주 볼 필요가 없다"는 것이다.
+
+현대 웹 개발에서 우리는 React, Vue, Svelte 같은 컴포넌트 기반 아키텍처를 쓴다. 스타일을 한 번 컴포넌트로 캡슐화하면 호출 측 코드에서는 `<Card variant="premium" />`만 보인다. 구현 세부사항은 하나의 파일 안에 격리되고, 레이아웃 코드는 깔끔하게 유지된다.
+
+## 핵심 교환
+
+Tailwind를 쓴다는 것은 개발 단계의 마크업 가독성을 희생하는 대신, 프로덕션 아키텍처의 예측 가능성과 격리성을 얻는 선택이다. 스타일시트가 조용히 비대해지는 것보다 컴포넌트 파일 안에서 명시적으로 드러나는 편이 팀 전체의 유지보수 비용을 낮춘다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
