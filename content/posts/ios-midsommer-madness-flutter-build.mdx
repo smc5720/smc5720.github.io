@@ -1,0 +1,114 @@
+﻿---
+title: "아이폰에서 즐기는 미드솜마르 매드니스 — Flutter로 iOS 빌드까지 (iOS Midsommer Madness)"
+description: "웹으로 시작해 안드로이드를 거쳐 Flutter로 옮긴 스웨덴 하지 축제 게임이 마침내 iOS 빌드로 아이폰에 올라갔다. June Solstice Game Jam 출품작의 빌드·배포 과정을 정리했다."
+date: "2026-06-12"
+published_at: "2026-06-18"
+category: "news"
+tags: ["antigravitycli", "devchallenge", "gamechallenge", "gamedev"]
+cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2F32vmbwht9bm2ercy7zw6.png"
+coverAlt: "IOS Midsommer Madness"
+slug: "ios-midsommer-madness-flutter-build"
+source_id: "devto-3877954"
+source_url: "https://dev.to/gde/ios-midsommer-madness-5h4"
+source_title: "IOS Midsommer Madness"
+source_author: "xbill"
+source_published: "2026-06-12"
+---
+
+<LinkCard url="https://dev.to/gde/ios-midsommer-madness-5h4" author="xbill" date="2026-06-12" />
+
+## 개요
+
+스웨덴 하지 축제(미드솜마르)를 소재로 한 게임 '미드솜마르 매드니스'가 드디어 아이폰에서 돌아간다. 웹앱으로 출발해 네이티브 안드로이드 APK, 그리고 Flutter 코드베이스로 옮겨온 이 프로젝트는 이번 편에서 같은 Flutter 코드를 Xcode와 함께 빌드해 iOS 앱으로 뽑아냈다. June Solstice Game Jam 출품작이다.
+
+망치를 들면 모든 게 못으로 보인다는 말처럼, 한 번 Flutter로 갈아탄 코드베이스는 별도 재작성 없이 iOS까지 확장됐다. 빌드한 앱은 실제 아이폰에 설치돼 문제없이 플레이됐고, 그동안 남아 있던 조이스틱 관련 버그도 함께 잡았다.
+
+![Table with fruit, drinks and flowers](https://images.pexels.com/photos/8832639/pexels-photo-8832639.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Kristina Snowasp](https://www.pexels.com/@kristina-snowasp) on [Pexels](https://www.pexels.com/photo/table-with-fruit-drinks-and-flowers-8832639/)*
+
+## 게임은 어떤 내용인가
+
+여름 하지 시즌의 주인공은 단연 스웨덴이다. 미드솜마르 매드니스는 그 특유의 분위기를 게임으로 옮겼고, 이제는 들고 다니며 즐길 수 있게 됐다. 주요 레벨 구성은 이렇다.
+
+1. **이케아 창고:** 플랫팩을 든 인파를 헤치며 날아오는 상자를 피한다.
+2. **시스템볼라겟:** 국영 주류점. 비틀거리는 취객들이 초록색 맥주병을 던진다.
+3. **뢰르다그스고디스(토요일 사탕):** 설탕에 취한 아이들이 사탕을 마구 던지는 슈가 러시 레벨.
+4. **스웨덴 펍:** 프랭크 자파 팬들이 'Bobby Brown'을 부르며 B, O, B, B, Y 글자를 쏘아댄다.
+5. **볼보 하이웨이:** 차선을 건너며 살아남아야 하는 생존 레벨.
+
+## iOS 빌드는 어떻게 하나
+
+iOS용으로 빌드하려면 Xcode가 설치된 최신 맥과 Flutter가 필요하다. Xcode는 일반적인 맥 설치 방식으로, Flutter는 직접 내려받거나 Homebrew로 설치한다. 프로젝트에 포함된 Makefile에는 iOS 타깃이 이미 정의돼 있다.
+
+```console
+Available commands:
+  make dev - Start the local web server for browser play (from assets/)
+  make build-apk - Compile the Flutter App and build Debug APK
+  make build-ios - Compile the Flutter App and build iOS app (no codesign)
+  make install-apk - Install the compiled debug APK on a connected device/emulator
+  make clean - Clean Flutter build outputs and temporary caches
+  make logcat - Monitor application logs using Flutter logger
+```
+
+### 세 가지 빌드 경로
+
+작성자는 빌드 방법을 세 갈래로 정리한다.
+
+**1. CLI 빌드 (코드 서명 없이)** — 프로비저닝 프로파일이나 코드 서명 설정 없이 빠르게 컴파일하려면 Makefile 명령을 쓰거나 Flutter 명령을 직접 실행한다.
+
+```shell
+make build-ios
+# 또는
+flutter build ios --no-codesign
+```
+
+**2. iOS 시뮬레이터용 빌드** — macOS 시뮬레이터 안에서 테스트하려면 시뮬레이터 타깃으로 빌드한 뒤 실행한다.
+
+```shell
+flutter build ios --simulator
+flutter run
+```
+
+**3. Xcode로 빌드·실행 (실기기 / 앱스토어)** — 서명 인증서와 팀 프로비저닝 프로파일을 설정하고 실제 기기에 올리려면 Xcode 워크스페이스를 연다.
+
+```shell
+open ios/Runner.xcworkspace
+```
+
+이후 Xcode 좌측에서 Runner 프로젝트를 선택하고, Signing & Capabilities 탭에서 개발자 팀과 번들 식별자를 지정해 코드 서명을 해결한다. 상단에서 연결된 기기나 시뮬레이터를 고른 다음 Play 버튼을 누르면 빌드와 실행이 진행된다.
+
+### 아이폰에 올리기
+
+Xcode 설정을 마치면 서명된 앱 번들을 빌드해 실기기에 배포할 수 있다.
+
+```shell
+flutter build ios
+# Output: build/ios/iphoneos/Runner.app
+
+ios-deploy --bundle build/ios/iphoneos/Runner.app
+# [100%] InstallComplete
+# [100%] Installed package build/ios/iphoneos/Runner.app
+```
+
+설치가 끝나면 게임 아이콘이 기기 홈 화면에 나타난다. 전체 Flutter 앱을 빌드한 뒤 아이폰으로 옮겨 테스트하면, 실제 기기에서 그대로 플레이된다.
+
+## 내 레벨 추가하기 — Antigravity CLI 활용
+
+레벨은 Antigravity CLI로 직접 붙일 수 있다. 작성자는 "설탕에 취한 아이들이 토요일 사탕을 던지는 고디스 레벨을 추가해줘"라는 요청만으로 CLI가 게임 코드를 분석하고 수정하는 과정을 보여준다. CLI가 실제로 처리한 변경 사항을 요약하면 이렇다.
+
+- **레벨 설정 (`game.js`):** 뢰르다그스고디스를 레벨 배열에 끼워 넣어 이후 레벨을 레벨 10(ABBA 디스코)까지 한 칸씩 밀고, 곳곳의 최종 레벨 판정 로직을 레벨 9에서 10으로 갱신했다.
+- **CandyKid · Lordagsgodis 클래스 추가:** Drunkard 클래스 바로 뒤에 정의했다. CandyKid는 속도 1.8, 체력 35로 빠르게 사탕을 던지며, 슈가 러시를 표현하려고 화면에서 빠르게 떨린다. Lordagsgodis는 회전하며 날아가는 다채로운 색의 사탕 발사체다.
+- **음악·오디오:** 레벨 3에 150 BPM C장조의 경쾌한 칩튠 트랙을 넣고, 레벨 8·9·10이 각자의 칩튠 훅에 매핑되도록 시퀀서 조건을 조정했다.
+- **UI·문서:** `index.html`의 사이드바 트래커를 10레벨 구성으로 다시 번호 매기고, `game_overview.md`의 레벨 진행 설명을 업데이트했다.
+
+명령 한 줄로 새 적(설탕에 취해 사탕을 던지는 아이들)과 새 레벨이 게임에 추가된 셈이다.
+
+## 정리 — 여기까지 온 과정
+
+첫 글에서는 Node.js 기반 브라우저 웹앱을 만들었다. 그다음 이 앱을 네이티브 안드로이드 APK로 변환했고, 거기서 코드베이스를 Flutter 호환으로 리팩터링해 Flutter 안드로이드 APK로 배포했다. 마지막으로 이 Flutter 코드베이스를 Xcode와 함께 써서 맥 노트북에서 iOS용 버전을 뽑아냈다. 그렇게 나온 iOS 빌드를 아이폰에 내려받아 완전히 플레이 가능한 상태로 확인했다.
+
+소스 코드는 [GitHub 저장소](https://github.com/xbill9/midsommer-flutter)에서 볼 수 있다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
