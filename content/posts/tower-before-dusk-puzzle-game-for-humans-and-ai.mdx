@@ -1,0 +1,205 @@
+﻿---
+title: "Tower Before Dusk: 사람과 AI가 함께 푸는 퍼즐 게임을 만들었다"
+description: "한 개발자가 June Solstice 게임 잼에 출품한 퍼즐 게임 Tower Before Dusk. 구글의 WebMCP로 사람과 AI가 모두 플레이할 수 있게 설계했지만, 쉬워 보이는 레벨조차 AI에겐 만만치 않았다."
+date: "2026-06-18"
+published_at: "2026-06-19"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2Fxts8vd42clj4mtf7mliy.png"
+coverAlt: "Tower Before Dusk: I Built a Puzzle Game for Humans and AI"
+slug: "tower-before-dusk-puzzle-game-for-humans-and-ai"
+source_id: "devto-3867038"
+source_url: "https://dev.to/gramli/tower-before-dusk-i-built-a-puzzle-game-for-humans-and-ai-oao"
+source_title: "Tower Before Dusk: I Built a Puzzle Game for Humans and AI"
+source_author: "Daniel Balcarek"
+source_published: "2026-06-18"
+---
+
+<LinkCard url="https://dev.to/gramli/tower-before-dusk-i-built-a-puzzle-game-for-humans-and-ai-oao" author="Daniel Balcarek" date="2026-06-18" />
+
+## 개요
+
+개발자 Daniel Balcarek가 June Solstice 게임 잼에 퍼즐 게임 **Tower Before Dusk**를 출품했다. 해가 지기 전에 집으로 돌아가는 단순한 목표를 가진 게임인데, 특별한 점은 따로 있다. 사람뿐 아니라 AI도 플레이할 수 있게 만들었다는 것이다.
+
+구글의 **WebMCP**를 게임에 붙인 실험이었다. 처음에는 기술 연동이 가장 어려울 거라 예상했지만, 정작 발목을 잡은 건 따로 있었다. 사람에게는 쉬워 보이는 레벨이 AI 모델에게는 좀처럼 풀리지 않았던 것이다.
+
+## 본문
+
+### 번개처럼 떠오른 아이디어
+
+재미있는 아이디어는 항상 시간이 없을 때 찾아온다고 Balcarek는 말한다. 몇 주 전 그는 오래된 WinForms 게임을 되살려 GitHub 챌린지에 제출했다. 그러던 중 Sylwia Laskowska가 구글의 WebMCP를 다룬 글을 올렸고, 그 개념에 흥미를 느꼈지만 어디에 써먹어야 할지는 막막했다.
+
+그때 June Solstice 게임 잼이 공지됐다. "사람과 AI가 둘 다 플레이할 수 있는 게임을 만들면 어떨까?" 아이디어가 번개처럼 꽂혔고, 곧장 작업에 들어갔다.
+
+### 게임 규칙
+
+목표는 단순하다. 해가 지기 전에 집 탑(G)에 도착하는 것. 모든 행동에는 시간이 든다. 한 걸음 옮길 때마다 일몰이 조금씩 가까워진다.
+
+- **강(`~`)** 은 길을 막는다. 나무를 충분히 모아 다리를 놓아야 건널 수 있다.
+- **바위(`R`)** 는 들어갈 수 없어 우회해야 한다.
+- **나무(`W`)** 는 밟으면 자동으로 수집되지만, 그만큼 이동 한 번을 더 쓴다. 꼭 필요할 때만 밟아야 한다.
+
+핵심은 단순히 퍼즐을 푸는 게 아니라 **효율적으로** 푸는 데 있다. 불필요하게 움직이거나 쓸데없는 자원을 모으거나 길을 잘못 들면 집에 닿기 전에 밤이 온다. 그리고 그 효율의 벽은 사람에게도, AI에게도 똑같이 어려웠다.
+
+![해 질 무렵의 탑 실루엣](https://images.pexels.com/photos/13514142/pexels-photo-13514142.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Hoài Nam](https://www.pexels.com/@hoai-nam) on [Pexels](https://www.pexels.com/photo/silhouettes-of-transmission-towers-on-top-of-hill-13514142/)*
+
+### WebMCP로 첫발 떼기
+
+WebMCP가 완전히 처음이었던 터라, 곧장 게임부터 만들기보다 작동 방식을 먼저 익히기로 했다. Vite 앱을 하나 만들고 카운터를 올리는 작은 도구로 실험했다.
+
+```ts
+const incrementCounterTool = {
+  name: "incrementCounter",
+  description: "Increments the counter by a specified value.",
+  inputSchema: {
+    type: "object",
+    properties: { value: { type: "number" } },
+  },
+  execute: async ({ value }: { value: number }) => {
+    const counter  = document.getElementById('counter') as HTMLElement;
+    if (counter) {
+      const currentValue = parseInt(counter.innerText, 10) || 0;
+      counter.innerText = (currentValue + value).toString();
+    }
+  },
+  annotations: {
+    readOnlyHint: false,
+    untrustedContentHint: true
+  },
+};
+```
+
+AI가 카운터를 올리고 브라우저에서 값이 바뀌는 걸 확인한 순간, 그는 계속 진행해도 되겠다는 확신을 얻었다.
+
+### 토큰을 아끼는 설계
+
+게임은 카운터보다 복잡할 수밖에 없었다. 처음에는 매 수마다 AI가 게임 상태를 들여다보게 할까 고민했지만, 그러면 토큰이 순식간에 바닥날 게 뻔했다. 그래서 다른 방식을 떠올렸다.
+
+수를 한 번씩 두는 대신, AI에게 전체 게임 상태와 규칙을 한꺼번에 넘기고 목표까지 도달하는 **완성된 계획 하나**를 만들게 했다. 그다음 고민은 "어떻게 하면 AI가 실제로 플레이하는 것처럼 보이게 할까"였다.
+
+답은 의외로 간단했다. AI가 행동 시퀀스를 반환하면 게임 루프가 짧은 간격을 두고 그 동작들을 재생한다. 플레이어 눈에는 AI가 생각하고 실시간으로 움직이는 것처럼 보인다. 사람 플레이어도 키보드 입력으로 게임 상태를 바꾸는 구조였기에, 이 방식은 기존 아키텍처와도 딱 맞아떨어졌다.
+
+### 두 개의 MCP 도구
+
+원래 아이디어대로 두 개의 MCP 도구를 만들었다. `getGameState`와 `submitPlan`이다.
+
+`getGameState`는 현재 레벨의 전체 상태를 넘긴다. 목표, 범례, 규칙, 사용 가능한 행동, 그리고 보이는 맵까지 담는다.
+
+```ts
+export const gameState: GameState = {
+  objective:  "Reach G before sunset using as few moves as possible. Do not collect unnecessary wood.",
+
+  legend: {
+    P: "player start position",
+    ".": "land / walkable tile",
+    W: "wood / walkable tile, can be collected",
+    "~": "water / blocked unless player has enough wood",
+    R: "rock / blocked tile",
+    B: "bridge / walkable tile created after entering water",
+    G: "goal / walkable tile",
+  },
+
+  rules: {
+    movement:
+      "The player can move one tile up, down, left, or right. Each movement costs 1 move.",
+    water:
+      "Water cannot be entered unless the player has at least 2 wood.",
+    bridge:
+      "When the player moves into a water tile with at least 2 wood, a bridge is built automatically on that single water tile. This costs 1 extra move, consumes 2 wood, and changes only that one water tile to B.",
+    strategy:
+      "Use the minimum number of actions needed to reach G. Do not collect wood unless it is required to build enough bridges.",
+  },
+
+  actions: [
+    "MOVE_UP",
+    "MOVE_DOWN",
+    "MOVE_LEFT",
+    "MOVE_RIGHT",
+  ],
+
+  remainingMoves: 30,
+  wood: 0,
+
+  visibleMap: [
+    "P . W W W W ~ ~ G",
+  ],
+};
+```
+
+두 번째 도구 `submitPlan`은 AI가 제안한 해법을 받는다.
+
+```ts
+    inputSchema: {
+      type: "object",
+      properties: {
+        actions: {
+          type: "array",
+          items: {
+            type: "string",
+            enum: [
+              "MOVE_UP",
+              "MOVE_DOWN",
+              "MOVE_LEFT",
+              "MOVE_RIGHT",
+            ],
+          },
+        },
+        summary: { type: "string" },
+      },
+      required: ["actions"],
+      additionalProperties: false,
+    },
+```
+
+AI는 다음과 같은 행동 배열을 반환하고, `submitPlan`이 이를 게임 루프에 넘겨 짧은 간격을 두고 재생한다.
+
+```ts
+["MOVE_UP","MOVE_DOWN","MOVE_LEFT","MOVE_RIGHT"]
+```
+
+### 쉬운 레벨조차 풀지 못한 AI
+
+도구는 잘 작동했다. 하지만 곧바로 다른 문제가 드러났다. 레벨 설계가 너무 어려웠던 것이다. 1단계조차 테스트한 모델들에게 만만치 않았다.
+
+개발과 테스트에는 WebMCP Inspector와 무료 API 등급으로 쓸 수 있는 Gemini 모델들을 동원했다.
+
+- Gemini 3 Flash Preview
+- Gemini 3.1 Flash-Lite
+- Gemini 3.5 Flash
+
+세 모델 모두 두 도구를 정확히 호출했지만, 어느 것도 1단계의 올바른 해법을 내놓지 못했다. 결국 그는 자신의 퍼즐 설계가 지나치게 낙관적이었음을 인정하고 난이도를 낮췄다. 그제야 AI가 마침내 탑에 도달해 첫 레벨을 깼다.
+
+작은 승리였다. 더 강한 모델이라면 어려운 레벨도 풀어내겠지만, 퍼즐 풀이에 대한 호기심이 API 토큰으로 얼마나 비싸게 청구될지는 굳이 확인하고 싶지 않았다고 한다.
+
+직접 시도해보고 싶다면 그가 쓴 프롬프트는 이렇다.
+
+```text
+You are playing Tower Before Dusk.
+
+First call getGameState. Study the objective, legend, rules, remainingMoves, wood, and visibleMap.
+
+Create one complete plan to reach G before sunset. Use only the listed actions. Account for move costs, automatic bridge building, wood collection, rocks, water, and remainingMoves.
+
+Then call submitPlan exactly once with the full action list. Do not submit partial plans.
+```
+
+### 직접 해보기
+
+데모 영상에서는 Gemini 3.1 Flash-Lite가 노출된 게임 도구로 레벨을 풀려다 실패하고, 이어서 개발자가 직접 수동으로 푼다. 그 실패도 실험의 일부다. 도구는 제대로 작동했지만, 가벼운 모델에게 퍼즐 추론 자체가 여전히 어려웠다는 걸 보여준다.
+
+- [데모 영상 보기 →](https://youtu.be/19rt8mWbjs4)
+- [게임 직접 플레이하기 →](https://tower-before-dusk.gramli.workers.dev)
+- [GitHub 저장소 →](https://github.com/Gramli/tower-before-dusk)
+
+## 흥미로운 발견
+
+가장 의외였던 건, 단순한 퍼즐 레벨조차 AI 모델에게는 사소하지 않았다는 점이다. 도구 연동은 거의 곧바로 됐지만, 사람에게는 직관적이고 AI에게는 어려운 레벨을 설계하는 일이 오히려 흥미로운 도전이 됐다.
+
+우리가 "쉽다"고 여기는 퍼즐은 사실 직관과 추론 패턴에 기대고 있는 경우가 많다. 그리고 그 직관은 언어 모델에게 생각만큼 당연하지 않았다.
+
+해 지는 풍경을 향해 달리는 게임답게, 사람도 AI도 함께 끙끙대며 풀어야 하는 결과물이 나온 셈이다. Balcarek는 그 자체로 꽤 어울리는 결말이라고 말한다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
