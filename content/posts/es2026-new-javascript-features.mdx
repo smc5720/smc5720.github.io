@@ -1,0 +1,443 @@
+﻿---
+title: "ES2026의 새 JavaScript 기능 7가지 (그리고 아직 기다리는 2가지)"
+description: "ECMAScript 2026에 새로 들어온 Map.getOrInsert, Iterator.concat, Math.sumPrecise 등 7가지 기능과, 아직 표준에 못 들어온 Temporal·using 문법을 정리했다."
+date: "2026-06-24"
+published_at: "2026-06-25"
+category: "news"
+tags: ["javascript", "ecmascript", "webdev", "frontend"]
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fz9bz444wofl6aoi7iucu.png"
+coverAlt: "7 New JavaScript Features (And 2 I'm Still Waiting For)"
+slug: "es2026-new-javascript-features"
+source_id: "devto-3973904"
+source_url: "https://dev.to/sylwia-lask/7-new-javascript-features-and-2-im-still-waiting-for-2ck8"
+source_title: "7 New JavaScript Features (And 2 I'm Still Waiting For)"
+source_author: "Sylwia Laskowska"
+source_published: "2026-06-24"
+---
+
+<LinkCard url="https://dev.to/sylwia-lask/7-new-javascript-features-and-2-im-still-waiting-for-2ck8" author="Sylwia Laskowska" date="2026-06-24" />
+
+## 개요
+
+요즘은 온통 AI 에이전트 이야기뿐이지만, 우리가 매일 쓰는 언어도 조용히 진화하고 있다. 2015년 ES6 대격변 이후 TC39 위원회는 해마다 조금씩 기능을 추가하는 방식으로 노선을 바꿨고, 모던 브라우저나 런타임을 쓰면 새 기능을 거의 곧바로 써볼 수 있다.
+
+그래서 **ECMAScript 2026**에는 뭐가 들어왔을까. 실무에서 바로 쓸 만한 7가지를 추렸고, 끝에는 "이번엔 못 들어왔지만 곧 올" 두 가지도 덧붙인다.
+
+![모니터에 표시된 JavaScript 코드](https://images.pexels.com/photos/31343630/pexels-photo-31343630.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Rashed Paykary](https://www.pexels.com/photo/colorful-javascript-code-on-monitor-screen-31343630/) on [Pexels](https://www.pexels.com/photo/colorful-javascript-code-on-monitor-screen-31343630/)*
+
+## 1. Map.prototype.getOrInsert() / Upsert
+
+"왜 이게 10년 전엔 없었지?" 싶은 부류의 기능이다. `Map`에 키가 없으면 기본값을 넣고, 있으면 기존 값을 꺼내는 패턴은 지금까지 이렇게 써야 했다.
+
+```js
+const opinions = new Map();
+
+function addOpinion(topic, author) {
+  if (!opinions.has(topic)) {
+    opinions.set(topic, []);
+  }
+
+  opinions.get(topic).push(author);
+}
+
+addOpinion("React is dead", "10x Engineer");
+addOpinion("React is dead", "Principal AI Evangelist");
+```
+
+동작은 하지만 군더더기가 많다. ES2026에서는 이렇게 깔끔해진다.
+
+```js
+const opinions = new Map();
+
+opinions
+  .getOrInsert("React is dead", [])
+  .push("10x Engineer");
+
+opinions
+  .getOrInsert("React is dead", [])
+  .push("Principal AI Evangelist");
+
+console.log(opinions);
+```
+
+기본값을 함수로 계산하는 버전도 있다.
+
+```js
+const opinions = new Map();
+
+opinions
+  .getOrInsertComputed(
+    "Nobody writes clean code anymore",
+    () => []
+  )
+  .push("DDD Purist");
+```
+
+캐싱에 특히 잘 맞는다. 코드는 줄고 API는 더 읽기 좋아졌다.
+
+## 2. Iterator.concat()
+
+`concat()`을 보기 전에 이터레이터가 뭔지 짚고 넘어가자.
+
+### 이터레이터란
+
+이터레이터는 데이터를 메모리에 통째로 올리지 않고 한 번에 하나씩 꺼내 쓰게 해주는 일종의 커서다.
+
+```js
+const posts = [
+  "Angular is dead",
+  "JavaScript was a mistake"
+];
+
+const iterator = posts.values();
+
+console.log(iterator.next());
+// { value: "Angular is dead", done: false }
+
+console.log(iterator.next());
+// { value: "JavaScript was a mistake", done: false }
+
+console.log(iterator.next());
+// { value: undefined, done: true }
+```
+
+게으르게(lazy) 동작하기 때문에 메모리를 터뜨리지 않고도 무한 시퀀스를 만들 수 있다.
+
+```js
+function* endlessHotTakes() {
+  while (true) {
+    yield "Everything should be rewritten in Rust.";
+  }
+}
+
+const iterator = endlessHotTakes();
+
+console.log(iterator.next().value);
+console.log(iterator.next().value);
+console.log(iterator.next().value);
+```
+
+작년에는 `map()`, `filter()` 같은 Iterator Helpers가 들어왔다.
+
+```js
+function* linkedinFeed() {
+  yield "Use Rust for everything";
+  yield "JavaScript was a mistake";
+  yield "Clean code is dead";
+  yield "Angular is dead";
+}
+
+const controversialTakes =
+  linkedinFeed()
+    .filter(post => post.includes("dead"))
+    .map(post => `🔥 ${post}`);
+
+console.log([...controversialTakes]);
+```
+
+여기에 더해 이번에는 `Iterator.concat()`이 추가됐다. 프론트엔드 구루와 백엔드 구루가 각자의 스트림을 가지고 있다고 해보자.
+
+```js
+function* frontendExperts() {
+  yield "React is dead";
+  yield "Nobody needs Redux";
+}
+
+function* backendExperts() {
+  yield "Microservices solve everything";
+  yield "Frontend developers don't understand architecture";
+}
+```
+
+두 스트림을 이렇게 우아하게 합칠 수 있다.
+
+```js
+const feed = Iterator.concat(
+  frontendExperts(),
+  backendExperts()
+);
+
+console.log([...feed]);
+```
+
+개인적으로 이터레이터 관련 기능들은 받아 마땅한 관심에 비해 너무 조용히 지나간다고 생각한다.
+
+## 3. Array.fromAsync()
+
+우리가 사랑하는 `Array.from()`의 비동기 버전이다. 주로 비동기 이터레이터를 염두에 둔 기능인데, 사실 대부분의 개발자가 비동기 이터레이터를 매일 쓰지는 않는다. 예를 들어 댓글이 하나씩 도착하는 상황을 떠올려 보자.
+
+```js
+async function* angryComments() {
+  yield "This could have been a plain HTML form.";
+  yield "Angular is dead.";
+  yield "React is dead.";
+  yield "JavaScript was a mistake.";
+}
+
+const comments = await Array.fromAsync(
+  angryComments()
+);
+
+console.log(comments); 
+// This could have been a plain HTML form.
+// Angular is dead.
+// etc
+```
+
+의외로 잘 안 알려진 사실 하나. 프로미스 배열에도 그대로 쓸 수 있다.
+
+```js
+const opinions = [
+  Promise.resolve("Nobody should use classes."),
+  Promise.resolve("Signals change everything."),
+  Promise.resolve("Microservices ruined software.")
+];
+
+const takes = await Array.fromAsync(opinions);
+
+console.log(takes); 
+```
+
+값을 받으면서 곧바로 매핑하는 것도 된다.
+
+```js
+const comments = await Array.fromAsync(
+  angryComments(),
+  opinion => opinion.toUpperCase()
+);
+
+console.log(comments);
+```
+
+꽤 편리하다.
+
+## 4. Math.sumPrecise()
+
+인터넷만큼이나 오래된 부동소수점 문제를 다룬다. 다들 알다시피 JavaScript에서는 이렇다.
+
+```js
+console.log(0.1 + 0.2);
+// 0.30000000000000004
+```
+
+왜 이런지 파고들면 밤을 새워야 하니 오늘은 넘어가자. 핵심은 ES2026이 `Math.sumPrecise()`를 들고 왔다는 것이고, 이 함수는 반올림 오차가 쌓이는 걸 막아 훨씬 정확하게 합산한다.
+
+```js
+const productivityBoosts = [
+  0.1, // cold showers
+  0.2, // AI agents
+  0.3, // journaling
+  0.4, // waking up at 4 AM
+];
+
+console.log(
+  Math.sumPrecise(productivityBoosts)
+);
+```
+
+솔직히 대부분의 프론트엔드 개발자는 평생 쓸 일이 없을 수도 있다. 일상적인 덧셈은 기존 `+`로도 충분하다. 다만 금융, 통계, 시뮬레이션, AI/ML처럼 작은 오차가 수천·수백만 번 누적되는 분야라면 이야기가 달라진다.
+
+## 5. Error.isError()
+
+라이브러리 작성자나 고급 개발자를 위한 기능에 가깝다. 지금까지 어떤 값이 정말 에러인지 확인할 때는 보통 이렇게 했다.
+
+```js
+try {
+  throw new Error(
+    "Angular is dead."
+  );
+}
+catch (e) {
+
+  console.log(
+    e instanceof Error
+  );
+}
+```
+
+대부분은 잘 동작한다. 문제가 터지기 전까지는. 에러가 iframe, Web Worker, VM 컨텍스트 같은 다른 realm에서 만들어졌다면 `instanceof Error`가 갑자기 배신할 수 있다.
+
+```js
+const strangeThing =
+  window.frames[0].eval(
+    "new Error('JavaScript was a mistake.')"
+  );
+
+console.log(
+  strangeThing instanceof Error
+);
+
+// false 
+```
+
+이 문제 때문에 수많은 프레임워크와 라이브러리가 자체 에러 판별 함수를 만들어 써왔다. 이제 드디어 내장 해법이 생겼다.
+
+```js
+console.log(
+  Error.isError(strangeThing)
+);
+
+// true
+```
+
+단순하고 깔끔하다.
+
+## 6. Uint8Array용 Base64
+
+Base64는 이진 데이터를 평범한 텍스트로 바꾸는 방식이다. 많은 프로토콜과 포맷이 raw 바이트보다 텍스트를 훨씬 편하게 다루기 때문에 쓴다. 예컨대 이미지를 Base64 문자열로 보내는 식이다.
+
+"Base64는 원래도 있었잖아?"라고 할 수 있다. 맞다. 다만 주로 문자열 기준이었다.
+
+```js
+btoa("JavaScript was a mistake.");
+```
+
+이진 데이터를 다루면 금세 지저분해졌다.
+
+```js
+const bytes = new Uint8Array(buffer);
+
+const base64 = btoa(
+  String.fromCharCode(...bytes)
+);
+```
+
+이제는 이렇게만 쓰면 된다.
+
+```js
+const screenshot =
+  await fetch(
+    "/proof/react-is-dead.png"
+  );
+
+const bytes =
+  new Uint8Array(
+    await screenshot.arrayBuffer()
+  );
+
+const base64 =
+  bytes.toBase64();
+
+console.log(base64);
+```
+
+훨씬 깨끗하고, 무엇보다 6개월 뒤에 봐도 이해가 쉽다.
+
+## 7. JSON.parse 원본 텍스트 접근
+
+`JSON.parse()`는 훌륭하다. 누군가 어마어마하게 큰 숫자를 보내기 전까지는. 어떤 구루가 팔로워 999조 명을 주장한다고 해보자.
+
+```js
+const json = `
+{
+  "followers":
+  999999999999999999999999999999
+}
+`;
+
+const data = JSON.parse(json);
+
+console.log(data.followers);
+```
+
+JavaScript 숫자에는 한계가 있어서 아주 큰 정수는 정밀도가 깨진다. ES2026부터는 reviver 콜백이 원본 소스 텍스트에 접근할 수 있어, 거대한 값을 안전하게 복원할 수 있다.
+
+```js
+const data = JSON.parse(
+  json,
+  (key, value, context) => {
+
+    if (key === "followers") {
+      return BigInt(context.source);
+    }
+
+    return value;
+  }
+);
+
+console.log(data.followers);
+```
+
+거대한 숫자가 슬그머니 망가지는 일은 이제 없다. 매일 쓸 일은 아니지만 ID, 금융 데이터, 큰 정수를 다룬다면 고약한 버그에서 구해줄 기능이다.
+
+## 보너스: 아쉽게 빠진 둘
+
+ES2026에 꼭 들어오길 바랐지만 한 해 더 기다려야 하는 기능이 둘 있다. 다만 모던 브라우저와 런타임은 이미 구현을 시작했으니, 정식 표준이 아닐 뿐 손에 닿지 않는 건 아니다. 개인적으로 가장 설레는 둘이기도 하다.
+
+### Temporal API
+
+프론트엔드를 오래 했다면 날짜 때문에 정신적 외상을 한 번쯤 겪어봤을 것이다.
+
+```js
+const date = new Date("2026-03-30");
+
+console.log(date);
+```
+
+타임존에 따라 "왜 어제로 나오지?"의 세계에 입장하게 된다. 혹은 모두가 사랑하는 이것.
+
+```js
+const today = new Date();
+
+today.setMonth(today.getMonth() + 1);
+```
+
+3월에 한 달을 더했더니 5월이 되는 이유를 디버깅하게 된다. 이런 고통 때문에 다들 Moment.js를 썼고, 정작 Moment.js 메인테이너들조차 이제는 다른 해법을 권한다. 그 뒤로 date-fns, Luxon 같은 시도가 이어졌다. 도움은 되지만 "호주 사용자들이 이상한 버그를 겪는다"는 말이 나오는 순간 진짜 재미가 시작된다.
+
+Temporal은 제대로 된 날짜·시간 타입을 도입해 이 문제를 근본부터 고치려 한다.
+
+```js 
+const now = Temporal.Now.instant();
+
+const birthday =
+  Temporal.PlainDate.from(
+    "1987-07-23"
+  );
+
+const meeting =
+  Temporal.ZonedDateTime.from(
+    "2026-11-03T10:00:00[Europe/Warsaw]"
+  );
+```
+
+모든 게 훨씬 명시적으로 바뀐다. Temporal이 ES2026에 들어갔는지 한참을 뒤졌는데, TC39 저장소를 보니 이미 Stage 4에 도달했지만 정식 공개 예정 연도는 2027년이라고 분명히 적혀 있었다. 아주 가깝다.
+
+### 명시적 자원 관리 (`using`)
+
+C#과 Python 개발자들이 조용히 누려온 기능을, 우리는 `try/finally`로 버텨왔다. 파일, DB 커넥션, 스트림, 웹소켓처럼 다 쓰고 정리해야 하는 자원을 만들 때 지금은 보통 이렇게 쓴다.
+
+```js 
+const webinar =
+  createAIAgentsWebinar();
+
+try {
+
+  webinar.start();
+
+}
+finally {
+
+  webinar.close();
+
+}
+```
+
+`finally` 블록은 유닛 테스트만큼이나 의욕 없이 작성되곤 한다. 깜빡 빼먹기라도 하면 자원 누수와 정체불명의 버그가 따라온다. `using`을 쓰면 스코프를 벗어날 때 정리가 자동으로 일어난다.
+
+```js 
+using webinar =
+  createAIAgentsWebinar();
+
+webinar.start();
+```
+
+스코프를 떠나는 순간 JavaScript가 알아서 정리 로직을 호출한다. 평균적인 프론트엔드 개발자에겐 매일 와닿진 않겠지만, Node.js 개발자나 라이브러리 작성자, 스트림·파일을 다루는 사람에겐 무척 유용하다.
+
+## 마치며
+
+가볍게 쓰려던 글이 TC39 제안서, MDN 페이지, 브라우저 구현 현황을 파고드는 작업으로 번졌다. 그래도 정리해 둘 가치는 충분했다. 어떤 기능이 가장 의외였는지, 그리고 날짜 지옥에서 우리를 꺼내줄 Temporal을 함께 기다리고 있는지 궁금하다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
