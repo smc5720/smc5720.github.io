@@ -1,0 +1,55 @@
+﻿---
+title: "서버 접속 로그를 실시간으로 들여다보기: GoAccess 활용기"
+description: "젯슨 오린 나노 미니 웹서버의 트래픽을 GoAccess로 모니터링한 경험담. 터미널 뷰와 nginx 리버스 프록시를 통한 HTML 웹 대시보드 두 가지 방식을 소개한다."
+date: "2026-06-21"
+published_at: "2026-06-27"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fplgzht15ew4fq49cx60t.jpg"
+coverAlt: "Server Access Logs with GoAccess"
+slug: "server-access-logs-goaccess"
+source_id: "devto-3958253"
+source_url: "https://dev.to/annavi11arrea1/server-access-logs-with-goaccess-333d"
+source_title: "👾 Server Access Logs with GoAccess"
+source_author: "Anna Villarreal"
+source_published: "2026-06-21"
+---
+
+<LinkCard url="https://dev.to/annavi11arrea1/server-access-logs-with-goaccess-333d" author="Anna Villarreal" date="2026-06-21" />
+
+## 개요
+
+집에서 굴리는 작은 웹서버에 트래픽이 들어오기 시작하면, 지금 무슨 일이 벌어지고 있는지 궁금해지기 마련이다. 젯슨 오린 나노(Jetson Orin Nano)로 미니 웹서버를 띄운 개발자 Anna Villarreal은 서버 로그를 손쉽게 들여다볼 방법을 찾다가 **GoAccess**를 발견했다. 무료 오픈소스 도구이고, 접속 로그를 실시간으로 파싱해 보여준다.
+
+이 글은 GoAccess를 직접 써본 경험을 한국 독자를 위해 다시 정리한 것이다. 자가 호스팅 환경에서 트래픽 모니터링을 어떻게 시작할 수 있는지 가볍게 살펴본다.
+
+## GoAccess란
+
+GoAccess는 서버 접속 로그를 실시간으로 분석해 주는 오픈소스 도구다. 별도의 무거운 분석 스택을 깔지 않아도, 로그 파일만 있으면 방문자·요청·응답 코드 같은 지표를 정돈된 형태로 보여준다.
+
+원글쓴이가 GoAccess를 반긴 이유는 단순하다. 웹서버에 외부 트래픽을 받기 시작하면 막연한 불안이 따라온다. 지금 누가, 무엇을 요청하는지 절반이라도 파악하고 있으면 그 긴장이 한결 누그러진다는 것이다.
+
+![데이터센터의 컴퓨터 서버](https://images.pexels.com/photos/17489163/pexels-photo-17489163.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [panumas nikhomkhai](https://www.pexels.com/photo/computer-server-in-data-center-room-17489163/) on [Pexels](https://www.pexels.com/photo/computer-server-in-data-center-room-17489163/)*
+
+## 두 가지 보는 방식
+
+GoAccess는 로그를 확인하는 방법이 두 가지다.
+
+### 터미널 뷰
+
+처음에는 터미널에서 깔끔하게 파싱된 로그를 보는 것만으로도 만족스러웠다고 한다. 정돈된 화면 자체가 주는 쾌감이 있다. 터미널 안에서 뷰를 바꿔가며 여러 정보를 띄워볼 수 있고, 자세한 사용법은 [공식 문서](https://goaccess.io/get-started)에 잘 나와 있다.
+
+### HTML 웹 대시보드
+
+하지만 웹 개발자 입장에서 더 반가웠던 건 사람이 읽기 좋은 HTML 버전이었다. nginx 리버스 프록시를 거치면 로컬 웹페이지에서 모든 통계를 확인할 수 있다. 테마를 고르고 정보 표시 방식을 입맛대로 바꾸는 것도 가능하니, 설정과 차트 옵션을 꼭 둘러보길 권한다.
+
+## 다음 단계
+
+원글쓴이는 여기서 멈추지 않는다. 다음 목표는 로그를 읽는 에이전트를 붙여, 미리 정해둔 조건에 걸리면 알림을 받도록 만드는 것이라고 한다. 웹서버 모니터링을 한 단계 더 자동화하려는 셈이다.
+
+자가 호스팅으로 작은 서버를 운영한다면, GoAccess는 부담 없이 시작해볼 만한 첫 모니터링 도구다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
