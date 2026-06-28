@@ -1,0 +1,97 @@
+﻿---
+title: "폴링 루프 하나가 AWS 청구서를 $3,000로 만든 사연"
+description: "백오프 없는 폴링 루프가 빈 큐를 쉴 새 없이 조회하면서 AWS 비용이 한 달 $200에서 $3,000로 폭증한 사례. 원인 진단과 수정법, 그리고 비용 버그가 주는 교훈을 정리했다."
+date: "2026-06-23"
+published_at: "2026-06-28"
+category: "news"
+tags: ["nodejs", "aws", "performance", "backend"]
+cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F6hb2eaocrxwugk2i4q8g.png"
+coverAlt: "The Node.js Mistake That Cost My Client $3,000 in AWS Bills"
+slug: "nodejs-polling-loop-aws-bill"
+source_id: "devto-3969036"
+source_url: "https://dev.to/manolito99/the-nodejs-mistake-that-cost-my-client-3000-in-aws-bills-30a5"
+source_title: "The Node.js Mistake That Cost My Client $3,000 in AWS Bills"
+source_author: "Lolo"
+source_published: "2026-06-23"
+---
+
+<LinkCard url="https://dev.to/manolito99/the-nodejs-mistake-that-cost-my-client-3000-in-aws-bills-30a5" author="Lolo" date="2026-06-23" />
+
+## 개요
+
+한 스타트업의 AWS 청구서가 몇 주 만에 월 $200에서 $3,000를 넘겼다. 아무도 이유를 몰랐다. 로그와 메트릭, 데이터베이스 트래픽을 파고든 끝에 범인이 드러났다. 백오프 전략이 빠진 폴링 루프 하나였다.
+
+서비스는 멀쩡히 돌아가고 있었다. 예외도, 장애도 없었다. 코드가 작성된 그대로 정확히 동작했을 뿐이다. 문제는 그 "그대로"가 아무 일도 없을 때조차 24시간 쉬지 않고 헛일을 반복했다는 데 있었다.
+
+## 멀쩡해 보이던 코드
+
+처음 본 코드는 이렇게 생겼다.
+
+```js
+async function processQueue() {
+  const jobs = await getJobs()
+
+  for (const job of jobs) {
+    await processFile(job)
+  }
+
+  processQueue()
+}
+
+processQueue()
+```
+
+언뜻 보면 합리적이다. 큐에 쌓인 작업을 모두 처리한 뒤 다시 확인한다. 큐에 일이 있을 때는 아무 문제가 없다.
+
+함정은 큐가 비었을 때 드러난다. `getJobs()`가 빈 결과를 돌려주면 루프는 곧바로 데이터베이스를 다시 조회한다. 또 조회하고, 또 조회한다. 지연도, 백오프도, 이벤트 기반 트리거도 없었다. 서비스는 존재하지도 않는 일을 찾겠다고 데이터베이스를 끊임없이 두드렸다.
+
+매 반복마다 다음이 발생했다.
+
+- 데이터베이스 쿼리
+- 네트워크 트래픽
+- CPU 사용
+- 로깅 오버헤드
+- 추가 인프라 부하
+
+하나하나는 모두 값싼 연산이다. 하지만 하루에 수십만 번 실행되면 이야기가 달라진다. 싼 연산도 충분히 반복하면 비싸진다.
+
+## 수정은 의외로 간단했다
+
+해결책 자체는 단순했다. 빈 큐를 만났을 때 잠시 쉬어 가도록 지연을 넣는 것이다.
+
+```js
+async function processQueue() {
+  while (true) {
+    const jobs = await getJobs()
+
+    for (const job of jobs) {
+      await processFile(job)
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 5000))
+  }
+}
+```
+
+더 나은 길은 폴링을 아예 걷어내고 메시지 큐를 활용한 이벤트 기반 설계로 바꾸는 것이다. 일이 생기면 그때 깨어나는 구조라면 빈 큐를 헛되이 두드릴 일도 없다.
+
+## 이 사건이 남긴 교훈
+
+![노트에 적힌 메시지](https://images.pexels.com/photos/8363153/pexels-photo-8363153.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [RDNE Stock project](https://www.pexels.com/@rdne) on [Pexels](https://www.pexels.com/photo/an-encouragement-quotes-on-brown-paper-8363153/)*
+
+**1. 빈 큐도 엄연한 프로덕션 워크로드다.** 많은 엔지니어가 피크 트래픽에 맞춰 최적화하면서 유휴 상태의 트래픽은 잊는다. 시스템은 바쁠 때보다 한가할 때가 더 많은 법이다.
+
+**2. 폴링에는 반드시 백오프가 필요하다.** 폴링을 쓴다면 처리할 일이 없을 때 어떻게 행동할지를 항상 정의해야 한다.
+
+**3. 비용 버그는 버그처럼 보이지 않는다.** 아무것도 멈추지 않았고 예외도 던지지 않았다. 시스템은 작성된 그대로 기술적으로는 정상이었다. 그저 쓸모없는 일을 24시간 반복했을 뿐이다.
+
+**4. 성능과 함께 비용도 감시하라.** CPU, 지연, 에러율은 모두 정상으로 보였다. 첫 번째 진짜 경고는 AWS 청구서였다.
+
+이 일을 겪은 뒤로 코드 리뷰 때 던지는 질문이 하나 생겼다. **"이 코드는 할 일이 없을 때 무엇을 하는가?"** 이 한 문장이 그동안 수많은 아키텍처 토론보다 더 많은 프로덕션 문제를 잡아냈다.
+
+여러분이 본 가장 비싼 프로덕션 버그는 무엇이었나?
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
