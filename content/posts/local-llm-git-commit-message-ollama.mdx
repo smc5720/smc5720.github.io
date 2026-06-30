@@ -1,0 +1,249 @@
+﻿---
+title: "내 커밋 메시지에 \"세션 한도에 도달했습니다\"가 찍혔다 — 로컬 LLM으로 커밋 메시지 만들기"
+description: "Claude 사용 한도에 걸려 엉뚱한 커밋 메시지가 박힌 사건을 계기로, 8GB 노트북에서 로컬 LLM을 돌려 git 커밋 메시지를 생성하기까지의 과정을 정리했다."
+date: "2026-06-29"
+published_at: "2026-06-30"
+category: "news"
+tags: ["genai", "ollama", "learning", "llm"]
+cover: "https://i.imgflip.com/avdl7i.jpg"
+coverAlt: "My commit message said You've hit your session limit"
+slug: "local-llm-git-commit-message-ollama"
+source_id: "devto-4012384"
+source_url: "https://dev.to/shyamala_u/my-commit-message-said-youve-hit-your-session-limit-2abn"
+source_title: "My commit message said \"You've hit your session limit\""
+source_author: "Shyamala"
+source_published: "2026-06-29"
+---
+
+<LinkCard url="https://dev.to/shyamala_u/my-commit-message-said-youve-hit-your-session-limit-2abn" author="Shyamala" date="2026-06-29" />
+
+## 개요
+
+커밋 히스토리를 들여다봤더니 메시지에 "You've hit your session limit"이 찍혀 있었다. Claude에 staged diff를 넘겨 커밋 메시지를 받아 쓰던 한 줄짜리 명령이 사용 한도에 걸리면서, 에러 문구가 그대로 커밋 메시지로 들어간 것이다.
+
+작성자 Shyamala는 이 사고를 계기로 "이거야말로 로컬 모델을 쓸 자리"라고 판단했다. 8GB 램 노트북에서 작은 LLM을 돌려 커밋 메시지를 만들기까지, 모델을 고르고 컨텍스트 창과 파라미터를 손보며 부딪힌 과정을 단계별로 풀어놓았다. GenAI를 배우는 중이라 튜토리얼이 아니라 시행착오 기록에 가깝다고 미리 밝혀둔 글이다.
+
+## 사고의 시작은 한 줄짜리 명령
+
+원래 쓰던 명령은 단순했다. staged diff를 Claude에 파이프로 넘기고, 한 줄 커밋 메시지를 받아 그대로 커밋에 쓰는 방식이다.
+
+```bash
+git commit -m "$(git diff --staged | claude -p "Provide a simple, one-line git commit message based on this diff following best practices. Output absolutely nothing else.")"
+```
+
+잘 돌아가다가 커밋 도중 Claude 사용 한도에 걸렸다. 셸이 메시지 대신 에러 문구를 받아 커밋했고, 저장소에는 이런 커밋이 남았다.
+
+> You've hit your session limit
+
+Claude를 직접 쓰면 가장 쉽지만 토큰이 든다. 로컬 모델이 어떻게 동작하는지, 컨텍스트 창이 출력에 어떤 영향을 주는지 직접 배워보고 싶었다는 게 작성자의 동기다.
+
+![커밋 메시지를 떠올리게 하는 타일 글자](https://images.pexels.com/photos/9797981/pexels-photo-9797981.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Brett Jordan](https://www.pexels.com/@brett-jordan-859163) on [Pexels](https://www.pexels.com/photo/brown-wooden-scrabble-tiles-on-white-surface-9797981/)*
+
+## Ollama로 로컬 모델 띄우기
+
+[Ollama](https://ollama.com/)는 오픈소스 모델을 로컬에서 돌릴 수 있게 해준다. 설치하면 `http://localhost:11434`에 서버가 뜬다.
+
+```bash
+ollama pull qwen2.5-coder:1.5b
+```
+
+`qwen2.5-coder:1.5b`를 고른 이유는 작고 코드에 특화돼 있어서다. 굳이 1.5b를 택한 건 노트북 램이 8GB뿐이라서다. 로컬 모델을 돌리기엔 넉넉하지 않은 용량이다.
+
+작성자가 자기 머신 기준으로 어림한 수치는 이렇다.
+
+- 전체 Mac 램: 8.0 GB
+- macOS + 실행 중인 앱: 약 4.0~5.0 GB
+- 메모리에 올라간 모델: 약 1.2 GB (모델 파일 크기 약 1 GB 기준)
+- 컨텍스트 창: 약 0.03 GB
+- 남는 용량: 약 1.77~2.77 GB
+
+흥미로운 점은 15억 파라미터 모델인데도 디스크 차지가 1 GB 정도밖에 안 된다는 것이다. [양자화(quantization)](https://huggingface.co/docs/optimum/en/concept_guides/quantization)된 모델이기 때문이다. 양자화는 모델 가중치를 16비트나 32비트 부동소수점 대신 4비트나 8비트 정수처럼 낮은 정밀도로 저장하는 방식이다. 모델 크기와 메모리 사용량을 크게 줄이는 대신 정확도가 약간 떨어질 수 있다.
+
+더 큰 모델도 시도해봤지만 노트북이 못 버텼다. 팬이 돌고 앱이 멈췄다. 그래서 1.5b로 정착했다.
+
+## 첫 번째 시도 — 모델이 README라고 우겼다
+
+명령에서 Claude를 Ollama로 바꿔봤다.
+
+```bash
+git commit -m "$(git diff --staged | ollama run qwen2.5-coder:1.5b "Provide a simple, one-line git commit message based on this diff following best practices. Output absolutely nothing else.")"
+```
+
+6개 파일에서 에이전트 설정의 `tools` 섹션을 지운 변경에 대고 돌렸다. 명령은 돌아갔는데, 커밋 메시지는 엉뚱하게 README 파일을 바꿨다고 적혀 있었다.
+
+이유는 컨텍스트 창에 있었다. qwen2.5-coder:1.5b의 네이티브 컨텍스트는 32,768 토큰이지만, Modelfile 없이 그냥 돌리면 Ollama가 기본 컨텍스트 크기를 제한한다. 로그를 보니 이렇게 찍혀 있었다.
+
+```console
+level=INFO source=routes.go:2073 msg="vram-based default context" total_vram="5.3 GiB" default_num_ctx=4096
+```
+
+머신 VRAM 5.3 GiB를 기준으로 Ollama가 `num_ctx`를 4096으로 잡은 것이다. 그래서 모델은 diff의 앞부분만 보고 README라고 짐작했다.
+
+## 두 번째 시도 — 프롬프트만으로는 안 됐다
+
+프롬프트가 부족한가 싶어 지시를 더 붙여 다시 돌렸다. 이번엔 변경이 `code-reviewer.md`에 있다고 답했다. 6개 파일 중 하나는 맞췄지만 나머지 5개는 통째로 무시했다.
+
+중요한 건 모델이 불평하지 않았다는 점이다. "나머지를 못 읽었다"고 말하지 않고, 부분 입력만 보고 확신에 찬 답을 내놨다. 이 지점에서 프롬프트만 손봐선 부족하고 모델 자체를 손봐야 한다는 걸 알게 됐다.
+
+## Modelfile로 모델을 손보다
+
+Modelfile은 베이스 모델 위에 얹는 설정 레이어다. 파라미터를 바꾸고 이름 붙인 모델을 만들 수 있다.
+
+```docker
+FROM qwen2.5-coder:1.5b
+
+PARAMETER num_ctx 8192
+PARAMETER temperature 0.2
+```
+
+바꾼 건 두 가지다. `num_ctx 8192`로 컨텍스트 창을 4096에서 8k로 키웠다. 32k까지 가능하지만 8GB 머신에서 메모리를 아끼려고 8k에서 멈췄다. `temperature 0.2`는 출력을 더 예측 가능하게 만든다. 커밋 메시지엔 창의성이 아니라 일관성이 필요하기 때문이다.
+
+```bash
+ollama create qwen-commit -f ./Modelfile
+```
+
+이제 이 작업 전용으로 `qwen-commit`이라는 모델이 생겼다. 참고로 이 값들은 Modelfile 말고 REST API의 `options` 객체로도 넘길 수 있다. 다만 `ollama run qwen-commit` 한 번으로 모든 설정이 미리 잡히는 게 편해서 Modelfile을 택했다.
+
+## 세 번째 시도 — 다 읽었지만 메시지가 엉망
+
+컨텍스트가 커지자 모델이 6개 파일을 다 봤다. 그런데 이번엔 메시지가 이렇게 나왔다.
+
+```diff
+feat(.opencode/agent): update tool list for code-reviewer, frontend-enginee frontend-engineer, go-backend-engineer, project-lead, req requirements-analyst, solution-architect
+```
+
+기술적으로는 맞지만 사람이 쓸 커밋 메시지와는 거리가 멀었다. `frontend-enginee frontend-engineer`나 `req requirements-analyst`처럼 단어를 더듬으며 반복했다.
+
+그래서 모델에게 알아내라고 시키는 대신, 바뀐 파일을 직접 알려줬다.
+
+```bash
+affected_files=$(git diff --staged --name-only | paste -sd, -)
+```
+
+프롬프트에 `"Note that the changes are located in these files: [$affected_files]"`를 붙였다. 모델이 더 이상 추측할 필요가 없어지자 메시지 품질이 크게 좋아졌다.
+
+## 출력 정리와 토큰 절약
+
+메시지는 정확해졌지만 모델이 자꾸 이상한 포맷으로 감쌌다. 백틱을 붙이기도, "diff"를 앞에 붙이기도, 따옴표를 두르기도 했다. 그래서 후처리로 걷어내는 단계를 넣었다.
+
+```bash
+msg=$(echo "$msg" | tr -d '\r' | sed -E \
+  -e 's/```(diff)?//g' \
+  -e 's/^diff[[:space:]]+//I' \
+  -e 's/^[[:space:]]+//;s/[[:space:]]+$//' \
+  -e 's/^["'\'']//' -e 's/["'\'']$//')
+```
+
+우아하진 않아도 모델이 덧붙이는 잡음은 대부분 잡아낸다. 또 `git diff --staged`를 `git diff --staged --unified=0`으로 바꿨다. git은 기본으로 변경 주변 3줄을 함께 보여주는데, 커밋 메시지엔 그 맥락이 필요 없다. `--unified=0`은 그걸 걷어내 모델에 보내는 토큰을 줄인다. 작은 컨텍스트 창에선 토큰 하나가 아쉽다.
+
+## 최종 Modelfile
+
+여러 번 돌리고 나니 처음과 꽤 달라진 모습이 됐다.
+
+```docker
+FROM qwen2.5-coder:1.5b
+
+PARAMETER num_ctx 8192
+PARAMETER temperature 0.2
+PARAMETER top_p 0.7
+PARAMETER num_predict 256
+PARAMETER repeat_penalty 1.2
+PARAMETER stop "Changes to be committed:"
+PARAMETER stop "Note:"
+SYSTEM """
+You are an expert developer's assistant. Your sole task is to generate a clean, concise one-line Git commit message based on the provided code diff.
+Rules:
+- Respond ONLY with the commit message text.
+- Do NOT include markdown code blocks, backticks, explanations, intro text, or outro text.
+- Use the Conventional Commits format (e.g., feat(scope): message, fix: message).
+- Keep the one line under 100 characters.
+- Use the imperative mood ("Add feature", not "Added feature" or "Adds feature").
+"""
+```
+
+파라미터별 의도는 이렇다.
+
+- `temperature 0.2`: 무작위성을 낮춰 출력을 예측 가능하게 한다.
+- `top_p 0.7`: 다음 단어 후보를 상위 70%로 제한해 초점을 유지한다.
+- `num_predict 256`: 출력 토큰 상한. 한 줄이면 충분하니 모델이 장문을 쓰지 못하게 막는다.
+- `repeat_penalty 1.2`: 반복에 페널티를 준다. `frontend-enginee frontend-engineer` 같은 더듬는 출력이 이 값으로 사라졌다.
+- `stop` 시퀀스 두 개: 커밋 메시지 뒤로 git 출력처럼 계속 생성하려 할 때 즉시 멈추게 한다.
+
+`SYSTEM` 블록은 모델에 구워 넣은 프롬프트라, `ollama run qwen-commit`을 돌릴 때마다 이미 적용돼 있다.
+
+## 최종 함수
+
+마지막으로 정착한 건 셸 함수 `gac`와 별칭 `gacc`다. 기본은 로컬 모델을 쓰되, 원할 때 Claude로도 돌릴 수 있다.
+
+```bash
+gac() {
+  # 1. Check for staged changes
+  if git diff --cached --quiet; then
+    echo "❌ Error: No staged changes found. Run 'git add' first."
+    return 1
+  fi
+
+  local mode="${1:-qwen}"
+  local msg=""
+  local exit_code=0
+
+  # Gather file names for context
+  local affected_files
+  affected_files=$(git diff --staged --name-only | paste -sd, -)
+
+  local system_prompt="You are a strict code assistant. Write a single-line Conventional Commit message for the provided diff.
+Strict Rules:
+1. Format must exactly match: type(scope): description
+2. Allowed types ONLY: feat, fix, docs, style, refactor, perf, test, chore.
+3. The 'scope' must be a single, broad feature/module name (e.g., vessel-profile, api). NEVER use file names.
+4. The 'description' must summarize the high-level intent in the imperative mood (e.g., 'add form validation').
+5. ABSOLUTELY DO NOT list specific file names, paths, or extensions in the commit message.
+6. Output EXACTLY one line. No markdown blocks, no quotes, no explanations, and no stray prefixes like 'sh'.
+Context: The files modified are [$affected_files]."
+
+  # 2. Execution Routing
+  if [ "$mode" = "claude" ]; then
+    msg=$(git diff --staged --unified=0 | claude -p "$system_prompt" --output-format text 2>&1)
+    exit_code=$?
+  else
+    if ! curl -s --max-time 2 http://localhost:11434 > /dev/null; then
+      echo "❌ Error: Local Ollama server is not running on port 11434."
+      return 1
+    fi
+    msg=$(git diff --staged --unified=0 | ollama run qwen-commit "$system_prompt" 2>/dev/null)
+    exit_code=$?
+  fi
+
+  # 3. Robust Error Validation
+  if [ $exit_code -ne 0 ] || [ -z "$msg" ]; then
+    echo "❌ Error: Failed to generate a response via $mode."
+    echo "Details received: $msg"
+    return 1
+  fi
+
+  # 4. Strict Text Cleaning Pipeline
+  msg=$(echo "$msg" | tr -d '\r' | sed -E -e 's/```(diff)?//g' -e 's/^[[:space:]]+//;s/[[:space:]]+$//' -e 's/^["'\'']//' -e 's/["'\'']$//')
+
+  # 5. Run git commit cleanly
+  git commit -m "$msg"
+}
+
+# Alias to explicitly force Claude
+alias gacc="gac claude"
+```
+
+## 배운 것
+
+- 모델에게 이미 아는 정보는 알려줘라. 쉽게 뽑아낼 수 있는 걸 추측하게 만들지 마라.
+- 어느 정도 결정성이 필요한 작업엔 낮은 temperature를 써라.
+- Modelfile은 쓸모 있다. 특정 작업에 맞춰 이름 붙인 모델을 만들 수 있다.
+- 모델 크기, (V)RAM, 컨텍스트 크기는 서로 얽혀 있다. 자원이 빠듯한 머신에선 셋 다 의식하며 다뤄야 한다.
+
+## 완벽한가?
+
+아니다. 여전히 변경의 핵심을 놓칠 때가 있고, 큰 커밋에선 시간이 걸린다. 개선할 여지가 남아 있다. 그래도 오프라인에서 돌고, 비용이 0이며, 직접 부수고 고쳐본 덕에 모든 조각을 이해한다는 게 작성자의 결론이다. 아무리 사소해도 진짜 쓸 자리를 찾는 것이 개념을 하나씩 익히는 가장 좋은 방법이라는 이야기다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
