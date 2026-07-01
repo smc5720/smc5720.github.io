@@ -1,0 +1,77 @@
+﻿---
+title: "AI의 미래는 로컬과 오픈이다 — Gemma 4 공개"
+description: "구글 딥마인드가 Apache 2.0 라이선스로 Gemma 4를 공개했다. 온디바이스부터 26B MoE까지, 브라우저·모바일·로컬 어디서든 무료로 돌릴 수 있는 오픈 모델의 실체를 정리했다."
+date: "2026-06-30"
+published_at: "2026-07-01"
+category: "news"
+slug: "the-future-of-ai-is-local-and-open"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F6immajzfohivgfku6av2.png"
+coverAlt: "The Future Of AI Is Local And Open"
+source_id: "devto-4032196"
+source_url: "https://dev.to/dailycontext/the-future-of-ai-is-local-and-open-522c"
+source_title: "The Future Of AI Is Local And Open"
+source_author: "Paige Bailey"
+source_published: "2026-06-30"
+---
+
+<LinkCard url="https://dev.to/dailycontext/the-future-of-ai-is-local-and-open-522c" author="Paige Bailey" date="2026-06-30" />
+
+## 개요
+
+해커톤 새벽 2시, 에너지 드링크는 다 떨어지고 데모는 반쯤 망가져 있다. 이때 누군가 묻는다. "이거 진짜 출시할 수 있어? 크레딧은 남았고?" 오랫동안 이 질문의 정답은 복잡했다. 좋은 모델은 딱딱한 API 뒤에 잠겨 있었고, 상업화 조건은 애매했으며, 토큰 가격은 주말 사이드 프로젝트를 재정적 모험처럼 느끼게 만들었다.
+
+구글 딥마인드가 공개한 **Gemma 4**는 바로 이 지점을 겨눈다. 다운로드해서 직접 돌리는 오픈 모델이면서, Apache 2.0 라이선스로 상업화까지 열어놓았다. 온디바이스용 2B부터 26B MoE, 31B 밀집(dense) 버전까지 크기 선택지도 넓다.
+
+## 오픈이 곧 저성능이라는 편견을 깨다
+
+지난 몇 년간 "오픈" 모델은 사실상 "로컬 데모용으로는 쓸 만하지만 프로덕션에는 부족한" 물건이라는 꼬리표를 달고 있었다. Gemma 4는, 그리고 GLM-5.2 같은 최근의 다른 오픈 모델들도 이 한계를 완전히 넘어섰다.
+
+Gemma 4는 딥마인드의 플래그십 Gemini 모델을 떠받치는 것과 동일한 연구 기반 위에서 만들어졌다. 복잡한 추론, 멀티모달 이해, 다국어 처리 전반에서 다운로드해 쓰는 모델치고는 기대 이상의 성능을 낸다.
+
+더 큰 Gemma 4 변형들은 [Google AI Studio의 Gemini API를 통해](https://ai.google.dev/gemma/docs/core/gemma_on_gemini_api) 완전히 무료로 쓸 수 있다. 프런티어급 모델을 과금 설정 없이 먼저 만져보고, 프로토타입을 만들고, 아이디어를 검증할 수 있다는 뜻이다.
+
+![로컬에서 돌아가는 오픈 모델](https://images.pexels.com/photos/10988018/pexels-photo-10988018.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Jessica Lewis 🦋 thepaintedsquare](https://www.pexels.com/@jessica-lewis-creative) on [Pexels](https://www.pexels.com/photo/a-woman-wearing-vr-goggles-10988018/)*
+
+## Apache 2.0 라이선스
+
+오픈 웨이트 AI가 골치 아파지는 지점은 대개 라이선스다. 상업 이용을 슬쩍 제한하는 커스텀 라이선스, 연구용 전용 조항, 변호사들이 다투기 좋아하는 출처 표기 요구 — 이런 것들이 진짜 회사가 될 수도 있었던 해커톤 프로젝트를 조용히 죽인다.
+
+Gemma 4는 Apache 2.0 라이선스로 나온다. 오픈소스 세계를 조금이라도 겪어본 사람이라면 이게 무슨 뜻인지 안다. 쓰고, 고치고, 파인튜닝하고, 그 위에 제품을 얹어 회사를 차려도 된다. 스타트업의 독점 데이터셋으로 Gemma 4를 파인튜닝해 소프트웨어 제품의 핵심으로 출시하면서도, 허락 여부를 확인하려 변호사를 깨울 필요가 없다.
+
+깃허브의 오픈소스 프로젝트를 뜯어보며 코딩을 배웠고 이제 첫 스타트업을 만드는 세대에게, 이건 실용적인 만큼이나 철학적으로도 중요하다. 최고의 도구는 거대한 엔터프라이즈 계약을 쥔 팀만이 아니라 누구에게나 열려 있어야 한다.
+
+## 어디서든 돌아간다
+
+세상에서 제일 좋은 모델이라도 내 스택에서 돌아가지 않으면 쓸모가 없다. 딥마인드는 이 점을 알고 있었고, Gemma 4를 실제로 일하는 환경 곳곳에 올려두기 위해 생태계 파트너들과 손잡았다.
+
+### 모바일과 브라우저
+
+- **Google AI Edge Gallery** — 온디바이스 성능을 미리 확인하고 싶다면, iOS와 안드로이드에서 Google AI Edge Gallery 앱으로 Gemma를 지금 바로 시험 삼아 돌려볼 수 있다. 모바일용 버전이 얼마나 빠른지 직접 확인하기 좋다.
+
+- **Hugging Face와 [Transformers.js](http://Transformers.js)** — 백엔드가 아예 필요 없다면? Hugging Face 생태계와 Transformers.js의 깊은 통합 덕분에 Gemma 4를 WebGPU로 브라우저 안에서 전부 클라이언트 사이드로 돌릴 수 있다. 서버 비용도, 공개 저장소에 실수로 흘릴 API 키도, 지연 시간도 없다.
+
+### 로컬과 고속 추론
+
+- **Ollama** — 명령어 한 줄로 Gemma 4를 로컬에 내려받는다. 오프라인으로 개발하고, 빠르게 반복하고, 요청 제한(rate limit)에서 완전히 벗어난다. 행사장 와이파이가 불안정한 해커톤에서 클라우드 API를 붙잡고 씨름해본 적이 있다면 이게 왜 중요한지 안다.
+
+- **Cerebras** — 즉각적인 추론이 필요하다면, Cerebras의 웨이퍼 스케일 칩이 실시간 애플리케이션을 진짜처럼 느끼게 하는 속도로 토큰을 생성한다. 스트리밍 응답, 저지연 에이전트, 음성 인터페이스가 억지로 얹은 게 아니라 원래 그런 것처럼 작동한다.
+
+- **Unsloth** — 대규모 언어 모델 파인튜닝은 예전엔 거대한 컴퓨트 클러스터와 VC 예산을 요구했다. Unsloth는 Colab이나 로컬의 소비자용 GPU 한 대로 Gemma 4 파인튜닝을 가능하게, 그것도 아주 빠르게 만든다. 월세보다 비싼 클라우드 학습 잡을 띄우지 않고도 내 데이터로 도메인 특화 모델을 만들 수 있다.
+
+## 우연히 나온 결과가 아니다
+
+딥마인드는 대학 체육관, 코워킹 스페이스, 컨벤션 센터 지하에서 열리는 진짜 해커톤에 계속 모습을 드러내 왔다. MLH 커뮤니티야말로 다음 세대 AI 엔지니어가 만들어지는 현장이기 때문이다.
+
+딥마인드가 MLH를 통해 후원한 Gemini·Gemma 챌린지는 전 세계 모든 대륙의 행사에서 해커들과 닿았다. 강력한 도구와 마음껏 이상해질 자유가 주어졌을 때 빌더들이 무엇을 만드는지 보고 싶었던 사람들이 설계한 진짜 기술 챌린지였다. 그 해커톤에서 나온 예상 밖의 RAG 애플리케이션, 도메인 특화 파인튜닝, "이게 된다고?" 싶은 하드웨어·로보틱스 해킹들이 개발자에게 정말 필요한 게 무엇인지에 대한 딥마인드의 생각을 바꿔놓았다.
+
+## 비용 제로의 토큰 맥싱
+
+AI Engineer World's Fair 2026은 중요한 변곡점에서 열린다. 기술계의 질문은 "AI가 이걸 할 수 있나?"에서 "그래서 뭘 만들 건가?"로 옮겨갔다. Gemma 4는 예전엔 아무도 시원하게 답하지 못했던 후속 질문, "내가 만든 걸 진짜 소유할 수 있나? 그리고 감당할 수 있나?"에 대한 답이다.
+
+답은 "그렇다"이다. 내려받고, 파인튜닝하고, 배포하고, 출시하라. 모델은 당신 것이다. Gemma 4는 Google AI Studio와 Gemini API로 지금 바로 쓸 수 있다. 모델 가중치, 퀵스타트, 파인튜닝 가이드는 ai.google.dev/gemma에서 찾을 수 있다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
