@@ -1,0 +1,76 @@
+---
+title: "개발자가 DB랑 안 싸우려고 쓰는 도구, Prisma"
+description: "데이터베이스, SQL, 타입 에러 — 개발 안 해본 사람에게는 다 낯선 단어다. Prisma가 그 낯섦을 어떻게 줄여주는지, 비유로 처음부터 설명한다."
+date: "2026-07-14"
+published_at: "2026-07-14"
+category: "dev"
+tags: ["prisma", "orm", "database", "typescript", "nodejs"]
+cover: "https://images.pexels.com/photos/4487364/pexels-photo-4487364.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+coverAlt: "Bright warehouse interior with orange metal shelving units and stored goods"
+slug: "what-is-prisma"
+---
+
+## 데이터베이스가 뭐길래 이 난리인가
+
+데이터베이스는 그냥 거대한 창고다. 회원 정보, 주문 내역, 게시글 같은 걸 표(엑셀 시트라고 생각해도 된다) 형태로 쌓아두는 곳. 웹사이트나 앱이 뭔가를 "저장"하거나 "불러온다"고 하면, 그 뒤에는 거의 항상 이 창고가 있다.
+
+![Modern server rack with blue lighting in a secure data center environment](https://images.pexels.com/photos/37730211/pexels-photo-37730211.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [panumas nikhomkhai](https://www.pexels.com/@cookiecutter) on [Pexels](https://www.pexels.com/photo/close-up-of-a-blue-server-rack-in-datacenter-37730211/)*
+
+우리 눈에는 안 보이지만, 이 창고는 실제로 위 사진 같은 서버 안에서 돌아간다. 그리고 이 창고와 대화하려면 방식이 필요하다.
+
+문제는 이 창고 문을 여는 열쇠가 SQL이라는 언어라는 점이다. "users 테이블에서 이메일이 이거인 사람 찾아줘"를 사람 말로 하면 쉽지만, SQL로는 이렇게 써야 한다.
+
+```sql
+SELECT * FROM users WHERE email = 'test@example.com';
+```
+
+문제는 여기서 시작한다. 테이블 이름을 `users`라고 하려다 `usres`라고 오타 내도 프로그램은 그냥 실행된다. 그리고 한참 뒤에야 "그런 테이블 없음" 에러로 터진다. 필드 이름 하나 바꿨는데 그 필드를 쓰는 코드 스무 곳 중 어디를 안 고쳤는지는 직접 하나씩 찾아야 한다. 숫자가 들어가야 할 자리에 문자열을 넣어도 코드 작성 시점에는 아무 경고가 없다가, 실제로 그 코드가 실행될 때 에러가 난다.
+
+## Prisma는 통역사 겸 자동완성 비서
+
+Prisma는 이 창고와 대화하는 방식을 바꿔주는 도구다. Node.js/TypeScript로 짠 코드에서 PostgreSQL, MySQL, SQLite, SQL Server, MongoDB 같은 여러 종류의 창고에 SQL을 직접 안 쓰고 말을 걸 수 있게 해준다.
+
+비유하자면 이런 식이다. SQL을 직접 쓰는 건 외국어를 원어민 발음으로 정확히 말해야 하는 상황이고, Prisma는 그 옆에 붙어서 "이 단어 스펠링 틀렸어요", "이 문장 구조로는 이 창고에 안 통해요"를 미리 짚어주는 통역사다. 오타나 잘못된 필드 이름을 코드가 실제로 돌아가기 전, 코드를 작성하는 그 순간에 알려준다는 게 핵심이다.
+
+Prisma를 이루는 조각은 크게 네 개다. 하나씩 보자.
+
+## 설계도부터 그린다 — Schema
+
+Prisma를 쓰려면 먼저 `schema.prisma`라는 파일에 창고의 설계도를 그린다. "User라는 표에는 id, 이름, 이메일 칸이 있다" 같은 걸 사람이 읽을 수 있는 문장으로 적어두는 파일이다.
+
+```prisma filename="schema.prisma"
+model User {
+  id    Int    @id @default(autoincrement())
+  name  String
+  email String @unique
+}
+```
+
+이 코드를 사람 말로 옮기면 이렇다. "User라는 표를 만든다. id 칸은 숫자고 자동으로 1씩 늘어난다. name 칸은 글자, email 칸도 글자인데 같은 이메일이 두 번 들어올 수 없다." 창고에 뭐가 들어갈지 미리 문서로 못 박아두는 셈이다.
+
+## 통역사가 자동으로 태어난다 — Client
+
+설계도(schema)를 저장하고 명령어 하나를 실행하면, Prisma가 그 설계도를 읽고 방금 말한 "통역사" 코드를 자동으로 만들어준다. 이걸 Prisma Client라고 부른다.
+
+```typescript filename="src/lib/get-user.ts"
+const user = await prisma.user.findUnique({
+  where: { email: "test@example.com" },
+});
+```
+
+사람 말로 하면 "User 표에서 email이 test@example.com인 사람 하나 찾아서 가져와줘"다. SQL 문법을 몰라도 되고, `user.findUnique`처럼 코드 편집기가 알아서 다음에 뭘 쓸 수 있는지 후보를 보여준다. 만약 스키마에 없는 `usre`라는 표를 찾으려 하면, 코드를 실행하기도 전에 편집기가 바로 빨간 줄을 그어준다. 오타가 실제 에러로 터지기 전에 잡힌다는 뜻이다.
+
+## 설계도가 바뀌면? — Migrate
+
+서비스를 운영하다 보면 설계도도 바뀐다. User 표에 "가입일" 칸을 하나 추가해야 하는 식으로. 문제는 이미 창고 안에 사람들 데이터가 잔뜩 쌓여 있는 상태에서 표 구조를 바꿔야 한다는 점이다.
+
+Prisma Migrate는 이 변경을 안전하게 처리해주는 도구다. schema.prisma 파일을 고치고 명령어를 실행하면, 실제 창고에 있는 기존 데이터는 그대로 둔 채로 필요한 변경만 반영한다. 그리고 그 변경 이력을 파일로 남겨서, 나중에 "언제 어떤 칸이 왜 추가됐는지" 되짚어볼 수 있게 해준다.
+
+## 창고 안을 눈으로 보고 싶을 때 — Studio
+
+코드만 짜다 보면 정작 창고 안에 데이터가 어떻게 쌓여 있는지 직접 눈으로 확인하고 싶을 때가 있다. Prisma Studio는 이걸 엑셀처럼 보여주는 화면이다. 명령어 하나로 브라우저 창이 뜨고, 표와 행이 스프레드시트 형태로 나온다. 값을 클릭해서 직접 고치거나 지울 수도 있다. SQL 명령어를 몰라도 창고 속을 들여다보고 만질 수 있다는 뜻이다.
+
+## 그래서, 언제 쓰면 좋은가
+
+정리하면 이렇다. schema로 창고 설계도를 문서처럼 남기고, Client로 오타나 타입 실수를 코드 작성 시점에 잡아내고, Migrate로 설계도 변경을 안전하게 반영하고, Studio로 창고 속을 직접 들여다본다. 개발자들이 Prisma를 쓰는 이유를 한 문장으로 줄이면, 창고와 나누는 대화에서 실수를 최대한 빨리, 최대한 저렴하게 잡아내고 싶어서다.
