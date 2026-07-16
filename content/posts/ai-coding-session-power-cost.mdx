@@ -1,0 +1,71 @@
+﻿---
+title: "내 AI 코딩 세션 한 번이 나이지리아 사람 하루치 전기보다 많다"
+description: "Claude Code로 하루 종일 코딩하는 개발자가 자신의 세션이 실제로 소비하는 전력을 추적했다. 코딩 세션 한 번이 나이지리아 한 사람의 하루 전력 사용량을 넘어선다는 계산이다."
+date: "2026-07-13"
+published_at: "2026-07-16"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Flnzuca87fkfm3mn4pd1x.jpg"
+coverAlt: "my ai coding session burns more power than the average nigerian gets all day"
+slug: "ai-coding-session-power-cost"
+source_id: "devto-4120243"
+source_url: "https://dev.to/dannwaneri/my-ai-coding-session-burns-more-power-than-the-average-nigerian-gets-all-day-3l87"
+source_title: "my ai coding session burns more power than the average nigerian gets all day."
+source_author: "Daniel Nwaneri"
+source_published: "2026-07-13"
+---
+
+<LinkCard url="https://dev.to/dannwaneri/my-ai-coding-session-burns-more-power-than-the-average-nigerian-gets-all-day-3l87" author="Daniel Nwaneri" date="2026-07-13" />
+
+## 개요
+
+나이지리아 포트하커트에서 일하는 개발자 Daniel Nwaneri가 자신의 하루를 되짚어 봤다. 그는 Claude Code를 하루 종일 켜 두고 에이전트 루프를 쉴 새 없이 돌린다. 사용량 화면은 "주간 한도의 26%"라고만 알려줄 뿐, 그 26%가 다른 어딘가에서 얼마나 무거운 대가인지는 말해 주지 않는다. 그가 직접 찾아본 숫자는 스크롤을 멈추게 했다. 코딩 세션 한 번이 자신이 글을 쓰고 있는 나라에서 한 사람이 하루 동안 쓰는 전기보다 많았다.
+
+## 채팅 한 줄 vs 에이전트 한 번, 130배의 차이
+
+그가 인용한 측정치는 이렇다. 챗봇 답변 한 줄은 약 0.3와트시(Wh)다. LED 전구가 2분도 안 되는 동안 태우는 정도다. 그런데 Simon P. Couch가 실제 Claude Code 세션을 측정했더니 중앙값이 41Wh였다. 채팅 한 줄의 130배다.
+
+Simon Willison은 자신의 하루 사용량을 "일반 질의 4,400건에 맞먹는다"고 표현했다. 그가 든 비유는 식기세척기 한 번, 혹은 냉장고를 24시간 돌리는 정도다.
+
+![야간 코딩 세션](https://images.pexels.com/photos/35342390/pexels-photo-35342390.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Altamash Mallick](https://www.pexels.com/@altamash-mallick) on [Pexels](https://www.pexels.com/photo/cozy-night-study-session-with-coding-notes-35342390/)*
+
+## 에이전트는 채팅보다 훨씬 더 태운다
+
+KAIST가 올해 에이전트만 따로 측정했다. 단순 채팅이 아니라, 여러 단계에 걸쳐 추론하고 행동하는 에이전트다. 700억 파라미터 규모의 에이전트 — 장난감이 아니라 실제 상용 제품이 돌리는 크기 — 는 질의 한 건당 평균 348.41Wh를 썼다. 일반 질의의 136.5배다.
+
+이를 전 세계 규모로 확대하면, 에이전트가 "다음에 뭘 할지" 결정하는 데만 200기가와트에 가까운 전력이 필요하다는 추정이 나온다. 1기가와트는 작은 나라 하나의 전력망이 한 번에 밀어낼 수 있는 양이다.
+
+개발자 한 명이 에이전트 하나를 하루 종일 열어 둘 때, Willison이 밝힌 자신의 실제 수치는 하루 1~1.5kWh다. 실험실 추정이 아니라 그의 실제 습관이다.
+
+## 나이지리아 한 사람의 하루는 0.45kWh
+
+나이지리아 사람 한 명의 연간 전력 사용량은 165kWh. 하루로 나누면 0.45kWh다. 조명, 휴대폰 충전, 더위 속 선풍기 한 대. 그게 하루 배급의 전부다.
+
+저자는 자신이 처한 현실을 이렇게 적었다. 지난 금요일, 그는 Cloudflare의 프로덕트 매니저와 화상 통화를 하며 데모 시연을 듣고 의견을 나누고 있었다. 그때 비가 내렸다. 불이 나갔고, 인터넷도 함께 끊겼다. 문장을 채 끝내기도 전에, 작별 인사도 없이. 서버가 한 번도 깜빡이지 않는 회사의 직원과, 비 한 번에 통화가 끊기는 회선 위에서 이야기하고 있었던 것이다.
+
+같은 주에 해커톤용 정산 에이전트를 만들다가, 그는 자신을 붙잡았다. 몇 분 남짓한 한 구간에서 토큰 카운트가 이미 1만 개를 넘어서 있었다. 아직 끝나지도 않은 상태였다. 그 한 번의 교환, 에이전트 하나, 한나절의 작업이 비 한 번에 통화를 떨어뜨린 바로 그 전력망 위에서 돌아가고 있었다.
+
+## 다른 대륙, 다른 전선, 그러나 같은 계산기
+
+Gartner에 따르면 올해 전 세계 데이터센터 전력 소비는 565테라와트시(TWh)에 이른다. 나라 하나의 전력망을 잴 때 쓰는 단위다. 그중 AI 최적화 서버만 떼어 보면 2025년 95TWh에서 2026년 175TWh로 뛰었다. 한 부문, 한 해 만에 84% 증가다.
+
+나이지리아 전체가 1년에 생산하는 전력은 40.7TWh. 그마저도 설치 용량의 절반이 채 안 되는 양만 실제로 누군가에게 안정적으로 도달한다.
+
+AI 전용 서버만으로도 그의 나라 전체 생산량의 네 배 넘게 태운다. 올해다.
+
+물론 그 전력이 나이지리아 전력망에서 빠져나가는 건 아니다. 다른 대륙, 다른 전선이다. 그의 프롬프트를 돌리려고 포트하커트의 불을 어둡게 만드는 사람은 없다.
+
+## 비용이 0이라는 착각
+
+Claude Pro에 월 20달러를 내는 개발자에게는 싸다. 챗봇을 계속 반응하게 하려고 기가와트를 태우는 하이퍼스케일러에게도 싸다. 하지만 2022년 기준 전력망 접근이 가능했던 나이지리아 인구 61%, 그리고 애초에 접근조차 못 한 나머지에게는 결코 싸지 않다.
+
+저자는 세션을 사과하지 않는다. 일은 해야 했고, 앞으로도 할 것이다. 다만 그가 그만두겠다고 말한 것은, 그 세션이 아무 대가도 들지 않는 척하는 일이다.
+
+에이전트 루프를 무심코 하나 던질 때마다, 그 비용은 언제나 어딘가에서 누군가의 하루 전체보다 크다. 다만 계량기가 눈에 보이지 않을 뿐이다.
+
+그는 마지막에 씁쓸한 농담 하나를 남긴다. 이 글을 읽는 누군가는 이걸 LLM에 붙여 넣고 그럴듯한 댓글 초안을 뽑을 것이다. 그게 바로 그 루프고, 농담의 전부이며, 하나도 웃기지 않다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
