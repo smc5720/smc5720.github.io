@@ -1,0 +1,128 @@
+﻿---
+title: "dev.to 통계를 터미널 대시보드로 옮긴 이야기 (My Blog Stats Now Live in the Terminal)"
+description: "아카이브된 터미널 대시보드 devdash에 작은 Go 바이너리 하나를 붙여 dev.to 글 통계를 터미널에 띄운 과정. 셀프 DDoS와 쉼표 버그까지 겪은 오후의 기록."
+date: "2026-07-14"
+published_at: "2026-07-17"
+category: "news"
+slug: "devto-stats-terminal-dashboard-devdash"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F350uijku0ozt8ewb19uz.png"
+coverAlt: "A Dash of dev.to: My Blog Stats Now Live in the Terminal"
+source_id: "devto-4144511"
+source_url: "https://dev.to/lovestaco/a-dash-of-devto-my-blog-stats-now-live-in-the-terminal-4l4e"
+source_title: "A Dash of dev.to: My Blog Stats Now Live in the Terminal"
+source_author: "Athreya aka Maneshwar"
+source_published: "2026-07-14"
+---
+
+<LinkCard url="https://dev.to/lovestaco/a-dash-of-devto-my-blog-stats-now-live-in-the-terminal-4l4e" author="Athreya aka Maneshwar" date="2026-07-14" />
+
+## 개요
+
+dev.to 통계를 확인하려면 보통 브라우저를 열고 대시보드에 들어가 글 하나씩 눈을 가늘게 뜨고 들여다봐야 한다. Maneshwar는 이 반복이 지겨워졌다. 좋아요, 조회수, 댓글 상위 글을 한 터미널 창에 나란히 띄우고, 알아서 새로고침되는 화면을 원했다.
+
+그가 내린 결론은 새 도구를 처음부터 만드는 게 아니었다. 2023년에 이미 개발이 멈춘 대시보드 프로젝트에, 작은 Go 바이너리 하나를 붙여 데이터를 먹이는 방식이었다. 하루 오후 만에 완성했고, 그 사이 주문하지 않은 버그 두 개를 덤으로 받았다.
+
+![Close-up shot of keyboard buttons](https://images.pexels.com/photos/2882507/pexels-photo-2882507.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Miguel Á. Padriñán](https://www.pexels.com/@padrinan) on [Pexels](https://www.pexels.com/photo/close-up-shot-of-keyboard-buttons-2882507/)*
+
+## 설계는 수상할 만큼 단순해 보였다
+
+계획은 세 조각으로 나뉜다.
+
+첫째, dev.to는 이미 본인 데이터를 API로 내준다. `GET /api/articles/me` 엔드포인트에 `api-key` 헤더로 키를 넣어 요청하면, 발행한 모든 글이 필요한 숫자와 함께 돌아온다. `positive_reactions_count`, `page_views_count`, `comments_count`가 이미 세어져 있다. 스크래핑도, HTML 파싱도, 울 일도 없다. 키는 dev.to 설정의 Extensions에서 발급한다.
+
+둘째, 격자와 색상, 테두리, 키 입력, 새로고침 루프까지 갖춘 TUI를 손수 짜고 싶지는 않았다. 인생은 짧다.
+
+셋째, 그래서 예쁜 터미널 대시보드를 이미 그려주는, 숫자만 잘 먹이면 화면에 띄워줄 무언가가 필요했다. 그런 물건이 실제로 있었고, 이름은 devdash다.
+
+## devdash라는 잘 만든 물건
+
+[devdash](https://github.com/Phantas0s/devdash)는 Phantas0s로 알려진 Matthieu Cneude가 만든, 설정 자유도가 높은 터미널 대시보드다. GitHub, Google Analytics, Google Search Console, Travis 등을 위한 위젯을 갖췄고, 전체 레이아웃은 YAML 파일 하나로 굴러간다. 행, 열, 크기, 색상까지 전부 선언형이다. 정말 잘 만든 Go 코드다.
+
+문제는 두 가지였다. 이 프로젝트는 2023년부터 아카이브 상태다. 그리고 dev.to가 뭔지 전혀 모른다.
+
+포크를 떠서 제대로 된 Forem 서비스를 붙이고, 구조체를 엮고, 테스트를 짜서, 이미 문을 닫은 저장소에 PR을 열 수도 있었다. 대신 그는 게으른 문을 찾았고, 그 문은 이미 열려 있었다.
+
+devdash에는 `lh.table`, 즉 localhost table이라는 위젯이 있다. 셸 명령을 하나 건네면 그걸 실행하고, 명령이 출력한 결과를 테두리 있는 표로 그려준다. 각 줄을 공백 기준으로 쪼개 열에 나눠 담는 게 전부다.
+
+그러니까 devdash가 dev.to를 알 필요는 없다. 행을 출력하는 명령 하나만 있으면 된다. 그 명령이 바로 자신이 되면 그만이었다.
+
+가운데의 작은 Go 바이너리만이 실제로 손대야 했던 유일한 부분이다. 이름은 `devto-stats`. 100개씩 페이지를 넘겨가며 모든 글을 가져오고, 발행된 것만 남기고, devdash가 요청한 지표로 정렬한 뒤 깔끔한 행을 출력한다.
+
+```go
+req.Header.Set("api-key", apiKey)
+resp, _ := client.Do(req)
+// GET https://dev.to/api/articles/me?per_page=100&page=N
+```
+
+설정은 세 개의 테이블 위젯을 같은 명령의 세 변주에 연결한다.
+
+```yaml
+- name: lh.table
+  options:
+    title: " MOST VIEWED "
+    command: "./bin/devto-stats -mode=table -sort=views -limit=10"
+    headers: "#,Article,Views"
+    border_color: green
+```
+
+빨강, 초록, 노랑으로 물들인 블록 세 개가 나란히 선다. 이론상으로는 끝이었다.
+
+## 대시보드가 내 계정을 DDoS하려 들었다
+
+켜봤다. 상단 요약 스트립은 채워졌다. Most Liked, 멋지다. Most Commented, 있다. 그런데 Most Viewed는 새빨간 ERROR 박스였다.
+
+명령을 손으로 직접 실행하면 완벽히 동작했다. devdash 안에서만 실패했다.
+
+단서는 devdash의 새로고침 방식에 있었다. 모든 위젯을 각자의 고루틴에서 동시에, 같은 순간에 발사한다. 위젯이 네 개니 `devto-stats` 복사본 네 개가 팔꿈치를 들이밀며 dev.to API로 동시에 달려든 셈이다. dev.to는 당연하게도 `429 Too Many Requests`로 응답했다. 넷 중 하나는 늘 경주에서 졌고, 대개 Most Viewed였다.
+
+자기 자신을 향한, 아주 작고 아주 공손한 서비스 거부 공격을 만든 꼴이었다.
+
+해법은 지루하지만 올바른 쪽이다. 429가 뜨면 대기 후 재시도하되, 백오프에 지터를 더한다.
+
+```go
+if resp.StatusCode == http.StatusTooManyRequests {
+    backoff := time.Duration(attempt-1) * 700 * time.Millisecond
+    jitter := time.Duration(rand.Intn(500)) * time.Millisecond
+    time.Sleep(backoff + jitter)
+    continue // try this page again
+}
+```
+
+핵심은 지터다. 지터가 없으면 넷이 똑같은 시간만큼 물러났다가 다시 충돌한다. 복도에서 서로 사과하며 같은 방향으로 발을 내딛는 네 사람처럼. 랜덤 오프셋을 주면 알아서 흩어진다. 그 뒤로 오류는 사라졌다.
+
+## 쉼표 하나가 표를 무너뜨렸다
+
+Most Viewed가 드디어 그려졌다. 그런데 잘못 그려졌다. 첫 행은 멀쩡했는데, 그 아래 모든 행이 한 칸씩 오른쪽으로 밀렸다. 제목이 숫자 열에 들어가 있고, 숫자는 어디에도 없었다.
+
+문제가 시작된 글이 어디인지 알아봤다. 그의 최고 인기 글 제목은 "Good Bye CRUD APIs, Hello Sync". 문장 부호를 보자.
+
+devdash가 내부에서 하는 일은 이렇다. 각 줄을 공백으로 쪼개 셀을 만들고, 그 셀들을 쉼표로 다시 이어 붙인 뒤, 전체를 다시 쉼표로 잘라 N개 열짜리 행으로 나눈다. 제목 안의 쉼표는 devdash가 일부러 넣은 쉼표와 구분되지 않는다. 제목 하나가 셀 두 개가 되고, 행은 세 조각이어야 할 것이 네 조각이 된다. 그리고 이 나눔이 전역적이라, 그 뒤 모든 행이 영원히 밀린다.
+
+진짜 수정은 상류, 즉 방문객을 받지 않는 저장소에 있어야 한다. 그래서 출력을 스스로 통제할 수 있는 자기 쪽에서 고쳤다. 그의 바이너리는 이미 공백 분리를 견디려고 제목을 슬러그로 바꾸고 있었다. 여기에 쉼표도 지우도록 가르쳤다.
+
+```go
+s := strings.Join(strings.Fields(title), "-")
+s = strings.ReplaceAll(s, ",", "") // devdash re-splits the table on commas
+```
+
+한 줄이었다. 쉼표에 혼절했던 표가 곧바로 깨어났다.
+
+## 결과물
+
+devdash는 세 개의 피드를 받아 색과 테두리를 두르고, 스스로 새로고침되는 표로 어깨를 맞대 세운다. Most Liked는 빨강, Most Viewed는 초록, Most Commented는 노랑, 그리고 상단에 요약 스트립이 걸린다. `Ctrl+R`은 강제 새로고침, `Ctrl+C`는 종료다. 내버려 두면 5분마다 알아서 다시 그린다.
+
+444개의 글이 전부 집계되고, 브라우저도 클릭도 없이, 조용한 터미널이 어떤 글을 사람들이 실제로 읽는지 진실을 알려준다.
+
+## 배운 것
+
+가장 좋은 통합은 통합이 없는 경우가 많다. devdash는 끝내 dev.to를 배우지 않았다. 대신 dev.to가 devdash의 언어로 말하게 만들었고, 2023년에 유지보수가 멈춘 도구가 소스 한 줄 바꾸지 않고 2026년 데이터를 그려냈다.
+
+Go 헬퍼, YAML, Makefile을 포함한 전체 코드는 [lovestaco/devto_devdash](https://github.com/lovestaco/devto_devdash)에 있다. API 키만 본인 것을 가져오면 된다.
+
+때로는 일에 가장 알맞은 도구가, 몇 년 전 누군가 손을 뗀 채 조용히 놓여 있는, 여전히 대시보드 하나쯤은 기꺼이 더 그려줄 그런 물건이기도 하다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

@@ -1,0 +1,166 @@
+﻿---
+title: "죽은 사이드 프로젝트를 위한 묘지를 만들었다 — AI 추도사와 3D 공동묘지까지"
+description: "버려진 사이드 프로젝트에 제대로 된 장례를 치러주는 고딕풍 추모 플랫폼 DevGraveyard. GitHub 커밋 기록을 감정 데이터로 바꾸고 Gemini가 이별 편지를 쓴다."
+date: "2026-07-12"
+published_at: "2026-07-17"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fi4j5ytkt9ujydsm46y1u.jpeg"
+coverAlt: "I Built a Graveyard for My Dead Side Projects - With AI Eulogies & a 3D Cemetery"
+slug: "devgraveyard-ai-eulogy-3d-cemetery"
+source_id: "devto-4125592"
+source_url: "https://dev.to/varshithvhegde/i-built-a-graveyard-for-my-dead-side-projects-with-ai-eulogies-a-3d-cemetery-5g0e"
+source_title: "I Built a Graveyard for My Dead Side Projects - With AI Eulogies & a 3D Cemetery"
+source_author: "Varshith V Hegde"
+source_published: "2026-07-12"
+---
+
+<LinkCard url="https://dev.to/varshithvhegde/i-built-a-graveyard-for-my-dead-side-projects-with-ai-eulogies-a-3d-cemetery-5g0e" author="Varshith V Hegde" date="2026-07-12" />
+
+## 개요
+
+개발자라면 누구나 죽은 사이드 프로젝트 무덤 하나쯤은 갖고 있다. 뜨겁게 시작했다가 어느 화요일에 조용히 손을 놓아버린 것들. 이런 프로젝트에게 텅 빈 GitHub 저장소보다 나은 마지막을 주고 싶었던 한 개발자가 **DevGraveyard**를 만들었다.
+
+GitHub 계정을 연결하고 방치된 저장소를 하나 고른 뒤 비문을 새기면, Gemini AI가 그 프로젝트에게 보내는 극적인 이별 편지를 대신 써준다. 여기에 촛불을 켜고 조문 메시지를 남기고 부활에 투표하는 커뮤니티 기능, 그리고 Three.js로 만든 3D 공동묘지까지 얹었다. 주말 챌린지 출품작으로 만든 결과물이다.
+
+![묘지와 비석](https://images.pexels.com/photos/6908003/pexels-photo-6908003.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Meruyert Gonullu](https://www.pexels.com/@meruyert-gonullu) on [Pexels](https://www.pexels.com/photo/cemetery-with-graves-and-tombstones-against-high-trees-6908003/)*
+
+## 무엇을 만들었나
+
+DevGraveyard의 핵심 기능은 다음과 같다.
+
+- ⚰️ **프로젝트 매장** — 3단계 매장 마법사로 진행한다. 저장소를 고르고, 사망 원인을 선택하고(*"로컬호스트를 벗어나지 못함"*, *"주말이 부족했음"*, *"관계가 복잡했음"*...), 비문을 쓴다.
+- 🪦 **진짜 묘비 데이터** — 실제 커밋 기록을 끌어온다. 최고 집착 연속일, 하루 최다 커밋, 마지막 커밋 메시지(*고인의 유언*)가 묘비에 새겨진다.
+- 🤖 **AI 추도사** — Google Gemini가 실제 커밋 데이터를 인용해 개발자가 프로젝트에게 보내는 극적인 이별 편지를 쓴다.
+- 🕯️ **커뮤니티 추모** — 촛불을 켜고, RIP 메시지를 남기고, 부활 투표를 한다.
+- 🌐 **3D 공동묘지** — Three.js로 만든 인터랙티브 묘지. 앙상한 나무, 반딧불이, 흔들리는 촛불, 떠도는 영혼, 부활의 파동 링이 있다. 묘비를 클릭하면 상호작용한다.
+
+제작자 본인의 `ARweave` 저장소는 커밋 56개, 최고 연속 2일, 하루 최다 30커밋을 기록했다. 사망 원인은 *"로컬호스트를 벗어나지 못함"*. 유언은 *"feat: 3D 빌더에 오버레이 평면 추가 — 마커 위에서 이미지 드래그/스케일, 위치를 DB에 저장하고 AR 뷰어에서 복원"*이었다.
+
+로컬에서는 잘 돌아갔다. 딱 거기까지였다.
+
+**라이브 데모 → [devgraveyard.varshithvhegde.in](https://devgraveyard.varshithvhegde.in/)** · [소개 영상 보기 →](https://youtu.be/tuC1dbbjSGw) · [소스 코드 (GitHub)](https://github.com/Varshithvhegde/devgraveyard)
+
+## 어떻게 만들었나
+
+### 기술 스택
+
+| 레이어 | 기술 |
+|---|---|
+| 프론트엔드 | Next.js 14 (App Router), TypeScript, Tailwind CSS, shadcn/ui |
+| 인증 + DB | Supabase (GitHub OAuth, Postgres, Row Level Security) |
+| AI | Google Gemini `gemini-2.5-flash` |
+| 3D | Three.js + React Three Fiber + @react-three/drei |
+| 애니메이션 | Motion (Framer Motion 후속작) |
+| 배포 | Vercel |
+
+### 1단계 — 프로젝트 매장하기
+
+"Bury a Project" 버튼을 누르면 3단계 마법사가 안내한다.
+
+1. **희생자 선택** — GitHub 저장소를 API로 불러온다. 이미 매장한 저장소에는 *"already buried"* 배지가 붙고 비활성화돼서 같은 프로젝트를 두 번 묻을 수 없다.
+2. **비문 작성** — 준비된 목록에서 사망 원인을 고르거나 직접 쓴다. 100자 이내의 비문도 선택적으로 추가한다. 이 사이 백그라운드에서 전체 커밋 기록을 가져온다.
+3. **매장 확정** — 커밋하기 전에 실제 데이터로 채운 묘비 미리보기가 실시간으로 렌더링된다.
+
+![매장 화면 - 사망 원인 선택](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/e2jottublam1y81xmwre.jpg)
+
+![매장 화면 - 비문 작성](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/509d3ghas45hl57krhyr.jpg)
+
+### 2단계 — 감정 데이터가 된 커밋 기록
+
+이 프로젝트의 기술적 심장부다. 저장소를 묻을 때 GitHub API로 전체 커밋 기록을 페이지네이션하면서 제작자가 **"집착 데이터(obsession data)"**라 부르는 값을 계산한다.
+
+```typescript
+// From src/lib/github/analyze.ts
+export function computePeakObsession(commits: GitHubCommit[]) {
+  // 일별 커밋 수 → 최장 연속 스트릭
+  // 자정~새벽 5시 사이 최신 커밋 → "가장 늦은 밤 작업"
+  // 하루 최다 커밋 → "최고의 날"
+  // ...
+}
+```
+
+이 숫자들이 묘비로, 그리고 Gemini 프롬프트로 그대로 들어간다. 최고의 날에 30커밋을 찍고 죽은 프로젝트와 통틀어 3커밋뿐인 프로젝트는 전혀 다른 이야기를 품는다.
+
+### 3단계 — AI 추도사
+
+추도사 프롬프트는 뻔한 결과가 아니라 구체적인 문장을 뽑아내도록 정교하게 설계했다.
+
+```plaintext
+정확히 3문단을 써라. 개발자가 프로젝트에게 보내는 편지 형식.
+톤: 극적이고, 어둡게 웃기며, 진심으로 애잔하게.
+첫 문장: "Dear {repo_name},"
+아래 실제 데이터 중 최소 2개를 인용할 것:
+  - 최고 집착: 하루 30커밋
+  - 가장 늦은 밤 작업: 새벽 2시 34분
+  - 사망 원인: "로컬호스트를 벗어나지 못함"
+  - 마지막 커밋 메시지: "feat: 3D 빌더에 오버레이 평면..."
+마무리: "Yours, but not anymore, — A Tired Developer"
+최대 250단어. 마크다운 금지.
+```
+
+결과는 놀라울 만큼 개인적이다. Gemini는 당신이 새벽 2시에 커밋했다는 걸 알고, 바로 그 집착에 대해 쓴다. 제작자의 `ARweave` 프로젝트에는 이런 추도사가 나왔다.
+
+![완성된 추도사 화면](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/n2jlu5e8osikxlk66rjz.jpg)
+
+> *"하루에 30커밋을 찍던 그 열기, 최고의 집착을 기억해. 모든 PLpgSQL 스키마와 프론트엔드 인터랙션을 하나하나 짜던 그때를. 우리는 그 작은 로컬 개발 환경 안에서 정말 견고하게 느껴지는 기능들을 만들었지. 넌 활기차지만 까다로운 동반자였어. 내 모든 CPU 사이클과 정신적 여력을 요구했으니까..."*
+
+추도사는 처음 생성될 때 타자기 애니메이션으로 드러난 뒤 Supabase에 영구 저장된다.
+
+### 4단계 — 3D 공동묘지
+
+`/graveyard-3d`의 3D 뷰는 React Three Fiber로 만든 완전한 Three.js 씬이다.
+
+**묘비 모양**은 `THREE.Shape`에서 뽑은 하나의 `ExtrudeGeometry`다. 사각형에 `absarc`로 반원 아치를 얹었다. 박스 + 반원기둥 조합보다 훨씬 깔끔하다.
+
+```typescript
+function makeTombShape() {
+  const w = 0.34, h = 0.95;
+  const shape = new THREE.Shape();
+  shape.moveTo(-w, 0);
+  shape.lineTo(-w, h);
+  shape.absarc(0, h, w, Math.PI, 0, false); // 완벽한 반원
+  shape.lineTo(w, 0);
+  return shape;
+}
+```
+
+씬 안의 애니메이션은 이렇게 구성했다.
+
+- 로드 시 묘비가 **땅속에서 솟아오른다**. 인덱스별로 시차를 두고(ease-out cubic).
+- `FlickerCandle` — 원뿔형 불꽃이 프레임마다 스케일 노이즈를 받고, `PointLight` 강도가 함께 깜빡인다.
+- `SoulWisps` — 촛불이 켜진 묘비에서 빛나는 구체가 위로 떠오른다.
+- `ResurrectPulse` — 부활 투표를 받은 묘비 아래 땅에서 `ringGeometry`가 확장된다.
+- 사인파를 따라 흐르는 반딧불이 입자 55개.
+- 안개, 별, 앙상한 겨울나무, 방향성 달빛.
+
+3D 패널에서 바로 촛불을 켜고 부활 투표를 할 수 있는데, 실제 API를 호출하고 묘비가 실시간으로 반응한다.
+
+![3D 정보 패널](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/8p0ytdd0my1txl2iyg8j.png)
+
+### 공개 추모의 벽
+
+매장된 모든 프로젝트는 `/graveyard`의 공개 추모 벽에 오른다. 최신순, 조문 많은 순, 부활 투표 많은 순으로 정렬할 수 있다.
+
+![공개 묘지 목록](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/b3447ripq9ae9v6zihz3.png)
+
+### 디자인 철학
+
+전체 미감은 하나의 원칙 위에 서 있다. **농담이 아니라 진짜 추모처럼 느껴져야 한다.** 개발자는 버려진 프로젝트를 진심으로 애도하니까. 묘비는 새김 글씨와 정으로 깎은 구분선, 밑동의 이끼로 채웠다. AI 추도사는 커밋 데이터를 진지하게 다룬다. 커뮤니티 기능도 실제 상호작용이다. 켜둔 촛불은 데이터베이스에 저장되고, RIP 메시지에는 작성자와 타임스탬프가 붙는다.
+
+열정은 그저 테마가 아니다. 소재 그 자체다.
+
+### Google AI 활용
+
+DevGraveyard는 **Google Gemini**(`gemini-2.5-flash`)를 제품의 감정적 핵심으로 쓴다. 추도사 생성 프롬프트는 사용자 커밋 기록의 구체적인 실제 데이터를 인용하도록 설계돼, 뻔한 AI 텍스트가 아니라 진짜 개인적인 결과물을 만든다.
+
+핵심 통찰은 이렇다. AI가 단순히 *콘텐츠*를 생성하는 게 아니라, 커밋 수·타임스탬프·마지막 메시지 같은 원시 GitHub 텔레메트리를 정말 아꼈던 프로젝트를 잃은 *상실감*으로 바꿔낸다는 점이다. 추도사는 묘비당 한 번(소유자만) 생성돼 Supabase에 영구 저장되고 타자기 애니메이션으로 공개된다. API 호출 한 번이면 영원히 남는다.
+
+---
+
+*주말에 만들었다. 제작자의 `ARweave` 저장소는 끝내 프로덕션을 보지 못할 것이다. 하지만 이제 묘비는 생겼다. 그것만으로도 충분하다.*
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

@@ -1,0 +1,78 @@
+﻿---
+title: "젯슨 나노에서 Ollama 벤치마크 돌려보기: 어떤 모델이 살아남나"
+description: "젯슨 나노(Jetson Nano)에서 여러 로컬 LLM과 양자화 조합을 돌려 퀴즈 생성 정확도를 비교한 실전 벤치마크 기록. 결론은 qwen2.5:3b-instruct의 완승이다."
+date: "2026-07-12"
+published_at: "2026-07-17"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fa2vq7v2wcc6jon4u5xgq.png"
+coverAlt: "Simple Benchmark Review: Ollama on Jetson Nano"
+slug: "ollama-jetson-nano-benchmark-review"
+source_id: "devto-4123578"
+source_url: "https://dev.to/annavi11arrea1/simple-benchmark-review-ollama-on-jetson-nano-5gee"
+source_title: "Simple Benchmark Review: Ollama on Jetson Nano"
+source_author: "Anna Villarreal"
+source_published: "2026-07-12"
+---
+
+<LinkCard url="https://dev.to/annavi11arrea1/simple-benchmark-review-ollama-on-jetson-nano-5gee" author="Anna Villarreal" date="2026-07-12" />
+
+## 개요
+
+작은 싱글보드 컴퓨터인 젯슨 나노(Jetson Nano)에 로컬 LLM을 올려 쓰려면, 어떤 모델을 어느 정도까지 양자화해야 실제로 쓸 만할까? Anna Villarreal은 텍스트에서 퀴즈와 플래시카드를 만드는 개인 앱을 만들던 중 이 질문에 빠져들었고, 여러 모델과 양자화 조합을 하나하나 돌려본 기록을 남겼다.
+
+결론부터 말하면, 퀴즈 생성이라는 특정 용도에서는 `qwen2.5:3b-instruct`가 양자화 수준과 상관없이 정확도 100%로 가장 안정적이었다. 반대로 무거운 양자화는 품질을 확실히 깎아먹었고, 아예 GPU에 올라가지 못하는 조합도 있었다.
+
+## RAM 부족과 스왑 파일
+
+시작은 순탄하지 않았다. 젯슨 나노의 RAM만으로는 테스트를 감당하지 못해 실행 도중 보드가 뻗어버리는 일이 있었다. 그래서 필자는 만일에 대비한 안전장치로 스왑 파일을 먼저 만들어 뒀다. RAM이 부족할 때 임시로 버텨줄 완충 장치인 셈이다.
+
+안전망을 깔아둔 뒤에는 비교 기준이 될 정답지가 필요했다. OSI 모델을 다룬 웹 페이지에서 짧은 퀴즈를 만들어 "정답 기준(source of truth)"으로 삼고, 각 모델과 양자화 조합이 이 문제들을 얼마나 맞히는지를 쟀다.
+
+## 핵심: 양자화가 심하면 품질이 떨어진다
+
+필자가 뽑은 한 줄 요약은 단순하다. **모델을 심하게 양자화할수록 품질을 잃는다.** 당연해 보이지만, 어느 지점부터 품질이 무너지는지는 직접 돌려봐야 보인다.
+
+![벤치마크 테스트 결과](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/dim4j6cjzu853p9k5vb1.png)
+
+## 모델·양자화별 정확도
+
+테스트는 문제 10개로 이뤄진 작은 풀을 기준으로 했다. 그래서 숫자가 딱 떨어지는 것처럼 보인다. 표는 다음과 같다.
+
+| 모델 | 양자화 | 정확도 |
+| --- | --- | --- |
+| qwen2.5:3b-instruct | q4_K_M | 100% |
+| qwen2.5:3b-instruct | q5_K_M | 100% |
+| qwen2.5:3b-instruct | q8_0 | 100% |
+| qwen3.5:2b | q4_K_M | 0% (빈 출력) |
+| qwen3.5:2b | q8_0 | 0% (빈 출력) |
+| llama3.2:3b-instruct | q2_K | 40% |
+| llama3.2:3b-instruct | q4_K_M | 90% |
+| llama3.2:3b-instruct | q5_K_M | 90% |
+| llama3.2:3b-instruct | q8_0 | 90% |
+| mistral:7b-instruct | q2_K | 80% |
+| mistral:7b-instruct | q4_K_M | 100% |
+| mistral:7b-instruct | q5_K_M | 80% |
+
+빈 칸이 있는 이유는 해당 조합이 나노의 GPU에 아예 올라가지 못했기 때문이다. 하드웨어 한계로 제대로 돌 리 없는 모델은 테스트할 이유가 없어서 건너뛰었다.
+
+몇 가지가 눈에 띈다. `qwen2.5:3b-instruct`는 q4부터 q8까지 전 구간에서 100%를 찍었다. 반면 `qwen3.5:2b`는 양자화와 무관하게 빈 출력만 내놨다. `llama3.2:3b-instruct`는 q2_K에서 40%로 크게 떨어졌다가 q4 이상에서 90%로 안정됐고, `mistral:7b-instruct`는 q4_K_M에서 100%를 찍었지만 q5_K_M에서 오히려 80%로 내려가는 다소 의외의 흐름을 보였다.
+
+![연필과 문서가 놓인 책상](https://images.pexels.com/photos/7948063/pexels-photo-7948063.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [RDNE Stock project](https://www.pexels.com/@rdne) on [Pexels](https://www.pexels.com/photo/a-colored-pencil-and-document-on-the-table-7948063/)*
+
+## 한 가지 용례일 뿐이라는 한계
+
+필자 스스로도 이 실험의 범위를 분명히 못 박는다. 이건 퀴즈 생성이라는 딱 하나의 용례에 대한 결과다. 여러 용도를 두루 놓고 성능 지도를 그리려면 훨씬 더 많은 시간이 든다. 문제 풀이 정확도만 봤지, 속도나 지연 시간, 메모리 여유 같은 지표는 이 표에 담기지 않았다.
+
+그럼에도 자신의 목적, 즉 퀴즈 생성이라는 관점에서는 승자가 명확했다. `qwen2.5:3b-instruct`다. 필자는 앞으로 앱을 정리하면서 기존 `llama3.2:3b-instruct`에서 qwen으로 갈아탈 계획이라고 밝혔다.
+
+## 이 기록이 주는 것
+
+이 글은 완성된 벤치마크 리포트라기보다, "직접 끝까지 돌려봤다"는 과정의 기록에 가깝다. 필자도 인정하듯 이 토끼굴은 깊고 넓으며, 표에 담긴 건 표면의 한 조각일 뿐이다. 다른 곳에도 벤치마크는 많지만, 자기 하드웨어에서 자기 용례로 직접 재봤을 때 비로소 그 기술을 실감하게 된다는 것이 이 기록의 진짜 메시지다.
+
+혹시 젯슨 나노를 가지고 있고 Ollama로 무언가를 돌려봤다면, 어떤 용도로 써봤는지 공유해 보는 것도 이 실험을 확장하는 좋은 방법이 될 것이다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
