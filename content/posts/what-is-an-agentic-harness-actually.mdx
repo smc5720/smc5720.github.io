@@ -1,0 +1,60 @@
+﻿---
+title: "'에이전트 하네스(agentic harness)'란 정확히 무엇인가"
+description: "LLM이 에이전트가 되는 과정에서 하네스가 맡는 역할을 짚는다. 하네스는 우리가 보는 앱이 아니라, 에이전트를 계속 굴릴지 멈출지 결정하는 보이지 않는 배관에 가깝다."
+date: "2026-07-16"
+published_at: "2026-07-18"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fkuc6h925huw021jwu8c1.png"
+coverAlt: "What is an agentic harness, actually?"
+slug: "what-is-an-agentic-harness-actually"
+source_id: "devto-4159933"
+source_url: "https://dev.to/googleai/what-is-an-agentic-harness-actually-4oie"
+source_title: "What is an \"agentic harness,\" actually?"
+source_author: "Tilde A. Thurium"
+source_published: "2026-07-16"
+---
+
+<LinkCard url="https://dev.to/googleai/what-is-an-agentic-harness-actually-4oie" author="Tilde A. Thurium" date="2026-07-16" />
+
+## 개요
+
+요즘 개발 현장에서 "하네스(harness)"라는 단어가 부쩍 자주 들린다. 그냥 IDE나 에이전트를 돌리는 앱을 뜻하는 말이겠거니 넘겨짚기 쉽지만, 실제로는 조금 더 깊은 개념이다. 이 글의 저자 Tilde A. Thurium은 동료 개발자 greggyb와 마주 앉아 밑바닥부터 물었다. LLM이 대체 무슨 일을 하는지, 무엇이 그것을 에이전트로 만드는지, 그리고 그 안에서 하네스는 어디에 자리 잡는지.
+
+핵심 한 줄부터 옮기면 이렇다. 하네스는 우리가 눈으로 보는 그 앱이 아니다. 에이전트가 계속 일을 밀고 나갈지, 아니면 다 됐다고 손을 뗄지 결정하는 보이지 않는 배관이다.
+
+![조명이 밝은 방에서 검은 케이블을 다루는 사람](https://images.pexels.com/photos/7650842/pexels-photo-7650842.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Anna Tarazevich](https://www.pexels.com/@anna-tarazevich) on [Pexels](https://www.pexels.com/photo/woman-with-black-wires-in-light-room-7650842/)*
+
+## LLM에서 에이전트로
+
+출발점은 에이전트의 정의다. Simon Willison은 에이전트를 "도구를 가진 LLM이 목표를 이루기 위해 반복 루프 안에서 돌아가는 것"이라고 정리한다. 이 짧은 문장 안에 세 가지 요소가 들어 있다. LLM, 도구, 그리고 루프다.
+
+먼저 LLM 자체는 입력을 받아 다음에 올 텍스트를 예측하는 모델이다. 여기까지는 에이전트가 아니다. 여기에 도구가 붙는 순간 성격이 달라진다.
+
+### 도구는 실제로 무엇을 하나
+
+"도구"라는 말이 추상적으로 들리지만, 밑바닥에서 벌어지는 일은 함수 호출(function calling)이다. LLM은 학습 시점에 알지 못했던 정보를 함수 호출로 끌어온다. 예를 들어 현재 시각, 파일 내용, 외부 API 응답처럼 모델 파라미터 안에 없는 맥락을 그때그때 가져다 쓴다. 모델이 "이 함수를 이런 인자로 부르고 싶다"고 출력하면, 바깥의 프로그램이 실제로 함수를 실행하고 결과를 다시 모델에게 돌려준다.
+
+### 루프가 만드는 자율성
+
+루프는 에이전트를 에이전트답게 만드는 부분이다. 모델은 자기 출력을 프로그램적으로 점검해 작업이 정말 끝났는지 스스로 판단한다. 아직 목표에 못 미쳤다면 다시 도구를 부르고, 결과를 확인하고, 또 판단하는 과정을 반복한다. 이 "계속할지 멈출지" 결정이 반복되면서 에이전트는 사람이 매 단계 개입하지 않아도 목표를 향해 나아간다.
+
+![야외 어드벤처 파크에 놓인 알록달록한 클라이밍 헬멧](https://images.pexels.com/photos/34087791/pexels-photo-34087791.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Uriel Lu](https://www.pexels.com/@uriel-lu) on [Pexels](https://www.pexels.com/photo/colorful-climbing-helmets-in-outdoor-adventure-park-34087791/)*
+
+## 하네스는 어디에 있나
+
+여기서 하네스의 자리가 드러난다. 하네스는 LLM *이후*의 모든 것이다. 도구를 실제로 실행하고, 결과를 모델에 되먹이고, 루프를 돌릴지 끝낼지 관장하는 층 전체를 말한다. 그래서 하네스는 인터페이스와 다른 것이다.
+
+이 구분이 왜 중요한가. 인터페이스는 하네스를 건드리지 않고도 갈아 끼울 수 있기 때문이다. 같은 하네스 위에 채팅 UI를 얹든, 커맨드라인을 붙이든, 아예 화면이 없는 백그라운드 작업으로 돌리든 밑에서 돌아가는 배관은 그대로다. 실제로 UI가 전혀 필요 없는 에이전트도 있다.
+
+정리하면, 우리가 "하네스"를 떠올릴 때 흔히 그리는 그림 — 눈앞의 앱이나 편집기 — 은 사실 인터페이스 쪽에 가깝다. 진짜 하네스는 그 뒤에서 에이전트의 한 걸음 한 걸음을 밀고 당기는, 보이지 않는 결정 구조다.
+
+원본 대담 영상에서 이 흐름을 더 자세히 풀어낸다.
+
+[YouTube 영상 보기 →](https://www.youtube.com/watch?v=W9BX0jyzd2k)
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
