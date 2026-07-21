@@ -1,0 +1,86 @@
+﻿---
+title: "벤치마크는 왜 N=22에서 멈췄을까 — 버그 9개를 잡은 디버깅 이야기"
+description: "1년 넘게 리포지토리에 남아 있던 수수께끼의 숫자 22를 추적하다 벤치마크 안에서 9개의 버그를 찾아낸 과정. CPython의 정수 문자열 변환 제한부터 '이미 했는데요'라며 계산을 거부한 LLM까지."
+date: "2026-07-15"
+published_at: "2026-07-21"
+category: "news"
+tags: ["bugsmash", "debugging", "ai", "python"]
+slug: "why-did-my-benchmark-stop-at-n22-nine-bugs"
+cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2For2tqjyirncvfbzgnli9.png"
+coverAlt: "Why did my benchmark stop at N=22? A debugging story in nine bugs"
+source_id: "devto-4152363"
+source_url: "https://dev.to/gde/why-did-my-benchmark-stop-at-n22-a-debugging-story-in-nine-bugs-3m2l"
+source_title: "Why did my benchmark stop at N=22? A debugging story in nine bugs"
+source_author: "xbill"
+source_published: "2026-07-15"
+---
+
+<LinkCard url="https://dev.to/gde/why-did-my-benchmark-stop-at-n22-a-debugging-story-in-nine-bugs-3m2l" author="xbill" date="2026-07-15" />
+
+## 개요
+
+리포지토리에 `run_benchmark_1_22.py`라는 파일이 있었다. 하니스가 원래 돌리도록 설계된 1~24도 아니고, 에이전트가 알고 있는 메르센 지수 개수인 26도 아닌, 하필 22. README의 차트 파일명 `a2a_latency_times_1_22.png`도 같은 숫자를 가리키고 있었다. 과거의 자신이 어느 시점에 "이 벤치마크는 22에서 끝난다"고 정해 버리고, 그 증거까지 커밋한 채 넘어간 것이다.
+
+Dev.to의 Summer Bug Smash 챌린지 참가작으로 올라온 이 글에서, 작성자 xbill은 1년 묵은 질문 하나를 파고든다. *왜 하필 22였을까?* 그 답을 찾는 과정에서 벤치마크 하나에 숨어 있던 버그 9개가 줄줄이 드러났다.
+
+## 실체는 결정이 아니라 크래시였다
+
+문제의 프로젝트 [`a2a-benchmark`](https://github.com/xbill9/a2a-benchmark)는 A2A 에이전트 성능을 4개 언어로 비교한다. Python과 Go는 Gemini 툴 콜링(ADK) 뒤에 앉아 있고, Node와 Rust는 순수 HTTP 핸들러다. 각 에이전트가 뤼카-레머(Lucas–Lehmer) 판정법으로 메르센 소수를 계산하면, 하니스가 N을 1부터 24까지 돌려 차트 두 장을 그린다.
+
+작성자가 전체 구간을 다시 돌려 보니 N=24에서 Python 열만 `N/A`가 찍혔다. 다른 언어는 전부 정상 데이터를 반환했다. 22라는 숫자는 의도적인 결정이 아니라 **크래시**였고, 아프지 않을 때까지 실행 범위를 줄이는 식으로 덮어 둔 흔적이었던 셈이다.
+
+![The old chart: the benchmark's world ended at N=22](https://raw.githubusercontent.com/xbill9/a2a-benchmark/bugsmash-assets/docs/bugsmash/before_calc_times.png)
+
+## 4,300자리의 벽
+
+N=24에서 Python 에이전트가 뱉은 응답은 노골적이었다.
+
+```plaintext
+"Exceeds the limit (4300 digits) for integer string conversion;
+ use sys.set_int_max_str_digits() to increase the limit"
+```
+
+CPython 3.11은 서비스 거부(DoS) 공격 완화책으로 `int→str` 변환에 기본 4,300자리 제한을 넣었다. 그런데 이 에이전트는 찾아낸 소수를 전부 문자열로 변환하고 있었다. 24번째 메르센 소수 2^19937−1은 **6,002자리**다. 제한에 걸릴 수밖에 없다.
+
+작성자가 웃음을 터뜨렸다는 대목은 그다음이다. 그렇게 만든 문자열 리스트는 *어디에도 반환되지 않았다*. 툴은 경과 시간만 보고한다. N=23부터 벤치마크를 조용히 잘라먹던 그 코드는 순수한 장식이었던 것이다. 수정은 간단했다. `str()`을 지우고 정수를 그대로 두면 끝. Go 쪽에도 측정 구간 안에 똑같은 죽은 코드(`val.String()`)가 있었는데, 그저 크래시가 안 났을 뿐이었다.
+
+표현식 하나를 지우자, 존재한 적 없던 데이터 열이 태어났다. N=24, Python, 2,425.9ms.
+
+## 실을 당길수록 딸려 나온 것들
+
+에이전트가 드디어 끝까지 돌아가게 되자, 작성자는 계속 실을 잡아당겼다. 하니스는 Python의 경과 시간을 **LLM이 쓴 산문**에서 `r"It took ([\d\.\-e]+) seconds"` 정규식으로 뽑아내고 있었다. 그런데 캡처된 응답 어디에서도 Gemini는 "It took"이라고 말한 적이 없었다. *"Calculating the first 5 Mersenne primes took…"*, *"The calculation took…"* 같은 표현만 썼다. 벤치마크에 Python 데이터가 존재했던 유일한 이유는 구조화된 툴 아티팩트를 읽는 폴백 경로 덕분이었다. 측정 파이프라인의 메인 경로가 언어 모델의 말버릇에 베팅하고 있었던 것이다.
+
+직접 호출 방식인 에이전트들도 저마다 문제를 안고 있었다. Node나 Rust에 메르센 소수 100개를 요청하면 26개(지수 테이블 크기)만 계산해 놓고 `"Found first 100 Mersenne primes"`라고 태연하게 보고했다. 경과 시간은 `%.2f` 포맷의 밀리초로 찍었기 때문에, Rust의 가장 빠른 실행은 `0.00ms`로 기록됐다. 이 값은 0으로 파싱되고, 0은 로그 스케일 차트에 존재할 수 없다. 틀린 점처럼 보이는 게 아니라, 아예 아무것도 아닌 것처럼 보였다.
+
+가장 큰 거짓말은 차트 자체였다. 제목은 "A2A Round-Trip Time (including LLM/Tool calling)"이었지만, 말 그대로 절반만 사실이었다. 4개 에이전트 중 2개만 Gemini를 거치고, 나머지 2개는 LLM을 아예 건드리지 않는다. 직접 호출 쌍의 RTT 중앙값은 2.6ms와 4.6ms, Gemini 쌍은 약 1.6초와 1.8초. **약 400배 차이**가 언어 비교인 척 그려져 있었지만, 실제로는 파이프라인 비교였다.
+
+## 고쳤더니 또 터졌다
+
+버그를 전부 수정하고 "after" 차트를 뽑으려고 전체 구간을 다시 돌렸다. 이번에는 Go의 N=1 지점이 `N/A`.
+
+원인은 방금 넣은 수정이었다. 죽은 포맷팅 코드를 지우자 Go의 작은 N 구간이 너무 빨라져서 `time.Duration`이 출력 단위를 바꿔 버렸다 — `Elapsed time: 836ns`. 하니스 파서에는 µs, ms, s 분기가 있었지만 나노초는 만나 본 적이 없었다. **코드를 고쳤더니 벤치마크가 감당 못 할 만큼 빨라진 것이다.**
+
+![After: direct vs Gemini-brokered series, finally labeled as what they are](https://raw.githubusercontent.com/xbill9/a2a-benchmark/bugsmash-assets/docs/bugsmash/after_rtt.png)
+
+파서를 고치고 또 돌렸다. 이번에는 Go 데이터 3개가, 그것도 아까와 다른 지점에서 빠졌다. 캡처된 응답 텍스트는 이랬다.
+
+> "I already did that. Do you want to do it again?" (이미 했는데요. 다시 할까요?)
+
+하니스가 결정적(deterministic) 컨텍스트 ID를 재사용하고 있었고, ADK는 컨텍스트별 세션 히스토리를 보관한다. 재실행 시점에 Gemini가 이전 대화를 보고는 같은 일을 반복하지 않겠다고 거절한 것이다. 벤치마크의 완전성이 언어 모델의 반복 작업에 대한 견해에 달려 있게 된 셈이다. 실행마다 고유 ID를 쓰도록 고치자, 마지막 스윕은 **96/96**으로 완주했다.
+
+## 남은 교훈 네 가지
+
+1. **커밋한 우회책은 계속 안고 가는 버그다.** `run_benchmark_1_22.py`는 조사하지 않은 크래시의 화석처럼 리포지토리에 앉아 있었다. 스택 트레이스를 읽는 대신 스크립트 이름을 바꾸는 순간, 버그를 그대로 배포하기로 결정한 것이다.
+2. **벤치마크도 프로덕션 코드다.** 이 벤치마크는 크래시가 났고, 개수를 속였고, 가장 작은 측정값을 반올림으로 날렸고, 서로 다른 두 아키텍처를 한 축에 놓고 비교했다. 지금까지 만든 모든 차트가 조용히 네 가지 방식으로 틀려 있었다.
+3. **기계가 소비할 출력이라면 절대 산문을 거치게 하지 마라.** 구조화된 툴 아티팩트는 처음부터 존재했다. LLM 텍스트에 건 정규식은 순수한 취약점이었다.
+4. **측정 경로에 LLM이 끼어 있으면, 테스트 대상 코드와 무관한 실패 모드가 생긴다.** 이번 사례에서는 지루함까지 포함해서.
+
+버그 9개, PR 4개([#1](https://github.com/xbill9/a2a-benchmark/pull/1), [#2](https://github.com/xbill9/a2a-benchmark/pull/2), [#3](https://github.com/xbill9/a2a-benchmark/pull/3), [#4](https://github.com/xbill9/a2a-benchmark/pull/4)). 그리고 1년 전에 던졌어야 할 질문 하나. *왜 22였을까?*
+
+작성자는 결과를 직접 확인해 볼 수 있는 방법도 남겨 뒀다. `docker run --rm -e GEMINI_API_KEY=your_key -v "$PWD/out:/out" xbill9/bugsmash`를 실행하면 수정된 에이전트 4개와 전체 스윕이 돌아가고, 차트가 `./out`에 저장된다.
+
+원문 말미에는 이 조사를 Claude Code를 디버깅 에이전트로 삼아 진행했다는 공개(disclosure)도 있다. 재현, 수정, 벤치마크 재실행은 에이전트가 수행하고 작성자가 방향을 잡았으며, 버그와 수치, 그리고 "이미 했는데요"라는 거부까지 전부 실제 기록으로 리포지토리에 남아 있다고 한다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
