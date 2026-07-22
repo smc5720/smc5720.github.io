@@ -1,0 +1,157 @@
+﻿---
+title: "26B MoE 모델을 가장 싼 AWS 인스턴스에 올리기 — Gemma-4 DevOps 실전기"
+description: "24xlarge에서 돌던 26B 파라미터 MoE 모델을 시간당 0.76달러짜리 inf2.xlarge 한 대에 올린 최적화 여정. fp4 막다른 길과 all-int8 압축, 슬림 배포까지."
+date: "2026-07-20"
+published_at: "2026-07-22"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fum85zl2v1qboe34uq7sy.png"
+coverAlt: "Gemma4 DevOps In Action"
+slug: "gemma4-26b-moe-on-cheapest-inferentia2"
+source_id: "devto-4188725"
+source_url: "https://dev.to/gde/gemma4-devops-in-action-10bl"
+source_title: "Gemma4 DevOps In Action"
+source_author: "xbill"
+source_published: "2026-07-20"
+---
+
+<LinkCard url="https://dev.to/gde/gemma4-devops-in-action-10bl" author="xbill" date="2026-07-20" />
+
+## 개요
+
+26B 파라미터 규모의 Mixture-of-Experts(MoE) 모델을 AWS에서 가장 싸고 작은 가속기 인스턴스인 `inf2.xlarge` 한 대에 올렸다. 코어 2개, HBM 32GB, 호스트 RAM은 고작 16GB. 시간당 요금은 0.76달러다. 이전 글에서 같은 모델을 `inf2.24xlarge`(코어 12개, HBM 192GB, 시간당 6.49달러)에 올렸던 것과 비교하면 **8.6배 저렴한** 환경이다.
+
+문제는 두 개의 벽이었다. bf16 상태로는 모델이 32GB HBM에 들어가지 않고, 평범한 방식으로는 16GB 호스트 RAM에도 올라가지 않는다. 이 글은 두 벽을 어떻게 깼는지, 그리고 확신했던 fp4 경로가 어떻게 막다른 길이었는지를 실패 포함해 기록한 여정이다.
+
+## 첫 번째 벽: 메모리 계산, 그리고 "A4B"가 구해주지 못하는 이유
+
+전체 가중치의 약 93%는 전문가(expert) 레이어가 차지한다. bf16 기준으로 128개 전문가는 약 45.6GB. 이를 TP=2로 복제하면 코어당 약 22.8GB인데, 예산은 16GB다. Top-8 라우팅은 *연산량*을 줄일 뿐 *메모리 사용량*을 줄이지 않는다. 128개 전문가 전부가 상주해야 하기 때문이다. 전문가만으로도 박스가 터진다.
+
+첫 시도는 뻔한 수였다. **전문가를 int8로 양자화**하는 것. NxD에는 `QuantizedColumnParallel` / `QuantizedRowParallel`이 있고, 이 모델에서 채널별 int8은 수치적으로 완벽하다. fp32와 토큰 단위로 동일한 결과가 나온다. 전문가는 랭크당 약 11.4GB로 떨어진다. 들어갈 것 같았다.
+
+그런데 안 들어갔다. `Could not load the model status=4 Allocation Failure` — 16GB 코어를 **3~4GB 초과**했다. `inf2`에는 그 차이를 나눠 담을 4코어 SKU도 없다. 당시 내 결론은, 마지막 3~4GB를 메우려면 **fp4 전문가**가 필요하다는 것이었다.
+
+## fp4라는 토끼굴 (두 번 다 막다른 길)
+
+fp4는 두 번 시도했다.
+
+**첫 번째.** `QuantizedColumnParallel`은 `F4E2M1FN_X4`를 지원한다고 광고한다. 하지만 그 state_dict 가중치는 `from_float`/`preshard_hook`이 만들어내는 **패킹된 `uint16`** 마이크로스케일링 포맷(fp4 32개 → uint16 8개)이었다. int8의 다섯 줄짜리 양자화기와는 전혀 다른 물건이다. 그러다 AWS 문서를 곧이곧대로 읽었다. **NxD Inference 양자화는 INT8과 FP8만 지원한다.** FP8은 8비트라 int8과 크기가 같아 도움이 안 된다. `QuantizedDtype.F4E2M1FN_X4`는 상수로 *존재하지만* 실제로 연결된 추론 경로가 아니었다.
+
+**두 번째.** 최신 Neuron 2.31 스택(neuronx-cc 2.26, NxD 0.19)에서는 fp4가 *덜* 비어 보였다. `BLOCKWISE_SYMMETRIC`, `block_size`, `from_float`이 있었다. 그래서 다시 시도했고, 바닥을 두 번 쳤다.
+
+- 깔끔한 `QuantizedColumnParallel` fp4 순전파는 `blockwise_scale_dequantize`를 호출하는데, 이건 **CPU 전용 torch 레퍼런스**(`assert device == cpu`)라 NeuronCore로 트레이스되지 않는다.
+- 실제 디바이스 경로는 `blockwise_mm` NKI 커널을 원하는데, NxD는 이를 `neuronxcc.nki._private.blockwise_mm`에서 임포트한다. 하지만 2.26은 그걸 `_pre_prod_kernels` 아래에 넣어 배포했다. 경로가 어긋난 pre-prod, 임포트 실패.
+- 내 `DenseExperts`를 NxD의 `ExpertMLPs`(fp4 패킹 있음)로 바꿔도 소용없었다. blockwise NKI 경로는 `kernel_assert`로 죽고, `use_torch_block_wise=True` 경로는 **데이터 의존적 인덱스 연산에서 torch-xla의 shape inference를 크래시**시켰다.
+
+**이 SDK에서 inf2의 fp4는 벽이다.** 유일한 문이라 확신하며 진짜 시간을 쏟았는데, 그건 문조차 아니었다.
+
+## 돌파구: 나는 엉뚱한 걸 양자화하고 있었다
+
+여기서 판을 뒤집은 재구성이 나왔다. 전문가가 워낙 커서 계속 거기만 노려봤다. 그런데 OOM이 났을 때 전문가는 *이미 int8 상태*였다. 내가 필요한 3~4GB는 전문가에 있지 않았다. **bf16으로 남겨둔 가중치들**에 있었다. 대표적으로 하나, 랭크당 **1.48GB로 복제되던 tied `lm_head`**였다.
+
+해법은 *더 작은 전문가*가 아니었다. 여전히 뚱뚱한 나머지 전부를 **int8로 쥐어짜는 것**이었다.
+
+1. **`lm_head`를 int8로 양자화하고 샤딩한다.** `QuantizedColumnParallel(gather_output=True)`로 262k행짜리 헤드를 랭크에 걸쳐 잘라 양자화하니 **1.48GB → 랭크당 약 0.37GB**. 단일 조치로 가장 큰 지렛대였고, 전문가와는 아무 상관이 없었다.
+2. **공유 dense MLP를 int8로**(듀얼 경로 FFN의 나머지 절반): 랭크당 약 0.27GB 추가 절감.
+3. int8 전문가는 그대로 유지.
+
+랭크당 상주 메모리가 약 12~13GB로 떨어졌다. 16GB 아래로 여유롭게 들어갔다. 그리고 출력은 여전히 정확했다.
+
+```plaintext
+Compiler status PASS · MB_TRACED
+DEVICE_PARIS True
+DEV GEN: 'The capital of France is Paris.'
+prefill 232 ms · neff 26.7 GB
+```
+
+26B MoE가 **2코어 `inf2.8xlarge`**에서 돌았다. "fp4 없이는 불가능"이라던 결론은 fp4가 빠졌다는 점만 맞았고, 나머지는 전부 틀렸다.
+
+## 두 번째 벽: 8xlarge와 xlarge는 HBM은 같지만 호스트 RAM이 다르다
+
+모두를 넘어뜨리는 미묘한 지점이 여기 있다. `inf2.8xlarge`와 `inf2.xlarge`는 **NeuronCore 2개, HBM 32GB가 똑같다.** 차이는 **호스트 RAM**이다. 128GB 대 **16GB**. 내 압축은 *디바이스*에는 맞았다. 문제는 가장 싼 박스의 *호스트*에도 맞느냐였다.
+
+컴파일은 안 맞는다. ModelBuilder 트레이스는 fp32 discovery 모델 + structure 모델 + fp32 체크포인트 딕셔너리를 들고 있어 **피크 약 180GB**다. 8xlarge의 128GB조차 OOM이 난다(*컴파일*을 통과시키려고 100GB 스왑파일을 붙였고 약 40분 걸렸다). 하지만 **컴파일과 배포는 다른 작업이다.** 저장된 neff를 배포할 때는 모델이 호스트 RAM에 전혀 필요 없다. 트랜스포머 가중치가 디바이스에 살기 때문이다.
+
+그래서 xlarge 배포는 의도적으로 **슬림**하게 짰다(`deploy_sqz.py` / `optb_server_sqz.py`).
+
+- **구조 정보**(어느 레이어가 KV를 공유하는지, head 차원, 슬라이딩 윈도우)는 **meta-device** 모델 인스턴스화로 얻는다. `accelerate.init_empty_weights()`, 호스트 RAM 거의 0.
+- **워드 임베딩**은 독립된 1.48GB `embed_tokens.pt` 테이블에서 호스트에 한 번만 로드한다.
+- **neff**가 모든 트랜스포머 가중치를 디바이스에 싣는다(`torch.jit.load` + `initialize_with_saved_weights` 한 번).
+- **40GB 스왑파일**이 일회성 neff 로드 피크를 흡수한다.
+
+기본형 16GB `inf2.xlarge`에서의 결과다.
+
+```plaintext
+NEFF_LOADED in 112s
+DEV GEN: 'The capital of France is Paris.'
+PREFILL 250 ms
+```
+
+**호스트 RSS 피크는 약 11GB, 스왑은 거의 건드리지 않았다.** 컴파일에는 180GB가 필요했지만 배포에는 노트북 수준이면 된다. 7B도 돌리기 망설일 박스 위의 26B 모델이다.
+
+## Paris를 공백의 벽으로 바꿔버린 버그
+
+다만 첫 슬림 실행은 Paris라고 말하지 않았다. 이렇게 말했다.
+
+```plaintext
+DEV GEN: '                                                              '
+DEVICE_PARIS False
+```
+
+neff는 검증됐다(컴파일 시점에 Paris를 만들었다). 그러니 배포가 뭔가 잘못된 걸 먹이고 있었다. 동일한 토큰이 반복되는 건 **거의 균일한 퇴화 로짓**의 지문이다. 임베딩의 *크기*가 잘못됐을 때 나오는 전형적 증상이다.
+
+Gemma-4는 평범한 임베딩을 쓰지 않는다. `Gemma4TextScaledWordEmbedding`을 쓰는데, 순전파는 이렇다.
+
+```python
+return super().forward(input_ids) * self.embed_scale   # embed_scale = hidden_size ** 0.5
+```
+
+`×√hidden_size`(= √2816 ≈ **53**)가 *임베딩 내부에서* 일어나고, 모델 순전파는 이를 다시 정규화하지 않는다. 그냥 `hidden_states = inputs_embeds`를 한다. neff는 *스케일된* 임베딩으로 트레이스됐다. 내 슬림 호스트 경로는 평범한 `torch.nn.Embedding`을 써서 *스케일 안 된* 값을 먹였다. **53배 작았다.** 이후 모든 것이 노이즈로 씻겨나갔다.
+
+한 줄이면 됐다.
+
+```python
+ie = emb(ids) * (hidden_size ** 0.5)   # match Gemma4TextScaledWordEmbedding
+```
+
+`DEV GEN: 'The capital of France is Paris.'`. 임베딩 조회를 호스트로 옮기면 모델의 임베딩 클래스가 하던 일을 그대로 물려받게 된다. E2B 슬림 서버를 물었던 것과 똑같은 함정이다.
+
+## 배포까지: 512/128, 공개, 그리고 클린 풀 증명
+
+프로덕션용 `512/128` 버킷 빌드(전체 512 / 프롬프트 128 토큰)를 다시 컴파일했다. 같은 레시피, 스왑 붙인 8xlarge에서 약 40분, neff **26.8GB**, xlarge에서 재검증(112초 로드, 호스트 피크 약 10GB, Paris). 그런 다음 슬림한 OpenAI 호환 서버로 감싸 공개했다.
+
+- **Docker Hub** `xbill9/gemma4-optb-26b:xlarge` — 얇은 이미지. 엔트리포인트가 첫 실행 시 HF 저장소에서 약 28GB 아티팩트를 내려받는다.
+- **HF** `xbill9/gemma-4-26B-A4B-it-inferentia2-xlarge` (공개) — neff + 임베딩 테이블 + config + 서버 + Dockerfile.
+
+마지막 증명은 나 말고 누구에게나 의미 있는 그것이었다. **차갑고 깨끗한 풀.** 새 스팟 `inf2.xlarge`, 스왑 추가, `docker run`, 그리고 자리를 뜬다.
+
+```json
+READY in 490.9s — slim int8-squeeze, ModelBuilder TP=2, MAX=512 BUCKET=128
+{"role":"assistant","content":"The capital of France is Paris."}
+{"response":"AWS Inferentia is a purpose-built machine learning accelerator
+             designed to provide high-performance, low-cost inference..."}
+```
+
+(`HF_TOKEN`은 필요 없다. 저장소가 공개다. 490초는 일회성 콜드 EBS neff 로드고, 그다음부터는 바로 서빙한다.) 박스를 종료하니 이후 유지 비용은 0이다.
+
+## 솔직한 단서
+
+디코딩은 **초당 약 6토큰**이다. 지난 글의 `DenseExperts` 트릭이 치르는 값이다. 희소한 top-8 대신 매 토큰마다 128개 전문가를 전부 계산한다. 필요 전문가 FLOPs의 약 16배를, 코어 2개 위에서. *정확하고* *호스팅이 싸지만* *빠르지는 않다.* 희소 라우팅을 ModelBuilder에서 실제로 트레이스되게 만드는 게 다음 원정이다. 그리고 (fp4 우회로가 보여줬듯) "벤더 프리미티브가 존재한다"는 "트레이스된다"와 같은 말이 아니다. 단일 사용자, 비용 민감, 지연 허용 환경에서 시간당 0.76달러 박스에 26B를 서빙하는 용도라면 이 트레이드오프가 옳다. 부하 걸린 챗봇에는 아직 아니다.
+
+## 정리
+
+1. **3GB가 초과됐을 때, 그게 뻔한 3GB라고 넘겨짚지 마라.** fp4 전문가에 며칠을 태웠지만, 해법은 한 번도 안 봤던 *복제된 `lm_head`*를 양자화하는 것이었다. 아키텍처를 눈대중하지 말고 상주 메모리를 프로파일하라.
+2. **"지원 안 함"이 "문서화가 부실함"을 이긴다.** NxD 0.19의 fp4는 상수와 부분 코드 경로가 있어 한 커밋 남은 것처럼 보인다. 아니다. 커널은 CPU 전용 레퍼런스거나 pre-prod다. 기능 가이드의 지원 목록을 읽고 믿어라.
+3. **컴파일 예산과 배포 예산은 다르다.** 트레이스에 180GB 호스트 RAM이 필요한 모델도 16GB에 배포할 수 있다. 가중치가 디바이스에 살기 때문이다. 슬림 호스트 로딩 + 스왑이 24xlarge 모델을 xlarge 제품으로 바꾼다.
+4. **임베딩 조회를 호스트로 옮기면 임베딩 *클래스*를 물려받는다.** Gemma의 `×√H` 스케일은 `Gemma4TextScaledWordEmbedding` 안에 있다. 놓치면 자신만만한 공백의 벽을 얻는다.
+5. **클린 풀 증명을 배포하라.** "내 검증된 박스에서는 됨"은 결과물이 아니다. "새 스팟 인스턴스에서 `docker run` 하면 Paris라고 함"이 결과물이다.
+
+## 아티팩트
+
+- Docker Hub: `xbill9/gemma4-optb-26b:xlarge`
+- HF: `xbill9/gemma-4-26B-A4B-it-inferentia2-xlarge` (공개)
+- 레시피: `tp_mb_moe_sqz.py` (all-int8 압축: int8 전문가 + 샤딩된 int8 `lm_head` + int8 공유 MLP) · `deploy_sqz.py` / `optb_server_sqz.py` (슬림 호스트 임베딩 배포)
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
