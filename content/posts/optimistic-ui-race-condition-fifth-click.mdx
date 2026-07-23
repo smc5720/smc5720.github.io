@@ -1,0 +1,129 @@
+﻿---
+title: "다섯 번째 클릭에서야 드러난 낙관적 UI의 경쟁 상태 버그"
+description: "체크박스는 매번 완벽해 보였다. 하지만 빠르게 연타하자 다섯 개의 요청이 순서 없이 서버에 도착했다. useOptimistic로 만든 할 일 목록에서 발견한 경쟁 상태 버그와 그 해결 과정을 정리했다."
+date: "2026-07-21"
+published_at: "2026-07-23"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F5x8mlvtaypgeewnulaq5.png"
+coverAlt: "The Optimistic UI Race Condition That Only Showed Up on the Fifth Click"
+slug: "optimistic-ui-race-condition-fifth-click"
+source_id: "devto-4174960"
+source_url: "https://dev.to/shubhradev/the-optimistic-ui-race-condition-that-only-showed-up-on-the-fifth-click-5a55"
+source_title: "The Optimistic UI Race Condition That Only Showed Up on the Fifth Click"
+source_author: "Shubhra Pokhariya"
+source_published: "2026-07-21"
+---
+
+<LinkCard url="https://dev.to/shubhradev/the-optimistic-ui-race-condition-that-only-showed-up-on-the-fifth-click-5a55" author="Shubhra Pokhariya" date="2026-07-21" />
+
+## 개요
+
+에러 로그도 없고, 크래시도 없었다. 화면은 매번 완벽하게 동작하는 것처럼 보였다. 그런데도 애플리케이션은 틀린 상태였다. 개발자 Shubhra Pokhariya가 `useOptimistic`으로 만든 할 일 목록에서 마주친 이야기다.
+
+문제의 정체는 낙관적 UI(optimistic UI)에 숨은 경쟁 상태였다. 체크박스를 다섯 번 빠르게 누르는 순간, 다섯 개의 요청이 제멋대로 순서로 서버에 도착했고 화면은 실제 데이터와 조용히 어긋나기 시작했다. 낙관적 UI는 애초에 "즉시 맞아 보이도록" 설계된 것이라, 이런 버그일수록 눈에 띄지 않는다.
+
+## 데모에서는 완벽했던 체크박스
+
+시작은 순조로웠다. 할 일 목록에 `useOptimistic`을 붙이자 체크박스는 클릭하는 즉시 반응했다. 스피너도 없고, 0.5초의 지연도 없었다. 딱 원하던 감각이었다. 혼자서 열 번쯤 눌러보고는 다음 작업으로 넘어갔다.
+
+바로 그 지점이 함정이었다. 낙관적 UI는 처음부터 맞아 보이게 만드는 기술이다. 하지만 맞아 보이는 것과 실제로 맞는 것은 전혀 다른 주장이다.
+
+![경마장에서 순서 없이 뒤엉켜 달리는 말들 — 낙관적 UI의 경쟁 상태를 닮았다](https://images.pexels.com/photos/34665171/pexels-photo-34665171.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Valentine Kulikov](https://www.pexels.com/@valentine-kulikov) on [Pexels](https://www.pexels.com/photo/exciting-horse-racing-at-musselburgh-racecourse-34665171/)*
+
+## 데모를 믿지 않게 된 순간
+
+배포 전에 해봐야 할 그 일을 그제야 했다. 성질 급한 실제 사용자처럼, 다섯 번을 연속으로 마구 눌러본 것이다.
+
+체크박스는 겉보기엔 멀쩡했다. 하지만 데이터베이스는 아니었다. 다섯 개의 요청이 겹쳐서 나갔고, 각각 같은 불리언 값을 뒤집으며 그날 네트워크 사정에 따라 아무 순서로나 도착했다. 크래시도 없고 에러 로그도 없었다. UI는 그저 서버의 실제 상태와 조용히 어긋났고, 화면만 봐서는 이 어긋남을 알아챌 방법이 없었다.
+
+이게 바로 낙관적 UI에서 놓치기 쉬운 버그다. 즉시 맞아 보이는 게 목적인 기술이니, 틀렸다는 신호가 화면에 나타나지 않는다.
+
+## 해결책은 useOptimistic 특유의 무언가가 아니다
+
+폼이 전송되는 동안 제출 버튼을 비활성화하는 것과 똑같은 규칙이다. 다만 폼 단위가 아니라 행(row) 단위로 적용했을 뿐이다. 어떤 항목에 요청이 진행 중인지 추적하고, 그 요청이 끝날 때까지 해당 항목을 비활성화한다.
+
+```tsx
+const [pendingId, setPendingId] = useState<string | null>(null);
+
+function handleToggle(id: string) {
+  setPendingId(id);
+  startTransition(async () => {
+    setOptimisticTask(id);
+    try {
+      await toggleTask(id);
+    } finally {
+      setPendingId(null);
+    }
+  });
+}
+```
+
+```tsx
+<input
+  type="checkbox"
+  checked={task.completed}
+  disabled={pendingId === task.id}
+  onChange={() => handleToggle(task.id)}
+/>
+```
+
+목록 전체를 잠그는 전역 락이 아니라, 행마다 하나씩 범위를 좁힌 잠금이다. 같은 체크박스를 두 번째로 눌러도 이제는 아무 일도 일어나지 않는다. 첫 번째 요청과 DB로 경주하듯 달려가던 두 번째 요청이 사라진 것이다. 다섯 번을 빠르게 눌러도 요청은 딱 하나만 나간다.
+
+## 댓글 하나가 더 깊이 생각하게 만들었다
+
+원글이 올라온 뒤 Nazar Boyko가 남긴 댓글이 오래 기억에 남았다고 한다. 저자 스스로도 머릿속에서 제대로 구분하지 못했던 부분을 짚어준 것이다.
+
+체크박스를 비활성화하는 건 그 특정 input을 거치는 클릭만 막는다. 만약 같은 토글을 키보드 단축키나 앱의 다른 위치처럼 다른 경로로도 실행할 수 있다면, `disabled` 속성은 여러 방어막 중 한 겹일 뿐이다. 진짜 방어선은 id로 키를 잡은 pending 상태다. 어떤 경로로 시작됐든 같은 작업이 다시 시작되는 걸 막아주기 때문이다.
+
+혼자 쓰는 코드에서 버그를 찾아주는 것만이 공개된 글쓰기의 이점은 아니다. 누군가는 코드의 결함이 아니라, 아이디어를 더 명확하게 설명하도록 돕거나 다른 각도에서 바라보게 해준다.
+
+## 롤백을 파고들다 만난 토끼굴
+
+작업하는 김에, 실패 시 낙관적 업데이트를 제대로 되돌리는 방법도 찾아봤다. 토글이 실패하면 당연히 체크박스도 원래 값으로 되돌아가야 하니까.
+
+거의 모든 예제가 이렇게 처리하고 있었다.
+
+```tsx
+try {
+  setOptimisticTask(id);
+  await toggleTask(id);
+} catch {
+  setOptimisticTask(id); // "취소"하려고 다시 뒤집기
+}
+```
+
+물론 동작은 한다. 하지만 이 토글 같은 단순한 경우엔 굳이 풀 필요가 없는 문제를 푸는 코드다. `useOptimistic`은 개발자가 소유하는 독립된 두 번째 상태를 주지 않는다. 전달한 원래 상태 위에 임시로 얹은 값을 줄 뿐이며, 그 값은 트랜지션이 진행 중인 동안만 유지된다. 트랜지션이 성공이든 실패든 끝나는 순간, React는 임시 레이어를 걷어내고 다시 실제 상태로 렌더링한다. 요청이 실패해 실제 상태가 그대로였고 재요청도 없었다면, 체크박스는 알아서 원래대로 돌아온다. 두 번째 dispatch가 필요 없다.
+
+예외가 하나 있긴 하다. 낙관적 값이 서버가 아직 전혀 확정하지 못한 것일 때다. 예를 들어 DB가 실제 id를 부여하기 전에 임시 id로 추가한 새 댓글 같은 경우, 되돌아갈 이전 버전이 base 상태에 존재하지 않는다. 삽입 실패는 플래그를 되돌리는 게 아니라, 클라이언트에만 존재하던 무언가를 아예 제거해야 하는 상황이다. 이럴 때만 추가한 항목을 로컬에 따로 기록해두고 `catch` 블록에서 직접 지운다. 토글은 이 문제가 없다. 뒤집는 값이 어차피 서버에 이미 존재하기 때문이다.
+
+## 예상치 못하게 의견이 생긴 캐시 함수 문제
+
+토글이 정상 동작하자, 다음 질문은 그 뒤에 캐시를 어떻게 무효화하느냐였다. Next.js 16은 세 가지 방법을 주는데, 잘못 고르면 사용자에게 오래된 데이터를 보여주거나, 사이트의 모든 페이지가 단 하나의 쓰기 작업 때문에 블록된다.
+
+사용자가 클릭하며 바로 쳐다보고 있는 체크박스라면 `updateTag`가 맞다. 태그를 즉시 만료시켜, 사용자가 지금 보고 있는 페이지가 자신의 쓰기를 곧바로 반영하게 해준다. 같은 할 일 개수가 사이트의 다른 곳, 이를테면 아무도 실시간으로 지켜보지 않는 사이드바 통계에도 들어간다면, 같은 태그에 `revalidateTag`를 걸어 한 박자 뒤에 따라잡게 하면 된다.
+
+최근 Next.js 16 버전을 쓴다면 알아둘 게 하나 있다. 이제 `revalidateTag`는 두 번째 인자를 요구한다.
+
+```ts
+revalidateTag("tasks", "max"); // Next.js 16+ 권장
+```
+
+`revalidateTag("tasks")`만 쓰는 방식은 deprecated 되어 TypeScript 에러를 던진다.
+
+## 무엇이 바뀌었나
+
+예전에는 낙관적 UI를 시연할 때 한 번만 클릭했다.
+
+지금은 일부러 부순다. 다섯 번 연타, 느린 네트워크, 반복되는 상호작용.
+
+경쟁 상태는 좀처럼 스스로를 드러내지 않는다. 예외를 던지지도, 콘솔을 밝히지도 않는다. 개발할 때의 나보다 조금 더 성질 급한 사용자를 조용히 기다릴 뿐이다.
+
+그 체크박스는 시연할 때마다 완벽해 보였다. 버그는 처음부터 거기 있었다. 그저 내가 실제 사용자처럼 눌러보기를 기다리고 있었을 뿐이다.
+
+전체 구현 과정과 롤백 패턴, 캐시 결정에 대한 자세한 내용은 저자의 [튜토리얼 페이지](https://shubhra.dev/tutorials/nextjs-16-useoptimistic-rollback-pattern)에서 볼 수 있다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

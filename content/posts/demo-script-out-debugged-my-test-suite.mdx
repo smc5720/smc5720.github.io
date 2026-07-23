@@ -1,0 +1,121 @@
+﻿---
+title: "테스트는 다 통과했는데 실제로는 안 됐다 — 데모 스크립트가 잡아낸 프로덕션 버그"
+description: "유닛 테스트 10개가 전부 초록불인데도 살아남은 API 계약 버그를, 딱 한 번 실행한 데모 스크립트가 10분 만에 잡아냈다. 목(mock)이 검증하지 못하는 경계 이야기."
+date: "2026-07-15"
+published_at: "2026-07-23"
+category: "news"
+tags: []
+slug: "demo-script-out-debugged-my-test-suite"
+cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fpr9ri07aivu1a0q66zws.png"
+coverAlt: "Smash Story: The Demo Script That Out-Debugged My Test Suite"
+source_id: "devto-4153356"
+source_url: "https://dev.to/gde/smash-story-the-demo-script-that-out-debugged-my-test-suite-430k"
+source_title: "Smash Story: The Demo Script That Out-Debugged My Test Suite"
+source_author: "xbill"
+source_published: "2026-07-15"
+---
+
+<LinkCard url="https://dev.to/gde/smash-story-the-demo-script-that-out-debugged-my-test-suite-430k" author="xbill" date="2026-07-15" />
+
+## 개요
+
+유닛 테스트 10개가 전부 초록불이었다. ruff와 mypy도 깨끗했고, AI 에이전트를 통해 며칠 동안 잘 돌아갔으며, Docker 이미지로 배포까지 마친 상태였다. 개발자가 믿을 만한 신호는 다 갖췄다는 뜻이다.
+
+그런데 데모용으로 짠 스크립트 하나가, 실행 1분도 안 돼서 프로덕션 버그를 찾아냈다. 목(mock)으로 감싼 테스트가 절대 볼 수 없는 지점을 실제 API 호출 한 번이 정확히 짚은 것이다. 이 글은 그 10분짜리 디버깅 이야기다.
+
+## 무엇이 문제였나
+
+배경이 되는 프로젝트는 구글의 `gemini-3.1-flash-lite-image` 모델을 감싼 작은 MCP(Model Context Protocol) 서버다. 이미지 생성과 상태를 유지하는 이미지 편집 기능을 네 개의 툴로 노출하고, Claude Code든 Google ADK 에이전트든 Rust CLI든 MCP를 말할 줄 아는 에이전트라면 같은 300줄짜리 파이썬 서버를 호출할 수 있다.
+
+작성자는 데모를 위해 `demo.sh`를 짰다. 툴을 탐색하고, 이미지를 생성한 뒤, 상태 유지 편집까지 한 번에 훑는 스크립트다. 비용을 아끼려고 생성 단계에서 서버가 문서로 명시한 가장 낮은 품질 등급을 요청했다.
+
+```bash
+cargo run --quiet -- generate "a tiny robot chef cooking ramen" 16:9 minimal
+```
+
+첫 실행 결과는 이랬다.
+
+```text
+🔴 Image generation failed: Error code: 400 - {'error': {'message':
+"'minimal' is not a supported thinking level for this model.
+Allowed values are: low, high.", 'code': 'invalid_request'}}
+```
+
+이상한 지점은 여기다. 서버 자체의 검증 로직은 `minimal`을 이미 **승인한** 뒤 API로 넘겼다. 그 검증 코드는 이렇게 생겼다.
+
+```python
+# server.py — 배포된 버전
+SUPPORTED_THINKING_LEVELS = {"minimal", "low", "medium", "high"}
+
+@mcp.tool()
+def generate_image(
+    prompt: str, aspect_ratio: str = "1:1", thinking_level: str = "medium"
+) -> str:
+    ...
+```
+
+허용값이 네 개다. 그런데 실제 API가 받는 값은 `low`와 `high` 딱 두 개뿐이었다. 게다가 기본값을 보라 — `medium`이다. 이게 진짜 문제였다.
+
+> `thinking_level`을 명시적으로 지정하지 않은 모든 실제 호출은 무조건 HTTP 400이었다. 검증 계층이 검증한 건 API의 계약이 아니라, 이미 낡아버린 그 계약에 대한 기억이었다.
+
+## 초록불 10개가 왜 이걸 놓쳤나
+
+테스트 스위트는 유닛 테스트답게 Gemini 클라이언트를 목으로 대체했다.
+
+```python
+@patch("server._get_client")
+def test_generate_image_success(self, mock_get_client):
+    mock_client.interactions.create.return_value = mock_interaction
+    result = generate_image(prompt="test", thinking_level="medium")
+    self.assertIn("🟢 Image successfully saved!", result)
+```
+
+목은 어떤 입력에도 성공을 돌려준다. 실제 API가 거부하는 입력까지 포함해서 말이다. 이 테스트가 증명한 건 "서버가 `medium`을 충실하게 전달한다"는 사실뿐이다. 잘못된 값을 충실하게 전달하는 것도 여전히 버그지만, 목의 경계 안쪽에서는 그게 보이지 않는다.
+
+버그가 배포까지 살아남으려면 두 조건이 맞아떨어져야 했다.
+
+1. **로컬 허용목록이 원격이 소유한 계약을 복제하고 있었다.** `SUPPORTED_THINKING_LEVELS`는 오직 API만 소유한 사실을 캐싱한 사본이었다. 캐싱한 사본은 언젠가 어긋난다.
+2. **이전의 실제 호출자들이 전부 기본값을 덮어쓰고 있었다.** 에이전트들은 품질을 위해 계속 `high`를 요청했다. 그래서 망가진 기본값과 존재하지도 않는 두 값(`minimal`, `medium`)은 한 번도 실행되지 않았다. `f(x)`를 백 번 호출한 기록은 `f()`에 대해 아무것도 말해주지 않는다.
+
+## 수정
+
+프로덕션 코드는 두 줄이면 끝났다. 진짜 규율이 필요한 부분은, 이 발견이 다시 되돌아가지 않도록 못 박아 두는 일이었다.
+
+```diff
+-SUPPORTED_THINKING_LEVELS = {"minimal", "low", "medium", "high"}
++SUPPORTED_THINKING_LEVELS = {"low", "high"}
+
+-    prompt: str, aspect_ratio: str = "1:1", thinking_level: str = "medium"
++    prompt: str, aspect_ratio: str = "1:1", thinking_level: str = "low"
+```
+
+```python
+# 새 회귀 테스트: 이 모델의 실제 API는 low/high만 받는다.
+# 이제 medium은 읽기 쉬운 에러와 함께 로컬에서 거부돼야 한다.
+result = generate_image(prompt="test", thinking_level="medium")
+self.assertIn("Unsupported thinking level 'medium'", result)
+```
+
+그다음은 쓸어담는 작업이다. 세 개의 툴 시그니처, 문서 문자열, 서버가 스스로를 설명하는 `get_help`, 그리고 잘못된 값을 반복하던 모든 문서를 손봤다. 마지막으로 이 버그를 그대로 담아 배포되던 Docker 이미지를 다시 빌드해 푸시했다. 누군가 pull할 때마다 버그를 함께 배달하고 있었기 때문이다.
+
+## Before / After
+
+| | Before | After |
+| :--- | :--- | :--- |
+| 기본 파라미터로 실제 호출 | 매번 HTTP 400 | 🟢 이미지 저장 성공 |
+| `thinking_level="minimal"` / `"medium"` | 로컬 승인, 원격 거부 | 허용값을 알려주며 로컬에서 거부 |
+| 테스트 스위트 | 10/10 초록불 (버그 안 보임) | 계약 회귀 테스트 포함 11개 단언 |
+| 배포 이미지 `xbill9/nb2lite-mcp` | 망가진 기본값 배포 중 | 재빌드·푸시·실사용 검증 완료 |
+
+첫 실패에서 Docker Hub에 고친 이미지가 올라가기까지 걸린 시간은 약 10분. 실패한 툴 호출이 스택 트레이스가 아니라 읽을 수 있는 텍스트(`Allowed values are: low, high`)로 돌아왔기 때문이다. 고칠 방법을 알려주는 에러 메시지는 이미 디버깅의 절반이다.
+
+## 배운 것
+
+1. **목 테스트는 내 코드를 검증하지, 계약을 검증하지 못한다.** 값싼 실제 스모크 호출 하나를 루프 안에 남겨 두자. 작성자의 경우 그 호출은 이제 데모 스크립트 자체에 산다(`DEMO_FAST=1 ./demo.sh`).
+2. **기본값을 콕 집어 테스트하라.** 기본값은 아무도 명시하지 않는 값이라, 아무도 실행하지 않는다. 계약이 어긋난 채 가장 오래 숨어 있는 곳이 바로 여기다.
+3. **원격이 소유한 값의 로컬 허용목록은 드리프트 시한폭탄이다.** 에이전트에게 더 나은 에러를 주려고 사전 검증을 한다면(그럴 가치는 충분하다), API가 거부하는 걸 **직접 관찰한** 값에 회귀 테스트를 박아 두자.
+4. **데모 스크립트는 가장 값싼 엔드투엔드 테스트다.** 실제 자격증명, 실제 API, 실제 happy path — 정확히 목이 닿지 못하는 계층이다. 작성자의 스크립트는 관객이 보기도 전에, 첫 실행에서 이미 제 값을 했다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
