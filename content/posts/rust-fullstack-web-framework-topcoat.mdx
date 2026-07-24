@@ -1,0 +1,99 @@
+﻿---
+title: "Next.js보다 낫다? Rust 풀스택 웹 프레임워크 'Topcoat' 등장"
+description: "Tokio를 만든 Carl Lerche가 Rust만으로 풀스택 반응형 웹 애플리케이션을 만드는 새 프레임워크 Topcoat을 공개했다. WebAssembly 없이 서버 렌더링과 부분 업데이트로 반응성을 구현한 점이 특징이다."
+date: "2026-07-23"
+published_at: "2026-07-24"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F5mo3ccbzdcppseqkrrrp.png"
+coverAlt: "Better than Next.js? Is Rust Finally Ready for Full-Stack Web Development? Introducing Topcoat"
+slug: "rust-fullstack-web-framework-topcoat"
+source_id: "devto-4214185"
+source_url: "https://dev.to/francescoxx/better-than-nextjs-is-rust-finally-ready-for-full-stack-web-development-introducing-topcoat-2h09"
+source_title: "Better than Next.js? Is Rust Finally Ready for Full-Stack Web Development? Introducing Topcoat"
+source_author: "Francesco Ciulla"
+source_published: "2026-07-23"
+---
+
+<LinkCard url="https://dev.to/francescoxx/better-than-nextjs-is-rust-finally-ready-for-full-stack-web-development-introducing-topcoat-2h09" author="Francesco Ciulla" date="2026-07-23" />
+
+## 개요
+
+Rust 생태계에 새 풀스택 웹 프레임워크가 나왔다. 이름은 **Topcoat**. Tokio를 만든 Carl Lerche와 Julien Scholz가 함께 개발했고, 2026년 7월 22일 [Tokio 블로그](https://tokio.rs/blog/2026-07-22-announcing-topcoat)에서 공식 발표했다. 코드는 [GitHub](https://github.com/tokio-rs/topcoat)에 공개되어 있다.
+
+Rust는 Axum 같은 프레임워크 덕분에 백엔드 언어로는 이미 자리를 잡았다. 문제는 그다음이다. 완전한 웹 애플리케이션 하나를 만들려면 라우팅, 템플릿, 에셋 처리 같은 라이브러리를 개발자가 직접 골라 조합해야 했다. Topcoat은 이 조각들을 하나로 묶은 "batteries-included" 프레임워크를 표방한다.
+
+## Topcoat은 어떤 프레임워크인가
+
+Topcoat은 완전한 서버 렌더링 방식이다. 컴포넌트를 비동기로 작성할 수 있고, 컴포넌트 안에서 데이터베이스 접근, 애플리케이션 상태 로딩, 사용자 권한 확인까지 서버에서 바로 처리한다.
+
+최소 구성의 애플리케이션은 이렇게 생겼다.
+
+```rust
+#[tokio::main]
+async fn main() {
+    topcoat::start(Router::builder().discover().build())
+        .await
+        .unwrap();
+}
+
+#[page("/")]
+async fn home() -> Result {
+    view! {
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <title>"Hello world"</title>
+                topcoat::dev::script()
+            </head>
+            <body>
+                <h1>"Hello from Topcoat!"</h1>
+            </body>
+        </html>
+    }
+}
+```
+
+라우터 정의와 `view!` 매크로만으로 페이지 하나가 완성된다. HTML을 Rust 코드 안에서 직접 선언하는 구조다.
+
+### WebAssembly 없는 반응성
+
+Rust 웹 프레임워크라고 하면 보통 Leptos나 Dioxus처럼 WebAssembly로 브라우저에서 Rust를 실행하는 방식을 떠올린다. Topcoat은 다른 길을 택했다.
+
+애플리케이션을 서버에서 렌더링하고, 클라이언트 쪽 반응성은 작은 반응형 명령(reactive instructions)으로 처리한다. UI 일부를 서버에서 다시 렌더링한 뒤 변경된 부분만 교체하는 것도 가능하다. React 스타일의 SPA보다는 HTMX나 Hotwire에 가까운 접근이다.
+
+원문은 이 방식이 특히 잘 맞는 영역으로 다음을 꼽는다.
+
+- 관리자 패널
+- 사내 내부 도구
+- 블로그·콘텐츠 플랫폼
+- 온라인 스토어
+- 데이터 중심 애플리케이션
+
+반대로 브라우저 상호작용이 아주 많은 애플리케이션이라면 여전히 클라이언트 중심 프레임워크가 나은 선택일 수 있다고 선을 긋는다.
+
+### Axum을 대체하나?
+
+아니다. API와 저수준 HTTP 엔드포인트에는 Axum이 여전히 좋은 선택이다. Topcoat은 그보다 높은 추상화 레벨에서 동작하면서 라우팅, 컴포넌트, HTML 렌더링, 에셋, 반응형 업데이트 사이의 보일러플레이트를 없애는 데 집중한다. 한 프로젝트에서 둘을 함께 쓰는 것도 자연스러운 구성이다.
+
+### 왜 주목할 만한가
+
+Rust에는 이미 훌륭한 라이브러리가 많지만, Rails·Laravel·Next.js처럼 방향이 정해진 통합 경험은 없었다. Topcoat이 채우려는 자리가 바로 거기다. 현재 제공하거나 계획 중인 기능은 다음과 같다.
+
+- 서버 렌더링 컴포넌트
+- 에셋 파이프라인
+- Tailwind 기반 UI 컴포넌트
+- 폰트·아이콘 통합
+- 요청 단위 메모이제이션(request-level memoization)
+- 보호 대상 컴포넌트 가까이에 두는 인증 처리
+- Toasty ORM 통합(예정)
+
+아직 초기 단계이고, 개발팀도 반응성 시스템의 현재 한계를 공개적으로 인정한다. 그럼에도 원문 작성자는 이를 Rust 웹 개발의 중요한 진전으로 평가한다. Topcoat의 목표는 기존 프레임워크를 전부 대체하는 게 아니라, Rust를 벗어나지 않고 완전한 서버 렌더링 애플리케이션을 훨씬 쉽게 만들 수 있게 하는 것이다.
+
+원문 작성자가 Tokio의 Carl Lerche, Topcoat의 Julien Scholz와 직접 나눈 대담 영상도 공개되어 있다.
+
+[YouTube 영상 보기 →](https://youtu.be/iP9iL4dkiB0)
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
