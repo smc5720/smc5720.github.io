@@ -1,0 +1,82 @@
+﻿---
+title: "브라우저 창 576개로 만든 스네이크 게임 (경고: 눈과 PC를 조심하세요)"
+description: "한 개발자가 브라우저 창 여러 개를 좌표에 맞춰 움직여 스네이크 게임을 구현했다. 창 제어 기술의 엉뚱한 실험과, 같은 원리를 실무 링크 검사에 활용하는 방법을 소개한다."
+date: "2026-07-23"
+published_at: "2026-07-25"
+category: "news"
+slug: "snake-rendered-with-browser-windows"
+tags: ["javascript", "browser", "webdev", "fun"]
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fi2euxvroeov67ei6299m.png"
+coverAlt: "Snake - rendered with 576 browser windows"
+source_id: "devto-4218511"
+source_url: "https://dev.to/grahamthedev/snake-rendered-with-576-browser-windows-warning-this-will-hurt-your-eyesand-pc-3p7i"
+source_title: "🐍 Snake - rendered with 576 browser windows [warning - this WILL hurt your eyes...and PC!]"
+source_author: "GrahamTheDev"
+source_published: "2026-07-23"
+---
+
+<LinkCard url="https://dev.to/grahamthedev/snake-rendered-with-576-browser-windows-warning-this-will-hurt-your-eyesand-pc-3p7i" author="GrahamTheDev" date="2026-07-23" />
+
+## 개요
+
+게임 화면을 캔버스나 DOM이 아니라, 화면에 떠 있는 브라우저 창 수백 개로 그린다면 어떨까. 개발자 GrahamTheDev가 실제로 그 발상을 밀어붙였다. 팝업 창을 좌표에 맞춰 열고 옮기는 방식으로 스네이크 게임을 구현했는데, 뱀의 몸통 한 마디가 창 하나, 사과도 창 하나다. 본인 표현대로 "눈과 PC를 아프게 하는" 실험이지만, 그 밑에는 실무에서 꽤 쓸모 있는 창 제어 기술이 깔려 있다.
+
+## 발상의 출발점
+
+시작은 사소한 잡담이었다. 동료와 "한 브라우저 창에서 다른 창을 제어할 수 있다"는 이야기를 나누던 중이었다. 원래 목적은 훨씬 점잖았다. 깨진 링크를 확인하고 그 결과를 하나씩 검증하는 작업이었는데, 이걸 iframe 없이 처리하고 싶었던 것이다.
+
+그러다 저자는 웹에서 아직 자기가 "학대해보지 않은" 몇 안 되는 영역이 바로 이 창 제어라는 걸 깨달았다. 처음엔 조작용 창 하나와 게임 화면 창 하나로 간단한 게임을 만들 생각이었다. 그런데 문득 이런 의문이 들었다. 왜 창을 두 개로만 제한해야 하지?
+
+그렇게 이 끔찍한 아이디어가 탄생했다.
+
+## 브라우저 창으로 그리는 스네이크
+
+의외로 잘 알려지지 않은 사실이 있다. 사용자 상호작용이 있고 팝업 허용만 받으면, 자바스크립트는 브라우저 창을 상당히 자유롭게 다룰 수 있다.
+
+핵심은 두 가지다. 첫째, 창의 크기와 위치를 지정할 수 있다(최소 크기 같은 제약은 있다). 둘째, 창에 이름을 붙여두면 코드에서 언제든 그 창을 다시 참조해 원하는 좌표로 옮길 수 있다. 이 두 가지만 조합해도 화면을 마음대로 어지럽힐 여지가 충분하다.
+
+이 원리를 격자에 대응시키면, 창 하나하나가 픽셀 역할을 한다. 뱀이 움직일 때마다 몸통에 해당하는 창들의 위치를 갱신하고, 사과 창을 먹으면 몸통 창을 하나 더 여는 식이다.
+
+![초록 풀밭 위의 뱀](https://images.pexels.com/photos/36568849/pexels-photo-36568849.png?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Bisan Subba](https://www.pexels.com/photo/burmese-python-in-green-grass-field-36568849/) on [Pexels](https://www.pexels.com/photo/burmese-python-in-green-grass-field-36568849/)*
+
+## 직접 해보려면
+
+조작은 방향키로 한다. 몇 가지 주의 사항이 있다.
+
+- "Start Game"을 누른 뒤 주소창에 뜨는 팝업 요청에서 "이 사이트의 팝업 항상 허용"을 선택해야 한다.
+- 아무 곳도 클릭하지 말고 오직 방향키만 사용한다.
+- Chrome + Windows 조합에서만 테스트됐다. 다른 브라우저나 OS에서는 결과를 장담할 수 없다.
+- 게임이 끝나면 최고 점수 창에서 "clear all windows"를 꼭 눌러야 한다. 그러지 않으면 흩어진 창을 하나하나 닫느라 한참 고생하게 된다.
+
+[스네이크 데모 열기 →](https://codepen.io/editor/GrahamTheDev/pen/019f90a9-1ed9-7d61-927e-31dd5256c79e)
+
+지금 당장 실행해볼 수 없거나 모바일이라면, 저자가 남긴 스크린샷으로 분위기를 짐작할 수 있다.
+
+![여러 브라우저 창으로 구성된 스네이크. 창 하나가 사과, 이어진 창들이 뱀의 몸통이다](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/ytir9i4f27lsb8wplb3a.png)
+
+## 장난 뒤에 숨은 진짜 쓸모
+
+여기까지는 분명 장난에 가깝다. 하지만 같은 창 제어 기술은 실무에서 꽤 단단한 도구가 된다. 저자가 회사에서 실제로 쓰는 사례가 좋은 예다.
+
+문제는 외부 사이트의 깨진 링크를 검사하는 일이었다. 이게 생각보다 까다롭다. 콘텐츠 일부는 SPA로 되어 있어 페이지가 깨졌는데도 HTTP 200 응답이 돌아온다. 또 어떤 페이지는 페이월 뒤에 있어서, 페이지 존재 여부는 확인할 수 있어도 그 안의 콘텐츠까지 살아 있는지는 보장하기 어렵다.
+
+그래서 검사할 항목을 큐로 쌓아두고, 목록에서 항목을 클릭하면 대상 페이지가 열려 직접 눈으로 확인하고 로그인도 하는 흐름이 필요했다.
+
+### iframe 대신 창을 쓰는 이유
+
+이 작업을 한 창 안에서 처리하려면 iframe이 필요하다. 그런데 iframe에는 잘 알려진 한계가 있다. 사이트에 따라 자기 페이지를 다른 사이트의 iframe에 띄우지 못하도록 아예 막아버리기 때문이다.
+
+더 견고한 방법이 바로 창이다. 창을 두 개 띄우되, 왼쪽에는 작게 검사할 페이지 목록을, 오른쪽에는 왼쪽에서 클릭한 항목에 따라 내용이 바뀌는 화면을 배치한다. 왼쪽 목록에서 항목을 클릭하면 오른쪽 창의 URL만 갱신된다. iframe 없이도 목적을 달성하는 것이다. 게다가 창 크기를 화면에 꽉 차게 조절하면, 두 창이 마치 하나의 애플리케이션처럼 동작한다.
+
+[링크 검사 데모 열기 →](https://codepen.io/editor/GrahamTheDev/pen/019f910d-965b-7c08-839f-44ad8fac4c8b)
+
+## 무엇을 만들 수 있을까
+
+저자는 이 기술이 어떤 아이디어로 이어질지 독자에게 되묻는다. 에디터에서 도구마다 창을 하나씩 띄우는 구성은 어떨까. 사용자가 연결한 모니터 개수를 감지할 수 있으니, 두 번째·세 번째 화면에 요소를 배치하는 멀티 스크린 애플리케이션도 가능하다.
+
+엉뚱한 실험 하나가 의외로 실용적인 설계의 단초가 될 수 있다는 점, 이 글이 남기는 가장 큰 재미다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

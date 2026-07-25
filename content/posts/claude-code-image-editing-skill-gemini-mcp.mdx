@@ -1,0 +1,246 @@
+﻿---
+title: "Claude Code에 그림을 가르치다: Gemini Interactions API와 MCP로 만든 상태 유지 이미지 편집 스킬"
+description: "구글의 gemini-3.1-flash-lite-image 모델을 FastMCP 서버로 감싸 Claude Code 스킬로 패키징한 nb2lite-skill-claude 프로젝트를 살펴본다. 여러 턴에 걸쳐 같은 이미지를 이어서 편집하는 상태 유지 방식이 핵심이다."
+date: "2026-07-22"
+published_at: "2026-07-25"
+category: "news"
+tags: ["ai", "claudecode", "gemini", "mcp"]
+cover: "https://raw.githubusercontent.com/xbill9/nb2lite-skill-claude/main/devto-cover.jpg"
+coverAlt: "Teaching Claude Code to Paint: A Stateful Image-Editing Skill Built on Gemini's Interactions API and MCP"
+slug: "claude-code-image-editing-skill-gemini-mcp"
+source_id: "devto-4209254"
+source_url: "https://dev.to/gde/teaching-claude-code-to-paint-a-stateful-image-editing-skill-built-on-geminis-interactions-api-17g"
+source_title: "Teaching Claude Code to Paint: A Stateful Image-Editing Skill Built on Gemini's Interactions API and MCP"
+source_author: "xbill"
+source_published: "2026-07-22"
+---
+
+<LinkCard url="https://dev.to/gde/teaching-claude-code-to-paint-a-stateful-image-editing-skill-built-on-geminis-interactions-api-17g" author="xbill" date="2026-07-22" />
+
+## 개요
+
+코딩 에이전트에게 "사이버펑크 주방 이미지 하나 만들어줘"라고 말하면 정말 그림이 나온다. 여기까지는 이제 놀랍지 않다. 진짜 재미있는 건 그다음이다. "네온으로 된 라멘 간판 하나 추가해줘"라고 하면, 처음부터 장면 전체를 다시 설명할 필요 없이 *방금 그 이미지 그대로* 간판만 붙는다.
+
+[nb2lite-skill-claude](https://github.com/xbill9/nb2lite-skill-claude)가 하는 일이 바로 이것이다. 구글의 `gemini-3.1-flash-lite-image` 모델을 작은 FastMCP 서버로 감싸고, 이를 Claude Code 스킬로 패키징했다. 핵심은 "상태 유지(stateful)" 편집이다. 이미지를 매번 새로 그리는 게 아니라, 이전 결과 위에 변경 사항만 얹어 나간다.
+
+한 가지 재미있는 사실. 이 프로젝트를 소개한 원문 글의 커버 이미지 자체가, 글이 설명하는 바로 그 스킬로 생성됐다. 자기 도구를 자기가 써서 증명하는 셈이다.
+
+## 왜 또 이미지 도구인가
+
+대부분의 이미지 생성 워크플로는 상태가 없다(stateless). 프롬프트를 보내면 픽셀이 돌아오고, 모델은 그 즉시 모든 걸 잊는다. 결과를 조금 손보고 싶으면 *장면 전체*를 다시 묘사하면서 캐릭터, 조명, 구도가 왕복 과정에서 살아남기를 기도해야 한다. 대개는 살아남지 못한다.
+
+구글의 Nano Banana 2 Lite — `gemini-3.1-flash-lite-image`의 애칭이다 — 는 접근이 다르다. 2초 안에 이미지를 뽑아내는 고효율 모델이면서, 25개 이상 언어의 텍스트 렌더링이 괜찮고, 무엇보다 **상태 유지 Interactions API**를 지원한다. 여러 턴에 걸쳐 이미지를 다듬는 동안 시각적 맥락을 서버 쪽에 그대로 붙들고 있다는 뜻이다.
+
+이 저장소는 그 능력을 Claude Code에 붙여, 코딩 세션 안에서 자연스럽게 이미지를 만들고 반복 수정할 수 있게 한다. 하나의 저장소에 두 가지가 담겨 있다.
+
+- **MCP 서버** (`nb2lite-agent`) — `server.py` 한 파일짜리 FastMCP 앱으로, 정확히 네 개의 툴을 노출한다.
+- **Claude Code 스킬** (`nb2lite-image`) — Claude에게 그 툴을 *언제, 어떻게* 잘 써야 하는지 가르친다.
+
+## Interactions API: 기억을 가진 이미지
+
+Interactions API는 Gemini의 상태 유지 엔드포인트다. 핵심 루프는 이렇게 돈다.
+
+1. `store=True`를 붙여 `client.interactions.create(...)`를 호출한다.
+2. 응답에 **`interaction_id`**가 담겨 온다. 이번 턴의 시각적 맥락을 가리키는 핸들로, 구글 서버에 저장돼 있다.
+3. 다음 호출 때 `previous_interaction_id`를 넘기면, 모델은 *기존 캔버스*를 수정한다. 캐릭터, 스타일, 조명, 픽셀 연속성이 그대로 유지된다.
+
+그래서 이렇게 고통받는 대신 —
+
+> "새벽 숲속의 수채화 여우, 안개, 부드러운 빛, 빨간 스카프를 두르고, 왼쪽에 자작나무 세 그루, *그리고 이제* 랜턴도 들고 있음"
+
+이렇게만 쓰면 된다.
+
+> "발에 랜턴을 하나 쥐여줘."
+
+끝이다. 나머지는 저장된 맥락이 알아서 붙들고 있다.
+
+서버가 대신 처리해 주는 실무적인 디테일 몇 가지도 알아둘 만하다.
+
+- **매 턴마다 *새로운* interaction ID가 나온다.** 항상 가장 최근 ID를 이어야 한다. 오래된 ID로 편집하면 예전 상태에서 조용히 세션이 갈라진다. 직접 손으로 구현하면 잡기 까다로운 버그다.
+- **화면 비율은 생성 시점에 정해지고**(`1:1`, `16:9`, `9:16`, `4:3`, `3:4`) 이후 편집에 *상속*된다. 중간에 비율을 바꾸면 픽셀 연속성이 깨지기 때문에, 편집 툴은 아예 비율 인자를 받지 않는다.
+- **사고 수준(thinking level)** 은 `low`(기본값, 빠른 초안)와 `high`(복잡한 렌더링, 정확한 텍스트 배치, 캐릭터 구성) 두 가지다. 일반 API 스펙에는 `minimal`, `medium`도 있지만 이 모델에서는 실제 API가 HTTP 400으로 거부한다. 서버가 이 함정을 미리 막아준다.
+
+## MCP를 1분 만에 정리하면
+
+**Model Context Protocol(MCP)** 은 AI 어시스턴트를 툴·데이터와 연결하는 개방형 표준이다. MCP 이전에는 어떤 서비스를 모델에 연결하려면 어시스턴트마다 별도 통합을 짜야 했다. 어시스턴트 N개 × 서비스 M개, 모두가 같은 배관 작업을 반복하는 구조였다. MCP는 이걸 접어버린다. 툴 제작자가 타입이 정의된 툴을 노출하는 **MCP 서버** 하나만 만들면, MCP를 지원하는 클라이언트(Claude Code, Claude Desktop 등)가 클라이언트별 접착 코드 없이 그 툴을 찾아 호출한다.
+
+MCP 서버는 보통 stdio 위에서 JSON-RPC로 말하는 작은 로컬 프로세스다. 클라이언트가 이를 띄우고 "무슨 툴 있어?"라고 물으면, 이후 모델은 그 툴을 함수처럼 호출한다.
+
+`nb2lite-agent` 서버가 노출하는 툴은 정확히 네 개다.
+
+| 툴 | 하는 일 |
+| :--- | :--- |
+| `generate_image` | 텍스트 → 1k 이미지. 로컬에 저장하고 경로와 interaction ID를 돌려준다. |
+| `edit_image` | 상태 유지 편집. 이전 interaction ID와 *변경 내용만* 담은 설명을 받는다. |
+| `edit_local_image` | 로컬 이미지 파일을 base64로 인라인 업로드해 편집한다. 기존 파일로 들어가는 진입점이다. |
+| `get_help` | 현재 설정을 보고한다. API 키 상태, 활성 모델, 출력 디렉터리, 전체 툴 레퍼런스. |
+
+이미지는 `gen_<timestamp>_<uuid8>.jpg`(또는 `edit_`, `edit_local_` 접두사) 형태로 디스크에 떨어진다. UUID 꼬리표 덕분에 동시에 생성해도 서로 덮어쓰지 않는다. 에러는 프로토콜 오류가 아니라 `🔴 ...` 형태의 텍스트 문자열로 돌아와서, 에이전트가 읽고 반응할 수 있다.
+
+## Claude Code 스킬이란
+
+MCP가 *손*(Claude가 실제로 호출할 수 있는 툴)이라면, **스킬**은 *근육 기억*이다. 마크다운 파일(`SKILL.md`)과 딸린 리소스를 Claude의 맥락에 얹어 워크플로를 가르친다. 어떤 툴을, 어떤 순서로, 어떤 제약 아래 써야 하는지를 알려주는 것이다.
+
+`nb2lite-image` 스킬이 담고 있는 규칙은 이런 식이다.
+
+- 설정 문제를 진단할 때는 `get_help`를 먼저 호출한다. API 키가 없으면 나머지는 아무것도 동작하지 않는다.
+- 편집 프롬프트는 **점진적으로** 쓴다. 장면이 아니라 변경 내용을 묘사한다.
+- 항상 **가장 최근** interaction ID를 잇는다.
+- 생성은 과금 대상이다. 관련 편집은 묶어서 처리하고, 초안은 `thinking_level: low`를 쓴다.
+
+스킬은 MCP 서버 자체(`mcp/server.py`), 의존성 목록, 설치 스크립트, 그리고 Interactions API 개발자 가이드 사본까지 함께 번들한다. 스킬만 설치하면 서버를 세우는 데 필요한 것이 전부 들어 있는 자족적 구성이다.
+
+## 설치: "그냥 되게 해줘" 판
+
+필요한 건 세 가지다. **Python 3.10 이상**, **Claude Code**, 그리고 **Gemini API 키**([Google AI Studio](https://aistudio.google.com/)에서 무료로 발급). 아래 경로 중 *하나*를 고르면 된다.
+
+### 경로 A: 플러그인 마켓플레이스 (타이핑 최소)
+
+Claude Code 안에서 이렇게 입력한다.
+
+```shell
+/plugin marketplace add xbill9/nb2lite-skill-claude
+/plugin install nb2lite-image@nb2lite-skill-claude
+```
+
+스킬 설치와 MCP 서버 자동 등록이 한 번에 끝난다. 플러그인 매니페스트에는 API 키가 들어 있지 않다(당연히 그래야 한다). 서버는 환경 변수에서 `GEMINI_API_KEY`를 읽으므로, Claude Code를 띄우기 전에 미리 export해 둬야 한다.
+
+### 경로 B: 클론 후 부트스트랩
+
+```bash
+# 1. 코드 받기
+git clone https://github.com/xbill9/nb2lite-skill-claude.git
+cd nb2lite-skill-claude
+
+# 2. 원커맨드 설정: 의존성 설치, .mcp.json에 MCP 서버 등록,
+#    API 키 입력 요청(~/gemini.key에 저장)
+./init.sh
+
+# 3. 이 디렉터리에서 Claude Code를 재시작하고 서버 승인.
+#    확인:
+/mcp        # nb2lite-agent가 목록에 떠야 함
+```
+
+이게 전부다. `init.sh`는 뭔가 이상해 보이면 다시 돌려도 안전하다.
+
+### 경로 C: 내 프로젝트에 설치
+
+저장소를 클론한 상태에서 —
+
+```bash
+make init TARGET=/path/to/your/project ARGS='--output-dir ./images'
+```
+
+스킬을 `<project>/.claude/skills/nb2lite-image/`에 복사하고, 해당 프로젝트의 `.mcp.json`에 `nb2lite-agent` 항목을 쓴다. `~/gemini.key`를 설정해 뒀다면 재사용한다. 대상 프로젝트에서 Claude Code를 재시작하고 서버를 승인하면 끝이다.
+
+### 경로 D: Docker (호스트에는 Docker만)
+
+서버는 [`xbill9/nb2lite-agent`](https://hub.docker.com/r/xbill9/nb2lite-agent)로 배포돼 있다.
+
+```bash
+claude mcp add nb2lite-agent --env GEMINI_API_KEY="$(cat ~/gemini.key)" -- \
+  docker run --rm -i -e GEMINI_API_KEY -v "$PWD:$PWD" -w "$PWD" xbill9/nb2lite-agent
+```
+
+`-v "$PWD:$PWD" -w "$PWD"` 마운트가 중요하다. 서버는 이미지를 디스크에 저장하고 `edit_local_image`를 위해 로컬 파일을 읽는다. 컨테이너가 호스트와 *같은 절대 경로*로 프로젝트를 봐야 하는 이유다.
+
+### 문제 해결
+
+- `/mcp`에 서버가 안 뜬다 → 프로젝트 디렉터리에서 Claude Code 재시작.
+- 툴이 `🔴 GEMINI_API_KEY is not set`을 돌려준다 → `source set_env.sh`(또는 키 export) 후 재시작.
+- 그 밖의 문제 → Claude에게 `get_help` 호출을 시키면 현재 설정을 보고한다.
+
+## 실제 세션은 이렇게 흐른다
+
+설치가 끝나면 평범한 말로 대화한다. 실제 흐름을 보자.
+
+**사용자:** *"눈 덮인 숲속의 아늑한 오두막, 해질녘, 16:9로 만들어줘."*
+
+Claude 호출:
+
+```python
+generate_image(
+    prompt="A cozy log cabin in a snowy forest at dusk, warm light in the windows",
+    aspect_ratio="16:9",
+    thinking_level="low",
+)
+# 🟢 Saved to: ./gen_1784759001_a1b2c3d4.jpg
+# Interaction ID: v1_ChdpRU5...
+```
+
+**사용자:** *"좋아. 굴뚝에서 연기가 피어오르게 해줘."*
+
+```python
+edit_image(
+    previous_interaction_id="v1_ChdpRU5...",
+    edit_prompt="add gentle smoke curling from the chimney",
+)
+# 🟢 Saved to: ./edit_1784759050_e5f6a7b8.jpg
+# Interaction ID: v1_Xk9mPq2...   ← 새 ID. 다음 편집은 이걸 잇는다
+```
+
+**사용자:** *"이제 밤으로 바꾸고 하늘에 오로라 넣어줘."*
+
+같은 툴, 가장 최근 ID. 오두막과 나무, 굴뚝 연기는 그대로 있고 하늘만 바뀐다. 다시 프롬프트를 쓸 일도, 연속성 룰렛을 돌릴 일도 없다.
+
+모델이 만든 게 아닌 이미지도 다룰 수 있다.
+
+**사용자:** *"./whiteboard-sketch.png를 깔끔한 3D 제품 목업으로 렌더링해줘."*
+
+```python
+edit_local_image(
+    image_path="./whiteboard-sketch.png",
+    edit_prompt="render this hand-drawn sketch as a high-fidelity 3D product mockup",
+    aspect_ratio="4:3",
+)
+```
+
+이 역시 interaction ID를 돌려주므로, 이후 수정은 `edit_image`로 넘어가 그대로 상태 유지 편집을 이어가면 된다.
+
+## 도그푸딩: 그 커버 이미지에 관하여 🐕🍖
+
+"자기 개밥 먹기(eating your own dog food)"는 자기 제품을 데모용이 아니라 실제 업무에 쓴다는 뜻이다. "될 거야"와 "매일 이걸로 배포한다"의 차이다. 사용자에게 충분히 좋은 도구라면 나에게도 충분히 좋아야 하고, 아니라면 그 고통을 가장 먼저 느끼고 고치는 사람이 나여야 한다.
+
+이 저장소는 모든 층위에서 자기 도그푸딩을 한다.
+
+- **스킬이 자기 저장소 안에서 활성화돼 있다.** 클론을 열어 Claude Code를 켜면 `nb2lite-image` 스킬과 `nb2lite-agent` 서버가 이미 연결돼 있어, 모든 개발 세션이 곧 통합 테스트가 된다.
+- **통합 테스트**(`make test`)는 실제 사용자와 똑같이 네 개의 MCP 툴을 라이브 API에 대고 돌린다.
+- 그리고 **원문 글의 커버 이미지 자체가, 글이 설명하는 바로 그 스킬로 생성됐다.** 저장소 안 Claude Code 세션에서 툴 호출 한 번, 첫 시도, 보정 없이:
+
+```python
+generate_image(
+    prompt="A wide tech blog cover illustration: a friendly robot artist "
+           "painting a glowing galaxy on an easel, while a chain of connected "
+           "frames behind it shows the same picture evolving step by step "
+           "(day sky, then sunset, then storm with lightning). Flat vector "
+           "style, deep indigo background, neon cyan and orange accents. "
+           "Title text 'NB2Lite + MCP', subtitle 'Stateful image editing "
+           "as a Claude Code skill'. Crisp, accurate lettering.",
+    aspect_ratio="16:9",
+    thinking_level="high",
+)
+# 🟢 Image successfully saved!
+# • Saved to: gen_1784759177_cbab8b65.jpg
+# • Interaction ID: v1_ChdpRU5hb2o3SWMzV2pNY1AtUFgy...
+```
+
+이 출력물이 저장소에 [`devto-cover.jpg`](https://github.com/xbill9/nb2lite-skill-claude/blob/main/devto-cover.jpg)로 그대로 커밋돼 있다. 눈여겨볼 점은 이렇다.
+
+- **텍스트가 제대로 나왔다.** "NB2Lite + MCP"와 부제 전문이 오타 없이 또렷하게 렌더링됐다. 텍스트가 많은 레이아웃에서 `thinking_level: "high"`가 사주는 값이다.
+- **모델이 자기 주장을 스스로 그림으로 설명했다.** 프레임의 연쇄(낮 → 해질녘 → 폭풍 → 은하)가 곧 상태 유지 편집 루프다. 손으로 그렸을 다이어그램보다 Interactions API를 더 잘 설명한다.
+- **강조 색을 바꾸고 싶다면** 새로 생성하지 않는다. 그 interaction ID로 `edit_image`를 호출해 "주황 강조를 마젠타로 바꿔줘"라고 하면 된다. 그게 이 도구의 핵심이다.
+
+도그푸딩은 가장 값싼 신뢰의 증거다. 엄선한 갤러리도, "결과는 다를 수 있음"이라는 잔글씨도 없다. 도구의 실제 출력물이 글을 여는 순간 가장 먼저 보이는 그것이다. 스킬이 글자를 뭉개거나 레이아웃을 망쳤다면, 지금 그 증거를 보고 있을 것이다. 대신 이 글은 자기 증명을 헤더에 박아 넣은 채로 나왔다.
+
+## 링크
+
+- **저장소:** [github.com/xbill9/nb2lite-skill-claude](https://github.com/xbill9/nb2lite-skill-claude) (Apache-2.0)
+- **Docker 이미지:** [hub.docker.com/r/xbill9/nb2lite-agent](https://hub.docker.com/r/xbill9/nb2lite-agent)
+- **Interactions API 레퍼런스:** [ai.google.dev/api/interactions-api](https://ai.google.dev/api/interactions-api)
+- **Model Context Protocol:** [modelcontextprotocol.io](https://modelcontextprotocol.io)
+
+이 프로젝트는 서드파티 커뮤니티 프로젝트로, Anthropic이나 구글이 공식 지원하거나 제휴한 것이 아니다. Gemini API 키는 직접 준비해야 하고, 생성은 과금 대상이니 초안은 `low`로 그리고 `high`는 진짜 중요한 컷에 아끼는 게 좋다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
