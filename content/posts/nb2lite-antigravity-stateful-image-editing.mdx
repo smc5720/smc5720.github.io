@@ -1,0 +1,231 @@
+﻿---
+title: "Google Antigravity에게 그림을 가르치다: Gemini Interactions API와 MCP로 만든 상태 유지 이미지 편집 스킬"
+description: "구글의 gemini-3.1-flash-lite-image 모델을 Antigravity 스킬과 MCP 서버로 묶은 nb2lite-skill-agy 프로젝트. 멀티턴 상태 유지 편집으로 같은 이미지를 다시 설명하지 않고 고쳐 나가는 방식을 소개한다."
+date: "2026-07-24"
+published_at: "2026-07-26"
+category: "news"
+tags: ["ai", "antigravity", "gemini", "mcp"]
+cover: "https://raw.githubusercontent.com/xbill9/nb2lite-skill-agy/master/devto-cover.jpg"
+coverAlt: "Teaching Google Antigravity to Paint: A Stateful Image-Editing Skill Built on Gemini's Interactions API and MCP"
+slug: "nb2lite-antigravity-stateful-image-editing"
+source_id: "devto-4224001"
+source_url: "https://dev.to/gde/teaching-google-antigravity-to-paint-a-stateful-image-editing-skill-built-on-geminis-interactions-9g1"
+source_title: "Teaching Google Antigravity to Paint: A Stateful Image-Editing Skill Built on Gemini's Interactions API and MCP"
+source_author: "xbill"
+source_published: "2026-07-24"
+---
+
+<LinkCard url="https://dev.to/gde/teaching-google-antigravity-to-paint-a-stateful-image-editing-skill-built-on-geminis-interactions-9g1" author="xbill" date="2026-07-24" />
+
+## 개요
+
+이미지 생성 도구 대부분은 기억을 못 한다. 프롬프트를 보내면 픽셀이 돌아오고, 모델은 곧바로 방금 만든 그림을 잊어버린다. 결과를 조금 손보고 싶으면 장면 전체를 처음부터 다시 묘사해야 하고, 그 과정에서 캐릭터도 조명도 구도도 원래 모습을 유지하리라는 보장이 없다.
+
+`nb2lite-skill-agy`는 이 문제를 정면으로 겨냥한 오픈소스 프로젝트다. 구글의 `gemini-3.1-flash-lite-image`(애칭 NB2Lite) 모델을 FastMCP 서버로 감싸고, 이를 Google Antigravity CLI용 스킬로 패키징했다. Antigravity에 "사이버펑크 주방 이미지를 만들어줘"라고 입력하면 그대로 생성되고, 이어서 "네온 라멘 간판을 추가해줘"라고 하면 장면을 다시 설명할 필요 없이 *같은 이미지*를 편집한다.
+
+이 글에서 눈여겨볼 대목은 하나 더 있다. 원문 커버 이미지 자체가 바로 그 도구로 생성됐다는 점이다. 도구가 소개하는 기능으로 도구의 홍보 이미지를 만든, 이른바 도그푸딩의 결과물이다.
+
+## NB2Lite와 상태를 기억하는 이미지
+
+NB2Lite는 2초 안팎의 빠른 생성 속도, 25개 이상 언어의 안정적인 텍스트 렌더링을 갖춘 고효율 이미지 모델이다. 그중 핵심 기능이 **Interactions API** 지원이다. 서버 쪽에서 시각적 맥락을 유지한 채 여러 턴에 걸쳐 하나의 이미지를 다듬어 나갈 수 있게 해준다.
+
+동작 흐름은 이렇게 흘러간다.
+
+1. `client.interactions.create(...)`를 `store=True`로 호출한다.
+2. 응답에 **`interaction_id`**가 담겨 온다. 이번 턴의 시각적 맥락을 가리키는 핸들이고, 구글 서버에 저장된다.
+3. 다음 호출 때 `previous_interaction_id`를 넘기면, 모델이 *기존 캔버스*를 편집한다. 캐릭터, 스타일, 조명, 픽셀 연속성이 그대로 유지된다.
+
+그래서 상태 없는 방식이 강요하던 이런 프롬프트 대신,
+
+> "새벽 숲속의 수채화 여우, 안개, 부드러운 빛, 빨간 스카프를 두르고, 왼쪽에 자작나무 세 그루, *그리고 이제* 랜턴도 들고 있음"
+
+Antigravity에서는 이렇게 쓰면 된다.
+
+> "앞발에 랜턴을 하나 추가해줘."
+
+나머지는 저장된 맥락이 알아서 채운다.
+
+서버가 대신 처리해 주는 실무적인 세부사항도 몇 가지 있다.
+
+- **턴마다 새 interaction ID가 반환된다.** 항상 최신 ID를 이어 써야 한다. 오래된 ID로 편집하면 예전 상태에서 조용히 세션이 갈라진다.
+- **화면 비율은 생성 시점에 결정된다**(`1:1`, `16:9`, `9:16`, `4:3`, `3:4`). 상태 편집 시 이 비율은 그대로 상속되며, 도중에 바꾸면 픽셀 연속성이 깨진다. 그래서 편집 도구는 아예 비율 인자를 받지 않는다.
+- **Thinking level**은 `low`(기본값, 빠른 초안)와 `high`(복잡한 렌더링, 정확한 텍스트 배치, 캐릭터 구성) 두 가지다. 일반 API 명세에는 `minimal`과 `medium`도 있지만, 이 모델에서 실제로 넘기면 HTTP 400을 돌려준다. 서버가 이런 함정을 미리 걸러준다.
+
+## MCP를 1분 만에 이해하기
+
+**Model Context Protocol(MCP)**은 AI 어시스턴트를 도구·데이터와 연결하는 개방형 표준이다. MCP가 없던 시절엔 모델에 특정 서비스를 붙이려면 어시스턴트마다 전용 통합을 따로 짜야 했다. 어시스턴트 N개 × 서비스 M개, 모두가 같은 배관 작업을 반복하는 구조였다.
+
+MCP는 이걸 하나로 줄인다. 도구 제작자가 타입이 지정된 도구를 노출하는 **MCP 서버**를 하나 만들면, Antigravity CLI 같은 MCP 지원 클라이언트가 별도 연결 코드 없이 그 도구를 발견하고 호출한다. MCP 서버는 보통 stdio로 JSON-RPC를 주고받는 작은 로컬 프로세스다. Antigravity가 서버를 띄우고 "어떤 도구가 있냐"고 물으면, 그때부터 모델이 그 도구를 네이티브 함수처럼 부른다.
+
+`nb2lite-agent` 서버가 노출하는 핵심 도구는 네 개다.
+
+| 도구 | 하는 일 |
+| :--- | :--- |
+| `generate_image` | 텍스트 → 1k 이미지. 로컬에 저장하고 경로와 interaction ID를 반환한다. |
+| `edit_image` | 상태 편집. 이전 interaction ID와 *바뀐 부분만* 담은 설명을 받는다. |
+| `edit_local_image` | 로컬 이미지 파일을 base64로 인라인 업로드해 편집을 적용한다. 기존 파일의 진입점. |
+| `get_help` | 라이브 설정을 보고한다. API 키 상태, 활성 모델, 출력 디렉터리, 전체 도구 레퍼런스. |
+
+생성된 이미지는 `gen_<timestamp>_<uuid8>.jpg`(또는 `edit_`, `edit_local_` 접두어) 형태로 디스크에 떨어진다. UUID 접미어 덕분에 동시 생성이 서로를 덮어쓰지 않는다. 오류는 프로토콜 에러가 아니라 `🔴 ...` 형태의 텍스트로 돌아오기 때문에, Antigravity가 이를 읽고 자연스럽게 대응할 수 있다.
+
+## 에이전트 스킬이란
+
+MCP가 에이전트가 실제로 호출할 수 있는 *손*이라면, **스킬**은 그 손을 어떻게 움직일지 아는 *근육의 기억*이다. `SKILL.md` 마크다운 파일과 묶음 리소스로 구성되며, Antigravity의 컨텍스트에 로드되어 어떤 도구를 어떤 순서로 어떤 제약 아래 써야 하는지를 가르친다.
+
+`nb2lite-image` 스킬에는 이런 규칙들이 담겨 있다.
+
+- 설정 문제를 진단할 땐 `get_help`를 먼저 부른다. API 키가 없으면 나머지가 전부 무의미하다.
+- 편집 프롬프트는 **점진적으로** 쓴다. 장면 전체가 아니라 바뀐 부분만 묘사한다.
+- 항상 **최신** interaction ID를 이어 쓴다.
+- 생성은 과금 대상이다. 관련 편집은 묶어서 처리하고, 초안은 `thinking_level: low`를 우선한다.
+
+스킬은 MCP 서버(`mcp/server.py`), 의존성 목록, 설치 스크립트, Interactions API 개발자 가이드 사본까지 함께 묶어 배포되어 그 자체로 완결된다.
+
+## Antigravity CLI에 설치하기
+
+준비물은 세 가지다. **Python 3.10 이상**, **Antigravity CLI**, 그리고 [Google AI Studio](https://aistudio.google.com/)에서 무료로 발급받는 **Gemini API 키**. 아래 경로 중 하나를 고르면 된다.
+
+### 경로 A: 플러그인 마켓플레이스 (키 입력 최소)
+
+Antigravity 세션 안에서 실행한다.
+
+```shell
+/plugin marketplace add xbill9/nb2lite-skill-agy
+/plugin install nb2lite-image@nb2lite-skill-agy
+```
+
+스킬 설치와 MCP 서버 자동 등록이 함께 이뤄진다. 플러그인 매니페스트에는 API 키가 담기지 않는다. 서버가 환경 변수 `GEMINI_API_KEY`를 읽으므로, Antigravity CLI를 띄우기 전에 이 키를 export 해둬야 한다.
+
+### 경로 B: 클론 후 부트스트랩
+
+```bash
+# 1. 코드 받기
+git clone https://github.com/xbill9/nb2lite-skill-agy.git
+cd nb2lite-skill-agy
+
+# 2. 한 방 설정: 의존성 설치, .mcp.json에 MCP 서버 등록,
+#    API 키 입력 요청 (~/gemini.key에 저장)
+./init.sh
+
+# 3. 이 디렉터리에서 Antigravity CLI 재시작 후 서버 승인.
+#    확인:
+/mcp        # nb2lite-agent가 목록에 떠야 한다
+```
+
+`init.sh`는 몇 번을 다시 돌려도 안전한 멱등 스크립트다.
+
+### 경로 C: 내 프로젝트에 설치
+
+레포 클론 위치에서 실행한다.
+
+```bash
+make init TARGET=/path/to/your/project ARGS='--output-dir ./images'
+```
+
+스킬을 `<project>/.gemini/antigravity-cli/skills/nb2lite-image/`에 복사하고, 해당 프로젝트의 `.mcp.json`에 `nb2lite-agent` 항목을 쓴다. `~/gemini.key`가 있으면 그대로 재사용한다. 프로젝트에서 Antigravity를 재시작하고 서버를 승인하면 끝이다.
+
+### 경로 D: Docker (호스트엔 Docker만)
+
+서버는 [`xbill9/nb2lite-agent`](https://hub.docker.com/r/xbill9/nb2lite-agent)로 배포된다.
+
+```bash
+antigravity mcp add nb2lite-agent --env GEMINI_API_KEY="$(cat ~/gemini.key)" -- \
+  docker run --rm -i -e GEMINI_API_KEY -v "$PWD:$PWD" -w "$PWD" xbill9/nb2lite-agent
+```
+
+`-v "$PWD:$PWD" -w "$PWD"` 마운트는 컨테이너가 작업 디스크에 이미지를 저장하고 `edit_local_image`용 로컬 파일을 읽을 수 있게 해준다.
+
+### 문제 해결
+
+- `/mcp`에 서버가 안 뜨면 → 프로젝트 디렉터리에서 Antigravity CLI를 재시작한다.
+- 도구가 `🔴 GEMINI_API_KEY is not set`을 반환하면 → `source set_env.sh`로 키를 export하고 재시작한다.
+- 그 밖의 문제 → Antigravity에 `get_help`를 호출하라고 시킨다. 라이브 설정을 보고한다.
+
+## 실제 세션은 이렇게 흘러간다
+
+설치를 마치면 평범한 영어 문장으로 Antigravity와 대화하면 된다. 실제 흐름은 다음과 같다.
+
+**사용자:** *"눈 덮인 숲속의 아늑한 오두막, 해질녘, 16:9로 만들어줘."*
+
+Antigravity가 호출한다.
+
+```python
+generate_image(
+    prompt="A cozy log cabin in a snowy forest at dusk, warm light in the windows",
+    aspect_ratio="16:9",
+    thinking_level="low",
+)
+# 🟢 Saved to: ./gen_1784759001_a1b2c3d4.jpg
+# Interaction ID: v1_ChdpRU5...
+```
+
+**사용자:** *"좋네. 굴뚝에서 연기가 피어오르게 해줘."*
+
+```python
+edit_image(
+    previous_interaction_id="v1_ChdpRU5...",
+    edit_prompt="add gentle smoke curling from the chimney",
+)
+# 🟢 Saved to: ./edit_1784759050_e5f6a7b8.jpg
+# Interaction ID: v1_Xk9mPq2...   ← 새 ID. 다음 편집은 이걸 이어 쓴다
+```
+
+**사용자:** *"이제 밤으로 바꾸고, 하늘에 오로라를 넣어줘."*
+
+같은 도구, 가장 최신 ID를 넘기면 오두막과 나무, 굴뚝 연기는 그대로 있고 하늘만 바뀐다. 다시 설명할 필요도, 연속성이 어긋날 걱정도 없다.
+
+모델이 만들지 않은 이미지도 다룰 수 있다.
+
+**사용자:** *"./whiteboard-sketch.png를 깔끔한 3D 제품 목업으로 렌더링해줘."*
+
+```python
+edit_local_image(
+    image_path="./whiteboard-sketch.png",
+    edit_prompt="render this hand-drawn sketch as a high-fidelity 3D product mockup",
+    aspect_ratio="4:3",
+)
+```
+
+이 호출도 interaction ID를 돌려주므로, 이후 다듬기는 `edit_image`로 넘어가 그대로 상태 편집을 이어가면 된다.
+
+## 도그푸딩: 그 커버 이미지 이야기 🐕🍖
+
+"자기 개밥 먹기(eating your own dog food)"는 자기가 만든 제품을 실제 업무에 쓴다는 뜻이다. "이러면 될 것 같다"와 "매일 이걸로 배포한다" 사이의 차이다.
+
+이 레포는 여러 층위에서 스스로를 도그푸딩한다.
+
+- **스킬이 자기 레포 안에서 활성화된다.** 클론한 뒤 Google Antigravity를 열면 `nb2lite-image` 스킬과 `nb2lite-agent` 서버가 이미 연결돼 있어, 모든 개발 세션이 곧 통합 테스트가 된다.
+- **통합 테스트**(`make test`)는 실제 사용자가 쓰는 것과 똑같은 네 개의 MCP 도구를 라이브 API에 대고 돌린다.
+- 그리고 **원문 커버 이미지는 이 글이 설명하는 바로 그 스킬로 생성됐다.** 레포 안 Antigravity CLI 세션에서 도구 호출 한 번, 라이브 생성, 리터치 없이 나온 결과다.
+
+```python
+generate_image(
+    prompt="A wide tech blog cover illustration: a friendly AI agent with glowing antigravity elements floating alongside an easel, painting a vibrant galaxy, while a chain of connected frames behind it shows the same picture evolving step by step. Flat vector style, deep indigo background, neon cyan and magenta accents. Title text 'NB2Lite + Antigravity', subtitle 'Stateful image editing as an Antigravity skill'. Crisp, accurate lettering.",
+    aspect_ratio="16:9",
+    thinking_level="high",
+)
+# 🟢 Image successfully saved!
+# • Saved to: /home/xbill/nb2lite-skill-agy/gen_1784832091_d71439ca.jpg
+# • Interaction ID: v1_ChdXbUJpYXB5aEZZYkotOFlQeC1UcG1BNBIXV21CaWFweWhGWWJKLThZUHgtVHBtQTQ
+```
+
+이 결과물은 [`devto-cover.jpg`](https://github.com/xbill9/nb2lite-skill-agy/blob/master/devto-cover.jpg)로 레포에 그대로 커밋돼 있다. 몇 가지 눈여겨볼 점이 있다.
+
+- **텍스트가 정확히 렌더링됐다.** "NB2Lite + Antigravity"가 오타 없이 또렷하게 나왔다. 텍스트가 많은 레이아웃에서 `thinking_level: "high"`가 사주는 값이 바로 이것이다.
+- **모델이 자기 홍보 문구를 스스로 그렸다.** 프레임들이 연결된 사슬(Initialize → Nebula Base → Enhance Detail → Refine → Stateful Edit)이 곧 상태 편집 루프 그 자체다. 이미지가 매뉴얼 다이어그램보다 Interactions API를 더 잘 설명한다.
+- **강조색을 바꾸고 싶다면** 다시 생성하지 않는다. 그 interaction ID로 `edit_image`를 부르며 "시안 강조색을 에메랄드로 바꿔줘"라고 하면 된다. 이게 이 도구의 존재 이유다.
+
+도그푸딩은 가장 값싼 신뢰의 증거다. 도구가 만든 실제 결과물이 글을 열자마자 눈에 들어온 첫 화면이었으니 말이다.
+
+## 링크
+
+- **레포:** [github.com/xbill9/nb2lite-skill-agy](https://github.com/xbill9/nb2lite-skill-agy) (Apache-2.0)
+- **Docker 이미지:** [hub.docker.com/r/xbill9/nb2lite-agent](https://hub.docker.com/r/xbill9/nb2lite-agent)
+- **Interactions API 레퍼런스:** [ai.google.dev/api/interactions-api](https://ai.google.dev/api/interactions-api)
+- **Model Context Protocol:** [modelcontextprotocol.io](https://modelcontextprotocol.io)
+
+이 프로젝트는 구글과 무관한 서드파티 커뮤니티 프로젝트다. Gemini API 키는 각자 준비해야 하며, 생성은 과금 대상이므로 초안은 `low`로 돌리고 `high`는 최종 결과물에 아껴 쓰는 편이 좋다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

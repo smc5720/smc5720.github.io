@@ -1,0 +1,89 @@
+﻿---
+title: "컨텍스트 윈도우란 결국 무엇인가"
+description: "LLM이 한 번에 다룰 수 있는 토큰 예산인 컨텍스트 윈도우의 원리와 한계, 그리고 RAG가 이를 어떻게 보완하는지 쉽게 풀어 정리했다."
+date: "2026-07-22"
+published_at: "2026-07-26"
+category: "news"
+slug: "what-is-a-context-window-actually"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ff6iwdqpp7mync8lzw3a4.png"
+coverAlt: "What is a context window, actually?"
+source_id: "devto-4180878"
+source_url: "https://dev.to/ale3oula/what-is-a-context-window-actually-13l6"
+source_title: "What is a context window, actually?"
+source_author: "Alexandra"
+source_published: "2026-07-22"
+---
+
+<LinkCard url="https://dev.to/ale3oula/what-is-a-context-window-actually-13l6" author="Alexandra" date="2026-07-22" />
+
+## 개요
+
+AI 대화에서 "컨텍스트 윈도우"라는 말은 자주 나오지만, 정작 그게 뭔지 제대로 설명해 주는 글은 드물다. 한 문장으로 요약하면, LLM이 하나의 응답을 만들면서 한꺼번에 고려할 수 있는 토큰의 총량이다. 내가 넣은 프롬프트, 지금까지의 대화 기록, 심지어 모델이 내놓을 답변까지 전부 이 하나의 "예산"을 나눠 쓴다.
+
+원문은 AI 개념을 아주 쉽게 풀어 설명하는 ELI5 시리즈의 한 편으로, 컨텍스트 윈도우가 왜 존재하고 그 한계에 부딪히면 무슨 일이 벌어지는지를 다룬다.
+
+## 컨텍스트 윈도우의 기본
+
+모든 AI 모델은 한 번에 담아 둘 수 있는 토큰 수에 상한이 있다. 일종의 "작업 기억"인 셈이다. 대화가 길어질수록 이 윈도우 안에 쌓이는 토큰도 늘어난다.
+
+여기까지는 단순하다. 흥미로운 부분은 그 한계에 도달했을 때 생긴다.
+
+## 왜 한계가 있을까
+
+토큰을 많이 처리할수록 더 많은 메모리와 연산이 필요하고, 그만큼 요청은 느려지고 비싸진다. 게다가 지금의 모델들은 아주 긴 맥락을 잘 활용하지 못한다. 대화의 처음과 끝에는 주의를 기울이면서 가운데는 놓치는 경향이 있는데, 이를 "lost in the middle" 문제라고 부른다.
+
+## 건망증 문제
+
+AI 모델은 대화와 대화 사이에 지속되는 기억이 없다. 하나의 긴 대화 안에서도, 모델은 컨텍스트 윈도우에 아직 남아 있는 부분만 볼 수 있다.
+
+![슬라이딩 윈도우 개념 다이어그램](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/xrbnfr1jrtiawfpmkzys.png)
+
+미닫이창을 떠올리면 이해가 쉽다. 새 메시지가 들어올수록 오래된 메시지는 창 밖으로 밀려나 더 이상 모델의 시야에 들어오지 않는다. 긴 대화에서 "아까 말한 걸 까먹은 것 같은" 느낌을 받는 이유가 여기 있다. 모델이 정말 잊은 게 아니라, 그 부분에 더는 접근하지 못하는 것뿐이다. 물론 제품 쪽에서 이를 보완할 장치를 따로 얹어 두지 않았다면 말이다.
+
+## RAG는 어떻게 돕나
+
+RAG(retrieval-augmented generation)는 이름은 거창해도 발상은 단순하다. 기억을 더듬어 추측하지 말고, 답하기 전에 먼저 찾아보라는 것이다.
+
+모델을 똑똑한 신입 인턴이라고 생각해 보자. 방대한 일반 지식은 읽었지만, 우리 회사 내부 문서는 한 번도 본 적이 없다. 그런 인턴에게 우리 제품에 대해 물으면서 척척 대답하기를 기대할 수는 없다.
+
+![RAG 처리 흐름 다이어그램](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/kym341ylif5bp9p0hij0.png)
+
+RAG의 흐름은 대략 이렇다. 응답을 만들기 전에 시스템이 가장 관련 있는 정보 조각을 먼저 찾아, 그 부분만 프롬프트에 덧붙인다. 모델이 수천 개의 문서를 직접 뒤질 필요 없이, 필요한 정보만 골라 받는 셈이다.
+
+이 방식은 두 가지 문제를 한꺼번에 푼다.
+
+1. **"다 담을 수 없다"는 문제를 해결한다.** 위키 전체를 컨텍스트 윈도우에 욱여넣을 필요 없이, 관련 있는 조각만 넣으면 된다.
+2. **"모델이 그걸 모른다"는 문제를 해결한다.** 학습 데이터에는 컷오프가 있고 우리 회사 비공개 문서는 들어 있지 않다. 검색은 모델에게 최신의 구체적인 사실을 건네주고, 없는 얘기를 지어내지 않도록 막아 준다.
+
+다만 마법은 아니다. 검색 단계가 엉뚱한 페이지를 집어 오면 모델의 답도 함께 틀린다. RAG 시스템의 품질은 마지막에 글을 쓰는 모델이 아니라 검색 단계가 얼마나 정확한가에 달려 있다.
+
+## 윈도우가 크다고 더 나은 건 아니다
+
+요즘 나오는 모델은 수십만 토큰에 이르는 거대한 컨텍스트 윈도우를 내세운다. 그러다 보면 답이 간단해 보인다. 그냥 창을 키우고 전부 쏟아 넣으면 되지 않을까?
+
+실제로는 그렇게 깔끔하게 풀리지 않는다.
+
+- 비용이 늘고 시간이 더 걸린다. 프롬프트에 토큰이 하나 늘 때마다 매 요청의 처리량이 함께 늘어난다.
+- 모델은 거대한 맥락을 고르게 "읽지" 않는다. 긴 대화의 앞부분과 끝부분에 주의가 쏠리고, 가운데는 슬며시 놓친다.
+- 텍스트가 많아지면 잡음도 많아진다. 맥락이 방대할수록 관련 없거나 오래됐거나 서로 충돌하는 정보에 모델이 휘둘릴 여지도 커진다.
+
+윈도우가 크다고 자동으로 좋아지는 건 아니다. 다룰 정보가 많아지는 만큼, 딴 데로 샐 기회도 많아진다. 그래서 RAG가 중요하다. 관련 있는 작은 정보 묶음만 골라 넣는 편이, 모델이 전부를 한꺼번에 이해해 주기를 바라는 것보다 대체로 더 잘 통한다.
+
+## 더 읽어 볼 자료
+
+**컨텍스트 윈도우**
+- [Anthropic 컨텍스트 윈도우 문서](https://docs.claude.com) — 모델별 한계와 동작을 공식적으로 설명
+- ["Lost in the Middle: How Language Models Use Long Contexts"](https://arxiv.org/abs/2307.03172) (Liu et al., 2023) — 모델이 긴 맥락의 가운데를 덜 활용한다는 발견을 담은 논문
+- [OpenAI 모델 문서](https://platform.openai.com/docs/models) — 다른 공급자가 같은 제약을 어떻게 설명하는지 비교하기 좋다
+
+**RAG**
+- ["Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks"](https://arxiv.org/abs/2005.11401) (Lewis et al., 2020) — Meta AI의 원조 RAG 논문
+- [Pinecone RAG 가이드](https://www.pinecone.io/learn/retrieval-augmented-generation/) — 실용적이고 특정 벤더에 치우치지 않은 설명
+- [LangChain RAG 문서](https://python.langchain.com) — RAG 파이프라인이 실제로 어떻게 구성되는지 다룬다
+- [AWS: "What is RAG?"](https://aws.amazon.com/what-is/retrieval-augmented-generation/) — 쉬운 말로 풀어 쓴 해설
+- [IBM: "What is retrieval-augmented generation?"](https://www.ibm.com/topics/retrieval-augmented-generation) — 비전문가도 접근하기 좋은 또 다른 설명
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

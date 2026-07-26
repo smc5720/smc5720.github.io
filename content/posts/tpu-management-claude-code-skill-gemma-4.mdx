@@ -1,0 +1,100 @@
+﻿---
+title: "Cloud TPU에서 Gemma 4 돌리기, Claude Code 스킬 하나로 끝내기"
+description: "TPU 용량 탐색부터 vLLM 서빙, 벤치마크, 리소스 정리까지 — Gemma 4 서빙의 번거로운 과정을 Claude Code 스킬과 MCP 서버로 묶은 tpu-management를 소개한다."
+date: "2026-07-21"
+published_at: "2026-07-26"
+category: "news"
+tags: ["googlecloud", "tpu", "vllm", "claudecode"]
+cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fsllui7qdxqeu572u4xu0.png"
+coverAlt: "tpu-management: a Claude Code skill for running Gemma 4 on Cloud TPUs"
+slug: "tpu-management-claude-code-skill-gemma-4"
+source_id: "devto-4191520"
+source_url: "https://dev.to/gde/tpu-management-a-claude-code-skill-for-running-gemma-4-on-cloud-tpus-1b1e"
+source_title: "tpu-management: a Claude Code skill for running Gemma 4 on Cloud TPUs"
+source_author: "xbill"
+source_published: "2026-07-21"
+---
+
+<LinkCard url="https://dev.to/gde/tpu-management-a-claude-code-skill-for-running-gemma-4-on-cloud-tpus-1b1e" author="xbill" date="2026-07-21" />
+
+## 개요
+
+Cloud TPU에 Gemma 4 모델을 올려 서빙하는 일은 생각보다 손이 많이 간다. v6e 용량이 실제로 남아 있는 존을 찾고, flex-start VM을 요청하고, 부트 디스크 크기를 맞추고, Hugging Face 토큰을 Secret Manager로 연결하고, TPU에 맞는 vLLM 플래그를 고르고, 과금 미터가 부담스러워지기 전에 리소스를 정리하는 것까지 — 이 모든 과정이 하나하나 번거롭다.
+
+xbill이 공개한 **[tpu-management](https://github.com/xbill9/tpu-skill-claude)** 는 그 전 과정을 Claude Code 스킬과 MCP 서버(`tpu-devops`) 하나로 묶었다. 이제 Claude에게 말로 시키기만 하면 된다.
+
+## 무엇을 해주나
+
+스킬은 Claude에게 TPU 서빙의 전체 생애주기를 가르치고, MCP 서버는 그걸 실행할 약 40개의 도구를 손에 쥐여준다.
+
+### 용량 찾기와 프로비저닝
+
+먼저 쿼터가 있는 모든 존을 훑어 사용 가능한 TPU를 찾는다(`find_tpu`). 차원별 쿼터를 확인하고(`get_zones_with_available_quota`), 리소스를 만들기 전에 비용부터 추산한다. 이후 flex-start TPU VM(v6e/v5p)이나 레거시 큐드 리소스(v5e)를 생성한다. 이때 시작 스크립트가 Docker를 설치하고, `vllm/vllm-tpu:nightly` 이미지를 받고, Secret Manager에서 HF 토큰을 가져와 모델을 자동으로 서빙한다.
+
+### 서빙과 검증, 그리고 진단
+
+vLLM 컨테이너를 관리하고, 시리얼 콘솔로 부팅 과정을 지켜보며, 모델 상태를 확인한 뒤 배포된 Gemma 4 엔드포인트에 직접 질의를 던진다. 문제가 생기면 vLLM·docker·시스템·Cloud Logging 로그를 끌어온다. 흥미로운 지점은 로그 분석(`analyze_cloud_logging`)이다. 자체 호스팅한 Gemma 4 모델이 자기 인프라의 로그를 스스로 분석하는 구조다.
+
+### 벤치마크와 정리
+
+배포된 엔드포인트에 `vllm bench serve`를 돌려 TTFT, 처리량, P95 수치를 받아본다. 다 끝나면 안전장치를 걸어 리소스를 파기한다. 스킬은 정리 작업을 실행하기 전에 반드시 확인을 요구하고, flex-start는 삭제 전까지 계속 과금된다는 점을 경고한다.
+
+![Businessman in a suit reviewing work](https://images.pexels.com/photos/8428066/pexels-photo-8428066.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Kampus Production](https://www.pexels.com/@kampus) on [Pexels](https://www.pexels.com/photo/a-businessman-in-a-suit-8428066/)*
+
+## 새벽 2시에 배우는 것들
+
+이 스킬의 진짜 가치는 자동화보다도, 직접 부딪히지 않으면 알기 어려운 세부 사항을 미리 담아둔 데 있다. 예를 들면 이런 것들이다.
+
+- vLLM TPU 이미지가 넘쳐버리는 기본 10GB 부트 디스크 문제
+- `gcloud regions describe`로는 보이지 않는 `TPUS_PER_TPU_FAMILY` 쿼터
+- SSH 대신 시리얼 콘솔을 지켜봐야 하는 이유
+- TPU 위 Gemma 4가 필요로 하는 정확한 vLLM 플래그(`--tool-call-parser gemma4`, `--disable_chunked_mm_input` 등)
+
+## 설치
+
+가장 빠른 길은 Claude Code 플러그인 마켓플레이스다. 명령어 한 번이면 스킬과 MCP 서버를 함께 얻는다.
+
+```shell
+/plugin marketplace add xbill9/tpu-skill-claude
+/plugin install tpu-management@tpu-skill-claude
+```
+
+전통적인 방식을 선호한다면 클론 후 설치한다.
+
+```bash
+git clone https://github.com/xbill9/tpu-skill-claude
+cd tpu-skill-claude
+make skill-install          # 스킬만, 모든 프로젝트에 적용
+./project-setup.sh --global # 스킬 + MCP 서버 등록
+```
+
+클론 없이 패키징된 스킬을 바로 풀어 쓸 수도 있다.
+
+```bash
+curl -L -o /tmp/tpu-management-skill.zip \
+  https://github.com/xbill9/tpu-skill-claude/raw/main/dist/tpu-management-skill.zip
+mkdir -p ~/.claude/skills && unzip -o /tmp/tpu-management-skill.zip -d ~/.claude/skills/
+```
+
+준비물은 인증된 `gcloud` CLI, 활성화된 TPU API, 그리고 Hugging Face 토큰이다. 토큰은 에이전트의 `save_hf_token` 도구가 Secret Manager에 저장해준다. 설정은 전부 환경 변수로 처리한다. `GOOGLE_CLOUD_PROJECT`, `MODEL_NAME`, `ACCELERATOR_TYPE`, `TENSOR_PARALLEL_SIZE`가 그것이다.
+
+## 실제로 쓰면 이런 모습
+
+설치를 마치면 Claude Code에게 이렇게 말을 건다.
+
+> "쿼터가 남아 있는 v6e-1을 찾아서 gemma-4-12B를 올려줘"
+
+그러면 Claude는 먼저 기존 리소스를 확인한다. "만들기 전에 이미 있는 것부터 확인한다"는 스킬의 규칙 때문이다. 이어 존을 훑어 용량을 찾고, 검증된 플래그로 VM을 생성한 뒤, vLLM이 "Application startup complete" 로그를 남길 때까지 시리얼 콘솔을 따라간다. 마지막엔 곧바로 쓸 수 있는 OpenAI 호환 엔드포인트를 넘겨준다. 그다음은 이렇게 이어간다.
+
+> "벤치마크 돌리고 끝나면 정리해줘"
+
+스킬에는 참조 가이드(`references/tpu-guide.md`)가 함께 딸려 온다. TPU 패밀리별 flex-start 존, 쿼터 지표와 증설 요청 방법, 트러블슈팅이 정리돼 있어서, MCP 서버를 연결하지 않아도 Claude가 용량과 과금 질문에 답할 수 있다.
+
+## 내부 구조
+
+이 저장소는 Claude Code 플러그인 마켓플레이스이자 평범한 스킬 저장소 역할을 동시에 한다. `Makefile`이 세 가지 배포 형식(프로젝트 스킬, 플러그인 레이아웃, zip)을 하나의 소스에서 동기화한다. MCP 서버는 단일 파일 FastMCP 앱이라 읽기 쉽고, 자기만의 모델·가속기 조합으로 포크하기도 수월하다. 이슈와 PR은 [GitHub 저장소](https://github.com/xbill9/tpu-skill-claude)에서 환영이다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
