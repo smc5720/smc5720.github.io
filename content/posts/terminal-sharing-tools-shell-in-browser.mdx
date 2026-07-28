@@ -1,0 +1,257 @@
+﻿---
+title: "터미널 공유 도구는 어떻게 셸을 브라우저에 띄울까"
+description: "ttyd, TermPair, sshx 세 가지 터미널 공유 도구의 코드를 직접 읽고 비교한 글입니다. PTY부터 종단간 암호화, 예측 에코까지 같은 문제를 푸는 세 가지 다른 방식을 살펴봅니다."
+date: "2026-07-26"
+published_at: "2026-07-28"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fycowu2xt3i11rfbe9qfz.png"
+coverAlt: "How terminal-sharing tools put your shell in a browser"
+slug: "terminal-sharing-tools-shell-in-browser"
+source_id: "devto-4236815"
+source_url: "https://dev.to/lovestaco/how-terminal-sharing-tools-put-your-shell-in-a-browser-328"
+source_title: "How terminal-sharing tools put your shell in a browser"
+source_author: "Athreya aka Maneshwar"
+source_published: "2026-07-26"
+---
+
+<LinkCard url="https://dev.to/lovestaco/how-terminal-sharing-tools-put-your-shell-in-a-browser-328" author="Athreya aka Maneshwar" date="2026-07-26" />
+
+## 개요
+
+서버에서 뭔가 디버깅하다가 동료가 "화면 좀 보여줘"라고 하면, 결국 화상회의로 4K 모니터를 통째로 공유하고 상대방은 뭉개진 11px 고정폭 글자를 눈을 찡그리며 읽는 상황. 다들 한 번쯤 겪어봤을 겁니다.
+
+사실 더 나은 방법이 이미 몇 년 전부터 있었습니다. [ttyd](https://github.com/tsl0922/ttyd), [TermPair](https://github.com/cs01/termpair), [sshx](https://github.com/ekzhang/sshx) 같은 도구는 내 터미널을 상대방 브라우저에 그대로 띄워줍니다. 진짜 텍스트, 진짜 선택, 진짜 복사-붙여넣기가 됩니다.
+
+개발자 Maneshwar가 이 세 도구의 코드베이스를 전부 클론해서 읽어본 뒤, 같은 문제를 세 가지 전혀 다른 방식으로 푸는 과정을 정리했습니다. 핵심 차이는 결국 하나의 질문으로 모입니다. **중간에 있는 서버를 얼마나 신뢰하는가?**
+
+## 출발점은 모두 같다: PTY
+
+웹 이야기를 하기 전에 알아야 할 개념이 하나 있습니다. **의사 터미널(pseudoterminal, PTY)**입니다.
+
+터미널 앱에서 `bash`를 실행하면, bash는 키보드와 직접 대화하지 않습니다. 커널이 만들어준 한 쌍의 연결된 파일 디스크립터, 그러니까 1965년식 물리 텔레타이프를 흉내 내는 가짜 장치와 대화합니다. 한쪽 끝이 **master**, 다른 쪽이 **slave**입니다. 터미널 에뮬레이터가 master를 쥐고, bash는 slave를 쥔 채 자기가 속고 있다는 사실도 모릅니다.
+
+master에 쓴 내용은 bash에게 키보드 입력으로 보이고, bash가 출력한 내용은 master로 되돌아 나옵니다. 트릭의 전부가 이겁니다. 터미널 공유 도구란 결국 master 쪽 파일 디스크립터를 쥐고, 그 바이트를 노트북 창 대신 더 흥미로운 곳으로 흘려보내는 프로그램입니다.
+
+sshx의 `crates/sshx/src/terminal/unix.rs`가 정확히 이 일을 합니다.
+
+```rust
+use nix::pty::{self, Winsize};
+use nix::unistd::{execvp, fork, ForkResult, Pid};
+use nix::libc::{login_tty, TIOCGWINSZ, TIOCSWINSZ};
+
+pub struct Terminal {
+    child: Pid,
+    master_read: File,
+    master_write: File,
+}
+```
+
+fork하고, 자식 프로세스에서 `login_tty`를 호출해 slave fd를 제어 터미널로 만들고, `execvp`로 셸을 실행하고, 부모는 master를 유지합니다. ttyd는 같은 일을 C로, TermPair는 Rust로 합니다. 코드베이스는 셋인데 POSIX 핸드셰이크는 하나입니다.
+
+브라우저 창 크기를 바꿀 때 `vim`이 화면을 뭉개지 않고 제대로 다시 그리는 건 `TIOCSWINSZ` ioctl 덕분입니다. 리사이즈 처리는 있으면 좋은 기능이 아니라 없으면 무너지는 기능입니다.
+
+![PTY 구조 다이어그램](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/ndg7nqjszrl6mw7qwnuh.png)
+
+## 가장 단순한 구현: ttyd
+
+ttyd는 "진짜 이게 전부야" 스타일의 구현입니다. libwebsockets와 libuv 위에 올라간 C 프로세스 하나가 웹 서버이자 터미널 호스트입니다. 릴레이도, 별도 클라이언트도, 키 교환도 없습니다.
+
+프로토콜은 아름다울 정도로 단순합니다. `src/server.h`에서 가져온 코드입니다.
+
+```c
+// client -> server
+#define INPUT           '0'
+#define RESIZE_TERMINAL '1'
+#define PAUSE           '2'
+#define RESUME          '3'
+#define JSON_DATA       '{'
+
+// server -> client
+#define OUTPUT            '0'
+#define SET_WINDOW_TITLE  '1'
+#define SET_PREFERENCES   '2'
+```
+
+1바이트 opcode 뒤에 페이로드. 이게 와이어 포맷의 전부입니다. `'0'` 뒤에 키 입력을 붙여 올리고, `'0'` 뒤에 터미널 출력을 붙여 내립니다. `PAUSE`와 `RESUME`이 있는 이유는 거대한 파일을 `cat`으로 쏟아내면 브라우저가 못 따라갈 수 있어서입니다. 클라이언트가 죽는 대신 백프레셔를 걸 수 있게 한 겁니다.
+
+![ttyd 왕복 흐름](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/vi0cgklvhq6navcdpqm2.png)
+
+ttyd에서 배울 만한 디테일이 두 가지 있습니다.
+
+**프론트엔드가 바이너리 안에 들어 있습니다.** `html/` 디렉터리의 Preact + xterm.js 앱을 번들링하고 gzip으로 압축해 `src/html.h`에 C 바이트 배열로 인라인합니다. 잃어버릴 정적 파일 디렉터리 없이 실행 파일 하나로 끝납니다. 대신 `.tsx` 파일을 하나 고치면 `yarn run inline`을 돌리고 C 바이너리를 다시 빌드해야 하는데, 이건 누구나 딱 한 번 놀라는 부분입니다.
+
+**기본값이 읽기 전용입니다.** 보는 사람이 실제로 타이핑하게 하려면 `-W` 플래그를 줘야 합니다.
+
+```bash
+ttyd -p 7681 -c user:pass -O -W bash
+```
+
+다만 ttyd의 위협 모델은 "서버는 내 머신이니까 신뢰한다"입니다. TLS를 켜지 않으면 바이트가 평문으로 오갑니다. 여기서 흥미로운 질문이 시작됩니다.
+
+## 서버를 신뢰할 수 없다면?
+
+인터넷 건너편 누군가와 터미널을 공유하려는 순간, 공인 IP를 가진 중개자가 필요해집니다. 그리고 이제 그 중개자는 내가 입력하는 모든 것을 읽을 수 있습니다.
+
+![중간 서버 신뢰 문제](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/ncaryakcn3fy3rxuh2z7.png)
+
+TermPair와 sshx는 서버를 **눈먼 릴레이(blind relay)**로 만드는 길을 택했습니다. 서버는 터미널 호스트와 브라우저 사이에서 암호문을 중계할 뿐, 구조적으로 아무것도 복호화할 수 없습니다.
+
+![블라인드 릴레이 구조](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/h9s2hdg2tlzy73iqabb3.png)
+
+다이어그램에서 초록색은 "터미널 내용을 읽을 수 있는 영역"입니다. 게임의 목표는 그 초록색을 최대한 줄이는 것입니다.
+
+## 키를 전달하는 트릭: URL 프래그먼트
+
+클라이언트가 암호화하고 브라우저가 복호화하려면 양쪽 모두 키가 필요합니다. 서버는 키를 가지면 안 됩니다. 그런데 브라우저가 여는 페이지 자체가 서버에서 온 것인데, 어떻게 서버 몰래 비밀을 건넬까요?
+
+답은 URL 프래그먼트입니다.
+
+```plaintext
+https://sharemyclau.de/s/abc123#key-goes-right-here
+```
+
+`#` 뒤의 내용은 **HTTP 요청에 절대 실리지 않습니다.** 순전히 클라이언트 쪽 개념이라, 주소창과 JavaScript의 `location.hash`에만 존재하고 서버는 `/s/abc123`만 봅니다. 링크 하나를 공유하면 받는 사람의 브라우저가 자기 주소창에서 키를 읽어내고, 중간 릴레이는 불투명한 세션 ID와 잡음 같은 암호문 스트림만 보게 됩니다.
+
+![URL 프래그먼트 키 전달](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/onkwkoa8pql3os5rs445.png)
+
+![종단간 흐름](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/g5tx5ubxta2bvsiwqyhj.png)
+
+이 방식의 보안은 전적으로 링크에 달려 있습니다. 전체 URL을 손에 넣은 사람은 세션도 손에 넣습니다. 공개 Slack 채널에 붙여넣고 나서 놀라면 안 됩니다.
+
+## 같은 AES, 다른 선택
+
+TermPair와 sshx 둘 다 AES를 쓰지만 서로 다른 판단을 내렸고, 그 차이가 배울 점입니다.
+
+### TermPair: 카운터 IV를 쓰는 AES-128-GCM
+
+`crates/termpair-common/src/encryption.rs`에서 가져온 코드입니다.
+
+```rust
+pub fn iv_from_count(count: u64) -> [u8; IV_LENGTH] {
+    let mut iv = [0u8; IV_LENGTH];
+    let bytes = count.to_le_bytes();
+    iv[..bytes.len()].copy_from_slice(&bytes);
+    iv
+}
+```
+
+GCM은 인증을 공짜로 제공합니다. 변조된 메시지는 조용히 깨진 이스케이프 시퀀스로 둔갑하는 대신 복호화 자체가 실패합니다. IV는 단순한 메시지 카운터인데, **같은 키로 같은 IV를 절대 재사용하지 않는 한** 이 방식은 올바릅니다. GCM에서 논스 재사용은 "약간 약해지는" 문제가 아니라 "키를 통째로 내주는" 문제입니다.
+
+그래서 `constants.rs`에 이런 코드가 있습니다.
+
+```rust
+pub const ROTATION_THRESHOLD: u64 = 1 << 20;
+pub const MAX_MESSAGES_PER_KEY: u64 = ROTATION_THRESHOLD * 2;
+```
+
+메시지가 백만 개쯤 오가면 키가 회전합니다. 프로토콜에 `aes_key_rotation` 이벤트가 따로 있을 정도입니다. 터미널 출력용과 브라우저 입력용 키를 분리하고 핸드셰이크용 부트스트랩 키까지 둬서 카운터 공간이 충돌할 수 없게 했습니다. 제대로 해놓으면 눈에 보이지 않는, 그런 종류의 꼼꼼한 작업입니다.
+
+### sshx: Argon2로 늘린 키와 AES-CTR
+
+sshx는 다른 쪽에 베팅했습니다. `crates/sshx/src/encrypt.rs`에는 저자가 특히 재밌어한 주석이 있습니다.
+
+```rust
+const SALT: &str =
+    "This is a non-random salt for sshx.io, since we want to stretch the security of 83-bit keys!";
+
+let hasher = Argon2::new(
+    Algorithm::Argon2id,
+    Version::V0x13,
+    Params::new(19 * 1024, 2, 1, Some(16)).unwrap(),
+);
+```
+
+URL에 담기는 키의 엔트로피는 83비트뿐입니다. 채팅에 붙여넣을 수 있을 만큼 링크를 짧게 유지하고 싶었기 때문입니다. 83비트는 현대 기준으로 넉넉하지 않아서, 실제 메모리 비용이 드는 파라미터로 Argon2id를 돌립니다. 무차별 대입 한 번에 나노초가 아니라 19MB 메모리와 실질적인 CPU 시간이 들게 만든 겁니다. 순수 엔트로피를 사용성과 맞바꾸고, 그 대가를 KDF로 지불한 의도적인 트레이드입니다.
+
+그리고 CTR 모드를 영리한 주소 지정 방식과 함께 씁니다.
+
+```rust
+pub fn segment(&self, stream_num: u64, offset: u64, data: &[u8]) -> Vec<u8> {
+    assert_ne!(stream_num, 0, "stream number must be nonzero"); // security check
+    let mut iv = [0; 16];
+    iv[0..8].copy_from_slice(&stream_num.to_be_bytes());
+    let mut cipher = Aes128Ctr64BE::new(&self.aes_key.into(), &iv.into());
+    cipher.seek(offset);
+    cipher.apply_keystream(&mut buf);
+    buf
+}
+```
+
+CTR 모드는 임의 위치 탐색이 가능해서, sshx는 "스트림 M의 오프셋 N에 있는 바이트"를 앞부분을 건드리지 않고 암호화할 수 있습니다. 암호학 자랑이 아니라 아키텍처 결정입니다. 재접속한 브라우저가 "4096바이트까지는 있으니 나머지만 줘"라고 말하면 서버가 버퍼에서 그대로 서빙할 수 있다는 뜻입니다. 암호화와 재개(resume)를 함께 설계한 겁니다.
+
+`assert_ne!(stream_num, 0)` 가드가 있는 이유는 스트림 0이 올바른 키를 가졌음을 증명하는 암호화된 제로 블록에 쓰이기 때문입니다. 재사용하면 키스트림 재사용이 됩니다. 보안 체크가 암묵적 가정이 아니라 코드로 적혀 있는 점이 인상적인 대목입니다.
+
+## sshx가 빠르게 느껴지는 이유: 예측 에코
+
+저자가 세 코드베이스를 통틀어 가장 좋아한 디테일입니다.
+
+원격 터미널에는 근본적인 문제가 있습니다. 키 입력이 서버로 가서 PTY에 들어갔다가 다시 나와 돌아와야 글자가 보입니다. 지연이 200ms인 회선에서는 타이핑이 시럽 속을 걷는 느낌이 됩니다.
+
+sshx는 이 문제를 [Mosh](https://mosh.org/)와 같은 방식, 즉 **예측 에코(predictive echo)**로 풉니다. `src/lib/typeahead.ts`의 주석입니다.
+
+```javascript
+// A terminal "local echo" or typeahead addon for xterm.js.
+//
+// This is forked from VSCode's typeahead implementation at
+// https://github.com/microsoft/vscode/blob/1.80.1/...
+```
+
+클라이언트가 추측합니다. `k`를 누르면 실제 왕복이 백그라운드에서 진행되는 동안 즉시 살짝 흐린 `k`를 그립니다. 서버의 실제 출력이 도착하면 대조합니다. 추측이 맞았으면 눈에 띄는 변화가 없고, `vim` 안이었거나 비밀번호 프롬프트였다면 롤백합니다.
+
+까다로운 건 **예측하면 안 되는 순간**을 아는 겁니다. 비밀번호 프롬프트에서 예측하면 비밀번호가 화면에 에코되는데, 친구를 잃는 확실한 방법입니다. 그래서 이 애드온은 터미널 모드를 추적하다가 확신이 없으면 예측을 포기합니다.
+
+## 세션, 상태, 그리고 중요한 지루한 것들
+
+마지막 레이어는 수명 주기입니다. 세션은 오래 살지만 연결은 그렇지 않습니다. 와이파이는 끊기고 노트북은 잠듭니다.
+
+sshx는 프로토콜에 시퀀스 번호를 넣어 이 문제를 처리합니다(`crates/sshx-core/proto/sshx.proto`).
+
+```protobuf
+message TerminalData {
+  uint32 id = 1;
+  bytes data = 2;
+  uint64 seq = 3;  // Sequence number of the first byte
+}
+
+message SequenceNumbers {
+  map<uint32, uint64> map = 1;  // Active shells and their sequence numbers
+}
+```
+
+모든 셸이 바이트 오프셋을 가진 스트림입니다. 재접속하면 클라이언트가 어디까지 받았는지 보내고 서버가 차이만 재전송합니다. 탐색 가능한 CTR 암호화와 결합하면 재개 비용이 거의 공짜가 됩니다.
+
+세션을 언제 포기할지도 정해야 합니다.
+
+```rust
+/// Timeout for a disconnected session to be evicted and closed.
+const DISCONNECTED_SESSION_EXPIRY: Duration = Duration::from_secs(300);
+```
+
+백엔드 클라이언트 없이 5분이 지나면 세션을 닫고 `DashMap`에서 제거합니다. 그러지 않으면 노트북이 죽을 때마다 메모리가 영원히 샙니다.
+
+sshx는 전 세계에 분산된 메시를 운영하기 때문에 세션 상태를 `crates/sshx-server/src/state/mesh.rs`를 거쳐 Redis에도 저장합니다. 매번 바다를 건너는 대신 가장 가까운 서버에 붙을 수 있게 한 겁니다. 반면 TermPair는 하드 리밋으로 상한을 겁니다(`MAX_TERMINALS: 200`, `MAX_BROWSERS_PER_TERMINAL: 50`, `MAX_WS_MSGS_PER_SEC: 500`). 메시가 아니라 소박한 박스 한 대를 돌릴 때는 이게 합리적인 답입니다.
+
+## 그래서 뭘 써야 할까
+
+상황에 따라 다릅니다.
+
+**ttyd** — 네트워크를 이미 신뢰할 수 있을 때. 홈랩, LAN, VPN 뒤, 임베디드 장치, OpenWrt 라우터. 런타임 의존성 없는 작은 C 바이너리 하나이고, 우리보다 오래 살아남을 물건입니다. `ttyd -W bash`면 끝입니다.
+
+**TermPair** — 단순한 멘탈 모델의 종단간 암호화를 원하고 릴레이를 직접 호스팅할 선택지가 필요할 때. 회전이 있는 3키 설계는 추론하기 쉽고, 코드가 오후 한나절이면 다 읽을 만큼 작습니다.
+
+**sshx** — 다듬어진 제품 경험을 원할 때. 무한 캔버스 위의 다중 터미널, 실시간으로 움직이는 다른 사람의 커서, 예측 에코, 글로벌 메시, 자동 재접속. 다만 README에 셀프 호스팅은 명시적으로 지원하지 않는다고 적혀 있어서, "내 서버를 돌린다"가 아니라 "sshx.io를 쓴다"는 선택입니다.
+
+![세 도구 비교](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/b41gur26mrvzf525smyr.png)
+
+## 정리
+
+세 도구 모두 핵심은 `fork()`, PTY master fd, 그리고 바이트를 WebSocket에 퍼 나르는 루프입니다. 2020년대 후드티를 걸친 1970년대 기술입니다.
+
+암호화, 시퀀스 번호, 키 회전, 예측 에코, 세션 정리 같은 나머지 전부는 단 하나의 질문에 답하기 위해 존재합니다. **중간에 있는 머신을 얼마나 신뢰하는가?** ttyd는 "내 머신이니까 전적으로"라고 답하고, TermPair와 sshx는 "전혀 신뢰하지 않는다, 그리고 그 근거는 수학이다"라고 답합니다.
+
+저자는 같은 아이디어의 세 가지 구현을 나란히 읽는 것이 오랜만에 만난 가장 빠른 아키텍처 수업이었다고 말합니다. 모든 버전에 반복해서 나타나는 개념은 본질이고, 한 곳에만 나타나는 개념은 제품 결정입니다. 이 구분은 코드베이스 하나만 봐서는 알기 어렵지만 셋을 놓고 보면 자명해집니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
