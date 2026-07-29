@@ -1,0 +1,156 @@
+﻿---
+title: "React 19 useActionState: 제출 버튼 비활성화로는 중복 제출을 막을 수 없었던 이유"
+description: "React 19의 useActionState를 직접 써보며 깨달은 점. 버튼을 disabled로 막는 흔한 방식이 왜 중복 제출을 실제로 막지 못했는지, 그리고 pending 상태를 진짜와 연결한다는 게 무슨 의미인지 정리했다."
+date: "2026-07-28"
+published_at: "2026-07-29"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F4hfxap7zdbxbm9eafyz2.png"
+coverAlt: "React 19's useActionState Showed Me Why Disabling My Submit Button Was Never Enough"
+slug: "react-19-useactionstate-submit-button"
+source_id: "devto-4236310"
+source_url: "https://dev.to/shubhradev/react-19s-useactionstate-showed-me-why-disabling-my-submit-button-was-never-enough-53jd"
+source_title: "React 19's useActionState Showed Me Why Disabling My Submit Button Was Never Enough"
+source_author: "Shubhra Pokhariya"
+source_published: "2026-07-28"
+---
+
+<LinkCard url="https://dev.to/shubhradev/react-19s-useactionstate-showed-me-why-disabling-my-submit-button-was-never-enough-53jd" author="Shubhra Pokhariya" date="2026-07-28" />
+
+## 개요
+
+React 19 이전에는 폼 하나를 만들 때마다 상태 세 개를 손으로 엮어야 했다. 결과값, 제출 중 여부, 에러. 그중 하나만 엉뚱한 곳에서 리셋을 빼먹어도 버튼이 다시 활성화되지 않고, 그 원인을 찾느라 시간을 날렸다.
+
+한 개발자가 `useActionState`를 제대로 써보고 나서 깨달은 건 따로 있었다. 중복 제출을 막겠다고 몇 년간 넣어온 "버튼 비활성화" 코드가 사실 아무것도 막지 못하고 있었다는 것이다. 이 글은 그 경험을 한국 독자를 위해 다시 정리한 기사다.
+
+## 익숙하지만 위험했던 패턴
+
+React 19 이전의 전형적인 폼은 이렇게 생겼다. 상태 변수 세 개, 그리고 `try/catch/finally`.
+
+```jsx
+function OldSignupForm() {
+  const [error, setError] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
+    try {
+      await signup(new FormData(e.target));
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  return <form onSubmit={handleSubmit}>{/* ... */}</form>;
+}
+```
+
+여기서 누군가 `finally`를 빠뜨리는 순간 버그가 시작된다. 문제는 이것만이 아니다. 중복 제출을 막으려고 흔히 아래 같은 로컬 플래그를 하나 더 얹는다.
+
+```js
+function handleClick() {
+  setLocalPending(true); // 안전해 보이지만, 실제 요청과 연결돼 있지 않다
+}
+```
+
+빠른 네트워크에서는 이 코드가 깨진 걸 눈치채기 어렵다. 하지만 느린 연결에서는 이 로컬 플래그가 실제 요청이 끝나기도 전에 다시 false로 돌아간다. 와이파이가 불안정한 사용자가 "주문하기"를 두세 번 누르면, 버튼이 잠깐 다시 눌리는 것처럼 보였기 때문이다. 그리고 그 클릭은 전부 실제로 처리된다. React는 이 요청들을 버리지도, 경쟁시키지도 않는다. 큐에 쌓아 하나씩 순서대로 실행한다. 결국 주문 하나가 아니라 세 개가, 각각 의도된 것처럼 처리된다.
+
+## useActionState가 실제로 하는 일
+
+시그니처는 간단하다.
+
+```js
+const [state, formAction, isPending] = useActionState(fn, initialState);
+```
+
+함수 하나를 넘기면, 폼이 제출될 때마다 React가 그 함수를 `(previousState, formData)` 인자로 호출한다. 함수가 반환한 값이 곧 새로운 `state`가 된다. 핵심은 `isPending`이다. 이 값은 개발자가 타이밍을 추측해 넣는 boolean이 아니라, React 자체의 트랜지션 추적에 묶여 있다.
+
+프레임워크 없이 순수 React만으로 동작하는 예제는 이렇다.
+
+```jsx
+import { useActionState } from "react";
+
+async function subscribe(previousState, formData) {
+  const email = formData.get("email");
+
+  if (!email || !email.includes("@")) {
+    return { success: false, message: "Enter a valid email." };
+  }
+
+  await new Promise((resolve) => setTimeout(resolve, 800));
+  return { success: true, message: "You're subscribed." };
+}
+
+function NewsletterForm() {
+  const [state, formAction, isPending] = useActionState(subscribe, {
+    success: false,
+    message: "",
+  });
+
+  return (
+    <form action={formAction}>
+      <input type="email" name="email" placeholder="you@example.com" />
+      <button type="submit" disabled={isPending}>
+        {isPending ? "Subscribing..." : "Subscribe"}
+      </button>
+      {state.message && <p>{state.message}</p>}
+    </form>
+  );
+}
+```
+
+`onSubmit`도, `preventDefault`도, 따로 관리하던 pending 플래그도 없다. 가짜 로컬 플래그 자리에 `disabled={isPending}`을 끼워 넣는 것만으로, 해결했다고 착각하던 중복 제출 문제가 비로소 실제로 해결된다.
+
+![코드가 담긴 노트북 화면](https://images.pexels.com/photos/4164418/pexels-photo-4164418.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Antonio Batinić](https://www.pexels.com/@antonio-batinic-2573434) on [Pexels](https://www.pexels.com/photo/black-screen-with-code-4164418/)*
+
+## 예상과 달랐던 부분
+
+원 저자는 빠른 클릭이 서로 경쟁(race)할 거라고 생각했다. 마지막 클릭이 이기거나 첫 클릭이 이기는, 전형적인 레이스 컨디션 말이다. 그런데 실제로는 그렇지 않았다.
+
+React는 액션 함수 호출을 모두 큐에 넣고 순차적으로 실행한다. 각 호출은 이전 호출이 끝난 뒤에야 시작된다. "장바구니 담기"를 빠르게 네 번 누르면 정착까지 대략 네 배의 시간이 걸린다. 뭔가 고장 나서가 아니라, 두 번째 호출이 첫 번째 호출의 프로미스가 풀리기를 얌전히 기다리기 때문이다. 경쟁도, 조용한 유실도 없다.
+
+그러니 진짜 문제는 애초에 손상된 DB 쓰기가 아니었다. 문제는 모든 클릭이 여전히 카운트된다는 것이다. 느린 연결에서 다섯 번 누르면 다섯 번의 액션이 처리된다. `disabled={isPending}`은 레이스를 막으려는 게 아니다. 레이스 자체가 없으니까. 그것은 사용자가 애초에 의도하지 않은 네 개의 액션을 큐에 쌓지 못하게 막는 장치다.
+
+### 큐에서 에러가 나면 뒤가 사라진다
+
+한 가지 미리 알아둘 게 있다. 큐 안에서 앞선 호출이 throw하면, React는 그 뒤에 대기 중이던 호출을 전부 건너뛴다. 그러니 에러를 잡아서 상태 객체로 반환해라. 뭔가를 throw하게 두면, 존재하는 줄도 몰랐던 대기 중인 액션들을 잃게 된다.
+
+```js
+async function submitOrder(previousState, formData) {
+  try {
+    const result = await placeOrder(formData);
+    return { success: true, orderId: result.id };
+  } catch (err) {
+    return { success: false, error: "Something went wrong. Try again." };
+  }
+}
+```
+
+## 함께 걸려 넘어진 두 가지 함정
+
+**Stale closure(오래된 클로저).** 액션 함수가 `formData.get(...)`으로 직접 읽는 대신 컴포넌트 스코프의 변수에 손을 뻗으면, 리렌더 한 번 차이로 이미 낡은 데이터를 가지고 동작하게 된다. 이전 렌더에서 캡처한 값에 기대지 말고, 제출된 값은 `formData`에서 읽는 편이 안전하다.
+
+**리셋 버튼이 없다는 사실.** `useActionState`에는 자기 상태를 초기화하는 내장 방법이 없다. 문서에도 그렇게 명시돼 있다. "처음부터 다시" 버튼이 필요하다면 선택지는 둘이다. 액션 함수가 리셋 신호를 입력 중 하나로 인식하도록 가르치거나, 컴포넌트의 `key` prop을 바꿔 강제로 다시 마운트하는 것이다. 보통은 리셋 신호 방식이 덜 파괴적이다. DOM을 통째로 허물지 않아도 되기 때문이다.
+
+## 이걸 쓰지 않는 경우
+
+인터랙션이 즉각적으로 느껴져야 한다면, 예를 들어 좋아요 버튼이나 체크박스처럼 서버 응답 전에 UI가 먼저 바뀌어야 하는 경우라면, `useActionState`는 언제나 한 박자 느리게 느껴진다. 그건 `useOptimistic`의 몫이다. 기본기를 익힌 뒤 둘을 함께 쓰는 걸 권한다.
+
+또한 여러 단계에 걸쳐 controlled input이 흩어져 있고 그 단계들이 동시에 마운트되지 않는 멀티스텝 위저드라면, `useActionState`가 전제하는 uncontrolled 폼 모델과 싸우는 비용이 절약되는 코드보다 크다.
+
+## 정리
+
+그동안 아마 많은 개발자가 배포해온 패턴, "클릭하면 비활성화하고 잘 되길 바라기"는 진짜 문제를 해결한 게 아니라 가려온 것이었다. 버튼이 비활성화된 것처럼 보이든 아니든, 모든 클릭은 여전히 도달한다. `useActionState`는 단순히 보일러플레이트를 줄여주는 데 그치지 않는다. pending 상태를 실제 무언가에 묶어주기 때문에, 해결했다고 믿었던 문제가 비로소 실제로 해결된다.
+
+직접 폼 제출의 pending 상태를 손수 관리해왔다면, 한 번쯤 다시 들여다볼 가치가 있다.
+
+원 저자는 필드 단위 검증을 포함한 완전한 프로덕션 회원가입 예제, `useState`·`useFormStatus`와의 비교 표, `aria-busy`와 pending 중 입력 비활성화 같은 접근성 세부사항까지 자신의 사이트에 정리해두었다: [React 19 useActionState Explained](https://shubhra.dev/tutorials/react-19-useactionstate)
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
