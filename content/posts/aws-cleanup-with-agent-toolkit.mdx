@@ -1,0 +1,144 @@
+﻿---
+title: "미루기만 하던 AWS 정리, 에이전트에게 맡겨봤다"
+description: "잊어버린 AWS 리소스는 조용히 요금을 갉아먹는다. 2014년에 만든 CloudFormation 스택부터 삭제에 실패한 버킷까지, 콘솔도 CLI도 없이 에이전트와 대화만으로 계정을 정리한 기록."
+date: "2026-07-23"
+published_at: "2026-07-30"
+category: "news"
+tags: ["aws", "mcp", "agenttoolkit", "cloud"]
+cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F1va2mf73bf9m5ll19xss.png"
+coverAlt: "The AWS Cleanup We Keep Putting Off (I Let an Agent Do It)"
+slug: "aws-cleanup-with-agent-toolkit"
+source_id: "devto-4216399"
+source_url: "https://dev.to/aws/the-aws-cleanup-we-keep-putting-off-i-let-an-agent-do-it-3nc1"
+source_title: "The AWS Cleanup We Keep Putting Off (I Let an Agent Do It)"
+source_author: "Rohini Gaonkar"
+source_published: "2026-07-23"
+---
+
+<LinkCard url="https://dev.to/aws/the-aws-cleanup-we-keep-putting-off-i-let-an-agent-do-it-3nc1" author="Rohini Gaonkar" date="2026-07-23" />
+
+## 청구 알림 하나에서 시작된 계정 청소
+
+시작은 청구 알림이었다. 예상 요금이 250달러를 넘겼다는 메일. 무섭게 큰 돈은 아니었지만 한 번 들여다볼 만한 액수였다. 정작 눈길을 끈 건 금액이 아니라 알림 자체였다. 언젠가 이걸 설정해 뒀는데, 기준값이 오래돼 낡은 느낌이었다.
+
+알림이 어디서 오는지 찾아보니 `BillingAlerts`라는 CloudFormation 스택이었다. 2014년에 만들어 놓고 까맣게 잊고 있던 스택. 잊고 있던 것이 다른 잊고 있던 것들을 경고하고 있었던 셈이다.
+
+스택 목록을 열자 그놈 하나가 아니었다. 이름조차 낯선 스택들이 줄줄이 늘어서 있었다. 몇 년치 잔해가 그대로 남아 있었다.
+
+이런 리소스는 아무것도 망가뜨리지 않는다. 새벽 2시에 호출하지도 않는다. 그저 조용히 요금만 먹다가, 청구서를 볼 때쯤이면 절반은 뭐에 쓰던 건지 기억도 안 난다. 잊힌 채 돌아가는 리소스는 클라우드 낭비의 가장 큰 원인 중 하나로, [일부 추정으로는 평균 클라우드 예산의 4분의 1가량](https://info.flexera.com/cm-report-state-of-the-cloud)을 차지한다.
+
+알림 하나 고치러 왔다가 난장판을 발견한 것이다.
+
+![바닥에 쌓인 정리해야 할 상자들](https://images.pexels.com/photos/8580732/pexels-photo-8580732.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [RDNE Stock project](https://www.pexels.com/@rdne) on [Pexels](https://www.pexels.com/photo/boxes-on-the-floor-8580732/)*
+
+솔직히 이 스택들이 큰돈을 먹고 있진 않았다. 멈춰 있는 인스턴스 몇 개, 반쯤 지워진 잔해 몇 개. 만약 이것들이 252달러의 정체였다면 알림이 매달 울렸을 것이다. 하지만 바로 그게 핵심이다. 잡동사니를 걷어내기 전에는 뭐가 실제로 돈을 먹는지 알 수가 없다.
+
+## 왜 아직도 클릭하고 있었을까
+
+원래 이 작업은 잡일이다. 콘솔을 열고, 스택을 하나씩 찾고, 삭제를 누르고, 기다리고, 새로고침하고, 됐는지 확인하고. 아니면 CLI 명령을 일일이 쓰거나. 어렵진 않지만 지루하다. 계속 미루게 되는 딱 그런 종류의 일이다.
+
+시작도 그렇게 했다. 콘솔을 클릭하며 뭄바이 리전의 오래된 Directory Service 디렉터리를 손으로 지우고 로딩 스피너를 기다리던 참이었다. 10분 남짓 수동 클릭을 했는데 아직 지워야 할 스택이 한 무더기 남아 있었다. 그때 깨달았다. 이걸 내가 직접 할 필요가 없다는 걸.
+
+그래서 [Kiro](https://kiro.dev/)를 열었다. 여기엔 [Agent Toolkit for AWS](https://docs.aws.amazon.com/agent-toolkit/latest/userguide/what-is-agent-toolkit.html)가 붙어 있다. 콘솔도 CLI도 없이, 원하는 걸 말로 설명하고 나머지는 에이전트에게 맡겼다. 유능한 조수처럼.
+
+AWS CLI가 설치돼 있다면 아래 명령으로 바로 시작할 수 있다.
+
+```shell
+aws configure agent-toolkit
+```
+
+## 먼저, 지금 뭐가 있는지 보여줘
+
+첫 요청은 리전 안의 CloudFormation 스택 목록이었다. 에이전트는 12개를 찾아왔다. 알아보는 것도 있었고, 2014년산 청구 알림 스택, 2021년의 패치·컴플라이언스 스택 몇 개, CDK 부트스트랩 툴킷처럼 아주 오래된 것들도 있었다. 그중 정말 지우고 싶은 네 개를 골라 삭제를 지시했다.
+
+## 삭제 전에 먼저 물어봤다
+
+이 부분은 먼저 짚고 싶다.
+
+에이전트는 요청하자마자 곧바로 지우기 시작하지 않았다. 실행에 앞서 삭제 대상 네 개를 다시 나열해 보여줬고, 이 작업이 리소스를 전부 제거하며 쉽게 되돌릴 수 없다고 분명히 알렸다. 그리고 확인을 요청했다.
+
+> 인프라 삭제는 되돌릴 수 없다.
+
+"진행해"라고 답하자 그제야 움직였다. "그냥 알아서 처리해"의 속도를 얻으면서도, 파괴적 작업 앞의 체크포인트는 그대로 유지한 것이다.
+
+## 콘솔을 새로고침하는 대신 코드로 결과를 확인했다
+
+삭제 요청이 들어가자 에이전트는 스크립트를 짜서 툴킷 샌드박스에서 실행했다. 네 개 스택의 상태를 한꺼번에 확인하는 코드였다. 이미 사라진 경우까지 처리하고, 깔끔한 상태 맵을 돌려줬다. 전부 boto3로 원격 샌드박스에서 돌았고, 내 컴퓨터에서는 아무것도 실행되지 않았다.
+
+셋은 깨끗하게 지워졌지만 하나가 버텼다. 네 번째 스택 `aws-sam-cli-managed-default`가 `DELETE_FAILED`로 돌아왔다.
+
+에이전트는 스택 이벤트를 끌어와 원인을 찾았다. 실패는 SAM이 배포 아티팩트에 쓰는 S3 버킷(`SamCliSourceBucket`) 하나를 가리켰고, 메시지는 구체적이었다.
+
+> 삭제하려는 버킷이 비어 있지 않습니다. 버킷의 모든 버전을 삭제해야 합니다.
+
+이 버킷은 버저닝이 켜져 있었다. 그래서 "버킷 비우기"만으로는 부족하다. 모든 객체 버전은 물론 삭제 마커까지 전부 지워야 CloudFormation이 버킷을 제거할 수 있다. 콘솔에서 잠깐 "비우기"를 눌러도 가끔 해결되지 않는 이유가 여기 있다.
+
+에이전트는 원인을 설명한 뒤 버킷을 제대로 비우고 재시도하겠다고 제안했고, 나는 승인했다. 버저닝 버킷의 함정을 떠올리고, 버킷 이름을 추적하고, 삭제 마커까지 세야 한다는 걸 깨닫고, 수동으로 비운 뒤 다시 돌아와 재시도하는 그 우회로 전체 — 평소라면 내가 낑낑대며 지나갔을 부분을 에이전트가 알아서 이어붙였다. 네 개 모두 사라졌다.
+
+## 무엇이 달랐나
+
+"AI로 스택 몇 개 지웠다"가 요점은 아니다. 핵심은 전 과정이 한자리에서 끝났다는 것이다. 나는 목표를 평범한 말로 설명했고, 에이전트는 계정의 실제 상태를 나열하고, 파괴적 단계를 확인받고, 코드를 실행해 처리하고, 깨진 한 가지를 문서를 뒤지지 않고 스스로 디버깅해 고쳤다.
+
+몇 가지가 이걸 가능하게 했다.
+
+- **실제 코드를 안전하게 실행했다.** 툴킷은 boto3가 들어간 샌드박스 파이썬 런타임을 에이전트에게 준다. 내 노트북에서는 아무것도 돌지 않았다.
+- **위험한 부분은 확인받았다.** 삭제는 일방통행이고, 에이전트는 그렇게 다뤘다.
+- **실패를 끝까지 처리했다.** 콘솔이었다면 `DELETE_FAILED`에서 버킷을 남겨두거나(계정에 고아로 방치) S3 콘솔로 넘어가 직접 비워야 했다. 에이전트는 그 맥락 전환 없이 스택 이벤트를 읽고 버킷을 제대로 비운 뒤 재시도했다.
+- **모든 게 감사 추적에 남았다.** 관리형 [AWS MCP Server](https://docs.aws.amazon.com/agent-toolkit/latest/userguide/getting-started-aws-mcp-server.html)를 거치므로 모든 호출이 CloudTrail에 기록된다.
+
+## CloudTrail에서 모든 호출이 보였다
+
+이 부분이 "에이전트가 내 인프라를 지웠다"를 무서운 일에서 괜찮은 일로 바꾼다.
+
+에이전트의 모든 동작은 관리형 AWS MCP Server를 거쳤고, 그 호출 하나하나가 [CloudTrail](https://aws.amazon.com/cloudtrail)에 나타난다. 실제로 확인해 봤다. 네 개의 `DeleteStack` 이벤트가 모두 내 자격증명 아래 남아 있었고, 뚜렷한 지문을 달고 있었다.
+
+```yaml
+eventName:        DeleteStack
+userIdentity:     gaonkarr
+sourceIPAddress:  aws-mcp.amazonaws.com
+userAgent:        aws-mcp.amazonaws.com
+```
+
+`aws-mcp.amazonaws.com`이라는 값이 에이전트의 동작을 내 동작과 구분하는 표식이다. 같은 날 앞서 콘솔에서 손으로 지운 스택들의 이벤트는 실제 브라우저 유저 에이전트와 내 진짜 IP로 완전히 다르게 찍혔다. 감사 기록이 누가 실제로 무엇을 했는지 — 내 클릭인지, 나를 대신한 에이전트인지 — 보여준 것이다.
+
+이번 청소에서 나온 다섯 개의 `DeleteStack` 이벤트를 CloudTrail에서 그대로 옮기면 이렇다.
+
+| 시각 (UTC) | 스택 | 자격증명 | Source IP | User Agent |
+|---|---|---|---|---|
+| 14:23:18 | CdkPipelineStack | gaonkarr | aws-mcp.amazonaws.com | aws-mcp.amazonaws.com |
+| 14:23:18 | buildon-sam-app | gaonkarr | aws-mcp.amazonaws.com | aws-mcp.amazonaws.com |
+| 14:23:18 | aws-sam-cli-managed-default (1차) | gaonkarr | aws-mcp.amazonaws.com | aws-mcp.amazonaws.com |
+| 14:23:19 | sam-app | gaonkarr | aws-mcp.amazonaws.com | aws-mcp.amazonaws.com |
+| 14:24:19 | aws-sam-cli-managed-default (재시도) | gaonkarr | aws-mcp.amazonaws.com | aws-mcp.amazonaws.com |
+
+재시도까지 기록에 그대로 남았다. `aws-sam-cli-managed-default` 삭제가 두 번 찍혔다. 한 번은 실패했을 때, 그리고 약 1분 뒤 버킷을 비우고 재시도했을 때. 실패했다가 고친 전 과정이 보존됐다.
+
+솔직히 알아둘 만한 단서 하나. `DeleteStack` 호출은 **관리 이벤트**라 CloudTrail이 기본으로 기록한다. 하지만 실제로 버킷을 비운 S3 `DeleteObjects` 호출은 **데이터 이벤트**라, 해당 버킷에 데이터 이벤트 로깅을 켜두지 않았다면 기록되지 않는다. 그래서 스택 삭제는 또렷이 봤지만 개별 객체 삭제는 볼 수 없었다. 객체 단위 동작까지 추적에 남기고 싶다면 S3 데이터 이벤트를 먼저 켜야 한다.
+
+## 다음 차례
+
+스택 네 개를 지우고 나니 기분이 좋았다. 그래서 궁금해진 김에 에이전트에게 물었다.
+
+> 내 AWS 계정을 훑어서 남아 있는 잔여 리소스를 찾아줄 수 있어?
+
+에이전트는 계정의 주요 서비스를 스캔했다. 기본 리전부터 시작해 나머지 리전으로 확장했다. 워크숍, 데모, 옛 프로젝트에서 나온 잔여 리소스를 상당량 찾아내 비용 영향 요약까지 정리해 줬다.
+
+- 멈춰 있는 EC2 인스턴스 3개, 가장 오래된 건 2021년산.
+- 어디에도 붙지 않은 EBS 볼륨 14개, 일부는 2014년에 만들어져 아무것도 없는 스토리지에 조용히 요금을 물고 있었다.
+- 연결되지 않은 Elastic IP 5개, 아무 일도 안 하는 주소에 월 18달러가량.
+- S3 버킷 122개, 잊고 있던 로드 밸런서 하나, 오래전 지원이 끝난 런타임으로 도는 Lambda 함수 16개.
+
+무엇도 망가뜨리지 않았다. 그래서 이렇게 오래 살아남은 것이다.
+
+찾아내는 일이 원래 가장 어렵다. 서비스마다, 리전마다 콘솔을 하나씩 클릭하고 다니는 게 내가 이 일을 절대 안 하는 이유였다. 뭘 하나 지우기도 전에 몇 시간짜리 지루한 노동이 앞을 막는다. 이번엔 한 번 물었고, 에이전트가 목록 전체를 건네줬다.
+
+시작하기엔 늘 너무 커 보이던 작업이 이제 가장 쉬운 부분이 됐다.
+
+주의 하나. 무엇을 지울지 에이전트에게 구체적으로 지시하자. 삭제는 되돌릴 수 없는 작업이며, 반드시 신중하게 다뤄야 한다.
+
+[Rohini Gaonkar 팔로우하기 →](https://dev.to/rohini_gaonkar)
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

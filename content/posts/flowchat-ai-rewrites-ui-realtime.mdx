@@ -1,0 +1,219 @@
+﻿---
+title: "채팅하면서 UI가 실시간으로 다시 그려진다 — FlowChat 개발기"
+description: "AI가 텍스트 대신 HTML을 직접 반환하도록 만든 채팅 앱 FlowChat. 게임을 만들고, 테마를 바꾸고, 배경을 입히는 과정을 개발자가 실시간으로 지켜본다. Cloudflare Workers와 Durable Objects로 서버 없이 구현한 구조를 정리했다."
+date: "2026-07-28"
+published_at: "2026-07-30"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fv9amfydao61xyszazb3n.gif"
+coverAlt: "I Built a Chat App That Rewrites Its Own UI in Real Time"
+slug: "flowchat-ai-rewrites-ui-realtime"
+source_id: "devto-4256220"
+source_url: "https://dev.to/varshithvhegde/i-built-a-chat-app-that-rewrites-its-own-ui-in-real-time-21m5"
+source_title: "I Built a Chat App That Rewrites Its Own UI in Real Time"
+source_author: "Varshith V Hegde"
+source_published: "2026-07-28"
+---
+
+<LinkCard url="https://dev.to/varshithvhegde/i-built-a-chat-app-that-rewrites-its-own-ui-in-real-time-21m5" author="Varshith V Hegde" date="2026-07-28" />
+
+## 개요
+
+AI 채팅 앱은 대체로 똑같이 움직인다. 사용자가 뭔가 입력하면 모델이 텍스트나 마크다운을 돌려주고, 화면은 그걸 깔끔한 문단으로 렌더링한다. 답을 얻는 데는 문제없지만, 뭔가를 직접 만들고 싶은 사람에게는 심심한 방식이다.
+
+개발자 Varshith V Hegde는 이 전제를 하나만 바꿨다. "AI가 텍스트를 돌려주면 화면이 그걸 렌더링한다"가 아니라 "AI가 HTML을 돌려주면 브라우저가 그걸 실행한다". 그렇게 몇 주 동안 만든 결과물이 **FlowChat**이다. 게임을 만들어달라고 하면 클릭해서 플레이하는 보드가 채팅 안에 뜨고, "바비 테마로 바꿔줘"라고 하면 화면 전체가 분홍빛으로 물든다. 이 변화 하나가 경험 전체를 바꿔놓는다.
+
+라이브 데모: [flowchat-public.varshithvh.workers.dev](https://flowchat-public.varshithvh.workers.dev)
+
+## 실제로 뭘 할 수 있나
+
+기술 구조를 설명하기 전에, 이게 실제로 어떤 경험인지부터 보는 편이 낫다. 데모가 아키텍처 다이어그램보다 훨씬 흥미롭기 때문이다.
+
+![Tic Tac Toe game running live inside a chat bubble](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/ew5c3qsxgiyzglj1k9ed.png)
+
+**게임.** 틱택토를 만들어달라고 하면 플레이 가능한 보드가 나온다. 클릭으로 말을 두고, AI 상대가 있고, 승패 판정도 된다. 커넥트4나 스네이크도 된다. 게임은 폼(form)이 들어 있는 에이전트 말풍선 형태로 채팅 안에 렌더링된다. 한 수를 두면 그 정보가 LLM으로 전송되고, 모델이 처리한 뒤 바뀐 칸만 갱신한다.
+
+**테마.** "바비 테마로 바꿔줘"라고 하면 모델이 CSS를 덮어씌워서 인터페이스 전체가 분홍색으로 바뀐다. 메시지, 테두리, 버튼, 입력창까지. "오펜하이머 테마"라고 하면 어두운 세피아 톤에 묵직한 타이포그래피가 적용된다. 사이드바와 상단 바는 고정돼 있어서 앱의 뼈대는 무너지지 않고, 채팅 영역 안쪽만 변한다.
+
+![Barbie themed interface with pink gradients](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/d3uxqwvx21b24sgrzjzt.png)
+
+**배경.** "별이 흐르는 배경 넣어줘"라고 하면 메시지 뒤로 애니메이션 캔버스가 렌더링된다. "DVD 바운스 애니메이션"이라고 하면 로고가 채팅 화면 안에서 튕겨 다닌다. 이 모든 게 격리된 레이어 안에서만 움직여서 실제 UI를 덮는 일은 없다.
+
+![Space background visible behind chat messages](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/khj2qveq2xiujaonyy1k.png)
+
+**인터페이스 통째로 교체.** 개발자는 한번 페이지를 위키피디아처럼 만들어달라고 했다. 그러자 입력창이 링크 목록으로 바뀌었고, 링크를 클릭하면 폼이 LLM으로 제출돼 새 문서가 생성되면서 채팅 내용을 대체했다. 일요일 오후에 직접 만든 채팅 앱에서 로마 제국에 관한 글을 읽고 있었다는 얘기다.
+
+## Cloudflare 엣지 위에서만 돈다
+
+FlowChat은 전부 Cloudflare 엣지 인프라 위에서 돌아간다. 전통적인 서버도, 계속 살려둬야 하는 Node.js 프로세스도, 관리해야 하는 데이터베이스도 없다.
+
+**Cloudflare Workers**가 매 요청마다 TypeScript를 실행한다. 콜드 스타트는 전 세계 어디서든 50ms 미만이다. 라우팅, 인증, 요청 제한, WebSocket 업그레이드, LLM 스트리밍을 워커 하나의 파일이 전부 처리한다.
+
+**Cloudflare Durable Objects**가 이 구조를 성립시키는 핵심이다. 채팅방 하나가 곧 Durable Object 하나다. 자체 SQLite 데이터베이스, 자체 인메모리 큐, 자체 WebSocket 연결을 가진 상태 저장 액터다. 나와 친구가 같은 채팅 URL을 열면 둘 다 동일한 DO에 연결된다. 동기화는 따로 구현할 대상이 아니라, 아키텍처 자체가 그렇게 동작한다.
+
+각 DO는 다음을 저장한다.
+
+- 전체 LLM 메시지 히스토리 (SQLite)
+- 클라이언트 세션 기록
+- 대기 중인 프롬프트 큐 (최대 5개)
+- 브라우저/IP별 요청 제한 상태
+- 읽기 전용 스냅샷을 위한 포크 인덱스
+
+**Hibernatable WebSockets**는 DO를 계속 켜두지 않고도 연결을 살려둔다. ping/pong은 Cloudflare가 자동으로 처리한다. DO는 메시지가 도착하면 깨어나고, 사이사이에는 다시 잠든다.
+
+인증은 **better-auth**가 맡는다. 설정하지 않으면 앱은 누구에게나 열려 있고, 설정하면 Google·GitHub·이메일/비밀번호 로그인과 역할 기반 접근 제어(admin, dev, chat, view, blocked)를 쓸 수 있다.
+
+응답을 만들어내는 모델은 **Inception Labs의 Mercury-2**다. GPT나 Claude 같은 자기회귀(autoregressive) 방식이 아니라 확산(diffusion) 기반 언어 모델이라 생성 방식이 다르다. 실제로 써보면 빠르고, FlowChat이 요구하는 HTML 출력 형식을 제대로 이해하는 느낌이라고 한다.
+
+## 가장 공들인 부분, 프로토콜
+
+개발자가 가장 즐겁게 설계했고 가장 자랑스러워하는 부분이 바로 스트리밍 프로토콜이다.
+
+AI가 응답 스트림에 그냥 날 HTML을 쏟아부을 수는 없다. 한 번의 응답이 페이지의 서로 다른 세 부분을 독립적으로 갱신해야 할 수도 있다. 틱택토에서 한 수를 두면 칸 하나만 바뀌어야지 보드 전체를 다시 그리면 안 된다. 배경 애니메이션이 사이드바를 건드리면 안 되고, 한 플레이어에게만 보내는 비밀 메시지가 다른 플레이어 화면에 떠서도 안 된다.
+
+그래서 구분자(delimiter) 기반 스트리밍 프로토콜을 만들었다. 모델은 모든 DOM 갱신을 구조화된 봉투로 감싼다.
+
+```html
+PpqUtcLGQdYN4oqc:BODY_START
+<template for="/chat/append-message">
+  <div class="message message-user" data-client-id="1">Lets play Tic Tac Toe</div>
+  <div class="message message-agent message-full-width" id="msg-1">
+    <!-- entire game board HTML -->
+  </div>
+  <?marker name="/chat/append-message">
+</template>
+PpqUtcLGQdYN4oqc:BODY_END
+```
+
+`template`의 `for` 속성은 DOM에 있는 이름표(marker)를 가리킨다. 클라이언트 런타임은 문서 트리를 훑으면서 이름이 일치하는 처리 지시자(processing instruction)를 찾아, 다른 부분은 건드리지 않고 그 자리만 템플릿 내용으로 정확히 교체한다.
+
+한 번의 AI 응답에는 분리 구분자로 나뉜 여러 메시지가 담길 수 있다.
+
+```plaintext
+PpqUtcLGQdYN4oqc:SPLIT_MESSAGE
+```
+
+덕분에 모델은 모든 사용자에게 보이는 공개 채팅 확인 메시지와, 특정 플레이어 한 명에게만 가는 비밀 메시지를 동시에 보낼 수 있다. 라우팅 정보(SERVER_PROPS)는 서버가 WebSocket으로 전달하기 전에 떼어낸다.
+
+이 전체 구조는 크롬에 들어오고 있는 [Dynamic Partial Update](https://developer.chrome.com/blog/declarative-partial-updates) 명세를 구현한 두 개의 브라우저 폴리필 위에 얹혀 있다.
+
+## 시스템 프롬프트라는 API 계약서
+
+AI가 이 프로토콜 형식에 맞는 유효한 HTML을 일관되게 뽑아내도록 만드는 데는 반복 작업이 많이 필요했다. 최종 시스템 프롬프트는 약 300줄이고, 프롬프트라기보다 API 계약서에 가깝게 읽힌다.
+
+디자인 시스템에 쓰이는 모든 CSS 변수의 정확한 hex 값을 담아, 모델이 색을 추측하는 대신 `var(--accent)`를 제대로 쓰게 한다. border-radius, 그림자 값, 애니메이션 타이밍 규칙도 들어 있다. Chart.js나 d3를 위한 비동기 CDN 로딩 패턴도 넣었는데, 모델이 라이브러리가 로드되기도 전에 `new Chart()`를 호출하는 일이 반복됐기 때문이다.
+
+가장 오래 붙잡은 버그는 이거였다. 모델이 append-message 마커를 앱 컨테이너 div 바깥이 아니라 *안쪽*에 넣어버렸다. 그러면 이후의 모든 채팅 메시지가 게임 보드 안으로 주입됐다. 잘못된 예시와 올바른 예시를 프롬프트에 나란히 넣어 해결했다.
+
+```html
+<!-- WRONG: marker inside app div, next message injects here forever -->
+<div id="ttt-app-1">
+  ...board...
+  <?marker name="/chat/append-message">
+</div>
+
+<!-- CORRECT: marker after ALL divs close -->
+<div id="ttt-app-1">
+  ...board...
+</div>
+<?marker name="/chat/append-message">
+```
+
+주석으로 실패 사례를 명시한 '잘못된 예시'가 올바른 예시만 잔뜩 넣은 문서보다 쓸모 있었다. 모델은 정상 경로만이 아니라 실패가 어떤 모습인지도 알아야 한다는 얘기다. 개발자는 Mercury-2 같은 확산 모델이 자기회귀 모델과는 약간 다른 프롬프팅을 필요로 한다는 것도 배웠다고 한다. 응답이 타자기처럼 한 글자씩 찍히는 게 아니라 내용이 한꺼번에 나타나는 느낌이라, 이 용도와 자연스럽게 맞아떨어진다.
+
+## 멀티유저는 그냥 기본값
+
+모든 채팅 URL은 공유된다. 같은 링크를 두 개의 브라우저 탭에서 열면 두 탭 모두 WebSocket으로 모든 AI 응답을 실시간으로 받는다. 클라이언트마다 고유 ID가 붙고, 사용자 말풍선은 클라이언트별로 색이 다르다.
+
+LLM은 각 클라이언트의 ID를 안다.
+
+```plaintext
+[1]: I want to guess a secret word
+[2]: I want to give the hint
+```
+
+그래서 모델은 두 플레이어 모두에게 보이는 메시지 하나와, 비밀 단어가 담겨 1번 클라이언트에게만 보이는 메시지 하나를 함께 응답할 수 있다. 라우팅은 서버 쪽에서 처리하고, 엉뚱한 브라우저로 가기 전에 WebSocket 페이로드에서 떼어낸다.
+
+![Two browser windows on the same chat URL receiving the same message](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/4fl8h7ek5ntx0pnr576z.png)
+
+특별한 멀티유저 로직은 따로 넣지 않았다. Durable Object 구조가 알아서 그렇게 동작한다. 모든 클라이언트가 같은 DO 인스턴스에 연결되고, DO가 WebSocket 연결을 쥐고 있으니, LLM이 응답하면 DO가 전부에게 뿌린다.
+
+## UI는 순수 CSS
+
+프레임워크도, Tailwind도, 컴포넌트 라이브러리도 없다. 순수 CSS다. Inter 폰트를 논블로킹으로 불러오고, 짙은 네이비 팔레트(`#06091a`에서 `#101630`), 페리윙클 인디고 강조색(`#5b6ef5`)을 쓴다.
+
+앱의 뼈대는 사이드바에 상단 바가 붙은 메인 영역이다. 사이드바와 상단 바는 물리적으로 항상 불투명하다. 테마와 배경이 렌더링될 수 있는 곳은 채팅 뷰포트뿐이다. 이 격리 덕분에 AI가 실수로 우주 사진을 내비게이션 위에 덮어버리는 일을 막는다. 실제로 그런 일이 여러 번 있었기 때문에 아는 얘기다.
+
+```css
+.chat-viewport {
+  position: relative;
+  isolation: isolate;
+}
+
+#fc-bg-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none !important;
+}
+
+.chat {
+  position: relative;
+  z-index: 2;
+}
+```
+
+배경 레이어는 z-index 0, 채팅 메시지는 z-index 2, 사이드바와 상단 바는 아예 뷰포트 바깥의 별도 요소다. `!important`와 MutationObserver로 억지로 강제하는 것보다 구조적 격리가 낫다. 처음엔 강제하는 방식을 먼저 시도했는데, 무한 루프가 걸려 페이지 전체가 얼어붙었다고 한다.
+
+## 솔직한 고생담
+
+**마커 위치 버그**는 제대로 잡는 데 이틀이 걸렸다. 두 번째 메시지가 도착하기 전까지는 문제가 눈에 보이지 않았기 때문이다. 첫 메시지는 언제나 멀쩡해 보였다.
+
+**배경 격리 싸움**은 일주일 정도 이어졌다. CSS `!important`, 그다음 MutationObserver 강제 장치, 그다음 JS 레벨 배경 잠금까지 시도했지만 전부 다른 걸 망가뜨렸다. 정답은 구조적 접근이었다. 배경 레이어를 채팅 뷰포트 안으로 옮겨, 밖으로 빠져나가는 게 물리적으로 불가능하게 만드는 것.
+
+**CDN 스크립트 로딩**은 AI가 만든 앱마다 걸려 넘어지는 지점이다. 모델은 라이브러리가 로드되기 전에 API를 호출하는 코드를 쓴다. 해결책은 폴링을 가르치는 것이다.
+
+```javascript
+function init() {
+  if (typeof Chart === 'undefined') { setTimeout(init, 50); return; }
+  // safe to use Chart here
+}
+init();
+```
+
+이 패턴을 시스템 프롬프트에 넣어두니 안정적으로 동작한다.
+
+**폼 액션 URL 버그**는 좀 민망한 실수였다. `app.html`의 폼 액션이 절대 경로 `/c/CHAT_ID/prompt`가 아니라 상대 경로 `c/CHAT_ID/prompt`였다. 새로고침한 상태에서는 경로가 맞게 풀렸지만 리다이렉트 이후에는 아니었다. 모든 프롬프트가 `/c/c/CHAT_ID/prompt`로 제출되며 404를 받았다. 서버 로그에서 잡아낸 뒤, 상대 경로 액션 URL을 제출 전에 정규화하는 전역 폼 제출 인터셉터를 안전망으로 추가했다.
+
+## 배포는 명령어 하나
+
+전부 Cloudflare 무료 요금제에서 돌아간다. 명령어 하나면 끝이다.
+
+```bash
+npx wrangler deploy --env public
+```
+
+Docker도, 준비할 서버도, 설정할 데이터베이스 UI도 없다. 스케일링, WebSocket 하이버네이션, 전 세계 분산, 각 Durable Object 안의 SQLite 저장까지 Cloudflare가 알아서 처리한다.
+
+API 키 같은 시크릿은 Wrangler로 저장한다.
+
+```bash
+npx wrangler secret put INCEPTION_API_KEY --env public
+```
+
+코드베이스나 버전 관리에는 결코 닿지 않는다.
+
+## 직접 해보려면
+
+- 라이브: [flowchat-public.varshithvh.workers.dev](https://flowchat-public.varshithvh.workers.dev)
+- 소스: [github.com/Varshithvhegde/flowchat](https://github.com/Varshithvhegde/flowchat)
+
+[FlowChat 저장소 보기 →](https://github.com/Varshithvhegde/flowchat)
+
+새 채팅을 열고 아무거나 입력해 보자. 게임을 만들어달라고 하든, 테마를 바꾸든, 배경을 넣든, 페이지를 완전히 다른 무언가로 바꿔달라고 하든, 그대로 해준다.
+
+개발자가 계속 곱씹는 지점은, 이 모든 게 결국 전제 하나를 옮긴 데서 시작됐다는 사실이다. "AI가 텍스트를 돌려주고 UI가 그걸 렌더링한다"에서 "AI가 HTML을 돌려주고 브라우저가 그걸 실행한다"로. 그 하나의 변화가 나머지 전부를 열어젖혔다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
