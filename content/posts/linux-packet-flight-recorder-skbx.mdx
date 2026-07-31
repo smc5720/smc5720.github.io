@@ -1,0 +1,202 @@
+﻿---
+title: "리눅스 패킷의 여정을 기록하는 블랙박스, skbx를 만들다"
+description: "패킷이 리눅스 커널 안에서 어디로 갔는지 추적하고, 그 증거를 저장했다가 root 권한 없이 다시 재생하는 도구 skbx의 개발 이야기."
+date: "2026-07-28"
+published_at: "2026-07-31"
+category: "news"
+tags: ["linux", "networking", "ai", "devops"]
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F1ul7vy1xjken0oglqez4.png"
+coverAlt: "I Had a Lot of Fun Building a Linux Packet Flight Recorder"
+slug: "linux-packet-flight-recorder-skbx"
+source_id: "devto-4248577"
+source_url: "https://dev.to/copyleftdev/i-had-a-lot-of-fun-building-a-linux-packet-flight-recorder-k44"
+source_title: "I Had a Lot of Fun Building a Linux Packet Flight Recorder"
+source_author: "Don Johnson"
+source_published: "2026-07-28"
+---
+
+<LinkCard url="https://dev.to/copyleftdev/i-had-a-lot-of-fun-building-a-linux-packet-flight-recorder-k44" author="Don Johnson" date="2026-07-28" />
+
+## 개요
+
+"이 패킷, 도대체 어디로 간 거지?" 질문은 간단하지만 답은 그렇지 않다. 하나의 패킷은 네트워크 네임스페이스, 라우팅 결정, Netfilter, 트래픽 컨트롤, XDP 프로그램, 터널, 복제와 복사, 드롭 경로를 지난다. 특정 인터페이스에서 뜬 패킷 캡처는 그 자체로는 정확하더라도 여정의 한 조각만 보여줄 뿐이다.
+
+Don Johnson은 이 여정을 더 넓게 보고 싶었고, 본 것을 저장했다가 나중에 root 권한 없이 다시 재생하고 싶었다. 그렇게 만든 도구가 [skbx](https://github.com/copyleftdev/skbx)다. Rust와 CO-RE eBPF로 만든 리눅스 패킷 경로 '비행 기록 장치(flight recorder)'로, 항공기 블랙박스처럼 사건이 끝난 뒤에도 증거를 남긴다.
+
+## skbx가 하는 일
+
+skbx는 라이브 캡처 중에 커널 네트워킹 함수를 관찰하고, 추가만 가능한(append-only) JSONL 형식의 증거 스트림을 기록한다. 캡처가 끝난 뒤에는 eBPF 프로그램을 다시 올릴 필요 없이 그 스트림을 재생하고 들여다볼 수 있다.
+
+```text
+live traffic
+    ↓
+CO-RE eBPF observations
+    ↓
+bounded traceq JSONL
+    ↓
+replay → route patterns → explain an event
+```
+
+관찰 대상은 폭넓다. `sk_buff`를 다루는 커널 함수, 패킷의 복제·복사·copy-on-write와 XDP-to-SKB 전환, TC와 XDP 프로그램의 진입과 종료, 터널과 내부 패킷 튜플, 커널이 보고한 드롭 사유, 일부 BPF 헬퍼와 맵 활동, 그리고 캡처 손실이나 디코딩·출력 실패까지 담는다.
+
+한 가지 분명히 해둘 점은, 이 도구가 tcpdump나 Wireshark를 대체하지 않는다는 것이다. 패킷의 바이트와 프로토콜을 캡처 지점에서 봐야 한다면 그 도구들이 훨씬 낫다. skbx는 '로컬 리눅스 커널을 통과하는 경로'에 관한 질문을 위한 도구다. 저자 스스로 [pwru](https://github.com/cilium/pwru)에서 영감을 받았다고 밝혔고, 그가 특히 파고들고 싶었던 부분은 라이브 터미널의 스크롤이 멈춘 뒤에 남는 증거였다.
+
+## 왜 '비행 기록 장치'인가
+
+라이브 추적도 유용하지만, 장애 대응은 권한을 가진 세션이 끝난 뒤에도 계속되는 경우가 많다. 다른 사람이 캡처를 들여다봐야 할 수도 있고, 성공한 요청과 비교해야 할 수도 있으며, 버그 리포트에 정확한 이벤트 하나를 인용해야 할 수도 있다.
+
+그래서 skbx의 네이티브 스트림 `traceq`는 봉투(envelope) 구조를 갖는다.
+
+```text
+capture_start
+event
+event
+...
+capture_end
+```
+
+모든 이벤트에는 안정적인 핸들이 붙는다.
+
+```text
+event:111111111111111111111111
+```
+
+재생 과정은 순서가 있는 이벤트들을 경계가 정해진 경로 패턴(route pattern)으로 묶고, 여기에도 고유한 핸들을 부여한다.
+
+```text
+route:1c0201e74424e253f8363577
+```
+
+흥미로운 점은 푸터(footer)의 무게다. 푸터는 중단 사유와 함께 커널 예약 실패, 추적기 재귀 누락, 읽기 실패, 유저스페이스 디코딩·보강 실패, 출력 실패 같은 신뢰성 카운터를 기록한다. 푸터가 없으면 그 산출물은 불완전한 것이고, 추적기가 관찰을 놓쳤다면 그 불확실성이 결과에 그대로 붙어 있다. 추적 소프트웨어도 결국 소프트웨어이므로 전지전능한 척 조용히 굴어서는 안 된다는 것이 저자의 생각이다.
+
+## 설치와 준비
+
+라이브 추적기는 현재 x86_64와 arm64 리눅스를 지원한다. Rust 1.85 이상, BPF 백엔드를 갖춘 Clang/LLVM, `bpftool`, libelf, libpcap, 그리고 `/sys/kernel/btf/vmlinux`를 노출하는 커널이 필요하다.
+
+Ubuntu 기준 패키지 설치는 다음과 같다.
+
+```bash
+sudo apt-get install "linux-tools-$(uname -r)" \
+  clang llvm libelf-dev libpcap-dev pkg-config
+```
+
+CLI는 GitHub에서 바로 설치한다.
+
+```bash
+cargo install --git https://github.com/copyleftdev/skbx --locked skbx-cli
+```
+
+무언가를 붙이기 전에 `doctor`가 호스트 상태를 점검하고, `plan`은 한 걸음 더 나아가 실제 부착 없이 어떤 함수가 붙을지 미리 보여준다.
+
+```bash
+skbx doctor --json
+skbx plan --filter-func 'ip.*' --json
+```
+
+이 분리가 개발 과정에서 유용했다고 한다. 커널 기능이 빠져 있다면 권한 캡처가 시작되기 전에 드러나야지, 나중에 조용히 근사치로 얼버무려서는 안 되기 때문이다.
+
+## 첫 패킷 잡아보기
+
+작은 ICMP 캡처 예시다.
+
+```bash
+sudo skbx capture --probe ip_rcv \
+  --duration 10 \
+  --output trace.jsonl \
+  icmp
+```
+
+캡처가 도는 동안 다른 터미널에서 트래픽을 만든다.
+
+```bash
+ping -c 3 1.1.1.1
+```
+
+캡처는 일부러 한계를 둔다. 무제한 추적이 안전하다고 가정하는 대신 유한한 지속 시간과 이벤트 한도를 갖는다. 캡처가 끝나면 재생에는 root가 필요 없다.
+
+```bash
+skbx replay trace.jsonl
+```
+
+재생은 함수, 프로세스, 패킷 식별자, 경로 패턴, 합의, 이상치, 신뢰성 상태를 요약한다. 같은 유효 JSONL 입력이라면 바이트 단위로 동일한 요약을 만들어낸다. 흥미로운 이벤트가 보이면 같은 패킷의 주변 증거와 함께 꺼내 볼 수 있다.
+
+```bash
+skbx explain trace.jsonl event:<handle>
+```
+
+저장소에는 `ip_rcv` 이벤트 뒤에 `kfree_skb_reason`이 이어지는 작은 계약 픽스처가 들어 있고, 이를 재생하면 다음과 같은 경로가 나온다.
+
+```json
+{
+  "handle": "route:1c0201e74424e253f8363577",
+  "functions": [
+    "ip_rcv",
+    "kfree_skb_reason"
+  ],
+  "routes": 1,
+  "truncated": false,
+  "outlier": false
+}
+```
+
+이 출력은 저장소에 체크인된 테스트 픽스처를 현재 CLI가 실제로 돌려 만든 것이지, 설명용 가짜 데이터가 아니다.
+
+## 실제로 이럴 때 쓴다
+
+저자가 반복해서 돌아오는 용례가 몇 가지 있다.
+
+### 웹 요청이 어디서 막혔나
+
+`curl`이 HTTPS 요청을 시작했다가 결국 타임아웃이 났다고 하자. 클라이언트 쪽 캡처는 이런 질문에 답할 수 있다. 요청이 로컬 TCP·IP 출력 경로에 들어갔는가, 어떤 인터페이스와 네임스페이스에 연결됐는가, mark가 바뀌었는가, TC나 XDP 프로그램이 처리했는가, 터널로 들어갔는가, 로컬 커널이 드롭을 보고했는가.
+
+다만 이 증거는 ISP 내부나 원격 서버에서 무슨 일이 일어났는지는 증명하지 못한다. 로컬 드롭이 없다는 사실이 원격 호스트가 패킷을 받았다는 증거는 아니다. 대신 얻는 건 증거로 뒷받침된, 더 좁혀진 탐색 범위다. 저자는 "내 증거가 정확히 어디서 끝나는지 아는 편이, 관찰하지도 못한 시스템에 대해 도구가 그럴듯한 이야기를 지어내는 것보다 낫다"고 말한다.
+
+### 패킷이 호스트 안에서 사라졌을 때
+
+"네트워크가 떨궜다"는 말은 서로 아주 다른 여러 실패를 감춘다. 정상적인 커널 경로로 거부됐을 수도, TC 분류기나 XDP 프로그램이 드롭 액션을 반환했을 수도, 해제 과정에서 소비됐을 수도 있다. 집중적인 TCP 드롭 질문이라면 작은 bpftrace 프로그램이 더 빠른 답일 수 있고, 패킷 내용이라면 여전히 tcpdump나 Wireshark다. skbx는 어느 로컬 서브시스템이 실패를 소유하는지 아직 모를 때, 혹은 드롭 이벤트 하나가 아니라 순서가 있는 경로 전체를 보존하고 싶을 때 손이 가는 도구다.
+
+### 변형을 따라가며 흔적을 놓치지 않기
+
+리눅스는 하나의 논리적 패킷이 생애 내내 하나의 `struct sk_buff` 주소에 대응한다고 약속하지 않는다. 패킷은 복제·복사되거나 copy-on-write로 바뀔 수 있고, XDP 프레임은 나중에 SKB가 될 수 있으며, 터널은 외부와 내부라는 두 개의 패킷 정체성을 만든다. skbx는 캡처 범위 안에서 경계가 정해진 계보(lineage) 상태로 이 전환들을 이어 붙인다. 각 이벤트는 원래 필터에 걸린 것인지, 이미 추적 중이던 패킷에 속해 포함된 것인지를 기록한다.
+
+```bash
+sudo skbx capture \
+  --filter-mark 0x2a \
+  --filter-track-skb \
+  --output trace.jsonl
+```
+
+여기서 핵심 단어는 '캡처 범위 안(capture-local)'이다. 이 계보 식별자는 분산 추적 ID가 아니며, 그렇게 포장해서도 안 된다.
+
+### 한 번 캡처해 root 없이 조사하기
+
+eBPF 프로그램을 올리고 붙이는 일은 권한이 필요하지만, JSONL 파일을 읽는 데는 필요 없다. 덕분에 간단한 인수인계가 가능하다. 운영자가 계획을 확인하고 경계가 정해진 캡처를 수행하면, 캡처가 끝나며 신뢰성 푸터를 기록하고, 그 산출물을 평범한 개발·분석 환경으로 복사한 뒤, 다른 사람이 재생하며 정확한 `event:`나 `route:` 핸들을 인용한다. 장애 인수인계와 버그 리포트뿐 아니라 학습에도 유용하다. 작은 실험을 한 번 캡처해 두면 프로브를 계속 붙여 두지 않고도 반복해서 들여다볼 수 있다.
+
+### AI에게 미스터리 대신 증거를 준다
+
+저자의 조금 별난 동기 하나는 CLI를 운영자뿐 아니라 소프트웨어 에이전트에게도 친화적으로 만드는 것이었다. 호스트를 건드리기 전에 에이전트는 실행 파일에 무엇을 지원하는지 물어볼 수 있다.
+
+```bash
+skbx describe --format json
+skbx schema
+skbx doctor --json
+skbx plan --json
+```
+
+네이티브 엔진이 진실의 원천으로 남는다. AI가 경로를 요약하거나 캡처된 이벤트를 설명할 수는 있지만, 그 이벤트는 이미 트레이스에 존재해야 한다. 기계 출력은 표준 출력에, 진단은 표준 에러에 남고, 지원하지 않는 기능은 명시적으로 드러난다. 이렇게 한다고 AI 설명이 자동으로 옳아지는 것은 아니지만, 설명에는 인용할 구체적 근거가 생기고 사람에게는 그것을 검증할 방법이 생긴다.
+
+## 만들면서 즐거웠던 부분
+
+명백한 재미는 그동안 다이어그램 속 상자로만 다루던 함수들 사이로 패킷이 실제로 움직이는 걸 보는 것이었다. 덜 명백한 재미는 경계를 설계하는 일이었다고 한다. 함수 이름으로 추측하는 대신 대상 커널의 BTF에서 유효한 `struct sk_buff *` 인자를 발견하기, 커널 쪽 상태와 작업을 유한하게 유지하기, JSON 인코딩·심볼화·파일시스템 작업을 eBPF 핫패스 밖으로 빼기, 부착 전에 프로브 계획을 들여다볼 수 있게 하기, 날것의 관찰과 이후의 설명을 분리하기, 부분 출력을 "아마 괜찮겠지"가 아니라 불완전한 것으로 다루기, 그리고 재생을 테스트와 자동화에 쓸 만큼 결정적으로 만들기. 이런 제약들이 도구를 더 흥미롭게 만들었고, 관찰 도구가 정직하게 주장할 수 있는 것이 무엇인지에 대한 감각도 다듬어 주었다고 한다.
+
+## 모르는 것은 모른다고 말한다
+
+skbx는 실행 중인 커널과 선택된 프로브가 노출하는 것만 관찰한다. ISP 내부를 보지 못하고, 그곳에서 함께 돌지 않는 한 원격 호스트도 보지 못하며, Wireshark를 대신하는 패킷 내용 도구도 아니다. 커널 설정, BTF 가용성, 권한, 숨겨진 주소, 지원하지 않는 시그니처, 캡처 손실이 모두 증거를 제한할 수 있다. 저자는 이 한계들을 각주가 아니라 인터페이스의 일부로 다룬다.
+
+그는 이 프로젝트가 어디에 가장 쓸모 있을지 아직 탐색 중이라며, 가장 좋은 다음 입력은 "멋지네요"가 아니라 이 도구가 아직 설명하지 못하는 패킷 경로 하나라고 말한다. 커널 버전, 정확한 명령, `doctor --json` 출력, 신뢰성 푸터를 함께 곁들여서 말이다. 소스와 설치 안내, 아키텍처 노트, 필드 가이드는 [저장소](https://github.com/copyleftdev/skbx)에 있다.
+
+> AI 활용 고지: 저자는 skbx를 직접 만들고 테스트했으며, OpenAI Codex를 활용해 인접 자료 조사, 글의 포지셔닝 검토, 초안 편집, 명령·예시 출력의 저장소 대조 검증, 커버 일러스트 생성을 진행했다고 밝혔다. 기술적 주장은 저자 본인이 검토했고 그 정확성에 대한 책임도 저자에게 있다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
