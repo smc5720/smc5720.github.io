@@ -5,7 +5,7 @@ date: "2026-07-29"
 published_at: "2026-08-04"
 category: "news"
 slug: "replacing-calendly-trusting-open-source"
-tags: []
+tags: ["opensource","security","backend","database","webdev"]
 cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F1w4sgpixqwacoukcsbo3.png"
 coverAlt: "What Replacing Calendly Taught Me About Trusting Open Source"
 source_id: "devto-4257196"
@@ -247,7 +247,7 @@ Easy!Appointments 소스를 grep하니 바로 나왔다.
 ./application/config/routes.php:header('X-Frame-Options: SAMEORIGIN');
 ```
 
-앱이 자기 부트스트랩의 서로 다른 두 지점에서, PHP로 직접 이 헤더를 설정하고 있었다. 관리자 패널엔 타당한 하드코딩된 클릭재킹 방지 기본값이지만, 다른 데 임베드하라고 만든 공개 예약 페이지까지 포함해 모든 라우트에 무차별로 적용됐다. `.htaccess`의 `Header unset`은 PHP 프로세스보다 앞선 웹서버 응답 테이블 수준에서 실행된다. 그 뒤에 스크립트가 실행하는 `header()` 호출이 그냥 덮어써버린다. 출력이 시작되기 전이라면 PHP가 자기 헤더에 대해 마지막 말을 한다. 서버(Apache, Nginx, OpenLiteSpeed)가 뭐든 `.htaccess` 수정은 구조적으로 이걸 이길 수 없었다.
+앱이 자기 부트스트랩의 서로 다른 두 지점에서, PHP로 직접 이 헤더를 설정하고 있었다. 관리자 패널엔 타당한 하드코딩된 클릭재킹 방지 기본값이지만, 다른 데 임베드하라고 만든 공개 예약 페이지까지 포함해 모든 라우트에 무차별로 적용됐다. `.htaccess`의 `Header unset`은 PHP 프로세스보다 앞선 웹서버 응답 테이블 수준에서 실행된다. 그 뒤에 스크립트가 실행하는 `header()` 호출이 그냥 덮어써버린다. 출력이 시작되기 전이라면 헤더의 최종 결정권은 PHP에 있다. 서버(Apache, Nginx, OpenLiteSpeed)가 뭐든 `.htaccess` 수정은 구조적으로 이걸 이길 수 없었다.
 
 작동하는 수정은 두 호출 지점을 모두 패치하되, 예약 컨트롤러에만 범위를 좁혀 관리자 패널은 기본 보호를 유지하게 했다.
 
