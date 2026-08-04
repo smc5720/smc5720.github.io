@@ -1,0 +1,281 @@
+﻿---
+title: "Calendly를 자체 호스팅으로 바꾸며 배운 것: 오픈소스는 믿는 게 아니라 확인하는 것"
+description: "예약 SaaS Calendly를 자체 호스팅 대안으로 교체하는 과정에서, 성숙한 오픈소스 프로젝트 두 곳 모두에서 동일한 동시성 버그(TOCTOU)를 발견한 기록. 평판은 근거가 아니라 가설일 뿐이라는 이야기."
+date: "2026-07-29"
+published_at: "2026-08-04"
+category: "news"
+slug: "replacing-calendly-trusting-open-source"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F1w4sgpixqwacoukcsbo3.png"
+coverAlt: "What Replacing Calendly Taught Me About Trusting Open Source"
+source_id: "devto-4257196"
+source_url: "https://dev.to/pascal_cescato_692b7a8a20/what-replacing-calendly-taught-me-about-trusting-open-source-540a"
+source_title: "What Replacing Calendly Taught Me About Trusting Open Source"
+source_author: "Pascal CESCATO"
+source_published: "2026-07-29"
+---
+
+<LinkCard url="https://dev.to/pascal_cescato_692b7a8a20/what-replacing-calendly-taught-me-about-trusting-open-source-540a" author="Pascal CESCATO" date="2026-07-29" />
+
+## 개요
+
+cal.com, Calendly, zcal 같은 예약 SaaS는 선택지가 넘친다. 대부분 무료 요금제만으로도 프리랜서가 쓰기엔 부족하지 않다. 문제는 두 가지다. 공짜인 만큼 내가 상품이 되고, 고객 데이터가 내가 완전히 통제하거나 감사할 수 없는 어딘가에 쌓인다는 것.
+
+개발자 Pascal CESCATO는 자기 사이트의 예약 위젯을 Calendly에서 자체 호스팅 도구로 옮겼다. 이 글은 도구를 바꿨다는 후기가 아니다. 후보 네 개를 추리고 코드를 직접 읽는 과정에서, 10년 된 성숙한 프로젝트를 포함해 최종 후보 둘 다에서 똑같은 동시성 버그를 발견한 이야기다. 핵심 메시지는 하나다. **평판은 통계적 사전 확률(prior)이지 증거가 아니다.**
+
+## 왜 바꾸려 했나
+
+Calendly 자체엔 문제가 없었다. 잘 돌아갔다. 그런데도 구조적인 마찰이 쌓여 있었다. 빈 시간대를 보여주고 선택 하나를 기록하는 단순한 기능에 매달 구독료를 냈고, 기술적으로 특별할 것 없는 컴포넌트를 외부 서비스에 통째로 의존했다. 커스터마이징은 벤더가 설정에서 열어준 만큼만 가능했다.
+
+결정적인 건 통합 방식이었다. 이 사이트는 Astro로 만든 가벼운 정적 페이지다. 서드파티 스크립트의 무게를 피하려고 일부러 그렇게 설계했는데, SaaS 위젯을 임베드하는 건 그 목표와 정반대였다. 그래서 질문은 이렇게 정리됐다. 월 구독료 없이, 그리고 "나와 통화 예약하기"라는 핵심 상업 기능을 외부 벤더에 넘기지 않고, 같은 경험을 자체 호스팅으로 재현할 수 있을까?
+
+## 후보 네 개
+
+진짜로 비교할 만한 자체 호스팅 후보는 넷이었다. 남의 API 위에 UI만 씌운 것도, 공개 예약 경험은 뒷전인 내부 일정 관리 도구도 아니어야 했다.
+
+- **[CloudMeet](https://github.com/dennisklappe/CloudMeet)** — Svelte + TypeScript, Cloudflare Pages/Workers/D1 기반. MIT 라이선스, 예약 UX는 깔끔하다. 단독 메인테이너에 별 490개, 커밋 37개. 아직 어리고 신뢰할 만한 이력이 부족하다.
+- **[Cal.diy](https://github.com/calcom/cal.diy)** — cal.com이 2026년 4월 코어 제품을 클로즈드소스로 전환한 뒤 갈라져 나온 커뮤니티 포크. 전직 cal.com 인턴들이 관리한다. 스케줄링 엔진, 앱스토어 연동, Stripe/PayPal 결제까지 이어받아 서류상 기능은 가장 완성형이다. 다만 독립 프로젝트로선 가장 어리고, 자체 문서도 아직 프로덕션 사용을 권하지 않는다.
+- **[booking-calendar](https://github.com/sametcn99/booking-calendar)** — React + TypeScript + Bun + SQLite, 단일 관리자 설계. Google/Outlook 종속 대신 양방향 CalDAV 동기화를 기본 지원한다. 가볍고 이식성이 좋지만, 예약 UI가 시간대를 나열한 스크롤 목록 수준이라 상용 스케줄러의 완성도엔 한참 못 미친다.
+- **[Easy!Appointments](https://github.com/alextselegidis/easyappointments)** — PHP/CodeIgniter + MySQL, 10년째 활발히 개발 중. 별 3000개 이상에 유료 티어도 오래전부터 있다. 넷 중 가장 실전 검증이 됐고, 월별 달력 뷰에 다단계 마법사까지 Calendly에 가장 가까운 예약 경험을 준다.
+
+저자가 실제로 최적화한 기준은 넷이었다. 프레임워크에 얽매이지 않는 통합(공개 사이트에 PHP를 돌리지 않을 것), 예약 UX 품질, GDPR 동의 처리 기본 지원, 그리고 실제 잠재 고객 앞에 내놓을 만한 프로덕션 성숙도.
+
+![스마트폰 화면에 표시된 캘린더](https://images.pexels.com/photos/11832141/pexels-photo-11832141.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Alexey Demidov](https://www.pexels.com/@alexey-demidov) on [Pexels](https://www.pexels.com/photo/calendar-on-a-smartphone-11832141/)*
+
+## 후보를 좁히다
+
+CloudMeet과 Cal.diy는 일찍 탈락했다. 이유는 같았다. 구체적인 결함을 찾아서가 아니라, 프로덕션에 쓸 만한 이력이 부족해서다. CloudMeet은 단독 메인테이너에 짧은 커밋 기록이 부담이었고, Cal.diy는 출시 3개월이 지났는데도 문서가 여전히 프로덕션 준비 상태를 얼버무렸다.
+
+저자는 여기서 솔직하다. 이 판단은 평판과 프로젝트 나이에 기댄 것이고, 정확히 이 글이 뒤에서 비판하는 그 지름길이라고 인정한다. 네 개 코드베이스를 최종 후보 둘만큼 깊게 감사하는 건 현실적으로 시간이 안 됐고, 그래서 앞의 둘은 소스를 읽는 대신 "어린 프로젝트" 휴리스틱으로 가볍게 넘겼다. 이건 방법론의 진짜 구멍이지 그냥 스쳐 지나갈 단서가 아니라고 못 박는다.
+
+남은 건 booking-calendar와 Easy!Appointments였고, 여기서 UX 격차가 승부를 갈랐다. booking-calendar의 공개 예약 페이지는 `Monday, February 23, 2026 at 08:00 AM` 같은 행을 나열한 스크롤 목록이다. 정확하지만 Calendly가 사람들에게 학습시킨 경험과는 거리가 멀다. 달력 뷰도, 단계별 흐름도 없이 그냥 스크롤할 텍스트뿐이다.
+
+두 도구를 프랑켄슈타인처럼 합치는 것도 잠깐 고민했다. CloudMeet 프런트엔드에 booking-calendar의 CalDAV 백엔드를 붙이는 식으로. 하지만 런타임이 다르고(Cloudflare Workers/D1 vs Bun/SQLite), 공유 API 계약도 데이터 모델도 없어 현실성이 없었다. 결국 관심사 분리로 갔다. 공개 UX가 나은 도구를 고르고, 나중에 CalDAV 동기화가 진짜 필요해지면 그건 별개의 두 번째 도구로 붙인다.
+
+UX로는 Easy!Appointments가 이겼다. 이제 프로덕션 결정에서 진짜 중요한 부분으로 넘어갈 차례였다.
+
+## 감사: 두 후보 모두에 있던 TOCTOU 경쟁 조건
+
+둘 중 하나에 확정하기 전에, 저자는 한 가지를 확인하고 싶었다. **두 방문자가 거의 동시에 같은 시간대를 클릭하면 무슨 일이 벌어지는가?** 이론적 우려가 아니다. 혼자 개발할 땐 절대 안 나타나다가, 예약 링크가 조금만 널리 퍼지는 순간(뉴스레터 발송, LinkedIn 게시, 정해진 시각에 열리는 시간대 묶음) 터지는 종류의 버그다.
+
+이건 전형적인 TOCTOU(time-of-check to time-of-use) 경쟁 조건이다. 코드가 시간대가 비었는지 확인한 뒤 예약을 쓴다. 그런데 그 사이에 다른 요청이 똑같은 확인을 하는 걸 막는 게 없다. 확인과 쓰기를 함께 감싸는 잠금이 없으면, 두 요청 모두 어느 쪽도 커밋하기 전에 "비었음"이라고 결론 내린다.
+
+### booking-calendar
+
+TypeORM 기반에 리포지토리 패턴, 관심사 분리는 깔끔하다. 겹침 검사는 이렇다.
+
+```ts
+async hasOverlapInSlot(
+    slotId: number,
+    startAt: string,
+    endAt: string,
+    manager?: EntityManager,
+): Promise<boolean> {
+    const count = await this.repo(manager)
+        .createQueryBuilder("a")
+        .where("a.slot_id = :slotId", { slotId })
+        .andWhere("a.canceled_at IS NULL")
+        .andWhere("a.status != 'rejected'")
+        .andWhere("NOT (a.end_at <= :startAt OR a.start_at >= :endAt)", {
+            startAt,
+            endAt,
+        })
+        .getCount();
+
+    return count > 0;
+}
+```
+
+트랜잭션(`AppDataSource.transaction`) 안에서 호출되지만 `.setLock("pessimistic_write")`도, 스키마 수준의 배제 제약도 없다. SQLite에선 이게 드러나지 않는다. 엔진이 설계상 쓰기를 하나씩 직렬화하기 때문이다. 스토리지 엔진이 공짜로 깔아준 안전망이지, 애플리케이션 코드가 실제로 보장하는 건 아니다. 문제는 이 프로젝트가 아키텍처 차원에서 Postgres나 MySQL로의 마이그레이션 경로(`type: "sqlite"` → `type: "postgres"`)를 명시적으로 열어뒀다는 점이다. 바로 그 마이그레이션이 안전망을 걷어낸다. `READ COMMITTED` 격리 수준에선 두 트랜잭션이 각자 "겹침 없음"을 읽은 뒤 각자 `INSERT`를 커밋할 수 있다.
+
+CalDAV 동기화 계층을 읽으며 두 번째 독립적인 경쟁 조건도 확인했다. 이번엔 로컬 DB가 아니라 *외부* 캘린더를 상대로 한 것이다.
+
+```ts
+private async getCachedBusyIntervals(startAt: string, endAt: string): BusyInterval[] | null {
+    const cache = CalDAVService.busyIntervalCache;
+    if (!cache || cache.expires_at <= Date.now()) {
+        return null;
+    }
+    if (startAt < cache.start_at || endAt > cache.end_at) {
+        return null;
+    }
+    return cache.intervals.filter(
+        (interval) => !(interval.end_at <= startAt || interval.start_at >= endAt),
+    );
+}
+```
+
+TTL이 걸린 프로세스 전역 정적 캐시로, 쓰기가 성공한 *뒤에야* 무효화된다. 캐시 유효 시간 안에서 몇 초 차이로 도착한 두 예약은, 어느 쪽도 외부 캘린더에 쓰기를 끝내기 전에 같은 "비었음" 스냅샷을 읽을 수 있다. 진실의 원천이 로컬 DB에서 외부 CalDAV 서버로 바뀌었을 뿐 똑같은 TOCTOU 형태다.
+
+### Easy!Appointments
+
+프로덕션 10년, 별 3000개 이상, 오래된 유료 티어. 들어갈 때의 가설은 이랬다. 실제 트래픽이 많았다면 이 버그도 이미 한 번쯤 얻어맞고 고쳐졌을 것이다. 코드를 읽으니 그 가설은 살아남지 못했다.
+
+공개 예약 흐름은 이렇다.
+
+```php
+// Check appointment availability before registering it to the database.
+$appointment['id_users_provider'] = $this->check_datetime_availability();
+
+if (!$appointment['id_users_provider']) {
+    throw new RuntimeException(lang('requested_hour_is_unavailable'));
+}
+
+// ... customer lookup/creation, GDPR consent records, Jitsi link generation ...
+
+$appointment_id = $this->appointments_model->save($appointment);
+```
+
+확인과 쓰기 사이에 서로 무관한 작업이 여럿 끼어 있다. 확인과 삽입이 최소한 한 트랜잭션을 공유했던 booking-calendar보다 경쟁 창(race window)이 더 넓다. 삽입 자체도 이렇다.
+
+```php
+protected function insert(array $appointment): int
+{
+    $appointment['book_datetime'] = date('Y-m-d H:i:s');
+    $appointment['create_datetime'] = date('Y-m-d H:i:s');
+    $appointment['update_datetime'] = date('Y-m-d H:i:s');
+    $appointment['hash'] = random_string('alnum', 12);
+
+    if (!$this->db->insert('appointments', $appointment)) {
+        throw new RuntimeException('Could not insert appointment.');
+    }
+
+    return $this->db->insert_id();
+}
+```
+
+트랜잭션도, 잠금도, 유니크 제약도 없다. 그런데 `check_datetime_availability()`의 주석은 이렇게 말한다.
+
+> *"둘 이상의 고객이 같은 예약 날짜와 시간을 동시에 선택하는 게 가능하다. 앱은 이런 일이 일어나지 않게 한다."*
+
+문서화된 의도일 뿐, 코드가 실제로 하는 일은 아니다.
+
+### 흥미로운 지점
+
+`Appointments_model`에는 올바른 겹침 검사를 제대로 된 쿼리로 수행하는 메서드가 이미 있다.
+
+```php
+public function has_provider_conflict(
+    int $provider_id,
+    string $start_datetime,
+    string $end_datetime,
+    ?int $exclude_appointment_id = null,
+): bool {
+    $this->db->select('id')->from('appointments')->where('id_users_provider', $provider_id);
+
+    if ($exclude_appointment_id) {
+        $this->db->where('id !=', $exclude_appointment_id);
+    }
+
+    // Overlap: (existing_start < new_end) AND (existing_end > new_start)
+    return $this->db
+        ->group_start()
+        ->where('start_datetime <', $end_datetime)
+        ->where('end_datetime >', $start_datetime)
+        ->group_end()
+        ->get()
+        ->num_rows() > 0;
+}
+```
+
+이 메서드는 공개 예약 흐름 어디에서도 호출되지 않는다. 올바른 도구가 코드베이스에 이미 있는데, 정작 필요한 곳엔 연결돼 있지 않은 것이다.
+
+### 정리
+
+이 지점에서 어느 프로젝트가 "더 견고하다"고 말할 수 없다. 성숙도 차이와 무관하게 둘 다 같은 설계 구멍을 공유한다. 평판, 나이, 자리 잡은 상업 티어는 합리적인 통계적 사전 확률이지 증거가 아니다. 오픈소스 프로젝트가 이 부류의 버그를 실제로 막는지 아는 유일한 방법은, 막는다고 주장하는 주석이 아니라 그 일을 하는 코드를 읽는 것뿐이다.
+
+참고로 Easy!Appointments 쪽 수정은 거의 즉시 적용 가능한 수준이다. 올바른 도구(`has_provider_conflict`)가 이미 있으니 새로 설계할 필요 없이 확인과 쓰기 주위를 잠금으로 감싸 연결하면 된다.
+
+```php
+$lock_name = "provider_{$provider_id}_booking";
+
+if (!$this->db->query("SELECT GET_LOCK(?, 10)", [$lock_name])->row()->{"GET_LOCK(?, 10)"}) {
+    throw new RuntimeException('Could not acquire booking lock.');
+}
+
+try {
+    if ($this->appointments_model->has_provider_conflict(
+            $appointment['id_users_provider'],
+            $appointment['start_datetime'],
+            $appointment['end_datetime']
+        )) {
+        throw new RuntimeException(lang('requested_hour_is_unavailable'));
+    }
+    $appointment_id = $this->appointments_model->save($appointment);
+} finally {
+    $this->db->query("SELECT RELEASE_LOCK(?)", [$lock_name]);
+}
+```
+
+스키마 수준 배제 제약이 아니라 `GET_LOCK`을 쓴 건, MySQL엔 Postgres의 `EXCLUDE USING gist` 같은 게 없어서다. "이 프로바이더에겐 겹치는 범위 예약을 두 개 두지 않는다"를 DB 차원에서 선언할 방법이 없다. 잠금 키는 전역이 아니라 프로바이더별(`provider_{id}_booking`)로 범위를 좁혔다. 서로 다른 프로바이더를 동시에 예약하는 두 방문자가 괜히 서로를 막지 않도록. `RELEASE_LOCK`은 `finally`에 뒀다. 쓰기가 실패해도 잠금이 타임아웃까지 붙잡히지 않도록.
+
+이 수정이 조용히 전제하는 의존성이 하나 있다. **비영속(non-persistent) DB 연결**이다. `GET_LOCK`은 PHP 요청이 아니라 MySQL 세션에 묶여, 연결과 함께 살고 죽는다. CodeIgniter 기본값인 비영속 연결에선 요청마다 자기 연결을 갖고, 치명적 오류가 나도 연결이 끝나며 잠금이 깔끔하게 사라진다. 하지만 `pconnect`가 켜져 풀에서 연결이 재사용되면 얘기가 달라진다. `finally`의 `RELEASE_LOCK`이 재활용된 연결에서 *다른* 요청이 방금 얻은 잠금을 풀어버리거나, 잠금이 그걸 잡은 요청보다 오래 살아남을 수 있다. `has_provider_conflict()`나 주변 코드가 이걸 드러내주지 않으니, 패치에 명시적으로 적어두는 게 낫다.
+
+이 수정은 저자의 실제 배포엔 들어가지 않았다. 위 LOCK/VERIFY/WRITE/UNLOCK 골격은 프로덕션에 가깝지만, `ANY_PROVIDER` 분기(코드가 *아무* 가용 프로바이더를 찾는 경로. 잠금이 그 탐색까지 감싸지 않으면 두 "아무 프로바이더" 요청이 여전히 같은 프로바이더/시간대에 병렬로 안착할 수 있다)에 부하 테스트 커버리지를 붙이기 전엔 완료라고 부르고 싶지 않았기 때문이다. 언젠가 업스트림에 PR을 낼 만하다.
+
+## 프로덕션 배포: 단순한 임베드, 예상 못한 차단
+
+통합 자체는 간단했다. Easy!Appointments는 자체 서브도메인에서 돌고, 연락처 페이지는 그걸 가리키는 `<iframe>` 하나만 넣으면 된다. 공개 Astro 사이트엔 PHP가 전혀 닿지 않는다. 그 분리가 애초 목적이었다.
+
+배포 후 첫 테스트에서 iframe이 렌더링되지 않았다. 콘솔 오류는 이랬다.
+
+```plaintext
+Refused to display 'https://cal.example.com/' in a frame because it set
+'X-Frame-Options' to 'sameorigin'.
+```
+
+### 첫 번째 추측, 오답
+
+서버 구성(사이트 앞에 리버스 프록시 계층이 붙은 호스팅 패널)을 보면 앱이 아니라 그 계층이 첫 번째 용의자였다. `.htaccess` 수준에서 헤더를 제거해봤다.
+
+```apache
+<IfModule mod_headers.c>
+    Header always unset X-Frame-Options
+    Header always set Content-Security-Policy "frame-ancestors 'self' https://backstage.click"
+</IfModule>
+```
+
+효과 없음. `curl -I`에 헤더가 여전히 찍혔다.
+
+### 진짜 원인
+
+Easy!Appointments 소스를 grep하니 바로 나왔다.
+
+```php
+./application/hooks/security_headers.php:    header('X-Frame-Options: SAMEORIGIN');
+./application/config/routes.php:header('X-Frame-Options: SAMEORIGIN');
+```
+
+앱이 자기 부트스트랩의 서로 다른 두 지점에서, PHP로 직접 이 헤더를 설정하고 있었다. 관리자 패널엔 타당한 하드코딩된 클릭재킹 방지 기본값이지만, 다른 데 임베드하라고 만든 공개 예약 페이지까지 포함해 모든 라우트에 무차별로 적용됐다. `.htaccess`의 `Header unset`은 PHP 프로세스보다 앞선 웹서버 응답 테이블 수준에서 실행된다. 그 뒤에 스크립트가 실행하는 `header()` 호출이 그냥 덮어써버린다. 출력이 시작되기 전이라면 PHP가 자기 헤더에 대해 마지막 말을 한다. 서버(Apache, Nginx, OpenLiteSpeed)가 뭐든 `.htaccess` 수정은 구조적으로 이걸 이길 수 없었다.
+
+작동하는 수정은 두 호출 지점을 모두 패치하되, 예약 컨트롤러에만 범위를 좁혀 관리자 패널은 기본 보호를 유지하게 했다.
+
+```php
+$CI =& get_instance();
+if (get_class($CI) === 'Booking') {
+    header("Content-Security-Policy: frame-ancestors 'self' https://backstage.click");
+} else {
+    header('X-Frame-Options: SAMEORIGIN');
+}
+```
+
+`$_SERVER['REQUEST_URI']`를 파싱하는 대신 인스턴스화된 컨트롤러 클래스를 쓴 이유가 있다. 이 설치본은 clean URL이 꺼져 있어(예약 URL에 `index.php`가 그대로 노출된다) `strpos($uri, '/booking') === 0` 같은 순진한 검사는 조용히 매칭에 실패한다.
+
+같은 두 파일을 패치하는 사람에게 하나 짚어둘 점. 이건 플러그인 계층이 아니라 코어 애플리케이션 코드다. 나중에 `git pull`이나 Docker 이미지 재빌드가 이 수정을 조용히 덮어쓴다. 컨테이너를 다시 빌드할 때마다 잃어버리는 대신, 버전 관리되는 패치 파일(`git diff` 전후)로 두고 업그레이드 후 다시 적용하는 게 낫다.
+
+## 결과
+
+고객 데이터(이름, 이메일, 미팅 사유)가 서드파티가 아니라 저자가 통제하는 인프라에 남고, 사이트의 초기 페이지 용량은 그대로다. 이 기능 하나 때문에 서드파티 스크립트를 더한 게 없다. 사실 비용이 진짜 동기는 아니었다. 무료 요금제로 기본은 충분하다. 되사온 건 구독료가 아니라, 벤더가 "기본"의 범위를 정하고 잠재 고객의 연락처가 어디에 쌓일지 결정하는 그 부분이었다.
+
+한 가지 덧붙이자면, 네 도구 중 무엇이 실제로 맞는지는 온전히 그 비즈니스가 무엇을 필요로 하는가에 달렸지, 여기서 무엇이 "이겼는가"에 달린 게 아니다. 예컨대 Easy!Appointments는 WordPress를 쓰며 Bookly 구독을 끊고 싶은 사람에게도 견고한 자체 호스팅 대안이다. 출발점은 달라도 밑에 깔린 질문은 같다.
+
+하지만 도구 교체 자체가 요점은 아니다. 이건 저자가 계속 돌아오는 패턴의 한 사례다. 합리적인 선에선 자체 호스팅을 기본값으로 두고, "널리 쓰인다"거나 "10년 됐다"거나 "유료 티어가 있다"는 말이 실제 확인을 대신하게 두지 말 것. 평판은 사전 확률이지 판결이 아니다. Easy!Appointments 감사는 이 글에서 가장 선명한 예다. 10년의 프로덕션 트래픽, 상업 제품, 수천 개의 별, 그리고 가장 중요한 코드 경로에 앉아 있는 경쟁 조건. 올바른 수정은 이미 코드베이스 다른 곳에 쓰여 있는데 단 한 번도 호출되지 않았다. 성숙도가 이걸 잡지 못했다. 코드를 읽는 것이 잡았다.
+
+곱씹어볼 부분은 따로 있다. 그 수정은 저자 자신의 배포에도 끝내 들어가지 않았다. 위에 스케치만 돼 있고, 하지 못한 부하 테스트에 막혀 미완성이다. 즉 지금 이 사이트의 예약 페이지를 돌리는 인스턴스는, 아는 한 이 글이 다룬 바로 그 TOCTOU 창에 여전히 노출돼 있다. 자체 호스팅은 그 구멍을 볼 수 있는 가시성을 줬다. Calendly였다면 벤더의 SLA 뒤에 숨겨져 어느 쪽인지도 몰랐을 것이다. 하지만 자체 호스팅이 수정까지 사주지는 않았다. 그건 별개의 작업이고, 버그를 찾았다고 그 작업을 건너뛴 게 면제되지는 않는다. 자체 호스팅은 통제권을 준다. 보안은 여전히 누군가가 자기 시간을 들여 직접 쌓아야 하고, 그 패치가 실제로 안착하기 전까지 그 누군가는 이 글의 주장이 아니라 내 할 일 목록의 한 항목이다.
+
+이 방법이 네 선택지 중 가장 빠르거나 가장 뻔한 길도 아니었다. 프로젝트 간의 진짜 비교, 프로덕션에서의 디버깅 우회로, README를 믿는 대신 소스를 읽는 데 쓴 시간이 필요했다. 그게 남의 인프라를 빌리는 대신 내 것을 직접 돌릴 때의 실제 비용이다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

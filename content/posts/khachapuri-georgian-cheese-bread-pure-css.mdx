@@ -1,0 +1,75 @@
+﻿---
+title: "순수 CSS로 조지아 치즈빵 하차푸리 그리기"
+description: "이미지도 SVG도 자바스크립트도 없이, HTML과 CSS만으로 갓 구운 조지아 전통 치즈빵 하차푸리를 재현한 프론트엔드 챌린지 작품을 소개합니다."
+date: "2026-08-03"
+published_at: "2026-08-04"
+category: "news"
+slug: "khachapuri-georgian-cheese-bread-pure-css"
+tags: ["css", "frontend", "webdev", "cssart"]
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ffo6fvkund71op449a51n.jpg"
+coverAlt: "Khachapuri: Georgian Cheese Bread in Pure CSS"
+source_id: "devto-4289345"
+source_url: "https://dev.to/highflyer910/khachapuri-georgian-cheese-bread-in-pure-css-47o7"
+source_title: "Khachapuri: Georgian Cheese Bread in Pure CSS"
+source_author: "Thea"
+source_published: "2026-08-03"
+---
+
+<LinkCard url="https://dev.to/highflyer910/khachapuri-georgian-cheese-bread-in-pure-css-47o7" author="Thea" date="2026-08-03" />
+
+## 개요
+
+조지아 서부 이메레티 지방의 전통 치즈빵 하차푸리(იმერული ხაჭაპური)를 이미지 한 장 없이 재현한 작품이 나왔다. 개발자 Thea가 Dev.to의 '컴포트 푸드' CSS 아트 챌린지에 출품한 이 결과물은 빵의 질감부터 피어오르는 김, 조각을 자르는 애니메이션까지 전부 HTML과 CSS로만 만들었다. SVG도 canvas도, 자바스크립트도 쓰지 않았다.
+
+하차푸리는 부드러운 이스트 반죽 안에 이메룰리 치즈를 가득 넣고 노릇하게 구운 뒤 버터를 발라내는 빵이다. 피자와 달리 치즈가 반죽 안에 완전히 들어간다는 점이 특징이다. 작가는 이 빵을 "음식 이상의 것, 온기이자 집이자 어린 시절의 기억"이라고 표현하며 작업 배경을 밝혔다.
+
+## 어떻게 만들었나
+
+![접시에 담긴 하차푸리](https://images.pexels.com/photos/15913594/pexels-photo-15913594.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Valeria Boltneva](https://www.pexels.com/@valeriya) on [Pexels](https://www.pexels.com/photo/khachapuri-on-plate-15913594/)*
+
+### clip-path 수학으로 원을 자르다
+
+빵 한 덩어리를 통째로 만든 뒤 덮개로 가리는 대신, 작가는 원을 13개 조각으로 나눴다. `clip-path: polygon()`을 써서 각 조각을 삼각형으로 잘라낸 것이다. 조각을 13개로 정한 데는 이유가 있다. HTML 요소를 지나치게 늘리지 않으면서도 빵이 매끄럽게 사라지도록 만드는 데 딱 알맞은 수였다.
+
+```css
+.khachapuri-slice:nth-of-type(1) { 
+  clip-path: polygon(50% 50%, 38.01% 1.46%, 61.99% 1.46%);
+  animation: slice-cut-1 20s linear infinite; 
+}
+```
+
+조각들은 모두 같은 그라디언트 레이어를 공유한다. 그래서 애니메이션이 시작되기 전까지는 이음매 없는 하나의 빵처럼 보인다.
+
+### 오븐에 구운 윤기를 겹겹이 쌓다
+
+갓 구운 빵의 질감은 여러 개의 방사형 그라디언트를 겹쳐 표현했다. 어둡게 구워진 반점은 `rgba(135,65,20,.55)`로, 노릇하게 익은 부분은 `#efb33d`로 처리했다. 여기에 `rgba(255,245,170,.55)`로 반짝이는 하이라이트를 얹어, 뜨거운 반죽 위에 갓 바른 버터의 광택까지 살렸다.
+
+### shape-outside로 만든 매거진 레이아웃
+
+푸드 블로그 같은 분위기를 내기 위해 텍스트가 접시를 감싸고 흐르도록 CSS 도형을 활용했다.
+
+```css
+.khachapuri-frame {
+  float: left;
+  shape-outside: circle(48%);
+  width: clamp(180px, 24vw, 320px);
+  height: clamp(180px, 24vw, 320px);
+}
+```
+
+`shape-outside: circle()`로 원형 접시 바깥을 따라 글줄이 자연스럽게 배치된다.
+
+### 접근성까지 챙긴 마무리
+
+조각을 자르는 애니메이션은 `@media (prefers-reduced-motion: reduce)`를 존중한다. 움직임을 줄이고 싶은 사용자에게는 빵이 온전한 한 덩어리로 그대로 남는다. 마지막 인사말 გემრიელად მიირთვით!(맛있게 드세요!)에는 `lang="ka"`를 지정해, 스크린 리더가 조지아어로 정확히 발음하도록 했다.
+
+## 데모
+
+작품의 실제 동작은 CodePen에서 확인할 수 있다.
+
+[CodePen 데모 보기 →](https://codepen.io/HighFlyer910)
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
