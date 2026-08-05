@@ -1,0 +1,61 @@
+﻿---
+title: "지긋지긋한 팝오버 — 쿠키 배너는 법이 아니라 선택의 문제다"
+description: "웹 개발자 Ingo Steinke가 쿠키 배너와 뉴스레터 팝업을 '엔시티피케이션'의 사례로 지적하며, 방해하지 않는 대안이 이미 존재한다고 주장했다."
+date: "2026-08-04"
+published_at: "2026-08-05"
+slug: "damn-popovers-cookie-banners"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fbc1ikode49ffcxzgdqn9.jpg"
+coverAlt: "Damn Popovers"
+source_id: "devto-4311053"
+source_url: "https://dev.to/ingosteinke/damn-popovers-23n1"
+source_title: "Damn Popovers"
+source_author: "Ingo Steinke, web developer"
+source_published: "2026-08-04"
+---
+
+<LinkCard url="https://dev.to/ingosteinke/damn-popovers-23n1" author="Ingo Steinke, web developer" date="2026-08-04" />
+
+## 개요
+
+쿠키 배너는 여전히 짜증스럽다. 웹 개발자 Ingo Steinke가 Dev.to에 올린 글의 첫 문장이다.
+
+그는 유럽 개인정보보호법 [GDPR](https://en.wikipedia.org/wiki/General_Data_Protection_Regulation)이 관료주의적 개악의 완벽한 예처럼 보인다고 말한다. 다만 여기서 그가 겨누는 과녁은 법이 아니다. **콘텐츠를 가리고 접근성을 최대한 망가뜨리는 방식으로 쿠키 배너를 구현하라고 강제하는 법은 없다**는 것이 요지다. 그런데도 수많은 기업과 UX 디자이너가 굳이 그 방식을 골랐다. 전업 웹 개발자인 자신도 왜 그런지 이해하지 못한다고 그는 적었다. 애초에 UX 디자이너가 있기는 했느냐는 말도 덧붙였다.
+
+거슬리는 쿠키 배너를 쓰지 않는 사이트라면, 링크나 메뉴 항목을 막 클릭하려는 순간에 뉴스레터 구독 폼이 튀어나올 게 뻔하다고도 했다.
+
+## 네이티브 팝오버가 답인가
+
+Steinke가 던지는 질문은 웹 표준을 다루는 개발자를 향한다. 우리 직업의 대답이 더 나은 [팝오버 구현](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/popover)을 고안하는 것이냐고 그는 묻는다. 커스텀 코드 대신 브라우저 표준을 써서, 우리 고객이 그들의 고객을 더 매끄럽게 방해하고 짜증나게 만들도록 돕는 것 말이다.
+
+그렇다면 진짜 이득은 어디에 있느냐는 물음이 뒤따른다.
+
+![어두운 배경 위에 놓인 설탕 뿌린 페이스트리](https://images.pexels.com/photos/29151840/pexels-photo-29151840.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [- landsmann -](https://www.pexels.com) on [Pexels](https://www.pexels.com/photo/close-up-of-a-powdered-sugar-pastry-on-dark-background-29151840/)*
+
+## 엔시티피케이션이라는 렌즈
+
+Steinke는 최근 [엔시티피케이션(enshittification)](https://en.wikipedia.org/wiki/Enshittification)에 관한 글을 읽고 조사해 왔다고 밝혔다. 플랫폼이 시간이 지나며 스스로 품질을 떨어뜨리는 현상을 가리키는 개념이다.
+
+[죽은 인터넷 이론](https://en.wikipedia.org/wiki/Dead_Internet_theory)과 마찬가지로, 엔시티피케이션과 개악은 순진한 사용성 관점에서 보면 앞뒤가 맞지 않는다. 사용자의 주의를 흩뜨리고 목적 달성을 방해하는 게 대체 왜 합리적인 선택이 되는가.
+
+그가 제시하는 대안은 단순하다. 찾던 제품이나 정보를 그냥 보여주고, 결제로 넘어가기 쉽게 만들고, 알맞은 결제 수단을 고르게 한다. 업셀링 부가 상품은 그다음에, 그것도 선택 사항으로 제시한다.
+
+문제의 일부는 지표에 있다고 그는 짚는다. 참여도와 체류 시간처럼 도움이 되지 않는 측정 방식이 원인일 수 있다는 것이다.
+
+방해가 고객 유지에 도움이 되기는 하는가. 짜증이 쌓인 사용자가 결국 서비스를 떠나 대안으로 옮겨가지 않을 이유가 무엇인가. 그가 내놓는 답은 냉소적이다. **더 나은 대안이 없기 때문이다.**
+
+물론 대안이 나타나기 전까지만 그렇다. Steinke는 애플과 구글을 예로 든다. 두 회사는 혁신적이고, 더 정확히는 더 미니멀한 대안을 들고 기존 산업을 뒤흔든 사례로 자주 인용된다. 그리고 이제 두 회사 역시 슬롭과 엔시티피케이션의 내리막에 합류했다고 그는 적었다.
+
+## 디센시티피케이션
+
+글의 마지막 대목은 짧은 상기다. **행동 유도(call to action)가 반드시 사용자가 하던 일을 가로막는 모달 다이얼로그여야 할 이유는 없다.**
+
+거슬리는 쿠키 배너는 전혀 필수가 아니다. 쿠키를 쓰지 않는 웹사이트도 가능하다. 푸터나 뷰포트 하단에 놓인 작고 은근한 배너와 다이얼로그로도 법적 요건을 충족할 만큼 충분히 눈에 띌 수 있다.
+
+그냥 하는 말이라고, Steinke는 글을 맺었다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
