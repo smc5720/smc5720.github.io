@@ -1,0 +1,91 @@
+﻿---
+title: "dev.to 대시보드가 자기 글 개수를 못 센다 — Forem 카운터 버그 수정기"
+description: "글 하나를 발행했는데 대시보드 'Posts' 배지에는 2가 찍혔다. Forem의 캐시된 카운터가 실제로 보여주는 목록과 어긋나 있었고, 루비를 쓰지 않는 개발자가 CI를 심판 삼아 이 버그를 고쳤다."
+date: "2026-08-03"
+published_at: "2026-08-06"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F52ve5106yqhknhwky42z.jpg"
+coverAlt: "dev.to's Dashboard Can't Count Its Own Posts"
+slug: "devto-dashboard-post-count-bug-fix"
+source_id: "devto-4271771"
+source_url: "https://dev.to/dannwaneri/devtos-dashboard-cant-count-its-own-posts-3fci"
+source_title: "dev.to's Dashboard Can't Count Its Own Posts"
+source_author: "Daniel Nwaneri"
+source_published: "2026-08-03"
+---
+
+<LinkCard url="https://dev.to/dannwaneri/devtos-dashboard-cant-count-its-own-posts-3fci" author="Daniel Nwaneri" date="2026-08-03" />
+
+## 개요
+
+글을 딱 한 편 올린 사용자의 dev.to 대시보드에 "Posts" 개수가 2로 표시됐다. 아래 목록에는 글이 하나뿐인데 배지 숫자만 하나 더 많았다. Forem 저장소에 [#23687](https://github.com/forem/forem/issues/23687)번으로 올라온, 한 줄짜리 짧은 제보다.
+
+Daniel Nwaneri가 이 이슈를 집어 들었다. dev.to를 굴리는 오픈소스 플랫폼 Forem은 Rails로 짜여 있고, 그는 루비를 쓰지 않는다. 몇 달 동안 스타만 눌러두고 클론해둔 채 한 번도 열어보지 않았던 코드베이스였다.
+
+## 배지와 목록이 서로 다른 걸 세고 있었다
+
+대시보드 사이드바의 "Posts" 배지는 `@user.articles_count`를 그대로 찍는다. `counter_culture`가 관리하는 `User` 모델의 캐시 값인데, 해당 사용자에게 속한 `Article` 레코드가 생길 때마다 무조건 1씩 올라간다. 종류를 가리지도, 상태를 따지지도 않는다.
+
+```ruby
+# app/models/article.rb
+counter_culture :user
+```
+
+문제는 그 배지가 걸려 있는 링크다. 클릭하면 파라미터 없는 기본 화면, 즉 `DashboardsController#show`로 간다. 그리고 이 화면은 보관되지 않은(non-archived) **full_post 타입만** 목록에 올린다.
+
+```ruby
+# app/controllers/dashboards_controller.rb
+@articles = target.articles.from_subforem.includes(:organization)
+@articles = params[:state] == "status" ? @articles.statuses : @articles.full_posts
+@show_archived = params[:filter].to_s.casecmp("archived").zero?
+```
+
+Forem의 글 타입은 세 가지다. 일반 글인 `full_post`, 짧은 "Boost" 업데이트인 `status`, 그리고 `fullscreen_embed`. 카운터는 이 셋을 구분하지 않고, 보관 여부도 신경 쓰지 않는다. 배지는 전부를 세고, 그 아래 목록은 엄격하게 걸러낸 일부만 보여준다. 짧은 상태 업데이트를 한 번이라도 올렸거나 글을 보관해둔 사람이라면 클릭해서 확인할 수 있는 것과 맞지 않는 숫자를 보게 된다. #23687에 올라온 상황이 정확히 이거였다.
+
+![숫자가 표시된 모니터 화면](https://images.pexels.com/photos/5876546/pexels-photo-5876546.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Atypeek Dgn](https://www.pexels.com/@atypeek-dgn) on [Pexels](https://www.pexels.com/photo/monitor-with-inscriptions-and-numbers-about-covid-19-pandemic-5876546/)*
+
+Nwaneri는 루비로 이걸 검증할 수는 없었지만, 구조가 눈앞에 펼쳐지자 바로 알아봤다고 적었다. 캐시된 카운트가 필터링된 화면이 실제로 렌더링하는 것과 어긋나는 형태. 자바스크립트로 똑같은 버그를 만들어 배포해본 적이 있었다는 것이다. 문법만 다를 뿐 실패 방식은 같았다.
+
+감으로 짚을 수 없다는 점이 오히려 도움이 됐다. 루비를 안 쓰니 대충 추측해서 고칠 방법이 없었고, `DashboardsController`와 사이드바 partial, `Article` 모델을 차례로 읽어 내려가며 버그의 형태가 확실해질 때까지 추적할 수밖에 없었다.
+
+## 공용 카운터는 건드리지 않았다
+
+수정안([PR #23690](https://github.com/forem/forem/pull/23690))은 `articles_count` 자체를 손대지 않는다. 이 캐시는 배지 말고도 스팸 휴리스틱 같은 다른 곳에서 읽히는데, 거기서는 "이 사용자가 만든 모든 글"이라는 의미가 맞기 때문이다.
+
+대신 `DashboardsController`에 Posts 탭이 실제로 그리는 범위와 똑같이 맞춘 헬퍼를 추가했다. 전체 페이지 액션과 AJAX 사이드바 액션 둘 다 raw 캐시 대신 이 헬퍼를 쓴다.
+
+```ruby
+# The "Posts" nav item always links to the default (non-archived, full posts
+# only) view of the user's own dashboard, so its indicator should reflect
+# that same scope rather than the user's raw articles_count, which also
+# includes statuses and archived posts that never show up in that list.
+def posts_count_for(user)
+  user.articles.from_subforem.full_posts.where(archived: false).count
+end
+```
+
+## 검증은 CI에 맡겼다
+
+눈으로 훑어보고 "맞겠지" 하고 넘어갈 수는 없는 상황이었다. 루비를 그 정도로 읽지 못하는 데다, 작업하던 머신에는 루비도 PostgreSQL도 깔려 있지 않아 스펙 스위트를 로컬에서 돌릴 수도 없었다.
+
+그래서 검증을 다른 데로 넘겼다. full_post 하나, status 하나, 보관된 글 하나를 가진 사용자가 정확히 1을 봐야 한다는 회귀 스펙을 작성하고, 브랜치를 푸시한 뒤, 본인의 확신 대신 Forem 자체 CI에 판정을 맡긴 것이다.
+
+첫 실행에서 CI가 진짜 문제를 잡아냈다. 수정 코드가 아니라 테스트 쪽이었다. `create(:article, type_of: "status")`가 모델 검증에 걸려 실패했다. Forem에서 status 타입 글은 body markdown을 가질 수 없는데, 팩토리 기본값이 그걸 채워 넣고 있었다. 스위트 안에서 이미 쓰이던 패턴(`body_markdown: "", main_image: nil`)을 찾아 스펙 두 개를 고치고 다시 푸시했다.
+
+Nwaneri는 그 실패가 이번 수정이 "그럴듯하게 포장한 추측"이 아니라는 증거라고 썼다. 로컬에서 스펙을 돌릴 수 있었다면 푸시 전에 잡았을 문제를, 프로젝트 CI가 대신 해준 셈이다.
+
+현재는 전부 초록불이다. 성공 19건, 스킵 1건, 실패 0건이고 `dashboard_spec.rb`를 돌리는 샤드도 포함돼 있다. PR은 forem/forem에 열려 있고 메인테이너 리뷰를 기다리는 중이다. 서드파티 포크 PR은 병합 전 리뷰가 필요해서다. 글을 쓰는 시점 기준으로 아직 머지되지는 않았다고 저자는 분명히 밝혔다.
+
+## "컴파일된다"와 "맞다"는 다른 주장이다
+
+저자는 이번 건이 앞서 쓴 두 편의 글과 같은 결론에 닿았다고 정리한다. [The Cloudflare Worker That Ran Perfectly and Still Failed Twice](https://dev.to/dannwaneri/the-cloudflare-worker-that-ran-perfectly-and-still-failed-twice-17l2)와 [I Was Filming a Demo of My Monitoring Tool. The Monitor Wasn't Monitoring.](https://dev.to/dannwaneri/i-was-filming-a-demo-of-my-monitoring-tool-the-monitor-wasnt-monitoring-1p7d)다. "돌아간다"와 "맞다"는 서로 다른 주장이고, 신뢰할 만한 건 둘 중 하나뿐이라는 것.
+
+한 가지 차이도 덧붙였다. 앞선 두 편과 달리 이번엔 루비를 쓰지 않았다. 버그를 찾고 수정 코드를 쓴 건 Claude였고, 저자는 이슈를 고르고 자기 머신을 떠나는 모든 것 — 포크, 푸시, PR, CLA — 을 직접 통과시켰다고 적었다. 코드는 전적으로 위임했지만, 무엇을 내보낼지는 위임하지 않았다는 뜻이다.
+
+이 글은 [DEV's Summer Bug Smash: Clear the Lineup](https://dev.to/bugsmash) 출품작으로, [Sentry](https://sentry.io/)가 후원한다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

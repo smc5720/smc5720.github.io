@@ -1,0 +1,178 @@
+﻿---
+title: "TypeScript 7이 네이티브로 갔다 — 실제로 바뀌는 것과 그대로인 것"
+description: "TypeScript 7.0이 Go로 다시 작성한 네이티브 컴파일러와 함께 정식 출시됐다. 빌드는 10배 빨라졌지만 여러분이 짠 코드가 달라지는 건 아무것도 없다."
+date: "2026-08-03"
+published_at: "2026-08-06"
+slug: "typescript-7-native-compiler-what-changes"
+category: "news"
+tags: ["typescript", "compiler", "go", "tooling"]
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fimages.weserv.nl%2F%3Furl%3Dwww.nazarboyko.com%2Fassets%2Fimgs%2Farticles%2Ftypescript-7-native-compiler-what-changes%2Fcover.webp%26w%3D1600%26h%3D672%26fit%3Dcover%26a%3Dtop"
+coverAlt: "TypeScript 7 Went Native: What Actually Changes And What Doesn't"
+source_id: "devto-4296692"
+source_url: "https://dev.to/nazar-boyko/typescript-7-went-native-what-actually-changes-and-what-doesnt-6b3"
+source_title: "TypeScript 7 Went Native: What Actually Changes And What Doesn't"
+source_author: "Nazar Boyko"
+source_published: "2026-08-03"
+---
+
+<LinkCard url="https://dev.to/nazar-boyko/typescript-7-went-native-what-actually-changes-and-what-doesnt-6b3" author="Nazar Boyko" date="2026-08-03" />
+
+## 개요
+
+"TypeScript가 네이티브로 갔다"는 소식은 이제 모르는 사람이 없다. 그런데 여기서 엉뚱한 결론이 자꾸 따라붙는다. 이제 컴파일 없이 TypeScript가 돌아간다더라, 빌드 단계가 사라졌다더라, `.ts` 파일이 그대로 실행된다더라.
+
+전부 사실이 아니다. 브라우저는 여전히 TypeScript를 못 읽고, Node도 타입 검사는 안 한다. 네이티브가 된 건 여러분의 코드가 아니라 **컴파일러**다.
+
+그리고 사실 이쪽이 훨씬 재미있는 이야기다.
+
+## '네이티브'의 진짜 의미
+
+TypeScript 컴파일러는 태어날 때부터 TypeScript로 짜여 있었다. CI에서 돌리는 `tsc`도, 에디터에 빨간 밑줄을 그어주는 `tsserver`도 결국 Node.js 위에서 도는 자바스크립트 프로그램이었다. 코드 100만 줄짜리 프로젝트를 타입 검사할 때마다, 포인터로 얽힌 거대한 타입 객체 그래프를 자바스크립트가 단일 스레드로 훑고 다녔다는 뜻이다. JIT 워밍업과 GC 압박은 덤이었다.
+
+TypeScript 7은 그 자리를 Go로 작성해 미리 컴파일해둔 네이티브 바이너리로 갈아 끼웠다. 마이크로소프트는 [2025년 3월에 포팅 계획을 공개](https://devblogs.microsoft.com/typescript/typescript-native-port/)했고, TypeScript의 수석 아키텍트 Anders Hejlsberg가 직접 이 작업을 이끌었다. 결과물은 [2026년 7월 8일 TypeScript 7.0으로 출시](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/)됐다.
+
+그러니까 "네이티브 TypeScript"라는 말은 "네이티브로 컴파일된 TypeScript 툴체인"으로 풀어 읽어야 맞다. 파이프라인을 그려보면 이렇다.
+
+- **이전:** `.ts` 파일 → JS로 짜인 컴파일러(Node 위에서 실행) → 타입 에러 + `.js` 산출물
+- **이후:** `.ts` 파일 → Go 네이티브 바이너리 컴파일러 → 똑같은 타입 에러 + 똑같은 `.js` 산출물
+
+맨 앞 상자와 맨 뒤 상자는 그대로다. 가운데만 바뀌었다. 이번 발표의 전부가 이건데, 이것만으로도 충분히 큰일이다.
+
+![Comparison diagram titled What Actually Went Native: TypeScript 6 pipeline with tsc as JavaScript on Node.js versus TypeScript 7 pipeline with tsc as a native multi-threaded Go binary, input and output boxes unchanged](https://www.nazarboyko.com/assets/imgs/articles/typescript-7-native-compiler-what-changes/what-actually-went-native.webp)
+
+## 10배는 어디서 나왔나
+
+헤드라인에 박힌 숫자는 과장이 아니다. 아래는 마이크로소프트가 [7.0 릴리스 포스트](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/)에 공개한 풀 빌드 벤치마크다.
+
+| 코드베이스 | TypeScript 6 | TypeScript 7 | 배수 |
+|---|---|---|---|
+| VS Code | 125.7s | 10.6s | 11.9x |
+| Sentry | 139.8s | 15.7s | 8.9x |
+| Playwright | 12.8s | 1.47s | 8.7x |
+
+타입 검사만 떼어낸 최초 발표 벤치마크도 같은 그림이었다. 150만 줄짜리 VS Code가 77.8초에서 7.5초로, TypeORM이 17.5초에서 1.3초로, tRPC가 5.5초에서 0.6초로 줄었다. 프로젝트 규모와 상관없이 배수가 일정하다는 점이 중요하다. 거대 저장소에만 먹히는 캐시 꼼수가 아니라 바닥 자체가 올라갔다는 뜻이다.
+
+![coding script](https://images.pexels.com/photos/965345/pexels-photo-965345.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Markus Spiske](https://www.pexels.com/@markusspiske) on [Pexels](https://www.pexels.com/photo/coding-script-965345/)*
+
+대부분의 기사가 넘어가는 대목이 하나 있다. 네이티브 컴파일만으로는 10배가 안 나온다. JIT 자바스크립트에서 AOT Go로 옮긴 몫이 한 덩어리, 나머지는 **공유 메모리 멀티스레딩** 몫이다. 예전 컴파일러는 구조적으로 이걸 못 했다. 자바스크립트의 워커 스레드는 객체 그래프를 공유하지 못하고 메시지를 주고받으며 데이터를 복사한다. 하는 일 자체가 거대한 공유 타입 그래프를 훑는 것인 타입 체커가 코어 하나에 묶여 있던 이유다. Go에서는 체커가 같은 메모리를 읽는 병렬 워커로 작업을 쪼갠다.
+
+TypeScript 7은 이걸 대놓고 노출한다. 타입 검사는 기본 워커 4개로 돌고, 다이얼을 직접 돌릴 수 있다.
+
+```bash
+# 기본값: 타입 검사 워커 4개
+npx tsc -p tsconfig.json
+
+# CI 머신 사양이 좋다면 올려보자
+npx tsc -p tsconfig.json --checkers 8
+```
+
+`--checkers 8`을 주면 마이크로소프트의 VS Code 벤치마크가 7.51초까지 떨어진다. TypeScript 6 대비 16.7배다. 네이티브 코드가 일을 빠르게 만들었고, 동시성이 일을 나눴다. 두 효과가 곱해진 결과다.
+
+메모리도 좋은 쪽으로 움직였다. 7.0 포스트에 따르면 전체 빌드 메모리 사용량이 VS Code에서 18%, Bluesky 코드베이스에서 26% 줄었다. 10배 옆에 놓으면 초라해 보이지만, CI에서 `tsc`가 4GB를 먹어치우는 장면을 본 적 있다면 반가운 숫자다.
+
+## 하루가 어떻게 달라지나
+
+벤치마크 머신의 숫자는 숫자일 뿐이다. 중요한 건 그 시간이 내 일주일 어디로 돌아오느냐다. 크게 세 군데다.
+
+### 에디터
+
+가장 먼저 체감하는 곳이다. 하루에도 수백 번 겪는 일이니까. 최초 벤치마크에서 VS Code 코드베이스의 프로젝트 로드가 9.6초에서 1.2초로 줄었고, 7.0 릴리스에서는 에러가 있는 파일을 여는 시간이 17.5초에서 1.3초 미만으로 떨어졌다. 대형 모노레포에서 일해봤다면 그 의식(儀式)을 안다. 파일을 열고, 기다리고, "Initializing JS/TS language features"가 도는 걸 보다가, 커피 한 잔 타 와서, 그제야 밑줄을 확인한다. 그 의식이 여기서 끝난다.
+
+언어 서비스도 Language Server Protocol 위로 다시 지었다. 마이크로소프트 측정으로는 6.0 서버 대비 실패하는 명령이 80% 이상, 크래시가 60% 이상 줄었다. "TS 서버 재시작" 버튼을 덜 누르게 되는 것도 그 자체로 삶의 질 개선이다.
+
+### CI
+
+타입 검사 단계는 여러 파이프라인에서 조용한 병목이었다. 건너뛰기엔 너무 중요하고, 좋아하기엔 너무 느렸다. 릴리스 포스트에는 실제 프로덕션 수치가 실렸다. Slack은 CI 타입 검사를 7.5분에서 1.25분으로 줄이면서 머지 큐 대기 시간의 40%를 없앴다. Canva는 에러 탐지가 58초에서 4.8초로 떨어졌다. 마이크로소프트 News Services 팀은 CI 빌드를 기다리며 흘려보내던 시간이 월 400시간가량 사라졌다고 밝혔다. 타입 검사가 더 이상 가장 긴 막대가 아니게 되면 머지 큐가 빨리 빠지고, "CI 그냥 다시 돌려"라는 말이 커피 브레이크 값을 요구하지 않게 된다.
+
+### 더는 필요 없어지는 우회책
+
+이게 은근하면서도 가장 흥미로운 지점이다. 느린 컴파일러는 시간만 잡아먹지 않는다. 아키텍처를 휘게 만든다.
+
+GitHub에 올라온 tsconfig 절반에 `skipLibCheck: true`가 박혀 있는 이유는 검사를 덜 하고 싶어서가 아니다. `node_modules`의 타입을 검사하는 비용이 감당이 안 됐기 때문이다. 프로젝트 레퍼런스도 마찬가지다. composite 빌드와 `.tsbuildinfo` 안무까지 갖춘 그 구조는 상당 부분 성능 탈출구로 존재해왔고, 적잖은 모노레포가 도메인상 말이 되는 경계가 아니라 `tsc`를 견딜 만하게 만드는 경계를 따라 쪼개졌다.
+
+150만 줄 전체 검사가 10초에 끝나면 그 모든 것을 밀어붙이던 압력이 풀린다. 내일 당장 프로젝트 레퍼런스를 걷어낼 필요는 없다. 다만 다음번엔 그런 곡예에 손이 가지 않게 되고, 그 차이가 앞으로 코드베이스가 자라는 방식을 바꾼다.
+
+## 그대로인 것
+
+이제 반대쪽 장부다. 이 목록도 앞 목록만큼 중요하다.
+
+- **여러분이 만들어내는 자바스크립트.** 입력이 같으면 출력도 같다. 사용자가 내려받는 빌드 산출물은 동작 한 바이트도 달라지지 않는다.
+- **런타임.** 코드가 실행되는 방식에 관해 바뀐 건 없다. 이건 처음부터 끝까지 컴파일 타임 이야기다.
+- **타입 시스템의 규칙.** TypeScript 7은 6.0의 타입 검사 동작을 그대로 재현하도록 만들어졌다. 6.0에서 깨끗이 컴파일되던 코드는 7.0에서도 똑같이 컴파일된다. 타입이 더 엄격해지거나, 느슨해지거나, 똑똑해진 게 아니다. 검사가 빨라졌을 뿐이다.
+
+이건 운이 좋아서가 아니다. 애초에 [팀이 Go를 고른 이유](https://github.com/microsoft/typescript-go/discussions/411)가 여기 있다. 기존 컴파일러는 10년 치 동작이 쌓인 물건이다. 포인터로 얽힌 트리 순회, 공유 가변 상태, 구조 자체에 새겨진 수천 개의 미묘한 결정들. 팀은 이 프로젝트를 처음부터 **재작성이 아닌 포팅**으로 규정했고, 기존 코드베이스를 거의 함수 단위로 옮기며 동작을 그대로 보존했다. Go가 이긴 건 관용적인 Go 코드가 기존 코드의 모양을 그대로 흉내 낼 수 있었기 때문이다. Rust로 갔다면 메모리와 가변성을 밑바닥부터 다시 설계해야 했을 테고, 포팅이 재작성으로 변질되면서 호환성 약속은 그냥 기도가 됐을 것이다.
+
+원문 저자는 이 결정을 프로젝트 전체에서 가장 과소평가된 엔지니어링 판단으로 꼽는다. 동작이 동일함을 증명할 수 있게 해준 그 심심한 선택 덕분에, 컴파일러를 통째로 갈아 끼우는 일을 마이너 버전 업그레이드 수준의 리스크로 받아들일 수 있게 됐다는 것이다.
+
+## Node의 타입 스트리핑과는 다른 이야기
+
+이 둘을 자꾸 헷갈리는데, 서로 정반대 문제를 푼다.
+
+Node 22.6.0부터, 그리고 23.6.0부터는 기본 활성화로, [Node는 TypeScript 파일을 직접 실행](https://nodejs.org/api/typescript.html)할 수 있다. 타입을 걷어내는 방식인데, "걷어낸다"는 표현이 문자 그대로다. Node는 타입 표기를 공백으로 치환하고 남은 걸 실행한다. 그래서 줄과 열 번호가 원본 소스와 그대로 맞는다.
+
+타입 검사는 전혀 하지 않는다. 아예 없다. `const port: number = "definitely not a number"`라고 선언해도 Node는 군말 없이 실행한다.
+
+그래서 *지울 수 있는(erasable)* 문법만 통한다. 지워도 런타임 동작이 달라지지 않는 것들 말이다.
+
+```typescript
+// Node의 타입 스트리핑에서 잘 돌아간다:
+interface User {
+  id: number;
+  name: string;
+}
+const greet = (user: User): string => `Hi, ${user.name}`;
+
+// ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX가 난다.
+// enum은 지울 수 없다 — 실제 런타임 코드를 만들어내니까
+enum Role {
+  Admin,
+  Member,
+}
+```
+
+enum, 런타임 코드를 만드는 namespace, 생성자 파라미터 프로퍼티는 모두 자바스크립트를 생성한다. 지우면 동작이 달라지므로 Node의 기본 모드는 이들을 거부한다.
+
+둘 사이의 선을 정리하면 이렇다.
+
+- **Node의 타입 스트리핑**은 "빌드 단계 없이 이 `.ts` 파일을 *실행*할 수 있나?"에 답한다. 코드를 실행하고, 아무것도 검사하지 않는다.
+- **네이티브 TypeScript 컴파일러**는 "출시 전에 이 코드를 *검사*할 수 있나?"에 답한다. 전부 검증하고, 그 일이 10배 빨라졌다.
+
+경쟁 관계가 아니라 보완 관계다. 2026년 기준으로 잘 짜인 구성은 이렇다. 개발 중에는 Node가 `.ts` 파일을 직접 실행하고, 에디터와 CI에서는 네이티브 `tsc`가 실제 타입 검사를 돌린다. 하나는 빌드 단계를 없애고, 다른 하나는 안전망을 신경 쓰지 않아도 될 만큼 빠르게 만든다.
+
+## 타임라인과 마이그레이션, 솔직하게
+
+2026년 중반 기준 현황이다.
+
+**TypeScript 7.0은 GA다.** npm의 `typescript` 패키지가 바로 그것이고, 바이너리 이름도 여전히 `tsc`다. 프리뷰를 만져본 사람이라면 `@typescript/native-preview` 패키지와 `tsgo` 바이너리를 기억할 텐데, 그 시절은 끝났다. 네이티브 컴파일러가 그냥 TypeScript다.
+
+**6.x 라인은 이어진다.** 자바스크립트 기반 컴파일러는 TypeScript 6으로 남아, 네이티브 포트가 완전히 자리를 잡을 때까지 병행 유지된다. 7과 나란히 `tsc6`로 설치되는 호환 패키지까지 있는데, 다음 항목 때문에 이게 중요하다.
+
+**프로그래매틱 API가 솔직한 각주다.** TypeScript 7은 컴파일러를 라이브러리로 가져다 쓰는 도구들을 위한 안정 API를 아직 공개하지 않았다. typescript-eslint의 타입 인식 규칙, 그리고 Vue·Svelte·Astro의 템플릿 타입 검사가 여전히 내부적으로 TypeScript 6을 필요로 한다는 뜻이다. 안정 API는 7.1로 잡혀 있다. 그때까지 툴링이 무거운 프로젝트는 둘 다 돌린다.
+
+**`package.json`**
+```json
+{
+  "devDependencies": {
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
+    "@typescript/native": "npm:typescript@^7.0.2"
+  }
+}
+```
+
+빠른 빌드와 에디터 경험은 7에서, 린트 툴체인이 필요로 하는 API는 6에서 가져오는 구성이다. 투박하고, 임시방편이고, 그럴 만한 가치가 있다.
+
+**기본값 일부가 조여졌다.** 7.0은 `strict`를 기본으로 켜고, `module` 기본값을 `esnext`로 바꿨으며, ES5와 AMD/UMD 출력처럼 오래전 폐기 예고된 타깃을 걷어냈다. tsconfig가 이미 의도한 바를 명시적으로 적어두고 있다면(그래야 하고) 체감할 일이 거의 없다. `strict`를 한 번도 안 켠 코드베이스라면, 컴파일러가 코드를 망가뜨린 게 아니라 옛 기본값이 괜찮은 척하기를 그만둔 것이다.
+
+> **참고**
+> 평범한 `tsc` 빌드 프로젝트라면 업그레이드는 지루하기 짝이 없는 작업이다. 패키지 버전을 올리고, 빌드를 돌리고, 몇 개 안 되는 설정 경고를 읽으면 끝이다. 한 박자 기다리는 게 나은 쪽은 툴체인이 컴파일러 API에 손을 뻗는 팀이다. 스위치를 올리기 전에 린트 설정과 프레임워크 툴링부터 확인하자.
+
+## 언어가 아니라 툴링의 이야기
+
+TypeScript 7은 언어에 아무것도 더하지 않았다. 그래서 오히려 중요하다. 이전 메이저 버전들은 매번 새로운 타입 시스템 장난감을 안겨줬다. 이번 버전이 돌려주는 건 키를 누를 때마다, 저장할 때마다, 푸시할 때마다 조용히 지불해온 시간이다. 그리고 아키텍처인 척했지만 실은 느린 컴파일러를 견디는 대처법에 불과했던 결정 한 무더기를 은퇴시킨다.
+
+10배라는 숫자가 헤드라인을 가져간다. 하지만 진짜 성과는, 그 숫자 때문에 대형 TypeScript 팀들이 무엇을 **그만두는지** 지켜보는 데서 드러날 것이다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

@@ -1,0 +1,190 @@
+﻿---
+title: "Catbot이 자기 이름을 못 알아듣던 이유 — 음성 인식 문법(Grammar) 버그를 잡다"
+description: "데스크톱 펫 Catbot이 \"Catbot\"이라는 호출어를 끝까지 인식하지 못한 원인은 코드가 아니라 음성 모델의 언어 모델(G) 구조였다. 개발자는 두 개의 Vosk 모델을 병렬로 돌려 문제를 해결했다."
+date: "2026-08-01"
+published_at: "2026-08-06"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fskd0m5rvbu69a8xg8n22.png"
+coverAlt: "Catbot: Custom Grammar Problem Fixed"
+source_id: "devto-4288467"
+source_url: "https://dev.to/annavi11arrea1/catbot-custom-grammar-problem-fixed-oc5"
+source_title: "Catbot: Custom Grammar Problem Fixed"
+source_author: "Anna Villarreal"
+source_published: "2026-08-01"
+slug: "catbot-custom-grammar-problem-fixed"
+---
+
+<LinkCard url="https://dev.to/annavi11arrea1/catbot-custom-grammar-problem-fixed-oc5" author="Anna Villarreal" date="2026-08-01" />
+
+## 개요
+
+데스크톱 펫 프로젝트 Catbot을 만든 Anna Villarreal이 겪은 버그는 코드에 있지 않았다. 자기 이름을 부르면 Catbot은 "Catfight", "Cat bought", 심지어 "Lawrence"로 알아들었다. 여러 세션에 걸쳐 개선과 최적화를 반복했지만 인식률은 나아지지 않았다.
+
+원인은 음성 인식 모델의 구조 자체였다. "Catbot"은 개발자가 만들어낸 단어라서 모델의 언어 모델 그래프 안에 존재하지 않는다. 존재하지 않는 단어로 향하는 경로가 없으니, 디코더는 자기가 아는 단어 중 소리가 가장 비슷한 것을 골라낼 수밖에 없었다. Villarreal은 이 과정을 Dev.to의 Summer Bug Smash 참가글로 정리했다.
+
+## 소리는 들리는데 이름만 못 알아듣는다
+
+문제 해결은 세 단계로 진행됐다. 먼저 발화 중간에 Catbot이 말을 끊는 문제부터 손봤다. 침묵 감지 구간을 0.5초에서 1.5초로 늘리자 문장을 끝까지 말할 여유가 생겼다. Villarreal은 이 조정만으로도 체감 차이가 엄청났다고 적었다.
+
+두 번째는 하드웨어였다. 웹캠 내장 마이크는 방 안의 모든 소리를 함께 주워담는다. 고양이 귀 헤드셋으로 바꾸자 인식 품질이 눈에 띄게 좋아졌다. 근거리 무지향성 마이크가 배경 소음을 걸러준 덕이다.
+
+그런데도 이름은 여전히 통하지 않았다. Catbot은 자기 이름을 "Catbot"으로 불러달라며 사용자와 실랑이를 벌였고, 이름을 부를 때마다 긴 옆길 대화가 이어졌다. Villarreal은 이 경험을 "끔찍했다"고 표현했다.
+
+## 런타임 그래프를 받아주지 않는 모델
+
+파고들어가 보니 선호하던 큰 모델 `vosk-model-en-us-0.22`는 런타임 그래프를 지원하지 않았다. 학습시킨 그래프가 그냥 무시되고 있었던 것이다. 이 모델의 디코딩 그래프는 하나의 고정된 파일로 미리 합성돼 있어서, 문법을 끼워 넣을 틈이 없다.
+
+반대로 커스텀 문법을 받아주는 모델은 `vosk-model-en-us-0.22-lgraph`다. 다만 Villarreal은 여기서 하는 일이 커스텀 명령어 추가가 아니라고 짚는다. 출력 후보를 통제하는 작업, 다시 말해 "커스텀 방향 지시" 또는 "금지 목록"에 가깝다.
+
+Catbot은 Kaldi를 쓴다. Kaldi는 H·C·L·G 네 층을 합성해 만든 단일 유한 상태 변환기 HCLG를 상대로 디코딩한다. 이 중 G가 문법, 즉 언어 모델 층이다. G는 가능한 모든 단어 시퀀스에 비용을 부여하고, 디코더가 그중 승자를 뽑는다.
+
+점수는 음의 로그 확률이다. 그래프의 모든 아크가 가중치를 지니고, 경로를 따라 비용이 더해진다. 음의 로그 확률이므로 숫자가 작을수록 좋고, 비용을 더하는 것은 확률을 곱하는 것과 같다.
+
+전체 비용은 이렇게 나뉜다.
+
+| 음향 비용(Acoustic cost) | 언어 비용(Language cost) |
+| --- | --- |
+| "이 음소들이 오디오 프레임과 얼마나 잘 맞는가?" | "애초에 이런 문장을 말할 가능성이 얼마나 되는가?" |
+
+Villarreal이 정리한 요점은 세 가지다.
+
+- 둘 중 하나만으로는 쓸모가 없다.
+- 음향 모델은 "ice cream"과 "I scream"을 구분하지 못한다. 소리가 같기 때문이다.
+- 언어 모델은 듣지 못한다. 디코더는 두 비용의 합이 최소가 되는 시퀀스를 찾는다. 언어 모델의 역할을 "시퀀스에 점수를 매기는 일"로 설명하는 게 가장 정확한 이유다.
+
+## 단어 선택은 확률로 결정된다
+
+G의 각 상태는 직전 n-1개 단어, 즉 이력을 나타낸다. 상태에서 나가는 각 아크는 다음에 올 수 있는 단어이고, 가중치는 -log P(단어 | 이력)이다.
+
+```
+"The cat" –sat (cost 4.1)-->
+          –ate (cost 5.3)-->
+          –sad (cost 9.8)-->
+```
+
+결국 단어는 그럴듯함으로 선택된다. "Catbot"은 실재하는 단어가 아니므로, 모델이 애초에 그것을 단어로 이해할 길이 없었다. 그래서 "Catbot engage"가 "kappa engage" 같은 엉뚱한 구절로 흘러나왔다.
+
+Villarreal이 Claude로 후보 구절을 뽑아보자 문제가 그대로 드러났다.
+
+```
+  SPOKEN: Catbot, engage.
+    1. conf  114.1   kappa engage
+    2. conf  112.1   cappa engage
+```
+
+"kappa engage"는 어휘 함정이다. G를 통과해 "Catbot"을 출력하는 경로가 없으니, 디코더는 할 수 있는 유일한 일 — 그 소리에 가장 가까운 단어 찾기 — 을 한다. "Catbot"이라고 말할 때마다 매번 실패한 이유가 여기 있다.
+
+## 헬렌 켈러와 다중모달 정렬
+
+Villarreal은 이 상황을 헬렌 켈러와 앤 설리번의 이야기에 비유한다. 서로 완전히 다른 감각·데이터 양식 사이를 중개 인터페이스가 이어줘야 하는 문제라는 점에서 닮았다는 것이다. 컴퓨터 과학에서는 이를 다중모달 정렬(multimodal alignment)이라 부르고, 헬렌 켈러를 세상과 연결한 촉각 손가락 철자법이 바로 그 역할을 했다.
+
+| 요소 | 헬렌 켈러 | 앤 설리번(교사) | 외부 세계 |
+| --- | --- | --- | --- |
+| AI 역할 | 음향 모델(Vosk) | 정렬 인터페이스(코드 파이프라인) | 언어 모델(LLM) |
+| 데이터 타입 | 원시 감각 입력(음파·주파수) | 완전히 다른 두 양식을 잇는 번역기 | 기호 언어(문자·토큰) |
+| 기능 | 물리적 소리는 감지하지만 의미 맥락과 논리는 전혀 없다 | 원시 음향 패턴을 구조화된 텍스트 블록으로 매핑 | 구조화된 텍스트 토큰은 논리적으로 처리하지만 물리적 음파를 직접 "들을" 수는 없다 |
+
+용도에 따라 서로 다른 두 모델이 필요하다는 걸 깨닫고 나서야, AI가 실제 아날로그 데이터를 처리한다는 근본 문제가 눈에 들어왔다고 Villarreal은 적었다.
+
+## 급한 처방은 "CB", 근본 해법은 이중 인식기
+
+깊이 파고들기 직전에 Villarreal은 Catbot에게 "CB"에 반응하도록 지시해뒀다. 영어 알파벳, 실재하는 글자다. 지금 Catbot은 "CB"라고 하면 자기를 부르는 것으로 정확히 알아듣는다. 빠른 처방으로는 충분했다.
+
+근본 해법은 디코더가 특정 단어를 고려하지 못하게 막는 쪽이다. 제약 없이 "Catbot, engage"라고 말하면 모델은 "Kappa engage"로 듣는다. "kappa"를 금지하면 "cat bot engage"로 듣는다. "cat"과 "bot"은 둘 다 흔히 쓰이는 단어라서 모델이 이미 알고 있기 때문이다.
+
+이 방식은 `vosk-model-en-us-0.22-lgraph`를 `vosk-model-en-us-0.22`와 함께 써야만 가능하다.
+
+## 코드로 본 이중 인식기
+
+먼저 런타임 문법을 받아주는 동적 그래프 모델 경로를 추가했다.
+
+```python
+ 44  KOKORO_VOICES = ROOT / "models" / "voices-v1.0.bin"
+ 45  VOSK_BIG = ROOT / "models" / "vosk-model-en-us-0.22-lgraph"
+ 46  VOSK_SMALL = ROOT / "models" / "vosk-model-small-en-us-0.15"
+ 47 +# Dynamic-graph model — the only kind that accepts a runtime grammar. A model
+ 48 +# that ships a pre-composed graph/HCLG.fst has no seam to insert one into;
+ 49 +# Vosk logs "Runtime graphs are not supported by this model" and decodes
+ 50 +# freely, which is worse than having no grammar recognizer at all. Detected by
+ 51 +# the presence of graph/Gr.fst (the language model kept as a separate file).
+ 52 +VOSK_DYNAMIC = ROOT / "models" / "vosk-model-en-us-0.22-lgraph"
+ 53
+ 54  SAMPLE_RATE = 16000
+ 55  BASE = f"https://localhost:{os.getenv('CATBOT_PORT', '8800')}"
+```
+
+그다음 호출어와 명령만 담은 문법 목록을 만들었다. 이름은 "catbot"이 아니라 "cat bot"처럼 두 단어로 풀어 적는다. 모델 어휘에 없는 단어는 Vosk가 조용히 버리기 때문이다.
+
+```python
+ 105 +# ---- grammar-constrained wake/command recognizer ------------------------
+ 106 +# A SECOND recognizer decodes the same audio against nothing but the phrases
+ 107 +# below. It can't hear anything else, so "catbot engage" can't come out as
+ 108 +# "kappa engage" — that word doesn't exist in its graph. Anything Anna says
+ 109 +# that isn't a listed phrase decodes as "[unk]", which is exactly why this
+ 110 +# only ever SUPPLEMENTS the free recognizer (which still handles all
+ 111 +# conversation) instead of replacing it.
+ 117 +WAKE_NAME_FORMS = ["cat bot", "cat pot", "cat bought", "cat bottom", "cat but",
+ 118 +                   "catfight", "combat", "cabot", "kat bot", "cap pot"]
+ 119 +# what can follow his name (empty = just the name, which wakes him too)
+ 120 +GRAMMAR_TAILS = ["", "engage", "engaged", "wake up", "wake",
+ 121 +                 "are you listening", "are you there", "you there",
+ 122 +                 "go to sleep", "sleep", "stop", "stop listening",
+ 123 +                 "be quiet", "quiet", "shut up", "hush",
+ 124 +                 "open terminal", "close terminal", "approve", "skip"]
+ 125 +# phrases that stand alone, with or without his name
+ 126 +GRAMMAR_BARE = ["open terminal", "close terminal"]
+```
+
+`_build_grammar`는 각 구절의 단어를 모델 어휘와 대조해 걸러내고, 버린 단어를 로그로 남긴다. 목록 끝에 붙는 `"[unk]"`는 탈출구다. 디코더가 "이건 목록에 없는 말이었다"고 답할 수 있게 해줘서, 일반 대화가 가장 가까운 명령으로 억지로 뒤틀리는 일을 막는다.
+
+```python
+ 129 +def _build_grammar(model) -> str | None:
+ 130 +    """JSON phrase list for the constrained recognizer, filtered to words the
+ 131 +    model actually knows. Returns None if nothing usable survived."""
+ 132 +    names = list(WAKE_NAME_FORMS)
+ 133 +    # whatever wake_training.py learned from Anna's own mic counts too
+ 134 +    try:
+ 135 +        learned = json.loads((ROOT / "catbot_wake_variants.json").read_text())
+ 136 +        names += [w.strip().lower() for w in learned
+ 137 +                  if w.strip() and w.strip().lower() not in names]
+ 138 +    except Exception:
+ 139 +        pass
+ 140 +
+ 141 +    phrases = {f"{lead}{name} {tail}".strip()
+ 142 +               for lead in ("", "hey ")
+ 143 +               for name in names
+ 144 +               for tail in GRAMMAR_TAILS}
+ 145 +    phrases.update(GRAMMAR_BARE)
+```
+
+두 번째 인식기의 실측 비용도 코드 주석에 남겼다. RAM 약 200MB, 디코딩 CPU는 62ms 블록당 4.3ms에서 8.0ms로 대략 두 배가 됐다. 문법이 탐색 범위를 줄여주긴 하지만, 두 번째 음향 모델이 모든 블록마다 돌아가기 때문이다. 그래도 실시간 대비 0.13배 수준이라 지연은 없다. 필요하면 `CATBOT_GRAMMAR=0`으로 끌 수 있다.
+
+```python
+ 474 +        # Second recognizer, constrained to the wake/command grammar above.
+ 475 +        # Runs on its own dynamic-graph model so the big model keeps handling
+ 476 +        # conversation with its full rescoring stack. Cost, measured: ~200 MB
+ 477 +        # of RAM and roughly DOUBLE the decode CPU (4.3 -> 8.0 ms per 62 ms
+ 478 +        # block) — the grammar shrinks the search, but a second acoustic model
+ 479 +        # still runs on every block. Still only 0.13x realtime, so it adds no
+ 480 +        # latency; set CATBOT_GRAMMAR=0 if that ever stops being true.
+ 481 +        self._grec = self._gmodel = None
+ 487 +                if not (gdir / "graph" / "Gr.fst").exists():
+ 488 +                    logger.warning(
+ 489 +                        f"grammar recognizer OFF: {gdir.name} has no dynamic "
+ 489 +                        f"graph (graph/Gr.fst) — runtime grammars need one")
+```
+
+로딩에 실패하면 예외를 기록하고 자유 인식기만으로 계속 동작한다. 결과적으로 두 모델이 같은 정규식을 상대로 병렬 실행된다. 문법 모델은 명령을 담당하고, 큰 모델은 대화형 상호작용을 맡는다.
+
+## 시연 영상
+
+[YouTube 영상 보기 →](https://youtube.com/shorts/Nhddz9BwU8g)
+
+## 배운 것
+
+Villarreal은 이 버그를 "전형적인 소프트웨어 싸움이 아니라 개념적 버그"로 규정한다. 큰 모델을 새 문법으로 다시 합성할 수 없으니, lgraph 모델을 옆에 두고 커스텀 요구를 처리하게 하는 쪽을 택했다. 나쁜 하드웨어부터 모델의 경계를 이해하는 일까지, 때로는 더 적게 해서 더 많이 얻는다는 것 — 여기서 "적게"는 어휘에서 단어를 빼는 일이다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
