@@ -1,0 +1,159 @@
+﻿---
+title: "Go를 3주 배우고 k9s에 코드를 머지했습니다"
+description: "Go 입문 3주 차 개발자가 별 5만 8천 개짜리 쿠버네티스 터미널 UI k9s의 포트포워드 권한 검사 버그를 고친 과정. 두 줄짜리 수정에 48시간이 걸린 이유를 기록했다."
+date: "2026-08-01"
+published_at: "2026-08-07"
+category: "news"
+tags: []
+slug: "how-i-learned-go-and-merged-into-k9s"
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fpcqxww5kctebysglkt4e.png"
+coverAlt: "I Learned Go in 3 Weeks. Yesterday, My Code Merged into k9s."
+source_id: "devto-4286677"
+source_url: "https://dev.to/le_beltagy/i-learned-go-in-3-weeks-yesterday-my-code-merged-into-k9s-2dg4"
+source_title: "I Learned Go in 3 Weeks. Yesterday, My Code Merged into k9s."
+source_author: "Le Beltagy"
+source_published: "2026-08-01"
+---
+
+<LinkCard url="https://dev.to/le_beltagy/i-learned-go-in-3-weeks-yesterday-my-code-merged-into-k9s-2dg4" author="Le Beltagy" date="2026-08-01" />
+
+## 개요
+
+Go를 배우기 시작한 지 3주 된 개발자가 k9s에 낸 PR이 머지됐다. k9s는 깃허브 스타 5만 8천 개를 넘긴 쿠버네티스 터미널 UI다. 고친 내용은 포트포워드 권한 검사 로직 한 군데. 실제 프로덕션 코드 변경은 20줄 남짓이고, 테스트가 223줄이었다.
+
+버그는 쿠버네티스 1.31에서 시작됐다. 이 버전에 들어온 `PortForwardWebsockets` 기능이 포트포워드를 SPDY 대신 웹소켓으로 처리하는데, 웹소켓 경로는 `pods/portforward` 서브리소스에 `create`가 아니라 `get` 권한만 있으면 된다. k9s는 `create`만 확인하고 있었다. 그래서 `get` 권한만 가진 사용자는 `kubectl port-forward`는 멀쩡히 되는데 k9s에서는 포트포워드 메뉴가 회색으로 비활성화됐다.
+
+작성자는 이 과정을 "두 줄 수정에 48시간이 걸린 부검 기록"이라고 표현했다. 첫 수정은 리뷰에서 반려됐고, 테스트 스위트도 한 번 터뜨렸다.
+
+## 문제의 정체
+
+### `create`와 `get`은 대체 관계가 아니다
+
+포트포워드는 API 호출 한 번으로 끝나는 작업이 아니다. `client-go`와 API 서버, kubelet 사이의 프로토콜 협상이 먼저 일어나고, 어떤 프로토콜을 타느냐에 따라 필요한 권한이 달라진다.
+
+| 경로 | 프로토콜 | 필요한 verb | k9s가 검사했나 |
+| --- | --- | --- | --- |
+| 레거시 SPDY | SPDY / HTTP/1.1 업그레이드 | `pods/portforward`의 `create` | 확인함 |
+| 웹소켓 | WebSocket (RFC 6455) | `pods/portforward`의 `get` | 확인 안 함 |
+
+차이는 초기 요청 방식에서 온다. SPDY는 포트포워드 엔드포인트에 HTTP `POST`를 보내며 시작한다. 쿠버네티스 권한 모델에서 `POST`는 `create` verb에 매핑된다. 반면 웹소켓은 `Upgrade: websocket` 헤더를 단 HTTP `GET`으로 시작하고, 서버가 `101 Switching Protocols`로 응답하면서 연결이 웹소켓으로 바뀐다. 첫 요청이 `GET`이니 권한도 `get`으로 매핑된다.
+
+실제로 문제를 제보한 사용자의 RBAC 롤은 이랬다.
+
+```yaml
+rules:
+- apiGroups: [""]
+  resources: ["pods/portforward"]
+  verbs: ["get"]
+```
+
+쿠버네티스 1.31 이상에서 `kubectl port-forward`는 웹소켓 경로를 타서 정상 동작했다. k9s만 권한이 없다고 판단했다.
+
+## 세 번의 실패
+
+![주간 계획을 적어둔 나무 글자 블록](https://images.pexels.com/photos/19825316/pexels-photo-19825316.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Markus Winkler](https://www.pexels.com/@markus-winkler-1430818) on [Pexels](https://www.pexels.com/photo/scrabble-letters-spelling-the-word-week-on-a-wooden-table-19825316/)*
+
+### 첫 번째 — 단어 하나만 바꾸고 끝냈다
+
+첫 수정은 단순했다. `port_forwarder.go`에서 `SelfSubjectAccessReview`를 만들 때 쓰는 verb `"create"`를 `"get"`으로 바꿨다. 컴파일이 됐고 드래프트 PR을 올렸다.
+
+한 시간 만에 메인테이너 코멘트가 달렸다. "아직 SPDY 경로를 쓰는 클러스터의 하위 호환성이 깨집니다."
+
+하드코딩된 verb 하나를 다른 하드코딩된 verb로 갈아치운 셈이었다. 쿠버네티스 1.31 미만 클러스터나 웹소켓 피처 게이트를 꺼둔 환경은 고려하지 않았다. 작성자는 이걸 "프로토콜 협상 문제를 문자열 치환 문제로 다뤘다"고 정리한다.
+
+올바른 방향은 두 verb를 각각 독립적으로 확인하는 것이었다. `create`가 허용되면 SPDY로 포트포워드할 수 있고, `get`이 허용되면 웹소켓으로 할 수 있다. 둘 중 하나라도 허용되면 k9s는 작업을 허용해야 한다. 실제로 어떤 프로토콜을 쓸지는 연결 시점에 API 서버와 `client-go`가 알아서 정한다.
+
+```go
+// 처음 작성한 코드 (틀림 — get만 확인)
+if !utils.CheckPodPortFwd(a.factory.Client(), a.factory.Config(), path) {
+    return errors.New("insufficient permission")
+}
+
+// 머지된 코드 (맞음 — create와 get을 각각 확인)
+if !utils.CheckPodPortFwd(a.factory.Client(), a.factory.Config(), path) {
+    if !utils.CheckPodPortFwdGet(a.factory.Client(), a.factory.Config(), path) {
+        return errors.New("insufficient permission")
+    }
+}
+```
+
+최종 머지된 코드는 `CheckPodPortFwdGet` 헬퍼를 새로 추가하고 포트포워드 검사에서 둘 다 호출하는 형태로 더 정리됐다. 핵심은 `create`와 `get`이 서로를 대체하는 선택지가 아니라, 각기 다른 프로토콜 경로에 대응하는 독립된 권한이라는 점이다.
+
+### 두 번째 — `t.Parallel()`을 몰라서 테스트를 터뜨렸다
+
+k9s에는 여러 시나리오에 걸쳐 약 50개 케이스가 있는 테이블 드리븐 테스트가 있다. 웹소켓 경로를 다루는 테스트를 추가했고 로컬에서는 통과했다. 그런데 CI가 실패했다.
+
+에러는 목 클라이언트에서 발생한 데이터 레이스였다. 셋업 코드를 줄이려고 목 `RestClient`를 테스트 루프 바깥에 하나만 만들어 공유했는데, 일부 테스트가 `t.Parallel()`로 돌면서 두 테스트가 같은 목의 응답 상태를 동시에 건드렸다. `go test -race`가 이걸 잡아냈다.
+
+수정은 각 테스트 케이스가 자기 테스트 클로저 안에서 `RestClient` 목을 직접 만들도록 리팩터링하는 것이었다. 공유 상태를 없앴다. 그렇게 작성한 테스트 파일이 223줄. 권한 조합을 전부 다뤘다.
+
+- 파드가 Running이 아닌 경우
+- `get`도 `create`도 없음 → 차단
+- `create`만 있음 → 허용 (레거시 SPDY)
+- `get`만 있음 → 허용 (웹소켓 경로, 이번 수정의 핵심)
+- 둘 다 있음 → 허용
+
+```go
+// 작성한 223줄 테스트의 일부
+{
+    name: "get-only-portforward-allowed",
+    pod:  runningPod,
+    authorized: map[string]bool{
+        "selfsubjectaccessreviews": true,
+        "pods":                   true,
+        "portforwardget":         true,
+    },
+    want: true,
+},
+```
+
+### 세 번째 — HTTP/1.1 업그레이드가 뭔지 몰랐다
+
+verb 문자열보다 깊은 곳에 진짜 원인이 있었다. 왜 웹소켓에는 `get`이면 충분하고 SPDY에는 안 되는지를 이해해야 했다. 작성자는 저녁 시간을 통째로 써서 RFC 6455(웹소켓 프로토콜), `client-go`의 `StreamWithContext` 소스, `PortForwardWebsockets` KEP(KEP-4006), 그리고 k9s가 `client-go` 디프리케이션을 처리해온 이슈 히스토리를 읽었다.
+
+이해하고 나서 코드 로직은 바꾸지 않았다. 두 verb를 모두 확인하는 시점에 이미 정확했다. 대신 에러 메시지를 고쳐서, 차단된 사용자가 어떤 권한이 필요한지 바로 알 수 있게 했다.
+
+```go
+return fmt.Errorf("user is not authorized to create or get portforward %q", path)
+```
+
+## PR 요약
+
+| 항목 | 값 |
+| --- | --- |
+| 변경 파일 | 2개 |
+| 추가된 줄 | 240 |
+| 삭제된 줄 | 3 |
+| 대상 파일 | `internal/dao/port_forwarder.go`, `internal/dao/port_forwarder_test.go` |
+| 추가한 테스트 | 권한 조합별 6개 케이스 |
+| 리뷰 라운드 | 2회 |
+| 초안부터 머지까지 | 48시간 |
+
+PR 제목은 `fix(dao): allow port-forward with 'get' verb on pods/portforward for K8s 1.31+ WebSocket path`. 후속 수정 없이 그대로 머지됐다.
+
+## 작성자가 정리한 교훈
+
+**코드보다 이슈를 먼저 읽는다.** 원 이슈(#4144)를 세 번 읽고 나서야 파일을 열었다. 제보자가 쿠버네티스 버전, RBAC 롤, 정확한 에러 메시지까지 적어둔 덕분에 웹소켓 마이그레이션이라는 맥락을 잡을 수 있었다.
+
+**소스 파일보다 테스트 파일을 먼저 읽는다.** k9s가 권한을 어떻게 다루는지는 `port_forwarder.go`보다 `port_forwarder_test.go`에서 더 많이 배웠다.
+
+**`go test -race`는 선택이 아니다.** 레이스 디텍터가 메인테이너보다 먼저 버그를 잡아줬다. 리뷰 코멘트로 창피를 당할 일이 조용한 CI 실패로 끝났다.
+
+**두 줄 수정에는 이백 줄 테스트가 붙는다.** 프로덕션 변경 20줄에 테스트 223줄. 수정 전이었다면 실패했을 테스트가 없다면, 그 수정은 아직 끝난 게 아니다.
+
+**하위 호환성은 권고가 아니라 제약이다.** 첫 초안은 1.31에서만 동작했다. 1.30 이하를 쓰는 사용자 절반의 k9s를 망가뜨릴 코드였다.
+
+## 이 기여의 무게
+
+작성자는 이 작업의 의미를 양쪽으로 짚는다. k9s는 스타 5만 8천 개에 매일 수천 명이 쓰는 도구이고, 이 수정은 실제 클러스터를 쓰는 사람들에게 영향을 준다. TodoMVC를 만드는 대신 `client-go` 소스를 읽고 테이블 드리븐 테스트를 쓰면서 Go를 익혔다.
+
+동시에 20줄짜리 수정이라는 점도 분명히 한다. 새 서브시스템을 설계한 것도, 코드베이스를 리팩터링한 것도 아니고 verb 검사 하나를 고쳤을 뿐이다. 작성자가 보는 가치는 코드가 아니라, 이슈를 읽고 맥락을 파악해 올바른 수정을 쓰고 리뷰를 통과해 배포까지 마쳤다는 증명 쪽에 있다.
+
+같은 날 Checkov에도 기여했다고 한다. Cloud SQL과 GKE 클러스터에 빠져 있던 GCP taggable 리소스를 추가하는 두 줄짜리 PR이었고 20분 만에 머지됐다. 근육이 붙으면 두 번째 기여는 첫 번째보다 빠르다는 게 작성자의 말이다.
+
+글은 이렇게 끝난다. 언어를 배우는 중이라면 튜토리얼 프로젝트를 만들지 말고, 실제 프로젝트의 실제 버그를 찾아서 고쳐라. 어떤 강의보다 테스트 스위트가 더 많이 가르쳐준다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
