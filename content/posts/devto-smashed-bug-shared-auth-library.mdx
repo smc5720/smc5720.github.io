@@ -5,7 +5,7 @@ date: "2026-08-05"
 published_at: "2026-08-08"
 slug: "devto-smashed-bug-shared-auth-library"
 category: "news"
-tags: []
+tags: ["webdev","frontend","security","programming","discuss"]
 cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fhwmq8sywc3w0s6zwx0us.jpg"
 coverAlt: "How I Smashed a Bug in a Shared Authentication Library"
 source_id: "devto-4263580"
@@ -61,13 +61,13 @@ Chrome의 세션 스토리지와 로컬 스토리지를 이리저리 만져보�
 >
 > 그리고 사용자는 여러 탭으로 애플리케이션을 열면 안 된다.
 
-그 시점까지 멀티탭 사용은 지극히 정상적인 사용자 플로우로 여겨지던 동작이었다.
+그때까지 멀티탭 사용은 지극히 평범한 사용자 플로우로 여겨지던 동작이었다.
 
 ## 라이브러리를 걷어내다
 
 Balcarek은 티켓을 닫았다. 그리고 사내 프론트엔드 인증 라이브러리를 프로젝트에서 완전히 제거한 뒤, 기존 사내 인증 서비스를 상대로 클라이언트 인증 플로우를 직접 다시 구현했다.
 
-주요 변경은 Angular HTTP 인터셉터와 토큰 갱신 플로우 두 곳이었다. 인터셉터는 `403 Forbidden`을 포함한 인증 관련 응답을 처리하도록 손봐서, 탭 전체가 망가진 상태로 멈춰버리지 않게 만들었다. 갱신된 토큰을 세션 스토리지에 다루고 저장하는 방식도 새로 짰다. 무효화된 토큰과 갱신 실패를 명시적으로 처리해서, 인증 플로우가 아예 멈추는 일이 없도록 했다.
+주요 변경은 Angular HTTP 인터셉터와 토큰 갱신 플로우 두 곳이었다. 인터셉터는 `403 Forbidden`을 포함한 인증 관련 응답을 처리하도록 손봐서, 탭 전체가 망가진 상태로 멈춰버리지 않게 만들었다. 갱신된 토큰을 다루고 세션 스토리지에 저장하는 방식도 새로 짰다. 무효화된 토큰과 갱신 실패를 명시적으로 처리해서, 인증 플로우가 아예 멈추는 일이 없도록 했다.
 
 작업에는 이틀과 하룻밤이 들었다. 사내 인증 라이브러리에서 아이디어 몇 개를 가져다 쓴 덕에 그 정도로 끝났다고 그는 덧붙였다.
 
