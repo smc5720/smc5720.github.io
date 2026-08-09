@@ -1,0 +1,215 @@
+﻿---
+title: "ratatop: 프로세스 테이블, 그리고 모든 걸 망치는 괄호"
+description: "Rust TUI 시스템 모니터 ratatop의 프로세스 테이블 구현기. /proc/[pid]/stat 파싱에서 프로세스 이름의 괄호가 일으키는 조용한 버그와 CPU 퍼센트 기준, 스크롤 오프셋 설계까지 다룬다."
+date: "2026-08-07"
+published_at: "2026-08-09"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fgwyqdmoxxv1dwce81k0h.png"
+coverAlt: "ratatop: the process table, and the parentheses that ruin everything"
+slug: "ratatop-process-table-parentheses"
+source_id: "devto-4342467"
+source_url: "https://dev.to/lovestaco/ratatop-the-process-table-and-the-parentheses-that-ruin-everything-13fn"
+source_title: "ratatop: the process table, and the parentheses that ruin everything"
+source_author: "Athreya aka Maneshwar"
+source_published: "2026-08-07"
+---
+
+<LinkCard url="https://dev.to/lovestaco/ratatop-the-process-table-and-the-parentheses-that-ruin-everything-13fn" author="Athreya aka Maneshwar" date="2026-08-07" />
+
+## 개요
+
+Rust로 터미널 시스템 모니터 `ratatop`을 만들던 개발자가 다섯 번째 박스, 프로세스 테이블을 완성하고 기록을 남겼다. 앞선 CPU·메모리·디스크·네트워크 박스는 전부 "파일 하나 읽고, 산수 좀 하고, 그린다"로 끝났다. 프로세스 테이블은 다르다. 매 틱마다 디렉터리 400개를 훑고, 사용자가 직접 조작할 수 있는 첫 번째 박스다.
+
+![ratatop](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/fq3n2hci8w1ysq050kct.png)
+
+작성자는 여기 숨은 버그 하나를 먼저 꺼낸다. 세상의 `/proc` 파서 대부분이 한 번쯤은 이 버그를 달고 배포됐을 거라고, 돈을 걸어도 좋다고 말한다.
+
+## 모든 걸 망치는 괄호
+
+`/proc/[pid]/stat` 한 줄은 이렇게 생겼다.
+
+```plaintext
+125045 (cat) R 125025 125045 125025 0 -1 4194304 92 0 0 0 11 22 0 0 20 0 7 0 ...
+```
+
+공백으로 구분된 필드다. 1번은 pid, 2번은 괄호로 감싼 프로세스 이름, 14번은 user time, 15번은 system time, 20번은 스레드 수, 24번은 상주 메모리다. 그러니 공백으로 자르고 인덱스로 꺼내면 된다. 당연하고, 잘 돌아간다.
+
+`my (weird) app`이라는 이름의 프로세스가 뜨기 전까지는.
+
+```plaintext
+42 (my (weird) app) S 1 42 1 0 -1 0 0 0 0 0 5 5 0 0 20 0 3 0 ...
+```
+
+이름 하나가 공백 기준 토큰 세 개가 되면서, 그 뒤 모든 필드가 두 칸씩 밀린다. 스레드 수 자리에서는 누군가의 page fault 카운터를 읽고, 메모리 자리에서는 스케줄링 우선순위를 읽는다. 크래시는 나지 않는다. 숫자만 조용히, 아주 확신에 찬 얼굴로 틀린다.
+
+그리고 프로세스 이름은 사용자가 마음대로 정할 수 있는 값이다. 스레드 이름은 누구나 원하는 대로 바꿀 수 있다.
+
+해법은 줄 전체를 자르지 않는 것이다. **마지막** 닫는 괄호를 찾아서 첫 `(`와 그 사이를 이름으로 떼어내고, 남은 부분만 자른다.
+
+```rust
+fn parse_stat(raw: &str) -> Option<Stat> {
+    let open = raw.find('(')?;
+    let close = raw.rfind(')')?;
+    let name = raw.get(open + 1..close)?.to_string();
+
+    // Fields resume at `state`, which is field 3 in the man page's numbering.
+    let fields: Vec<&str> = raw.get(close + 1..)?.split_whitespace().collect();
+    let field = |number: usize| -> u64 {
+        fields.get(number - 3).and_then(|v| v.parse().ok()).unwrap_or(0)
+    };
+    // ...
+}
+```
+
+`find` 대신 `rfind`. 이게 수정의 전부이고, `proc` man 페이지가 이 필드에 대해 굳이 경고를 붙여둔 이유이기도 하다.
+
+`number - 3` 오프셋도 눈여겨볼 만하다. man 페이지는 필드를 1번부터 세는데 앞에서 1번과 2번을 직접 소비했으니, 14번 필드는 남은 조각의 인덱스 11에 있다. 작성자는 이걸 man 페이지 번호를 그대로 받는 클로저로 감쌌다. 코드에 `field(14)`라고 적히니 문서와 바로 대조된다. 리뷰하면서 머릿속으로 뺄셈할 일이 없다.
+
+## 그래서 몇 퍼센트의 몇 퍼센트인가
+
+숫자의 의미를 바꾸는 두 번째 결정이다.
+
+프로세스의 CPU 시간은 클럭 틱 단위다. 이걸 퍼센트로 바꾸려면 분모가 필요한데, 후보가 둘이다.
+
+**코어 하나 기준.** 싱글스레드 프로세스가 코어 하나를 다 쓰면 100%로 찍힌다. 네 코어를 쓰면 400%. `htop`의 기본 동작이다.
+
+**머신 전체 기준.** 같은 프로세스가 8코어 노트북에서 12.5%로 찍히고, 테이블 전체 합은 최대 100이다.
+
+![Image description](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/mayoxza5pvgyffjginbo.png)
+
+btop이 두 번째를 기본값으로 쓰기에 작성자도 그렇게 했다. 분모는 전체 코어의 틱 델타 합계인데, CPU 박스에서 이미 구해둔 값이다.
+
+```rust
+let total = cpu::sample().total.total;
+let elapsed = total.saturating_sub(self.previous_total);
+```
+
+어느 쪽도 틀리지 않았다. 다만 하나를 고르고 그 사실을 밝혀야 한다. "4.9"라는 숫자가 두 기준에서 전혀 다른 뜻이 되고, htop과 비교하는 사용자는 8배 차이를 곧바로 알아차린다.
+
+## 실제로 튀지 않는 스파이크
+
+이건 좀 더 미묘하다. 눈으로 본 게 아니라 앉아서 따져보다 발견했다고 한다.
+
+CPU 퍼센트는 두 샘플 사이의 델타다. 그런데 직전 샘플 *이후에* 시작한 프로세스는 뺄 기준값이 없다. 없는 기준값을 0으로 치면, 그 프로세스의 평생 CPU 시간이 최근 2초 동안 소모된 것처럼 계산된다. 새로 뜬 프로세스마다 터무니없는 숫자를 번쩍 띄우고 맨 위로 정렬됐다가, 다음 틱에 제자리로 내려앉는다.
+
+```rust
+// A process that appeared since the last sample has no baseline, and its
+// lifetime total would read as a huge spike.
+if !self.previous.contains_key(&pid) {
+    return 0.0;
+}
+```
+
+한 틱 동안 0으로 보고하는 건 작은 거짓말이다. 방금 시작한 프로세스를 60%로 보고하는 건 훨씬 큰 거짓말이다.
+
+![Image description](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/ucvgm4za3r6oqnlpa612.png)
+
+## 부동소수점 정렬은 정렬이 아니다
+
+Rust 개발자라면 한 번쯤 걸리는 함정이다.
+
+다른 컬럼은 전부 `sort_by_key`로 정렬한다.
+
+```rust
+SortBy::Memory => self.list.sort_by_key(|p| p.memory),
+```
+
+CPU는 `f64`라 이 코드가 컴파일되지 않는다. `sort_by_key`는 `Ord`를 요구하는데 부동소수점은 `PartialOrd`만 구현한다. `NaN`이 자기 자신을 포함한 모든 값과의 비교에서 false를 반환하기 때문이다. `x == x`가 거짓일 수 있는 타입은 전순서를 가질 수 없다.
+
+그래서 CPU 컬럼만 명시적인 버전이 필요하다.
+
+```rust
+SortBy::Cpu => self.list.sort_by(|a, b| {
+    a.cpu.partial_cmp(&b.cpu).unwrap_or(std::cmp::Ordering::Equal)
+}),
+```
+
+비교 불가능한 쌍을 같다고 처리하는 건 현실적인 타협이다. `NaN` 퍼센트가 나왔다면 그건 상류 어딘가의 버그이고, 테이블 전체가 패닉으로 죽는 것보다는 행 하나가 이상한 자리에 앉아 있는 편이 낫다.
+
+## 드디어 기성 위젯 하나
+
+박스 네 개를 만드는 동안 데이터를 그리는 ratatui 위젯을 하나도 쓰지 않았다. 전부 `Block`, `Paragraph`, 그리고 직접 만든 브라유 그래프와 미터였다.
+
+프로세스 테이블에서 처음으로 쓸 데가 생겼다. `Scrollbar`다.
+
+```rust
+let mut state = ScrollbarState::new(total.saturating_sub(visible)).position(offset);
+Scrollbar::new(ScrollbarOrientation::VerticalRight)
+    .begin_symbol(Some("↑"))
+    .end_symbol(Some("↓"))
+    .thumb_style(Style::default().fg(theme::HI_FG))
+    .render(area, buf, &mut state);
+```
+
+이건 `Widget`이 아니라 `StatefulWidget`이다. 트레이트가 다르고, import하지 않으면 컴파일도 안 된다. 시그니처에 `&mut State` 인자가 하나 더 붙는다.
+
+```rust
+fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State);
+```
+
+즉시 모드(immediate mode)가 안고 있는 진짜 문제에 대한 ratatui의 답이다. 어떤 위젯은 프레임 사이에 뭔가를 기억해야 하는데, 매 프레임 전부 새로 만든다면 기억할 자리가 없다. `StatefulWidget`은 그 상태를 명시적으로 드러내고 소유권을 개발자에게 넘긴다. 위젯 안에 숨기지 않는다.
+
+그럼 스크롤 위치는 어디에 두느냐는 질문이 자연스럽게 따라온다.
+
+## 스크롤 오프셋은 저장하는 값이 아니라 유도하는 값
+
+솔깃한 설계는 `scroll: usize` 필드를 두고 키 입력마다 값을 올리는 쪽이다.
+
+작성자는 그렇게 하지 않았다. 이유는 터미널 리사이즈다. 오프셋을 저장해두면 사용자가 창을 줄였을 때 그 값이 짧아진 목록의 끝을 넘어갈 수 있고, 키 입력이 없으니 보정할 계기도 없이 선택 항목이 화면 밖으로 나간다. 결국 리사이즈 시점, 목록 변경 시점, 선택 변경 시점마다 클램핑 코드를 써야 하고, 그중 하나는 반드시 빠뜨린다.
+
+대신 오프셋을 매 프레임 새로 계산한다. 실제로 참인 두 값에서.
+
+```rust
+fn scroll_offset(selected: usize, visible: usize, total: usize) -> usize {
+    if visible == 0 || total <= visible {
+        return 0;
+    }
+    let last_offset = total - visible;
+    selected.saturating_sub(visible / 2).min(last_offset)
+}
+```
+
+선택 인덱스, 뷰포트 높이, 목록 길이만 받는 순수 함수다. 터미널을 리사이즈해도 알아서 맞는 답이 나온다. 애초에 낡은 답을 들고 있던 적이 없으니까. 즉시 모드가 값을 하는 지점이고, 유지형(retained) UI를 하던 사람이라면 쉽게 떠올리지 못할 패턴이라고 작성자는 덧붙인다.
+
+선택 인덱스 자체는 여전히 저장해야 하고 클램핑도 필요하다. 프로세스는 쉴 새 없이 종료되고, 커서 아래의 목록은 진짜로 줄어들기 때문이다.
+
+![Image description](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/8ddstv3asehauzapasvp.png)
+
+## 쌓이면 커지는 자잘한 것들
+
+**커널 스레드는 `cmdline`이 비어 있다.** 진짜 프로세스와 구분하는 방법이 이거다. btop은 대신 `comm`을 대괄호로 감싸 보여주는데, `[kworker/4:0-events]` 같은 표기는 커널이 주는 값이 아니라 렌더링 관례다.
+
+**`comm`은 커널이 15바이트로 자른다.** `codebase-memory`가 Program 컬럼에서 `codebase-memor`로 보이는 이유다. 작성자의 버그도 아니고 고칠 것도 없다. 전체 이름은 Command 컬럼에 있다.
+
+**uid를 사용자명으로 바꾸려면 `/etc/passwd`가 필요하다.** `/proc/[pid]` 디렉터리 소유자에서 숫자 uid를 얻는다. 작성자는 passwd 파일을 프로세스마다 읽지 않고 시작할 때 한 번만 읽는다. 도구가 켜져 있는 동안 변하지도 않는 매핑을 위해 매 틱 400번 파일을 읽는 건 낭비다.
+
+**모든 게 읽는 도중에 사라질 수 있다.** `/proc`를 나열하고 `/proc/1234/stat`을 여는 사이에 pid 1234는 이미 종료됐을 수 있다. 이 경로의 모든 실패는 그냥 "없어졌다"는 뜻이고 항목을 건너뛴다. 에러도, 로그도, 재시도도 없다.
+
+## 대가
+
+성능 쪽은 솔직하게 짚어둘 만하다.
+
+나머지 네 박스는 틱마다 파일 몇 개를 읽는다. 이 박스는 틱마다 파일을 약 1200개 연다. 프로세스 400개 각각에 대해 `stat`, `cmdline`, 그리고 `metadata` 호출까지.
+
+테스트 스위트는 1초에서 11초로 늘었다. 여러 테스트가 완전한 `App`을 구성하는데, 이제 거기에 전체 프로세스 스캔이 포함되기 때문이다.
+
+2초 갱신 주기에서는 괜찮다. `+` 키로 갈 수 있는 100ms에서는 괜찮지 않다. btop은 오른쪽 위 구석에 보이는 "lazy" 모드로 이걸 해결한다. 비싼 컬럼을 싼 컬럼보다 덜 자주 갱신하는 방식이다. 작성자는 라벨만 있고 동작은 아직 없다고 인정한다. UI에 남겨두기엔 조금 민망한 상태이고, 할 일 목록에 올라가 있다.
+
+## 박스 네 개, 완료
+
+5일, 박스 4개, 실제 시스템 상태를 읽는 Rust TUI 하나.
+
+[ratatop 저장소 보기 →](https://github.com/lovestaco/ratatop)
+
+여기서부터는 새 영역이 아니라 다듬는 작업이다. 프로세스 목록 필터링, kill과 renice, 트리 뷰, 테마 파일, 마우스 지원.
+
+작성자가 이번 주에 예상하지 못한 건, 작업의 상당 부분이 Rust를 쓰는 일이 아니라 **커널 문서를 꼼꼼히 읽는 일**이었다는 점이다. `comm`의 괄호, 512바이트 섹터, `f_bavail`과 `f_bfree`, `MemAvailable`과 `MemFree`, 전송 바이트가 9번 필드라는 사실. 박스마다 정확히 이런 함정이 하나씩 있었고, 하나같이 에러 대신 그럴듯한 숫자를 내놓으며 조용히 실패했다.
+
+작성자가 꼽는 진짜 교훈이 여기 있다. 커널 인터페이스를 읽을 때, 틀린 답은 맞는 답과 똑같이 생겼다. 방어 수단은 문서를 제대로 읽는 것, 그리고 읽어서 알아낸 걸 테스트로 박아두는 것뿐이다.
+
+![Image description](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/1c2ulv6kajh96cs2r4wj.png)
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

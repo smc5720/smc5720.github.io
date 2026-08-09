@@ -1,0 +1,111 @@
+﻿---
+title: "버리려고 만든 7.8MB의 키 — .NET Dictionary에서 Substring 걷어내기"
+description: "핫 루프에서 딕셔너리 조회용으로만 잘라 쓰던 Substring이 7.8MB의 쓰레기를 만들고 있었다. .NET 9부터 들어온 span 대체 조회(alternate lookup)로 바꾸자 할당은 0바이트, 속도는 1.57배가 됐다."
+date: "2026-08-04"
+published_at: "2026-08-09"
+category: "news"
+tags: ["dotnet", "csharp", "performance"]
+cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F73hsznv1n7ktx1sir79z.png"
+coverAlt: "7.8 MB of Keys I Allocated Just to Throw Away"
+slug: "dotnet-dictionary-span-alternate-lookup"
+source_id: "devto-4310456"
+source_url: "https://dev.to/ssukhpinder/78-mb-of-keys-i-allocated-just-to-throw-away-50mn"
+source_title: "7.8 MB of Keys I Allocated Just to Throw Away"
+source_author: "Sukhpinder Singh"
+source_published: "2026-08-04"
+---
+
+<LinkCard url="https://dev.to/ssukhpinder/78-mb-of-keys-i-allocated-just-to-throw-away-50mn" author="Sukhpinder Singh" date="2026-08-04" />
+
+## 개요
+
+프로파일러 트레이스가 엉뚱한 곳을 가리켰다. 공백으로 구분된 토큰 덩어리를 읽어 아는 토큰마다 가중치를 더하는, 지극히 평범한 요청 핸들러였다. 로직은 지루할 만큼 단순하고 정확했다. 문제는 그 핫 루프에 `string` 할당이 7.8MB나 쌓여 있었다는 점이다.
+
+토큰을 하나도 보관하지 않는 코드였다. 키를 만들고, 딕셔너리를 한 번 조회하고, 그대로 버렸다. 키는 전부 substring이었다. 덩어리에서 잘라낸 토큰마다 별도의 `string` 객체가 생겼고, 그 이유는 오직 `Dictionary.TryGetValue`에 넘기기 위해서였다.
+
+Sukhpinder Singh는 이 습관이 실제로 얼마를 청구하는지, 그리고 span 기반 대체 조회로 바꾸면 얼마를 돌려받는지 직접 측정했다.
+
+## 측정 조건부터
+
+입력은 공백으로 구분된 토큰 20만 개짜리 문자열 하나, 약 1.5MB다. 그중 70% 정도는 5,000개 항목이 든 `Dictionary<string, long>`에 실제로 존재하는 키고, 나머지는 미스다. 작업은 덩어리를 훑으며 토큰을 뽑고, 조회하고, 가중치를 더한다.
+
+측정값은 워밍업 후 9회 실행의 중앙값이다. 할당량은 `GC.GetAllocatedBytesForCurrentThread`로 뽑았고, 환경은 .NET 10 릴리스 빌드에 소형 리눅스 컨테이너. 실험실 수준의 엄밀한 벤치마크는 아니고, 저자가 보려던 것도 절대값이 아니라 비율이다.
+
+![여러 개의 열쇠들](https://images.pexels.com/photos/114741/pexels-photo-114741.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [George Becker](https://www.pexels.com/@eberhardgross) on [Pexels](https://www.pexels.com/photo/assorted-keys-114741/)*
+
+## 오래 써온 방식
+
+```csharp
+int start = 0;
+for (int i = 0; i <= input.Length; i++)
+{
+    if (i == input.Length || input[i] == ' ')
+    {
+        string token = input.Substring(start, i - start);   // allocates
+        if (table.TryGetValue(token, out long w)) sum += w;
+        start = i + 1;
+    }
+}
+```
+
+범인은 `Substring`이다. 의도한 바를 그대로 읽히게 쓴 코드라 코드 리뷰에서 걸릴 일이 거의 없다. 토큰이 몇 개뿐이라면 실제로도 아무 문제가 없다. 20만 개일 때 청구서는 이렇다.
+
+```plaintext
+[A: Substring + lookup]  sum=6,963,210  median=23.4 ms  allocated=7,812 KB
+```
+
+`if` 하나를 넘기지 못하고 죽는 키가 7.5MB어치다. 트래픽이 몰리는 엔드포인트라면 호출 한 번마다 7.5MB씩 GC가 나중에 쓸어 담아야 할 쓰레기가 쌓인다. 저자가 짚은 대목이 여기다. 수거 비용은 *다른* 요청의 레이턴시로 청구된다. 이런 종류의 문제를 추적하기 어려운 이유다.
+
+## 대체 조회(alternate lookup)
+
+.NET 9부터 `Dictionary<TKey, TValue>`는 comparer가 호환되는 다른 타입을 키로 쓰는 *대체 조회*를 내준다. 문자열 키 딕셔너리에서 쓸 만한 건 `ReadOnlySpan<char>`다. 한 번 받아두고 나면 span을 그대로 조회에 넘길 수 있다. substring도, 할당도 없다.
+
+```csharp
+var lookup = table.GetAlternateLookup<ReadOnlySpan<char>>();
+
+ReadOnlySpan<char> span = input;
+int start = 0;
+for (int i = 0; i <= span.Length; i++)
+{
+    if (i == span.Length || span[i] == ' ')
+    {
+        ReadOnlySpan<char> token = span.Slice(start, i - start);   // no alloc
+        if (lookup.TryGetValue(token, out long w)) sum += w;
+        start = i + 1;
+    }
+}
+```
+
+`Slice`는 아무것도 복사하지 않는다. 원본 문자열의 문자들을 들여다보는 창일 뿐이다. comparer는 임시 문자열을 만들지 않고 span을 그대로 해싱하고 비교한다. 같은 딕셔너리, 같은 항목에 문 하나가 더 생긴 셈이다.
+
+```plaintext
+[B: span alternate lookup] sum=6,963,210  median=14.9 ms  allocated=0 KB
+same result: True
+allocation ratio A/B: ~200,000x
+time ratio A/B: 1.57x
+```
+
+합계가 같으니 동작이 조용히 바뀌지도 않았다. 키 할당은 0바이트. 여기에 속도까지 1.57배 빨라졌는데, 저자도 이 정도일 줄은 몰랐다고 적었다. 할당을 잡으러 갔다가 벽시계 시간이 덤으로 따라온 것인데, 14만 번의 문자열 생성과 그에 딸린 메모리 트래픽이 통째로 사라진 덕이 크다.
+
+## 아무도 말해주지 않는 함정
+
+`GetAlternateLookup`은 아무 데서나 꺼내 쓸 수 있는 물건이 아니다. 딕셔너리의 comparer가 `IAlternateEqualityComparer<ReadOnlySpan<char>, string>`을 구현할 때만 동작한다.
+
+다행히 기계적인 키에 쓸 법한 comparer는 이미 조건을 만족한다. `StringComparer.Ordinal`, `StringComparer.OrdinalIgnoreCase`, 그리고 `new Dictionary<string, long>()`으로 만들 때 붙는 기본 comparer 모두 해당된다. 반면 직접 작성한 `IEqualityComparer<string>`은 자격이 없다.
+
+문제는 이 사실을 알게 되는 시점이다. 컴파일 오류가 아니라 `GetAlternateLookup` 호출 지점에서 예외로 터진다. 런타임 계약이라는 뜻이고, 테스트를 하나 붙여둘 값어치가 있다는 뜻이기도 하다.
+
+## 어디에 쓸 것인가
+
+저자는 이 기법을 기본값이 아니라 핫 패스 전용 도구로 못 박았다. 키 몇 개를 조회하는 정도이거나 문자열이 이미 `string` 객체로 존재한다면, 괜히 격식만 늘리는 셈이다.
+
+값을 하는 자리는 위의 코드 모양 그대로다. 더 큰 버퍼에서 키를 *깎아내는* 경우 — 파서, 토크나이저, CSV나 헤더 스캐너, 로그 프로세서 — 그리고 만들어낸 substring이 조회가 끝나는 순간 죽어버리는 경우. 그때 7.8MB가 조용히 0이 된다.
+
+저자는 이후 자기 파서들에서 `Substring(` 다음 줄에 `TryGetValue`가 오는 패턴을 직접 뒤지기 시작했다고 한다. 사소한 패턴이지만, 실루엣을 한 번 익히고 나면 생각보다 자주 눈에 띈다는 것이다.
+
+전체 실행 가능한 예제는 저자의 저장소에 공개돼 있다: [dev-to-code-samples/023-dictionary-alternate-lookup](https://github.com/ssukhpinder/dev-to-code-samples/tree/main/023-dictionary-alternate-lookup)
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

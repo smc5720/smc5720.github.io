@@ -1,0 +1,111 @@
+﻿---
+title: "코드로 그림을 그린다 — 크리에이티브 코딩 입문"
+description: "AI 프롬프트 이전에도 알고리즘으로 만드는 예술은 있었다. Processing과 p5.js로 화면을 도화지 삼아 그림을 그리는 크리에이티브 코딩의 세계를 소개한다."
+date: "2026-08-02"
+published_at: "2026-08-09"
+slug: "creative-coding-drawing-with-code"
+category: "news"
+tags: ["creative-coding", "processing", "p5js", "generative-art"]
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F1u0lfbde3oracspfkmuh.png"
+coverAlt: "Programação Criativa: Vamos desenhar com código?"
+source_id: "devto-4290386"
+source_url: "https://dev.to/he4rt/programacao-criativa-vamos-desenhar-com-codigo-4a1"
+source_title: "Programação Criativa: Vamos desenhar com código?"
+source_author: "Sara Aniceto"
+source_published: "2026-08-02"
+---
+
+<LinkCard url="https://dev.to/he4rt/programacao-criativa-vamos-desenhar-com-codigo-4a1" author="Sara Aniceto" date="2026-08-02" />
+
+## 개요
+
+컴퓨터가 만든 예술을 두고 벌어지는 논쟁이 생성형 AI와 함께 시작됐다고 생각하기 쉽다. 하지만 제너러티브 아트, 컴퓨테이셔널 아트, 파라메트릭 디자인을 둘러싼 이야기는 이미 지난 세기부터 이어져 왔다.
+
+크리에이티브 코딩(creative coding)은 그 계보 위에 있는 작업 방식이다. 프롬프트를 던지고 결과를 기다리는 대신, 개발자가 한 줄 한 줄 코드를 쌓아 화면을 채운다. 모니터가 도화지가 되고 코드가 붓이 된다.
+
+![검은 배경 위에 흰 입자가 흩어지는 파티클 애니메이션](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/160flq0nrplrqa52v1xc.gif)
+
+## 크리에이티브 코딩이란
+
+원문 저자가 이 분야를 공부하며 인상 깊게 들은 말이 하나 있다. 코드를 짜는 사람이 전부 "프로그래머"인 것은 아니라는 것. 프로그래밍은 직업에만 묶여 있을 이유가 없다. 취미가 될 수도, 순전히 놀이터가 될 수도 있다.
+
+크리에이티브 코딩이 딱 그렇다. 코드로 그림을 그리고 애니메이션을 만들고 컴퓨터와 논다. 시스템을 설계하거나 데이터를 분석하는 대신, 시각적 탐색 자체가 목적이 된다.
+
+![하프톤 효과를 입힌 흉상 조각 이미지](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/cevh0cwg6r8qbrzrkyrg.png)
+
+위 이미지가 Java 코드 단 몇 줄에서 나왔다면 믿기는가. Processing이 어떤 도구인지부터 짚어보자.
+
+## Processing과 p5.js
+
+Processing과 p5.js는 크리에이티브 코딩 도구 중 가장 널리 쓰인다. 아티스트, 일러스트레이터, 디자이너처럼 코드가 낯선 사람도 예술 작업에 뛰어들 수 있게 만드는 것이 원래 목표였다.
+
+두 도구의 사고방식은 같고, 언어 문법만 다르다.
+
+- **Processing**: 2001년에 나온 Java 기반 도구이자 이 흐름의 출발점이다. 무료 IDE 형태라 코드를 쓰고 실행하고 컴파일하는 과정을 한곳에서 처리한다. 여기서 만드는 결과물은 *스케치(sketch)*라고 부른다.
+- **p5.js**: Processing을 JavaScript로 옮긴 버전이다. 요즘 더 인기가 많고 웹에서 바로 돌아간다.
+
+Python 기반 버전도 있고 안드로이드 앱 제작에도 쓸 수 있다. 핵심은 이것이다. 포토샵에서 마우스로 선을 긋는다면, 여기서는 빈 화면에 글자를 쳐서 그림을 시작한다.
+
+![워크숍에서 각자의 작업물을 만드는 사람들](https://images.pexels.com/photos/29708257/pexels-photo-29708257.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Matheus Bertelli](https://www.pexels.com/@mgbertelli) on [Pexels](https://www.pexels.com/photo/engaging-indoor-workshop-with-converse-sneakers-29708257/)*
+
+## 코드 구조는 단순하다
+
+일반적인 스크립트와 달리 이 도구들의 기본 뼈대는 함수 두 개로 끝난다.
+
+1. **`setup()`** — 프로그램이 켜질 때 딱 한 번 실행된다. "종이" 크기, 즉 캔버스 설정처럼 작업의 전제를 여기서 정한다.
+2. **`draw()`** — 실제로 그림이 그려지는 곳이다. 무한 루프로 계속 돌기 때문에 애니메이션을 만들거나 마우스 움직임 같은 이벤트에 반응할 수 있다.
+
+이 구조만 잡으면 나머지는 문서를 뒤지며 도형, 타이포그래피, 애니메이션을 하나씩 붙여 나가면 된다. 아래 코드가 앞서 본 하프톤 이미지를 만들어 낸 실제 코드다.
+
+```java
+void draw(){
+  background(255);
+  fill(0);
+  noStroke();
+
+  float tiles = mouseX/10;
+  float tileSize = width/tiles;
+
+  translate(tileSize/2,tileSize/2);
+
+  for(int x = 0; x < tiles; x++){
+    for(int y = 0; y < tiles; y++){
+
+      //Picks the color based on the pixel, in which the pixel is the size of the tiles
+      color c = img.get(int(x*tileSize),int(y*tileSize));
+      float size = map(brightness(c),255,0,0,20);
+
+      ellipse(x*tileSize,y*tileSize,size,size);
+    };
+  };
+}
+```
+
+## 눈으로 배우는 프로그래밍
+
+여기까지 읽고도 아직 마음이 안 움직였을 수 있다. 그렇다면 저자가 던지는 질문 하나. 당신은 언제부터 그림 그리기를 그만두고 재미없는 어른이 됐는가.
+
+[YouTube 영상 보기 →](https://youtube.com/shorts/6IFl-H9lPII?si=KQNRnQ2l5AzGpACb)
+
+농담은 접어두고, 크리에이티브 코딩에는 학습 도구로서의 쓸모도 있다. 반복문이나 조건문처럼 머릿속에만 존재하던 추상적 개념이 화면 위에 즉시 결과로 나타나기 때문이다.
+
+일종의 "시각적 디버깅"이다. `for` 루프가 색색의 원 100개를 실시간으로 뿌리는 장면을 보는 것만큼 자기 논리를 확인하기 좋은 방법도 드물다.
+
+## 직접 해보기
+
+프로그래밍이 가끔 너무 뻣뻣하고 기계적으로 느껴진다면, Processing이나 p5.js로 스케치 하나를 만들어 보길 권한다. 익숙한 논리를 순전히 미적이고 즐거운 쪽에 써보는 경험이다.
+
+저자가 남긴 참고 자료는 다음과 같다.
+
+- [OpenProcessing](https://openprocessing.org/) — Processing 프로젝트 호스팅 플랫폼. 크리에이티브 코딩계의 GitHub다.
+- [무료 크리에이티브 코딩 강의](https://github.com/arteprog/programacao-criativa) — Monica Rizzolli와 Alexandre Villares가 만든 강의 저장소
+- [Código Transcendente: 프로그래밍과 제너러티브 아트 입문서](https://codigotranscendente.github.io/livro/livro/lindex.html) — Mateus Paresqui Berruezo의 책
+- [Compoética](https://www.instagram.com/compoeticabr/) — 브라질 크리에이티브 코딩 모임
+- [브라질 크리에이티브 코딩 텔레그램 커뮤니티](https://t.me/programacaocriativa)
+
+![Explore라는 단어를 반복 배치한 타이포그래피 일러스트](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/4zpv03y1147ceo9by7w9.png)
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
