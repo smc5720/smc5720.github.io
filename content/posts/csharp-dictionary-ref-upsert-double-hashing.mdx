@@ -1,0 +1,86 @@
+﻿---
+title: "단어 하나 세려고 해시를 두 번 돌렸다 — C# 딕셔너리 카운터의 숨은 비용"
+description: ".NET 개발자가 로그 파서를 프로파일링하다 발견한 딕셔너리 카운터의 중복 해시 문제. CollectionsMarshal.GetValueRefOrAddDefault로 500만 토큰 집계에서 1.7배 속도를 냈지만, 메모리는 단 1바이트도 줄지 않았다."
+date: "2026-08-04"
+published_at: "2026-08-10"
+slug: "csharp-dictionary-ref-upsert-double-hashing"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fiwc3ttnhxvcvp76utwu6.png"
+coverAlt: "I Hashed Every Word Twice to Count It Once"
+source_id: "devto-4309920"
+source_url: "https://dev.to/ssukhpinder/i-hashed-every-word-twice-to-count-it-once-1mg9"
+source_title: "I Hashed Every Word Twice to Count It Once"
+source_author: "Sukhpinder Singh"
+source_published: "2026-08-04"
+---
+
+<LinkCard url="https://dev.to/ssukhpinder/i-hashed-every-word-twice-to-count-it-once-1mg9" author="Sukhpinder Singh" date="2026-08-04" />
+
+## 개요
+
+로그 파서에서 에러 코드 빈도를 세는 코드가 프로파일러 상위권에 올라왔다. 사전에서 값을 꺼내 1을 더하는, 파일에서 가장 지루한 몇 줄이었다. Sukhpinder Singh는 원인을 파고들었고, 답은 허무할 만큼 단순했다. 같은 키를 두 번 해싱하고 있었던 것이다.
+
+`CollectionsMarshal.GetValueRefOrAddDefault`로 바꾸자 500만 토큰 집계 시간이 160ms에서 95ms로 줄었다. 약 1.7배. 다만 할당량은 두 버전이 똑같았다. 이 최적화가 절약하는 건 메모리가 아니라 CPU다.
+
+## 모두가 쓰는 그 코드가 해시를 두 번 돈다
+
+카운터를 짤 때 손이 먼저 나가는 형태는 대개 이렇다.
+
+```csharp
+if (counts.TryGetValue(code, out int c))
+    counts[code] = c + 1;
+else
+    counts[code] = 1;
+```
+
+의도가 그대로 읽힌다. 문제는 여기서 해시가 두 번 계산된다는 점이다. `TryGetValue`가 해시를 구하고 버킷을 훑어 엔트리를 찾는다. 그런데 다음 줄 `counts[code] = ...`는 방금 찾아낸 위치를 전부 버리고 쓰기 위해 처음부터 다시 한다. 같은 키, 같은 해시, 같은 버킷 탐색을 토큰 하나당 두 번씩. 키가 없는 경우도 마찬가지다. 조회 한 번 실패하고, 삽입하려고 또 한 번 간다.
+
+두 번째 왕복을 없애는 메서드가 있다. `CollectionsMarshal.GetValueRefOrAddDefault`는 슬롯을 찾거나 만드는 일을 한 번에 끝내고, 그 자리를 가리키는 `ref`를 돌려준다.
+
+```csharp
+ref int slot = ref CollectionsMarshal.GetValueRefOrAddDefault(counts, code, out _);
+slot++;
+```
+
+해시 한 번, 버킷 탐색 한 번, 그다음엔 저장소를 제자리에서 고친다. 키가 없었다면 `default(int)`, 즉 0으로 추가되므로 첫 `slot++`가 값을 1로 만든다. `out bool`은 키가 이미 있었는지 알려주는데, 카운터에서는 쓸 일이 없어 버렸다.
+
+## 500만 토큰으로 재본 숫자
+
+Singh는 실제 숫자가 필요했다. 어휘 2만 개에서 뽑은 토큰 500만 개로 카운터를 돌렸다. 소수의 단어가 압도적으로 자주 나오고 희귀 단어가 긴 꼬리를 이루도록 분포를 기울였다. 실제 텍스트와 비슷한 모양이다. 두 버전에 같은 입력을 넣고, 먼저 히스토그램이 완전히 일치하는지 확인한 다음 11회 실행의 중앙값을 쟀다. 할당량은 `GC.GetAllocatedBytesForCurrentThread`로 측정했다. 워크스테이션 GC, 작은 리눅스 컨테이너 환경이다. 실험실 수준의 정밀도를 노린 게 아니라 비율을 보려는 측정이었다.
+
+```plaintext
+tokens: 5,000,000, distinct vocab: 20,000
+
+identical results: True  (distinct keys: 20,000)
+
+TryGetValue + indexer (two lookups)        median   160.0 ms   ~   1,914 KB/run
+GetValueRefOrAddDefault (one lookup)       median    95.0 ms   ~   1,914 KB/run
+```
+
+루프 기준 약 1.7배 빨랐고, 반복 실행에서도 흔들리지 않았다. 조회 두 번짜리는 157~170ms 사이를 오갔고 ref 버전은 95ms 근처에 머물렀다.
+
+![패턴이 반복되는 추상 이미지](https://images.pexels.com/photos/249798/pexels-photo-249798.png?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Sabrina Gelbart](https://www.pexels.com/@sabrina-gelbart) on [Pexels](https://www.pexels.com/photo/full-frame-shot-of-abstract-pattern-249798/)*
+
+정작 Singh가 마음에 들어한 대목은 할당량 열이다. 두 값이 똑같다. 어차피 같은 딕셔너리를 만들고, 같은 문자열 키 2만 개를 담고, 같은 백킹 배열을 쓴다. `GetValueRefOrAddDefault`는 1바이트도 아껴주지 않는다. 메모리 트릭이 아니라는 뜻이다. 없애주는 건 오직 CPU, 500만 번의 증가 연산마다 반복되던 해시와 탐색뿐이다. 병목이 할당 쪽이라면 이 방법은 아무것도 바꾸지 못한다. 반대로 좁은 루프 안에서 세거나 집계하는 작업이라면 그 반복이 비용의 대부분이다.
+
+## 왜 격차가 이렇게 벌어졌나
+
+절약폭은 이미 있는 키에 얼마나 자주 부딪히느냐에 비례한다. Zipf 분포에 가까운 말뭉치에서는 대부분의 토큰이 재등장이라 "찾았다" 경로를 타는데, 하필 그 경로가 순진한 버전이 조회를 두 번 온전히 치르는 자리다. 반대로 500만 개가 전부 고유 키라면 격차는 줄어든다. 삽입 경로는 어느 쪽이든 실제 작업량이 비슷하기 때문이다. 결국 이득은 갱신 대 삽입 비율을 따라가고, 카운터는 갱신 쪽 극단에 산다. 이 예제가 유난히 좋은 성적을 내는 이유이자, 삽입 위주 작업에서는 별 효과가 없는 이유다.
+
+## 날카로운 모서리: ref는 오래 쥐고 있으면 안 된다
+
+돌려받는 `ref`는 딕셔너리 내부 저장소를 직접 가리킨다. 그리고 다음 구조 변경이 일어나기 전까지만 유효하다. 그 ref를 쥔 채로 키를 추가하거나 제거하면 참조가 허공을 가리킬 수 있다. 리사이즈가 일어난 뒤라면 엉뚱한 슬롯에 값을 쓰게 될 수도 있다. 규칙은 간단하다. 받고, 고치고, 놓는다. 어디에 저장해두지 말고, 같은 딕셔너리에 다른 삽입이 끼어드는 동안 붙들고 있지 말 것.
+
+제자리 증가 루프라면 자연스럽게 그렇게 짜게 된다. 카운터가 이 패턴에 잘 맞고, 순회 도중 내용을 갈아엎는 딕셔너리가 맞지 않는 이유가 여기 있다.
+
+## 어디에나 뿌리기 전에
+
+네임스페이스 이름이 `CollectionsMarshal`이다. 저수준 통로라는 뜻을 이름이 이미 말하고 있다. 몇백 번 건드리는 딕셔너리라면 `TryGetValue` 쪽이 읽기 좋고, 차이를 체감할 사람도 없다. Singh의 결론은 이렇다. ref 버전이 값을 하는 건 카운터 루프가 정말로 뜨거울 때, 그에게는 파싱과 집계 작업이 그렇다. 그 밖의 자리에서는 가독성이 이긴다. 지루한 버전을 그대로 둔다.
+
+실행 가능한 전체 예제는 [GitHub 저장소](https://github.com/ssukhpinder/dev-to-code-samples/tree/main/022-dictionary-ref-upsert)에 올라와 있다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
