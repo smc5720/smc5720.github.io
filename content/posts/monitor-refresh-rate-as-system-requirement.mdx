@@ -4,7 +4,7 @@ description: "백엔드 엔지니어 Giorgi Kobaidze가 주말 챌린지로 만�
 date: "2026-08-09"
 published_at: "2026-08-11"
 category: "news"
-tags: []
+tags: ["javascript","frontend","webdev","programming","tech"]
 slug: "monitor-refresh-rate-as-system-requirement"
 cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fo4ngi6w3hcz3pgxb5wrm.jpg"
 coverAlt: "Backend Engineer (Me) Ships a Browser Game With One Unintentional System Requirement: My Monitor"
@@ -100,7 +100,7 @@ function animate() {
 
 ## 그런데 `× dt`로 다 해결되지 않는다
 
-단순 곱셈이 통하는 건 선형 연산뿐이다. 이번 수정에서 성격이 다른 패턴 세 가지가 나왔고, 각각 다른 처방이 필요했다.
+단순 곱셈이 통하는 건 선형 연산뿐이다. 이번 수정에서는 성격이 다른 패턴이 세 가지 나왔는데, 손보는 방식이 저마다 달랐다.
 
 ### 패턴 1 — 선형 연산
 
@@ -154,7 +154,7 @@ carState.speed *= Math.pow(0.97, dt);
 1초 후 speed = speed × (0.97^2)^30 = speed × 0.97^60 ✅ 동일
 ```
 
-`Math.pow(factor, dt)`는 배수 자체가 아니라 **지수**를 스케일한다. 실제 시간 기준 결과가 언제나 같아진다.
+`Math.pow(factor, dt)`는 배수 자체가 아니라 **지수**를 스케일한다. 그래서 실제 시간을 기준으로 보면 결과가 언제나 같다.
 
 조향 보간에도 같은 트릭이 들어갔다.
 
@@ -226,7 +226,7 @@ friction:     0.000378,
 
 수정 자체는 어렵지 않지만 "전부 `dt` 곱하기"로 끝나지도 않는다. 선형 연산, 지수 감쇠, lerp 보간은 각자 다른 처방이 필요하다. 세 가지를 다 맞추면 10년 된 노트북에서든 고주사율 게이밍 PC에서든 같은 감각이 나온다.
 
-관련 링크도 함께 공개돼 있다.
+관련 링크는 아래에서 볼 수 있다.
 
 - [게임 데모](https://sundaydevdrive.pilotronica.com/)
 - [GitHub 저장소](https://github.com/georgekobaidze/sunday-dev-drive)
