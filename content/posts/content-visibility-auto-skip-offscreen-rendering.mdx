@@ -1,0 +1,107 @@
+﻿---
+title: "브라우저는 안 보이는 것까지 다 그린다 — `content-visibility: auto`로 끊어내기"
+description: "긴 페이지에서 브라우저는 화면 밖 요소까지 전부 레이아웃하고 페인트한다. CSS 한 줄로 그 작업을 뷰포트 근처까지 미루는 `content-visibility: auto`를 정리했다."
+date: "2026-08-04"
+published_at: "2026-08-11"
+category: "news"
+tags: ["css", "performance", "webdev", "frontend"]
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fkpntjz7ywpxbqr667ydk.png"
+coverAlt: "Your browser renders everything, even what you can't see — content-visibility: auto fixes that"
+slug: "content-visibility-auto-skip-offscreen-rendering"
+source_id: "devto-4310757"
+source_url: "https://dev.to/parsajiravand/your-browser-renders-everything-even-what-you-cant-see-content-visibility-auto-fixes-that-3g7c"
+source_title: "Your browser renders everything, even what you can't see — `content-visibility: auto` fixes that"
+source_author: "Parsa Jiravand"
+source_published: "2026-08-04"
+---
+
+<LinkCard url="https://dev.to/parsajiravand/your-browser-renders-everything-even-what-you-cant-see-content-visibility-auto-fixes-that-3g7c" author="Parsa Jiravand" date="2026-08-04" />
+
+## 개요
+
+뉴스 피드, 관리자 테이블, 긴 문서 페이지를 열면 브라우저는 그 안의 모든 요소를 레이아웃하고 페인트한다. 테이블 행 500개, 피드 카드 300개, 이번 세션에서 스크롤조차 하지 않을 섹션까지 전부. 무언가 바뀌면 다시 하고, 창 크기를 바꾸면 또 한다. 이 작업은 실제로 시간을 잡아먹는데, 대부분은 지금 사용자 눈에 보이지도 않는다.
+
+`content-visibility: auto`는 "이 요소는 뷰포트에 가까워질 때까지 렌더링을 건너뛰라"고 지시하는 CSS 속성이다. 요소는 DOM에 그대로 있고, 접근성 트리에도 포함되고, 페이지 내 검색에도 걸린다. 다만 사용자가 충분히 가까이 스크롤할 때까지 브라우저가 레이아웃·페인트 예산을 쓰지 않는다.
+
+Chrome 85(2020년 8월), Firefox 125(2024년 4월), Safari 18.0(2024년 9월)을 거쳐 **Baseline 2024**에 올랐다.
+
+## 긴 페이지에서 '렌더링'의 실제 비용
+
+브라우저 렌더링은 픽셀을 화면에 찍는 일만이 아니다. 메인 스레드는 요소마다 스타일을 계산하고, 크기와 위치를 잡는 레이아웃을 돌리고, 그다음 페인트한다. 각 단계는 앞 단계에 의존하므로, 화면에 뭐라도 뜨기 전에 모든 요소를 처리해야 한다.
+
+문제는 브라우저가 레이아웃 시점에 어떤 요소가 보이는지 모른다는 점이다. 전부의 위치를 계산해놓고 컴포지팅 단계에서 뷰포트에 맞춰 잘라낸다. 비싼 작업은 그 시점에 이미 끝나 있다. 행이 500개인 페이지라면 사용자가 첫 화면을 보기 전에 500개 요소가 파이프라인을 완주한 셈이다.
+
+![추상적인 기하학 3D 렌더링](https://images.pexels.com/photos/29506610/pexels-photo-29506610.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Steve A Johnson](https://www.pexels.com/@steve-johnson-1097023) on [Pexels](https://www.pexels.com/photo/abstract-blue-geometric-3d-render-art-29506610/)*
+
+## 구현은 두 줄
+
+```css
+.feed-card {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 300px;
+}
+```
+
+이게 전부다. 브라우저는 `.feed-card` 각각을 컨테인먼트 컨텍스트로 묶는다. 뷰포트 근처에 없는 카드는 레이아웃과 페인트를 아예 건너뛴다. 사용자가 그쪽으로 스크롤하면 화면에 들어오기 전에 렌더링하고, 다시 지나쳐 가면 페인트 결과를 버리고 메모리를 회수할 수 있다.
+
+효과는 찔끔 나아지는 수준이 아니다. 구글은 뉴스 페이지의 기사 카드에 `content-visibility`를 적용한 뒤 렌더링 시간이 7배 빨라졌다고 측정했다. 느린 기기에서 콘텐츠가 많은 페이지라면, 이 차이가 "로딩 완료"와 "아직 로딩 중"을 가른다.
+
+## 함정: `contain-intrinsic-size`는 선택이 아니다
+
+화면 밖 요소의 레이아웃을 건너뛰면 브라우저는 그 요소의 높이를 모른다. 크기 정보가 없으면 요소는 높이 0으로 접힌다. 접힌 요소가 500개인 페이지는 스크롤바 길이가 엉망이 되고, 요소가 하나씩 렌더링되면서 스크롤 위치가 튄다. "왜 페이지가 계속 움직이지?" 하는 그 경험이다.
+
+`contain-intrinsic-size`는 건너뛴 요소에 쓸 임시 크기를 브라우저에 알려준다.
+
+```css
+contain-intrinsic-size: auto 300px;
+```
+
+여기서 `auto` 키워드가 핵심이다. 브라우저가 요소를 한 번 렌더링하면 실제 높이를 기억해두고 이후 화면 밖 주기에 그 값을 쓴다. `300px`은 아직 한 번도 본 적 없는 요소에 쓸 초기 추정값이다. 정확할 필요는 없고, 초기 렌더링 동안 스크롤바가 흔들리지 않을 만큼만 맞으면 된다.
+
+`auto` 없이 쓰면 브라우저가 힌트 값만 계속 사용하고 실제 레이아웃 결과로 갱신하지 않는다. 높이가 가변인 요소에서는 이 문제가 영구히 남는다.
+
+## 🎮 직접 실행해보기
+
+**[▶️ 인터랙티브 플레이그라운드 열기 →](https://daily-post-dev.netlify.app/posts/2026-08-04-content-visibility-skip-offscreen-rendering/playground/)**
+
+*카드 500개, 실시간 타이머, 나란히 놓은 비교. 두 버튼을 각각 눌러 숫자를 확인할 수 있다.*
+
+## 깨지지 않는 것들
+
+흔한 우려가 하나 있다. 브라우저가 렌더링을 건너뛰면 접근성, 키보드 내비게이션, 페이지 내 검색이 망가지지 않을까?
+
+망가지지 않는다. 브라우저는 `content-visibility`와 무관하게 DOM과 접근성 트리를 유지한다. Ctrl+F / Cmd+F는 건너뛴 요소 안의 텍스트를 찾아내고 해당 위치로 스크롤하며, 그 과정에서 그 요소의 렌더링을 유발한다. Tab으로 건너뛴 컨테이너 안의 포커스 가능한 요소에 도달하면 그 컨테이너가 즉시 렌더링된다. 스크린 리더는 렌더 트리가 아니라 DOM을 순회하므로 화면 밖 요소도 그대로 읽는다.
+
+`content-visibility: auto`가 건너뛰는 건 레이아웃·페인트·컴포지팅, 즉 시각적 렌더링 작업뿐이다. 요소는 화면 밖에 있을 뿐 사라진 게 아니다.
+
+## 어디에 쓰고, 어디에 쓰지 않을까
+
+경계가 뚜렷하고 반복되는 요소에서 효과가 가장 크다. 피드 카드, 테이블 행, 댓글 스레드, 리스트 항목, 문서 섹션. 비슷한 요소가 세로로 쌓여 있고 로드 시점에 대부분이 화면 밖이라면 유력한 후보다.
+
+```css
+/* 적용하기 좋은 대상 */
+.comment { content-visibility: auto; contain-intrinsic-size: auto 80px; }
+.data-row { content-visibility: auto; contain-intrinsic-size: auto 48px; }
+.article-section { content-visibility: auto; contain-intrinsic-size: auto 400px; }
+```
+
+반대로 로드 시점에 자기 크기를 보고해야 하는 요소에는 쓰지 말아야 한다. 스티키 헤더, 스크롤 전에 JavaScript `getBoundingClientRect()`로 측정하는 요소, 모든 자식이 동시에 완전히 레이아웃되어야 성립하는 레이아웃이 여기 해당한다. 이런 경우 브라우저가 건너뛴 만큼 측정값이 0으로 나오고 계산이 깨진다.
+
+## 브라우저 지원
+
+Safari가 2024년 말에 마지막 자리를 채우면서, 최신 브라우저를 기준선으로 잡는다면 폴백 없이 프로덕션에 넣어도 안전해졌다. 구형 Safari에서는 이 속성이 조용히 무시된다. 페이지는 최적화만 빠진 채 정상적으로 렌더링된다.
+
+## 🧠 확인해보기
+
+이해했다고 느껴진다면 **[8문항 퀴즈 풀어보기 →](https://daily-post-dev.netlify.app/quiz/take.html?post=2026-08-04-content-visibility-skip-offscreen-rendering)**
+
+*문항마다 즉시 채점, 힌트, 정답·오답 모두에 대한 해설이 붙는다.*
+
+## 정리
+
+가장 긴 페이지에서 DevTools를 열고 로드 중 Performance를 기록해, 메인 스레드의 "Layout"과 "Paint" 항목을 확인해보자. 이 구간이 넓고 페이지가 인터랙티브해지기까지 오래 걸린다면, 반복되는 요소에 `content-visibility: auto`를 얹는 것이 가장 빠른 해결책인 경우가 많다. CSS 속성 하나로 데이터가 많은 페이지의 렌더링 시간을 절반까지 줄일 수 있다. 옆에 `contain-intrinsic-size: auto <추정값>`을 함께 적어 스크롤바를 정확하게 유지하면, 다른 수정 없이 그대로 프로덕션에 올릴 수 있다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
