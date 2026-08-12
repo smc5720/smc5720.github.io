@@ -1,0 +1,134 @@
+﻿---
+title: "약속한 스펙이 애초에 없었던 VPS — 2 vCPU·20GB가 실제로는 3.5GB였던 사례"
+description: "한 개발자가 CyberPanel 설치를 위해 VPS를 업그레이드했지만, IPv4는 통신이 되지 않고 디스크는 광고된 20GB가 아닌 3.5GB였다. 게스트 OS가 아니라 하이퍼바이저 아래 계층에서 문제가 시작된 사례를 정리했다."
+date: "2026-08-05"
+published_at: "2026-08-12"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F6yucxyr5yil1l8gxe3uc.png"
+coverAlt: "When Your VPS Never Had the Resources It Was Sold With"
+slug: "vps-never-had-the-resources-it-was-sold-with"
+source_id: "devto-4326434"
+source_url: "https://dev.to/pascal_cescato_692b7a8a20/when-your-vps-never-had-the-resources-it-was-sold-with-302o"
+source_title: "When Your VPS Never Had the Resources It Was Sold With"
+source_author: "Pascal CESCATO"
+source_published: "2026-08-05"
+---
+
+<LinkCard url="https://dev.to/pascal_cescato_692b7a8a20/when-your-vps-never-had-the-resources-it-was-sold-with-302o" author="Pascal CESCATO" date="2026-08-05" />
+
+## 개요
+
+CyberPanel을 돌릴 VPS 하나가 필요했다. 1 vCPU, 1GB RAM, 10GB SSD, IPv6 전용 사양이면 충분했다. 그런데 CyberPanel은 IPv4가 필요하다. 그래서 상위 등급으로 올렸다. 2 vCPU, 2GB RAM, 20GB SSD, IPv4 주소 1개.
+
+개발자 Pascal CESCATO가 겪은 일은 여기서 시작된다. 같은 24시간 안에, 같은 업체의 같은 인스턴스에서 인프라 장애가 두 번 터졌다. 둘 다 리눅스 문제가 아니었다. 둘 다 프로비저닝 문제였다. 상품 페이지가 약속한 사양과 가상 머신에 실제로 붙은 자원 사이의 간극이다.
+
+작성자는 업체 이름을 밝히지 않았다. 프랑스의 작은 호스팅 회사이고, 글의 목적은 특정 업체를 겨냥하는 게 아니라 VPS 업계에 흔한 이 패턴 자체를 기록해두는 것이라고 밝혔다.
+
+## IPv4는 붙었는데 아무 데도 닿지 않았다
+
+업그레이드는 끝났고 새 IPv4 주소가 패널에 떴다. 인터페이스는 올라와 있고, IP도 설정됐고, 기본 라우트도 있고, 게이트웨이 ARP 해소까지 정상이었다.
+
+```plaintext
+88.151.197.1 lladdr 44:4c:a8:fb:ef:fd REACHABLE
+```
+
+그런데 ICMP 응답이 전혀 없었다. VPS에서도, 게이트웨이 자체에서도.
+
+```plaintext
+88.151.197.112 > 88.151.197.1: ICMP echo request
+(no reply)
+```
+
+IPv6는 그동안 멀쩡히 동작했다. 게스트 쪽 인터페이스, 라우팅, ARP 전부 문제없었다.
+
+이 조합 자체가 유용한 진단 신호다. ARP는 해소되는데 ICMP가 조용하면, 게스트 OS는 제 할 일을 다 한 것이다. 문제는 그 위 인프라 계층에 있다. 보통 하이퍼바이저나 가상 스위치의 MAC/IP 바인딩이 새 주소에 맞게 갱신되지 않은 경우다.
+
+결국 해결은 됐다. 다만 업체 쪽에서 무엇을 바꿨는지는 설명이 없었다. 서류상으로는 첫 순간부터 올바르게 설정돼 있던 인스턴스에서, 연결 문제 하나로 하루의 대부분을 날렸다.
+
+## 애초에 없었던 디스크
+
+IPv4가 겨우 살아나자 작성자는 업그레이드의 본래 목적인 CyberPanel 설치로 넘어갔다. Ubuntu를 새로 깔았고 여기까지는 순조로웠다. 그런데 CyberPanel 의존성 설치 도중 `No space left on device`가 쏟아졌다. 확인해봤다.
+
+```console
+root@panel:~# lsblk
+NAME    MAJ:MIN RM SIZE RO TYPE MOUNTPOINTS
+sda       8:0    0  3.5G  0 disk
+├─sda1    8:1    0  2.5G  0 part /
+├─sda14   8:14   0    4M  0 part
+├─sda15   8:15   0  106M  0 part /boot/efi
+└─sda16 259:0    0  913M  0 part /boot
+```
+
+디스크는 3.5GB였다. 루트 파티션은 2.5GB. 업그레이드 후 상품이 약속한 용량은 20GB였다. 그리고 확인해보니 기본 10GB 등급 시절에도 그 일부밖에 붙어 있지 않았다. 업그레이드의 부작용이 아니었다. 처음부터 틀려 있었고, 업그레이드는 기준선만 10GB에서 20GB로 옮겨놓았을 뿐 실제 할당량은 손대지 않은 채였다.
+
+![never라는 단어를 스크래블 타일로 배열한 이미지](https://images.pexels.com/photos/6005514/pexels-photo-6005514.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [DS stories](https://www.pexels.com/@ds-stories) on [Pexels](https://www.pexels.com/photo/word-never-combined-of-scrabble-tiles-6005514/)*
+
+### growpart와 resize2fs가 통하지 않는 이유
+
+이런 상황에서 많은 가이드가 `growpart`나 `resize2fs`를 안내한다. 여기서는 둘 다 쓸모가 없고, 그 이유를 아는 게 중요하다.
+
+![layers diagram](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/be6zfh84lq8249excub9.png)
+
+`resize2fs`와 `growpart`는 위 그림에서 아래 두 계층을 다룬다. 가상 디스크에 **이미 존재하는** 공간으로 파일시스템이나 파티션을 늘릴 수 있을 뿐이다. 디스크 자체가 3.5GB라면 늘려 들어갈 미할당 공간이 아예 없다. 도구는 성공했다고 말하거나 아무 일도 하지 않는다. 진짜로 할 일이 없기 때문이다. 문제는 게스트 OS가 아니라 그 한 계층 아래, 하이퍼바이저가 VM에 실제로 붙여준 것에 있다.
+
+작성자는 `lsblk` 출력을 첨부해 지원 티켓을 열고 볼륨 연결 상태를 확인해달라고 요청했다.
+
+돌아온 답변은 디스크 부족의 원인을 "IPv6에서 IPv4로의 업그레이드" 탓으로 돌렸다. 새 IPv4 주소를 프로비저닝한 게 가상 디스크를 줄인다는 얘기다. 그런 일은 일어나지 않고, 두 사안은 위 그림의 어느 계층에서도 서로 무관하다. 진단이라기보다는 해결되지 않은 두 번째 티켓을 첫 번째 티켓에 접어 넣는 편의적인 방식으로 읽힌다.
+
+## "고쳤다"가 고쳐졌다는 뜻은 아니었다
+
+업체의 대응은 다시 확인해보라는 요청이었다. 자체 진단은 없었다. 확인해보니 이번에는 디스크가 정상이었다. 주문한 대로 20GB였다. 작성자는 "수정됐네요, 감사합니다"라고 답했고 티켓은 닫혔다.
+
+같은 날 늦게, 깨끗한 기준 상태를 만들려고 Ubuntu를 재설치했다. 디스크는 다시 틀려 있었다. 수정 후 상태가 아니라 수정 전 상태 그대로였다.
+
+```console
+root@panel:~# date
+Mon Aug  3 20:56:49 UTC 2026
+root@panel:~# lsblk
+NAME    MAJ:MIN RM SIZE RO TYPE MOUNTPOINTS
+sda       8:0    0  3.5G  0 disk
+├─sda1    8:1    0  2.5G  0 part /
+├─sda14   8:14   0    4M  0 part
+├─sda15   8:15   0  106M  0 part /boot/efi
+└─sda16 259:0    0  913M  0 part /boot
+sr0      11:0    1    4M  0 rom
+```
+
+똑같은 3.5GB 디스크, 똑같은 2.5GB 루트 파티션. 티켓이 해결 처리된 지 몇 시간 뒤였다.
+
+여기가 곱씹어볼 부분이다. 지원 티켓을 거쳐 실행 중인 인스턴스에 적용된 "수정"이 실제로 망가진 지점을 건드렸다는 보장은 없다. 기저의 VM 프로필이나 프로비저닝 템플릿이 틀려 있으면, 상담원은 라이브 디스크 할당량을 손으로 패치하고 종결 처리할 수 있다. 그리고 다음 재설치는 똑같이 망가진 템플릿을 다시 끌어와 동일한 결함을 재현한다. 고쳐진 것은 인스턴스이고, 원인이 아니다.
+
+실용적인 교훈은 이것이다. 자원 프로비저닝 문제가 라이브 VPS에서 "수정됐다"는 통보를 받으면, 재설치를 견디는지 확인하기 전에는 마무리하지 말 것. 일회성 패치와 템플릿 수정은 지원 티켓 화면에서 똑같아 보인다. `lsblk`에서는 똑같아 보이지 않는다.
+
+## 하루에 두 번 터진 장애가 말해주는 것
+
+각각 따로 보면 일회성 결함으로 넘길 수도 있다. 묶어서 보면 얘기가 달라진다. 같은 인스턴스, 같은 업그레이드 사이클 안에서 디스크와 네트워크라는 서로 독립적인 프로비저닝 불일치가 두 건 발생했고, 그중 하나는 해결 처리된 뒤에 다시 나타났다. 이 패턴은 운이 나빴다는 쪽보다 프로비저닝 파이프라인 자체를 가리킨다.
+
+## 알아둘 만한 명령어
+
+비슷한 상황에 놓였을 때, 지금 다루고 있는 게 어느 계층인지 알려주는 명령어들이다.
+
+```shell
+lsblk                           # 리눅스가 인식한 연결 상태
+fdisk -l                        # 파티션 테이블 상세
+df -h                           # 파일시스템 사용량
+blockdev --getsize64 /dev/sda   # 원시 디바이스 크기, 바이트
+ip addr                         # 인터페이스와 IP 상태
+ip route                        # 라우팅 테이블
+ip neigh                        # ARP/NDP 캐시 — 게이트웨이 도달성
+ping -c 3 <gateway>             # 기본 도달성 테스트
+```
+
+`lsblk`와 `blockdev --getsize64`가 이미 결제한 용량보다 작은 디스크를 보여준다면 `growpart`나 `resize2fs`는 건드리지 말 것. 리눅스 문제를 보고 있는 게 아니다. `ip neigh`가 게이트웨이를 `REACHABLE`로 표시하는데 `ping`에 아무 응답이 없다면, 이것도 리눅스 문제가 아니다. 두 경우 모두 해결 지점은 하이퍼바이저 경계 반대편에 있고, 게스트 쪽에서 아무리 파봐도 거기까지 닿지 않는다.
+
+## 정리
+
+VPS는 물리 하드웨어가 아니다. 그래도 기본 계약은 똑같이 지켜져야 한다. 광고된 자원은 실제로 존재하는 자원이어야 한다. 리눅스나 패키지, 내 설정을 의심하기 전에 그 아래 계층을 확인하고, 업체가 고쳤다고 말하면 재설치를 견디는지 검증한 다음에 믿으라는 것이 작성자의 결론이다.
+
+이 과정에 특별한 삽질이 필요했던 것도 아니다. `lsblk`, `ip neigh`, 그리고 재확인용 재설치 한 번. 오히려 그게 핵심이다. 작성자는 대략 같은 가격, 때로는 더 싼 가격으로 OVH나 Contabo, Infomaniak 같은 업체가 이런 수사 작업 없이도 결제한 자원을 주는 구성을 제공한다고 덧붙였다. 목록에서 가장 싼 가격을 쫓는 데는 비용이 따른다. 이미 하루를 날린 뒤에야 눈에 보인다는 게 문제다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
