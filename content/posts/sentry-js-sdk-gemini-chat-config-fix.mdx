@@ -1,0 +1,137 @@
+﻿---
+title: "Sentry JavaScript SDK, 사라진 Gemini 챗 설정값을 되살리다"
+description: "Sentry JavaScript SDK의 Google GenAI 계측에서 chats.create()로 넘긴 설정값이 메시지 span에 기록되지 않던 회귀 버그를 수정한 사례. 실제 Gemini API로 수정 전후를 검증했다."
+date: "2026-08-12"
+published_at: "2026-08-13"
+category: "news"
+slug: "sentry-js-sdk-gemini-chat-config-fix"
+tags: ["devchallenge", "bugsmash", "javascript", "ai"]
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fphtsf88z8k2rwycqcfd3.png"
+coverAlt: "Bug Smash: restoring dropped Gemini chat config in Sentry's JavaScript SDK"
+source_id: "devto-4374499"
+source_url: "https://dev.to/zkasuran/bug-smash-restoring-dropped-gemini-chat-config-in-sentrys-javascript-sdk-2n9a"
+source_title: "Bug Smash: restoring dropped Gemini chat config in Sentry's JavaScript SDK"
+source_author: "Asuran"
+source_published: "2026-08-12"
+---
+
+<LinkCard url="https://dev.to/zkasuran/bug-smash-restoring-dropped-gemini-chat-config-in-sentrys-javascript-sdk-2n9a" author="Asuran" date="2026-08-12" />
+
+## 개요
+
+Sentry JavaScript SDK는 Google GenAI 호출을 자동으로 계측해 Gemini 호출 하나하나를 트레이스의 span으로 남긴다. 어떤 모델을 썼는지, 어떤 생성 설정으로 돌렸는지, 시스템 지시문은 무엇이었는지가 함께 붙는다.
+
+그런데 챗 호출에서는 이 설정값이 조용히 빠져 있었다. temperature도, top_p도, 최대 토큰 수도, 시스템 지시문도 트레이스에 남지 않았다. 개발자 Asuran이 이 회귀 버그를 찾아 고쳤고, DEV의 Summer Bug Smash 챌린지에 출품했다. 수정은 `@sentry/server-utils` 한 곳에 집중돼 있으며, 단위 테스트가 함께 들어갔다.
+
+![망치와 달걀](https://images.pexels.com/photos/40721/egg-hammer-threaten-violence-40721.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Pixabay](https://www.pexels.com/@pixabay) on [Pexels](https://www.pexels.com/photo/brown-wooden-mallet-near-brown-chicken-egg-40721/)*
+
+## 두 단계로 쪼개진 챗 호출이 문제였다
+
+Google GenAI SDK에서 챗은 두 단계를 거친다. 먼저 `chats.create({ model, config })`가 로컬에 챗 객체를 만든다. 이때 `config`에 temperature, top_p, top_k, 최대 출력 토큰, 페널티 값, 도구 목록, 시스템 지시문이 모두 담긴다. 하지만 이 단계에서는 모델을 부르지 않는다.
+
+실제 모델 호출은 그다음이다. `chat.sendMessage(...)`와 `chat.sendMessageStream(...)`이 진짜 요청을 날리고, SDK는 create 시점에 받아둔 config를 매 호출마다 재사용한다.
+
+예전 Sentry는 `chats.create()`에도 span을 하나 만들고 거기서 config를 읽었다. 그런데 [#19990 PR](https://github.com/getsentry/sentry-javascript/pull/19990)에서 "이건 실제 모델 호출이 아니다"라는 이유로 그 span을 없앴다. 판단 자체는 맞았다. 문제는 span과 함께 config도 사라졌다는 것이다.
+
+그때부터 `chat.sendMessage()`와 `chat.sendMessageStream()` span은 호출별 메시지만 보게 됐다. `gen_ai.request.temperature`, `top_p`, `top_k`, `max_tokens`, 각종 페널티, `available_tools`, `gen_ai.system_instructions`가 트레이스에서 소리 없이 증발했다. 흥미롭게도 해당 PR 설명에 이미 이 위험이 적혀 있었고 후속 과제로 남겨져 있었다. 이번에 고친 [이슈 #20086](https://github.com/getsentry/sentry-javascript/issues/20086)이 바로 그 후속 과제다. 이슈를 올린 사람도 Sentry 메인테이너였다.
+
+근본 원인은 프록시 쪽에 있었다. 클라이언트를 계측하는 deep proxy가 `chats.create()`가 반환한 챗 객체를 다시 프록시로 감싸면서, 정작 그 호출의 인자는 버렸다. 그러니 메시지 span을 만드는 코드는 config를 볼 방법이 없었다.
+
+## 수정: create 시점 인자를 메시지 span까지 끌고 간다
+
+수정은 [PR #23316](https://github.com/getsentry/sentry-javascript/pull/23316)(브랜치 `fix/google-genai-chat-config-attrs`)으로 올라갔다. `chats.create()`의 인자를 붙잡아 두었다가 각 메시지 span에 `model`과 `config`를 얹는 방식이다. create 시점 config가 기본값이 되고, 메시지별 config가 있으면 키 단위로 덮어쓴다.
+
+```ts
+function mergeChatCreateParams(
+  chatCreateParams: Record<string, unknown> | undefined,
+  callParams: Record<string, unknown> | undefined,
+): Record<string, unknown> | undefined {
+  if (!chatCreateParams) {
+    return callParams;
+  }
+
+  const merged: Record<string, unknown> = { ...callParams };
+
+  if (!('model' in merged) && 'model' in chatCreateParams) {
+    merged.model = chatCreateParams.model;
+  }
+
+  const createConfig = asConfigObject(chatCreateParams.config);
+  const callConfig = asConfigObject(callParams?.config);
+  if (createConfig || callConfig) {
+    merged.config = { ...createConfig, ...callConfig };
+  }
+
+  return merged;
+}
+```
+
+프록시는 이제 그 컨텍스트를 아래로 전달한다. `chats.create()`가 돌려준 챗을 다시 프록시로 감쌀 때 create 인자를 같이 넘기고, `instrumentMethod`는 병합된 파라미터로 span 속성을 만든다.
+
+```ts
+// createDeepProxy에서 chats.create() 결과를 다시 프록시로 감쌀 때:
+return createDeepProxy(result as object, instrumentedMethod.proxyResultPath, options, args[0]);
+
+// instrumentMethod 안에서:
+const attributeParams = mergeChatCreateParams(chatCreateParams, params);
+const requestAttributes = extractRequestAttributes(operationName, attributeParams, context);
+```
+
+실제 메서드는 원래 인자 그대로 실행되므로 Google에 나가는 요청 자체는 달라지지 않는다. `models.generateContent` 같은 비(非)챗 호출은 챗 컨텍스트를 아예 받지 않으니 영향이 없다.
+
+작성자는 create 시점의 `history`는 일부러 메시지 span에 넣지 않았다. 대화의 씨앗일 뿐 메시지별 입력이 아니라는 판단이었다.
+
+## 테스트와 검증 결과
+
+새 테스트 파일에 네 가지 케이스를 넣었다.
+
+- `sendMessage` span에 config가 붙는지
+- `sendMessageStream` span에 config가 붙는지
+- 메시지별 config가 create config를 덮어쓰는지
+- `models.generateContent` span으로 값이 새지 않는지
+
+수정 전 코드에서는 속성이 `undefined`라 네 개 중 세 개가 실패한다. 수정본에서는 넷 다 통과한다.
+
+`@sentry/server-utils` 테스트 스위트는 38개 파일 335개 테스트에서 39개 파일 339개 테스트로 늘었고 전부 통과했다. `oxlint --type-aware`와 `oxfmt --check`도 깨끗했다. 소스 타입에 대한 `tsc`도 통과했다. 남은 `tsc` 테스트 설정 오류는 이번 변경과 무관한 파일에 원래부터 있던 것들이다.
+
+## 목(mock)이 아닌 실제 Gemini API로 확인했다
+
+작성자는 재현과 수정 검증을 모두 실제 Gemini API로 돌렸다. 진짜 `@google/genai` v1.20.0 클라이언트를 만들고, 실제 SDK 계측으로 감싼 뒤, 트레이싱을 켠 실제 Sentry 클라이언트에 태워 캡처된 span을 읽는 방식이다. 전체 config와 시스템 지시문을 넣어 `chats.create`를 호출하고 프롬프트와 함께 `sendMessage`를 보냈다.
+
+```text
+model: gemini-2.5-flash
+create config: temperature 0.8, topP 0.9, topK 40, maxOutputTokens 512,
+               systemInstruction "You are a friendly robot who likes to be funny."
+prompt: "Tell me a one-line joke about debugging."
+
+BEFORE the fix (chat.sendMessage span):
+  PRESENT  gen_ai.request.model = "gemini-2.5-flash"
+  MISSING  gen_ai.request.temperature   (dropped)
+  MISSING  gen_ai.request.top_p         (dropped)
+  MISSING  gen_ai.request.top_k         (dropped)
+  MISSING  gen_ai.request.max_tokens    (dropped)
+  MISSING  gen_ai.system_instructions   (dropped)
+
+AFTER the fix (chat.sendMessage span):
+  PRESENT  gen_ai.request.model = "gemini-2.5-flash"
+  PRESENT  gen_ai.request.temperature = 0.8
+  PRESENT  gen_ai.request.top_p = 0.9
+  PRESENT  gen_ai.request.top_k = 40
+  PRESENT  gen_ai.request.max_tokens = 512
+  PRESENT  gen_ai.system_instructions = "[{\"type\":\"text\",\"content\":\"You are a friendly robot who likes to be funny.\"}]"
+```
+
+두 번의 실행 모두 Gemini에서 실제 답변을 받았다. 수정 후 실행의 답은 이랬다. "Why did the programmer quit his job debugging code? Because he kept finding himself in an infinite loop." 같은 호출, 같은 라이브 모델이다. 차이는 하나, 챗 설정을 기록하는 트레이스냐 조용히 잃어버리는 트레이스냐다.
+
+## AI 트레이싱의 신뢰도가 걸린 문제
+
+Sentry의 AI Agents 뷰는 `gen_ai.*` span 속성에 기대어 각 모델 호출이 어떤 설정으로 돌았는지 보여준다. temperature도 토큰 한도도 시스템 지시문도 빠진 챗 span은, 정작 답변을 만들어낸 조건을 숨기는 셈이다.
+
+이상한 응답이나 비용 급증을 디버깅할 때 가장 먼저 묻게 되는 질문이 "이 호출은 무슨 설정으로 돌았나"다. 수정 전 챗 span은 그 질문에 답할 수 없었다. 속성을 되살리면서 트레이스가 다시 전체 그림을 담게 됐고, 비챗 `generateContent` span이 이미 기록하던 내용과도 일관성을 맞췄다.
+
+작성자는 AI 도구(Anthropic Claude) 사용 사실도 밝혔다. 설계와 리뷰, 검증은 직접 했다고 덧붙였다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

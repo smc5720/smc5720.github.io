@@ -1,0 +1,204 @@
+﻿---
+title: "가입 없이 링크 하나로 노트 공유, SharePad 개발기"
+description: "Slack이 마크다운 표를 망가뜨린 경험에서 출발한 개발자가 계정 없이 쓰는 멀티페이지 노트 공유 도구 SharePad를 만들었다. 토큰 기반 소유권, R2 이미지 업로드, 만료 유예 기간까지 설계 결정을 공개했다."
+date: "2026-08-12"
+published_at: "2026-08-13"
+category: "news"
+tags: []
+slug: "sharepad-no-signup-markdown-notebook"
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F6kt23zz2rtpo60bjnpmx.png"
+coverAlt: "I Built a Notebook for Sharing Notes That Doesn't Ask You to Sign Up First"
+source_id: "devto-4379248"
+source_url: "https://dev.to/varshithvhegde/i-built-a-notebook-for-sharing-notes-that-doesnt-ask-you-to-sign-up-first-2ldd"
+source_title: "I Built a Notebook for Sharing Notes That Doesn't Ask You to Sign Up First"
+source_author: "Varshith V Hegde"
+source_published: "2026-08-12"
+---
+
+<LinkCard url="https://dev.to/varshithvhegde/i-built-a-notebook-for-sharing-notes-that-doesnt-ask-you-to-sign-up-first-2ldd" author="Varshith V Hegde" date="2026-08-12" />
+
+## 개요
+
+회의록을 Slack에 붙여넣었더니 표가 깨졌다. 코드 블록의 들여쓰기는 사라졌고, 체크리스트는 `[ ]` 문자 그대로 찍혔다. 개발자 Varshith V Hegde는 에디터에서 멀쩡하던 문서를 5분 동안 다시 손봤다고 한다. 그래서 텍스트 대신 링크를 보내기로 했다.
+
+문제는 마땅한 선택지가 없었다는 것. Notion과 Google Docs는 상대방에게 가입을 요구했고, 페이스트빈류는 구조도 페이지 구분도 없는 텍스트 덩어리였다. 그가 원한 조건은 명확했다. 링크 하나, 여러 페이지, 제대로 렌더링되는 마크다운, 계정 불필요, 그리고 URL을 바꾸지 않고 나중에 수정할 수 있을 것.
+
+그렇게 나온 결과물이 **SharePad**([sharepad.in](https://sharepad.in))다. 소스는 [GitHub](https://github.com/Varshithvhegde/sharepad)에 공개돼 있다. 그는 이전에도 파일 공유용 [FreeShare](https://github.com/Varshithvhegde/FreeShare), 단일 페이지 텍스트용 [NotePage](https://github.com/Varshithvhegde/notepage)를 만든 적이 있다. SharePad는 페이스트빈과 위키 사이 어딘가, 다만 가입 장벽은 없는 물건을 목표로 했다.
+
+![Split editor with markdown on the left, live preview on the right, red margin rule visible](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/4gonownf0rpyrx25l20q.png)
+
+## 계정 대신 토큰 두 개
+
+노트를 만들면 링크가 두 개 나온다. 보기 링크(`/n/kitchen-reno`)는 마음껏 뿌려도 되고, 편집 링크(`/e/{secret-token}`)는 소유권 증명이라 공유하면 안 된다.
+
+사용자 테이블도, 가입 폼도 없다. 서버가 생성 시점에 32바이트 난수를 만들어 SHA-256 해시를 Postgres에 저장하고, 원본 토큰은 브라우저에 딱 한 번만 돌려준다. 브라우저는 그 값을 localStorage에 넣어 홈 화면의 "저장된 노트북" 목록을 만든다. 쓰기 요청은 `X-Edit-Token` 헤더로 인증한다.
+
+```plaintext
+View:  GET /n/{slug}           → 누구나 (비밀번호·만료·비공개 아닐 때)
+Edit:  GET /e/{edit_token}     → 토큰 해시 검증 → 전체 에디터
+Write: POST/PATCH/DELETE /api/* + X-Edit-Token 헤더
+```
+
+이 결정 하나가 나머지를 전부 단순하게 만들었다. 인증 플로우도, 세션 관리도, 앱 자체의 비밀번호 찾기도 필요 없어졌다. 비밀번호를 건 노트만 예외적으로 한 단계가 붙는데, bcrypt로 비교한 뒤 24시간짜리 httpOnly 쿠키 `sp_unlock_{slug}`를 심는 방식이다.
+
+편집 토큰은 보기 경로 URL에 절대 노출되지 않는다. 보기 경로는 개방 편집을 켜기 전까지 쓰기를 받지 않으며, 설정 변경은 항상 토큰을 요구한다.
+
+## 실제로 쓸 때 어떤 모습인가
+
+`/quick`에 마크다운을 붙여넣으면 10초 만에 링크가 나온다. 제목은 첫 번째 헤딩에서 따오고, 슬러그는 자동 생성되며, 편집 링크는 클립보드에 복사된다.
+
+![Quick paste page — markdown in the box, share link ready to copy](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/albtzwinbejl7sm20jwh.png)
+
+페이스트빈과 갈리는 지점은 멀티페이지다. 노트북 하나에 회의록, 부록, 할 일, 참고 문서 등 수십 개 페이지를 넣고 사이드바 인덱스로 오간다. 읽는 사람은 링크 하나만 받는다.
+
+![Sidebar listing multiple pages in a single notebook](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/z50zym2qpcn5irbqf9t3.png)
+
+주소도 직접 정한다. `/new`에서 `sharepad.in/n/kitchen-reno` 같은 이름을 타이핑하는 동안 사용 가능 여부를 알려준다. `/new`, `/quick`, `/api` 같은 예약 슬러그는 막아둬서 라우팅이 깨질 일은 없다.
+
+![New notebook form with custom slug check and paper texture picker](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/3howsiytfnnf8ijvqo37.png)
+
+접근 권한은 두 단계다. 보기 링크는 Slack에 뿌리고 편집 링크는 비밀번호 관리자에 넣어두면 된다. 아니면 **개방 편집**을 켜서 보기 링크를 가진 사람 누구나 내용을 쓰게 할 수도 있다. 장보기 목록이나 회고 보드처럼 계정 만들라고 하기 애매한 상황을 겨냥했다. 다만 방문자가 바꿀 수 있는 건 내용뿐이고, 설정·만료·비밀번호·삭제는 언제나 편집 토큰이 있어야 한다. 방문자가 주인을 밀어낼 수는 없다는 뜻이다.
+
+![Share panel with view link, edit link, and QR code](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/p1aeb0c4qe578tisqqq4.png)
+
+잠글 수단도 있다. 보기 링크에 bcrypt 해시 비밀번호를 걸거나, 읽기 전용으로 바꾸거나, 한 번만 열리는 burn-after-read를 설정한다. 공개 범위는 public(검색 노출), unlisted(링크만), private(보기 링크 차단) 셋 중 고른다.
+
+![Settings panel with expiry, visibility, and access toggles](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/ryp2ay37zah3jne2d2tr.png)
+
+`/n/slug/print`로 들어가면 손글씨 느낌을 걷어내고 Source Serif 서체로 전체 페이지를 다시 그린다. 표지, 목차, 페이지 나눔까지 갖춰서 브라우저에서 PDF로 저장하면 클라이언트에게 건네도 될 문서가 나온다.
+
+![Print view with serif typography, title sheet and table of contents](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/7raeew0chyud3o6t8kpn.png)
+
+![Home page hero — Write it down, Send one link, Free forever no signup](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/zxfjpj7sc1dx23it10as.png)
+
+## 스택 선택의 이유
+
+Next.js 16 App Router와 Turbopack을 쓴다. 노트북 초기 로드는 서버 컴포넌트, 에디터는 클라이언트 컴포넌트다. 분할 뷰, 자동 저장, 스크롤 동기화, 툴바가 전부 `NotebookEditor` 컴포넌트 하나에 들어 있고, 보기 모드(`/n/slug`)와 편집 모드(`/e/token`)를 같이 처리한다.
+
+영속 데이터는 Supabase Postgres에 담는다. 모든 테이블에 RLS를 켰지만 공개 쓰기 정책은 하나도 없다. 서버가 service role 키로만 접근하며, anon 키는 Supabase가 요구해서 존재할 뿐 클라이언트 직접 쓰기는 열지 않았다.
+
+스타일링은 Tailwind CSS 4인데 흔한 SaaS 대시보드 느낌은 일부러 피했다. Kalam과 Architects Daughter 손글씨 서체, 페이지마다 내려긋는 빨간 여백선, 홈 화면의 테이프 붙인 포스트잇 카드. 보라색 그라디언트 히어로를 단 또 하나의 AI 제품이 아니라 종이처럼 보이길 원했다고 한다.
+
+마크다운은 react-markdown에 remark-gfm(GFM), rehype-highlight(코드 하이라이팅), rehype-raw(인라인 HTML), 그리고 DOM에 닿기 전 rehype-sanitize를 물렸다. 마지막 하나는 선택이 아니다.
+
+이미지 저장소로는 Supabase Storage 대신 Cloudflare R2를 골랐다. 이유는 egress 요금이다. Supabase 무료 티어는 DB와 스토리지가 egress를 공유해서, 스크린샷 잔뜩 붙은 노트 하나가 터지면 앱 전체가 내려갈 수 있다. R2는 egress가 무제한 무료다.
+
+분석 도구 PostHog는 선택 사항이고 제약을 잔뜩 걸었다. autocapture 끔, 노트북 경로에서 세션 레코딩 끔, 이벤트 페이로드에 노트 내용·제목·슬러그·편집 토큰 일절 미포함. 편집 토큰은 쓰기 자격 증명이라 분석 도구에 넘기는 순간 제3자에게 노트북 통제권을 넘기는 셈이 된다.
+
+GitHub Actions에는 크론 잡 두 개를 걸었다. 3일마다 Supabase를 핑해서 무료 프로젝트가 잠들지 않게 하고, 주 1회 R2의 고아 이미지를 청소한다.
+
+## 에디터는 일부러 지루하게
+
+에디터는 textarea와 프리뷰 창이 전부다. 의도적으로 지루한 기술을 골랐다.
+
+분할 뷰는 한쪽을 스크롤하면 다른 쪽이 따라온다. 모바일에서는 쓰기 전용으로 접힌다. 휴대폰에서 분할 뷰는 쓸 수가 없기 때문이다.
+
+**툴바 동작도 실행 취소 대상에 넣었다.** 한동안 잡히지 않던 버그였다. 타이핑은 Ctrl+Z가 잘 먹는데 "굵게"나 "코드 블록 삽입" 버튼은 안 먹었다. `textarea.value`를 직접 갈아끼우면 브라우저 실행 취소 스택을 건너뛰기 때문이다. 해법은 `document.execCommand("insertText")`. 폐기 예정 API인 건 맞지만, ProseMirror 같은 걸 통째로 올리지 않고 순수 textarea에서 실행 취소 가능한 프로그래밍 편집을 하는 방법은 아직 이것뿐이다. 사이드 프로젝트에 ProseMirror를 붙일 생각은 없었다고 한다.
+
+Tab 키는 실제로 들여쓰기를 한다. 기본 동작대로면 다음 버튼으로 포커스가 넘어간다. SharePad는 Tab을 가로채 공백 두 칸을 넣고, 블록을 선택한 상태면 통째로 들여쓴다. Shift+Tab은 내어쓰기, Esc+Tab은 정말 다음 UI 요소로 가야 할 때의 탈출구다.
+
+버전 기록은 페이지마다 최근 10개 초안을 보관한다. 스냅샷은 키 입력마다가 아니라 서버 쪽에서 내용이 바뀔 때 남긴다. 자동 저장 디바운스를 따라갔다간 쓸모없는 버전이 수백 개 쌓인다. 회의록·프로젝트 개요·주간 계획·저널 템플릿도 클릭 한 번으로 들어간다.
+
+## 큰 이미지만 실패하던 버그
+
+스크린샷 붙여넣기는 그냥 되어야 한다. 흐름은 이렇다. 브라우저가 최대 1600px로 줄이고 WebP 82% 품질로 다시 인코딩한다(휴대폰 스크린샷은 보통 10분의 1로 줄어든다). 서버는 선언된 Content-Type이 아니라 매직 바이트를 직접 확인한다. 업로더가 정하는 값은 아무것도 증명하지 못하기 때문이다. 그다음 R2에 `{notebook_id}/{random-hex}.{ext}` 경로로 저장하고, `images` 테이블에 행을 넣고, 마크다운 링크를 삽입한다.
+
+제한은 압축 후 5MB, 노트북당 50장, IP당 10분에 60회다. 속도 제한은 Postgres 단일 문장으로 처리해서 동시 업로드 두 건이 같은 옛날 카운트를 읽고 빠져나가는 일을 막았다.
+
+오후 하나를 날린 버그는 이거였다. **작은 이미지는 붙여넣기가 되는데 큰 이미지는 "The image store did not accept that file"로 실패했다.** Node의 `fetch`는 본문이 일정 크기를 넘으면 청크 전송 인코딩으로 전환하는데, R2는 Content-Length 없는 PUT에 **411 Missing ContentLength**를 돌려준다. 작은 이미지는 한 청크에 들어가서 우연히 통과했을 뿐, 실제 사진은 통과하지 못했다.
+
+```typescript
+headers: {
+  "Content-Type": contentType,
+  "Content-Length": String(body.byteLength),
+  "Cache-Control": "public, max-age=31536000, immutable",
+}
+```
+
+헤더 한 줄로 끝났다. 덤으로 알게 된 것도 있다. 애니메이션 GIF를 캔버스에 그리면 첫 프레임만 남고 움직임이 조용히 사라져서, GIF는 압축 없이 통과시킨다. 그리고 업로드 중 자리표시자로 `![]( )`처럼 빈 src를 넣으면 브라우저가 페이지 전체를 다시 불러오려 든다. `⏳ uploading image 1…` 같은 텍스트가 낫다.
+
+![GIF — paste a screenshot and watch it upload and render in the preview](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/m5pqcmwzubzbkmw71v3r.gif)
+
+## 새니타이징이 선택이 아닌 이유
+
+SharePad는 마크다운 안의 원시 HTML을 렌더링한다. `<details>`, `<kbd>`, `<mark>`, `<abbr>`, 표 정렬 속성 같은 것들이다. 접히는 섹션이나 키보드 단축키 표기에 유용하다.
+
+동시에 렌더링 전에 GitHub 스키마 기준으로 전부 걸러낸다. 스크립트, 스타일, iframe, object, form, 이벤트 핸들러, `javascript:` URL이 모두 제거된다.
+
+이게 왜 중요한가. 개방 편집을 켜면 보기 링크를 가진 사람 누구나 노트북에 글을 쓸 수 있다. 새니타이징이 없으면 방문자가 스크립트를 심고, 그 스크립트는 주인이 편집 링크를 열 때 *주인의 브라우저에서* 실행된다. 그 순간 URL에는 편집 토큰이 들어 있고 localStorage에는 지금까지 만든 모든 토큰이 들어 있다. 악성 노트북 하나로 그 브라우저가 만든 노트북 전체를 넘겨주게 된다. 허용 태그 목록은 `lib/markdown-schema.ts`에 있고, GitHub 기본값 위에 표현용 태그 몇 개를 얹었을 뿐 스크립트 관련은 건드리지 않았다.
+
+## 만료에 유예 3일을 둔 이유
+
+"10일"을 고르면 굴러가는 카운트다운이 아니라 절대 타임스탬프가 저장된다. 이후 순서는 이렇다.
+
+1. **만료 시각** — 보기·인쇄 링크가 즉시 404. 읽는 사람은 바로 차단된다.
+2. **3일 후** — `pg_cron`이 노트북 행을 삭제한다. 페이지, 버전, 댓글이 연쇄 삭제된다.
+3. **burn-after-read** — 한 번 열람한 다음 날 삭제된다.
+
+"독자 차단"과 "행 삭제" 사이의 3일은 의도적이다. 주인은 그 사이에 편집 링크를 열어 만료일을 미룰 수 있다. 만료 즉시 하드 삭제라면 캘린더 알림 하나 놓쳤다고 노트가 복구 불가로 사라진다.
+
+```sql
+select cron.schedule(
+  'purge-expired-notebooks', '15 3 * * *',
+  $$select public.purge_expired_notebooks()$$
+);
+```
+
+앱에서 직접 삭제하면 R2 이미지도 즉시 지운다. 만료로 사라진 노트북은 주간 스윕이 버킷을 훑어 Postgres에 남아 있는 노트북 ID와 대조한 뒤 고아 객체를 지운다.
+
+![노트북을 든 사람](https://images.pexels.com/photos/11124936/pexels-photo-11124936.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Anna Shvets](https://www.pexels.com/@shvetsa) on [Pexels](https://www.pexels.com/photo/woman-holding-notebooks-11124936/)*
+
+## 솔직한 고생담
+
+**날짜 하이드레이션 불일치.** `toLocaleDateString()`이 서버에서는 `11/08/2026`, 클라이언트에서는 `8/11/2026`을 뱉었다. 공용 유틸에서 `en-GB` 포맷을 명시해 양쪽을 맞췄다.
+
+**빨간 여백선이 엉뚱한 곳에 떠 있던 문제.** 넓은 화면에서 여백선은 전체 폭 컨테이너에 붙어 있고 본문은 가운데 정렬 칼럼에 있어서 둘 사이가 크게 벌어졌다. 여백선을 텍스트 칼럼 래퍼 안으로 옮겨 해결했다.
+
+**CSS 우선순위 대 Tailwind.** 종이 카드용 `.sk` 클래스가 전역 CSS에서 `position: relative`를 갖고 있었고, 드롭다운 메뉴의 Tailwind `absolute`가 캐스케이드 싸움에서 졌다. 메뉴가 1픽셀 조각으로 잘렸다. 메뉴를 인라인 포지셔닝한 순수 `div`로 감싸고 `.sk`를 `@layer components`로 옮겨 유틸리티가 이기게 했다.
+
+**노트북 삭제 후 리다이렉트가 안 되던 문제.** API는 200을 돌려주고 노트북도 사라졌는데 사용자는 죽은 `/e/{token}` 페이지에서 멈춘 설정 모달을 보고 있었다. `router.push("/")`가 소프트 내비게이션이라 에디터를 완전히 걷어내지 못한 탓이다. `window.location.replace("/?deleted=1")`로 바꿔 유령 URL로 돌아갈 여지를 없앴다.
+
+**이미지 속도 제한이 너무 빡빡했다.** 10분에 20회면 충분해 보였지만, 문서 하나 만들다 보면 5분에 스크린샷 열두 장이 우습게 나간다. 60회로 올렸다. 실제 남용을 막는 건 노트북당 50장 제한이고, IP 제한은 수백 개 노트북을 만들며 무료 이미지 호스팅처럼 쓰는 걸 막는 용도다.
+
+**Supabase 무료 티어는 7일 유휴 시 일시정지된다.** GitHub Action이 3일마다 `/api/ping`을 때린다. 지루한 인프라지만 멈춘 DB는 죽은 앱이다.
+
+![Custom 404 page — torn paper notebook not found](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/dpv3168fdzl65m57fpmt.png)
+
+## 브랜드명 대신 검색어로
+
+아무도 "SharePad"를 검색하지 않는다. 사람들이 치는 건 "share markdown without signup", "online notepad no login", "send notes without account" 쪽이다. 그래서 `/share-markdown-without-signup`, `/online-notepad-no-login`, `/markdown-to-pdf` 같은 랜딩 페이지를 키워드 나열이 아닌 실제 내용으로 채웠다. 요즘 그 파일을 읽는 크롤러를 위해 `llms.txt`와 `llms-full.txt`도 뒀고, 사이트맵과 robots.txt, 홈 화면 FAQ 스키마까지 갖췄다. 발견되는 데 브랜드명은 중요하지 않고 랜딩 페이지가 중요하다는 판단이다.
+
+## 직접 돌려보기
+
+```bash
+git clone https://github.com/Varshithvhegde/sharepad.git
+cd sharepad
+npm install
+cp .env.example .env.local
+# Supabase 키 입력
+npm run dev
+```
+
+`supabase/migrations/`의 SQL 마이그레이션을 순서대로 적용한다. 초기 스키마부터 이미지, 속도 제한까지 여섯 개 파일이고, Supabase CLI라면 `supabase db push`, 아니면 SQL 에디터에 하나씩 붙여넣으면 된다.
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+SUPABASE_SERVICE_ROLE_KEY=...
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+```
+
+이미지 업로드는 `R2_*` 변수 다섯 개가 전부 채워지기 전까지 꺼져 있다. 없어도 앱은 정상 동작하고 스크린샷 붙여넣기만 안 된다. 배포는 Next.js가 도는 곳이면 어디든 가능하며, 프로덕션에서는 `NEXT_PUBLIC_SITE_URL`을 실제 도메인으로 바꿔야 한다.
+
+- **Live:** [sharepad.in](https://sharepad.in)
+- **빠른 경로:** [sharepad.in/quick](https://sharepad.in/quick) — 마크다운 붙여넣고 링크 받기
+- **전체 생성:** [sharepad.in/new](https://sharepad.in/new) — 슬러그, 종이 질감, 서체, 만료, 비밀번호
+- **잃어버린 편집 링크 복구:** [sharepad.in/recover](https://sharepad.in/recover)
+- **소스:** [github.com/Varshithvhegde/sharepad](https://github.com/Varshithvhegde/sharepad)
+
+글쓴이는 마지막에 이렇게 적었다. 우리가 당연하게 받아들이는 마찰이 너무 많다고. 가입하고, 이메일 인증하고, 워크스페이스 만들고, 공유 설정을 건드린다. 겨우 *메모* 하나를 위해서. 대개는 링크 하나 건네고 하던 일로 돌아가고 싶을 뿐이다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

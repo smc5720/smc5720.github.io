@@ -1,0 +1,169 @@
+﻿---
+title: "페드로 파스칼까지 몇 다리 건너면 될까? 그래프 탐색 실전 입문"
+description: "지인의 지인을 따라가면 유명 배우까지 닿을 수 있을까. 이 엉뚱한 질문을 BFS와 다익스트라 알고리즘으로 풀어낸 Dev.to 글을 한국 독자를 위해 정리했다."
+date: "2026-08-11"
+published_at: "2026-08-13"
+category: "news"
+tags: ["algorithms", "graph", "bfs", "javascript"]
+slug: "graph-search-degrees-of-separation-bfs-dijkstra"
+cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fmf15kr8vg3cy8y4e2b4w.png"
+coverAlt: "How Many Introductions Away Are You From Pedro Pascal? A Practical Introduction to Graph Search"
+source_id: "devto-4369858"
+source_url: "https://dev.to/ale3oula/how-many-introductions-away-are-you-from-pedro-pascal-a-practical-introduction-to-graph-search-5bfg"
+source_title: "How Many Introductions Away Are You From Pedro Pascal? A Practical Introduction to Graph Search"
+source_author: "Alexandra"
+source_published: "2026-08-11"
+---
+
+<LinkCard url="https://dev.to/ale3oula/how-many-introductions-away-are-you-from-pedro-pascal-a-practical-introduction-to-graph-search-5bfg" author="Alexandra" date="2026-08-11" />
+
+## 개요
+
+만다로리안을 보다가 문득 떠오른 생각 하나. 나는 페드로 파스칼을 모른다. 하지만 내가 아는 누군가가, 또 그 사람이 아는 누군가가... 이렇게 소개를 몇 번만 거치면 결국 그에게 닿지 않을까?
+
+Dev.to에 올라온 Alexandra의 글은 이 실없는 상상에서 출발한다. 그리고 곧바로 알아차린다. 지금 떠올린 게 사실은 전형적인 그래프 문제라는 걸.
+
+![Image description](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/frnnrr2r9qi45i2e28lo.jpg)
+
+## 인간관계를 그래프로 바꾸기
+
+지구상의 모든 사람을 **노드**로, 두 사람 사이의 친분이나 관계를 **엣지**로 놓아보자.
+
+```plaintext
+Alexandra ── Maria ── Sofia ── Pedro
+    │
+    └── John ── Elena ── Carlos
+```
+
+이건 가중치 없는 무방향 그래프다.
+
+- **가중치 없음(unweighted)** — 모든 연결의 값어치가 같다. Maria와 Sofia가 절친이든, 카페에서 딱 한 번 마주친 사이든 구분하지 않는다.
+- **무방향(undirected)** — 관계가 양방향이다. Alexandra가 Maria를 안다면 Maria도 Alexandra를 안다.
+
+여기서 군더더기를 걷어내면 질문의 성격이 달라진다. "어떻게 하면 페드로 파스칼을 만날까?"가 "가중치 없는 그래프에서 노드 A와 B 사이의 최단 경로는 무엇인가?"로 바뀐다. 트리나 그래프를 다뤄본 사람이라면 BFS(너비 우선 탐색)를 떠올릴 대목이다.
+
+코드로 표현할 때 가장 간단한 방식은 **인접 리스트**다.
+
+```javascript
+const graph = {
+  Alexandra: ["Maria", "John"],
+  Maria: ["Alexandra", "Sofia"],
+  Sofia: ["Maria", "Pedro"],
+  Pedro: ["Sofia"],
+  John: ["Alexandra", "Elena"],
+  Elena: ["John", "Carlos"],
+  Carlos: ["Elena"],
+};
+```
+
+![사람들이 악수하는 모습 클로즈업](https://images.pexels.com/photos/7736028/pexels-photo-7736028.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Mikhail Nilov](https://www.pexels.com/@mikhail-nilov) on [Pexels](https://www.pexels.com/photo/close-up-shot-of-a-people-handshake-7736028/)*
+
+## 망상을 알고리즘으로 만들기
+
+아쉽게도 허공에 대고 "페드로 파스칼 아는 사람?!"이라고 외치는 건 알고리즘이 아니다. 순서도 없고, 기억도 없고, 멈출 조건도 없다. 흥미로워 보이는 사람을 아무렇게나 골라 옮겨 다니면 이런 일이 벌어진다.
+
+```plaintext
+Alexandra → Maria → Sofia → Maria → Sofia → Maria → ...
+```
+
+무방향 그래프라서 Maria는 Sofia로, Sofia는 다시 Maria로 이어진다. 이미 만난 사람을 기억하지 않으면 같은 사람 사이를 영원히 오갈 수도 있다.
+
+결국 두 가지가 필요하다.
+
+1. 어떤 순서로 사람을 탐색할지 정하는 규칙
+2. 이미 방문한 사람을 기억하는 방법
+
+큐(queue)와 방문 집합(visited set)이 등장하는 이유다.
+
+## 너비 우선 탐색은 어떻게 동작하나
+
+최단 경로를 찾는 핵심 원리는 단순하다. 두 다리 건너 아는 사람을 확인하기 전에, 한 다리 건너 아는 사람을 전부 먼저 확인한다. 이게 너비 우선 탐색이고, 그래프를 레벨 단위로 정리해준다.
+
+```plaintext
+Level 0        Alexandra
+                  │
+           ┌──────┴──────┐
+Level 1   Maria          John
+            │              │
+Level 2   Sofia          Elena
+            │
+Level 3   PEDRO 🎉
+```
+
+BFS는 먼저 내 직접 친구들(레벨 1)을 전부 확인한다. 거기 페드로가 없으면(🥲) 친구의 친구들(레벨 2)로 넘어가고, 다시 그 다음으로 나아간다. 페드로를 찾은 순간, 그 경로가 곧 최단 경로다. 더 짧은 경로는 이미 전부 확인한 뒤이기 때문이다.
+
+## 코드로 합치기
+
+```javascript
+function introductionsAway(graph, start, target) {
+  if (start === target) return { degrees: 0, path: [start] };
+
+  const visited = new Set([start]);
+  const queue = [[start, [start]]];
+
+  while (queue.length > 0) {
+    const [person, path] = queue.shift();
+
+    for (const friend of graph[person] || []) {
+      if (visited.has(friend)) continue;
+      if (friend === target) {
+        return { degrees: path.length, path: [...path, friend] };
+      }
+
+      visited.add(friend);
+      queue.push([friend, [...path, friend]]);
+    }
+  }
+
+  return { degrees: -1, path: [] };
+}
+```
+
+## 반전: 현실의 관계는 평등하지 않다
+
+여기까지는 누군가를 아는지 여부가 0 아니면 1이었다. 하지만 우리 둘 다 알다시피 그건 거짓말에 가깝다. 이 둘 사이에는 아주 큰 차이가 있다.
+
+- Maria가 어느 행사에서 페드로 옆에 한 번 서 있었던 것
+- "페드로? 목요일마다 같이 저녁 먹는데"
+
+기술적으로는 둘 다 관계지만, 실질적으로 한쪽이 압도적으로 쓸모 있다.
+
+```plaintext
+Alexandra --2-- Maria --5-- Sofia --4-- Tessa --1-- Pedro
+```
+
+그래서 관계마다 소개 비용(introduction cost)을 매겨보자. 가까운 사이일수록 소개를 부탁하기 쉬우니 비용이 낮다. 스쳐 지나간 사이는 비용이 높다. 뭐, 행운을 빈다.
+
+BFS는 가중치를 다룰 줄 모른다. 가중치 그래프에서는 **다익스트라 알고리즘**으로 눈을 돌려야 한다.
+
+### 다익스트라 알고리즘, 짧게
+
+다익스트라는 질문을 살짝 비튼다.
+
+"A에서 B까지 가장 저렴한 경로는 무엇인가?"
+
+발견한 순서대로 노드를 탐색하는 대신, 출발점으로부터 누적 비용이 가장 낮은 노드를 우선한다. 그래서 보통 BFS의 일반 큐를 우선순위 큐로 교체한다.
+
+![노란 글자 타일들](https://images.pexels.com/photos/1888000/pexels-photo-1888000.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Ann H](https://www.pexels.com/@ann-h-45017) on [Pexels](https://www.pexels.com/photo/yellow-letter-tiles-1888000/)*
+
+## 같은 그래프, 다른 이름표
+
+페드로 파스칼 상황은 말도 안 되게 우스꽝스럽지만, 그 밑에 깔린 문제는 진지하다. 노드와 엣지가 무엇을 뜻하는지만 바꾸면 같은 아이디어가 도처에서 튀어나온다.
+
+| 분야 | 노드 | 엣지 | "최단 경로"가 답하는 것 |
+|---|---|---|---|
+| 소셜 그래프 | 사람 | 관계 | "페드로 파스칼까지 몇 다리?" |
+| 지도 / GPS | 교차로 | 도로(시간·거리로 가중) | "A에서 B까지 가장 빠른 길" |
+| 웹 크롤링 | 웹 페이지 | 하이퍼링크 | "이 페이지에서 저 페이지까지 몇 번 클릭?" |
+| 코드베이스 | 모듈·파일 | import·의존성 | "이 파일을 바꾸면 뭐가 깨지나?" |
+| 추천 시스템 | 사용자 또는 아이템 | 유사도·상호작용 강도 | "이 사용자에게 가장 적합한 건?" |
+
+그래프는 처음엔 미워하고 대체로 이해도 안 되는 컴퓨터 과학 개념 중 하나다. 노드, 엣지, 순회, 큐. 그런데 어디에나 있다. 인터넷 자체가 사실상 하나의 거대한 그래프다.
+
+혹시라도 페드로 파스칼을 아는 사람을 아는 사람이 있다면, 어디로 연락하면 되는지는 아실 거라고 원문 필자는 덧붙였다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
