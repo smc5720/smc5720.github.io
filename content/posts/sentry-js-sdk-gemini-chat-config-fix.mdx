@@ -93,7 +93,7 @@ const requestAttributes = extractRequestAttributes(operationName, attributeParam
 
 수정 전 코드에서는 속성이 `undefined`라 네 개 중 세 개가 실패한다. 수정본에서는 넷 다 통과한다.
 
-`@sentry/server-utils` 테스트 스위트는 38개 파일 335개 테스트에서 39개 파일 339개 테스트로 늘었고 전부 통과했다. `oxlint --type-aware`와 `oxfmt --check`도 깨끗했다. 소스 타입에 대한 `tsc`도 통과했다. 남은 `tsc` 테스트 설정 오류는 이번 변경과 무관한 파일에 원래부터 있던 것들이다.
+`@sentry/server-utils` 테스트 스위트는 38개 파일 335개 테스트에서 39개 파일 339개 테스트로 늘었고 전부 통과했다. `oxlint --type-aware`와 `oxfmt --check`도 깨끗했다. 소스 타입 `tsc` 검사 역시 문제없었다. 남은 `tsc` 테스트 설정 오류는 이번 변경과 무관한 파일에 원래부터 있던 것들이다.
 
 ## 목(mock)이 아닌 실제 Gemini API로 확인했다
 
