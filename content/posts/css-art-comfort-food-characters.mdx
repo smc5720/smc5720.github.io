@@ -1,0 +1,72 @@
+﻿---
+title: "CSS만으로 만든 음식 캐릭터들 — 네온 사인 아래 셀프 주문 키오스크까지"
+description: "개발자 Laura Norwood가 Dev.to 프론트엔드 챌린지에 오니기리, 버블티, 만두, 훠궈 캐릭터를 CSS로 그려 출품했다. 자바스크립트는 클릭 핸들러 하나뿐, 나머지는 전부 CSS 애니메이션이다."
+date: "2026-08-10"
+published_at: "2026-08-14"
+category: "news"
+tags: ["css", "devchallenge", "showdev", "frontendchallenge"]
+slug: "css-art-comfort-food-characters"
+cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Frda2trnbgnoy3aiypikh.png"
+coverAlt: "My CSS Art Made Some Foodie Friends"
+source_id: "devto-4358962"
+source_url: "https://dev.to/lanthanum89/my-css-art-made-some-foodie-friends-4adk"
+source_title: "My CSS Art Made Some Foodie Friends 🍙🧋🥟🍲"
+source_author: "Laura Norwood"
+source_published: "2026-08-10"
+---
+
+<LinkCard url="https://dev.to/lanthanum89/my-css-art-made-some-foodie-friends-4adk" author="Laura Norwood" date="2026-08-10" />
+
+## 개요
+
+Dev.to가 진행 중인 프론트엔드 챌린지 'Comfort Food Edition'에 눈에 띄는 CSS 아트 출품작이 올라왔다. Laura Norwood는 위로가 되는 음식 하나를 고르는 대신 네 가지를 전부 그렸고, 거기에 그 음식들이 살 곳까지 만들어 붙였다. 네온이 켜진 어두운 식당, 디지털 메뉴판, 그리고 카운터 앞에 놓인 셀프 주문 키오스크다.
+
+오니기리, 버블티, 만두, 훠궈가 각각 캐릭터이자 메뉴 항목이다. 가격표를 달고 CRT 화면 위에서 깜빡이며 통통 튄다. 화면 아래 키오스크는 "Can I take your order?"를 한 글자씩 타이핑하고, 주문 버튼을 두드리듯 맥동시키다가, 주문 번호가 찍힌 영수증을 뽑아낸다.
+
+전체가 `div`와 `clip-path`, `border-radius`, 그래디언트, CSS 애니메이션으로 만들어졌다. 자바스크립트는 캐릭터 클릭을 받는 핸들러 하나가 전부다. 챌린지 규정이 "약간의 자바스크립트"를 허용하는데, 작성자는 그 예산을 상호작용 딱 하나에만 쓰고 키오스크의 연출 시퀀스까지 전부 CSS로 밀어 넣었다.
+
+## 캐릭터를 하나의 리그로 묶다
+
+작성자가 가장 큰 교훈으로 꼽은 건 개별 음식을 그리는 기술이 아니라 그 전에 공통 뼈대를 세운 판단이었다.
+
+모든 캐릭터는 `.character` 래퍼 하나를 공유한다. 그 안에 `.face`, `.eye`, `.cheek`, `.mouth`가 같은 구조로 들어가고, 무한 반복되는 `float` 바운스, 동일한 눈 깜빡임 타이밍, 클릭했을 때의 `squish` 반응과 반짝임 폭발이 전부 여기에 붙는다. 개별 음식은 모양과 색, 얼굴 위치만 덮어쓴다.
+
+일회성 조각들을 하나씩 쌓았다면 캐릭터가 늘어날 때마다 CSS가 감당 못 할 만큼 불어났을 것이다. 재사용 가능한 시스템으로 먼저 잡아둔 덕분에 새 음식을 추가하는 작업이 "모양 하나 그려서 리그에 꽂기" 수준으로 줄었다는 게 작성자의 설명이다.
+
+## 음식 네 개, 각기 다른 CSS 기법
+
+![여러 음식이 차려진 식탁](https://images.pexels.com/photos/6646360/pexels-photo-6646360.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [RDNE Stock project](https://www.pexels.com/@rdne) on [Pexels](https://www.pexels.com/photo/food-dinner-lunch-meal-6646360/)*
+
+**오니기리** — `clip-path`로 모서리를 둥글린 삼각형을 만들고, `radial-gradient` 점 패턴으로 밥알 질감을 냈다. 김 띠는 별도의 사다리꼴이다.
+
+**버블티** — `clip-path` 폴리곤으로 아래가 좁아지는 컵을 그렸다. 줄무늬 빨대와 돔 형태의 뚜껑이 붙고, 타피오카 펄은 절대 위치로 배치한 원들이 컵 바닥에 흩어진 모양이다.
+
+**만두** — 납작하게 눌린 돔 형태다. 아래쪽 절반에 `radial-gradient`를 여러 겹 쌓아 구운 자국을 표현했고, 윗면 가장자리의 주름은 반복 점 패턴으로 만들었다.
+
+**훠궈** — 하드 엣지 `linear-gradient`로 국물을 빨간색과 맑은색으로 갈랐다. 그 아래에 리벳이 박힌 금속 밴드를 따로 두고, 양옆에 고리 손잡이를 달았다. 김이 올라오는 애니메이션도 들어간다.
+
+## 식당 씬과 키오스크
+
+식당 배경은 세 가지 요소로 이뤄진다. "COMFORT FOOD" 네온 사인은 `text-shadow`를 겹쳐 글로우를 만들고 `@keyframes flicker`로 은은하게 명멸시켰다. 화면 베젤에는 `repeating-linear-gradient` 스캔라인을 덮어 CRT 느낌을 냈다. 그 아래는 나무 카운터다.
+
+키오스크는 전부 CSS로 굴러간다. `animation-delay`로 타이밍을 맞춰 페이지가 열리면 짧은 시퀀스가 저절로 재생된다.
+
+- "Can I take your order?" 문구는 `width: 0 → Nch`에 `steps(N, end)`를 물린 고전 타자기 기법으로 한 글자씩 나타난다. 자바스크립트도, 글자별 마크업도 없다.
+- "TAP TO ORDER" 버튼은 `box-shadow`를 퍼지는 링처럼 확장시키고 여기에 `radial-gradient` 물결을 얹어 맥동한다.
+- 영수증은 아래로 미끄러져 내려오면서 주문 번호를 한 자리씩 찍는다. 뜯긴 가장자리는 반복 대각선 그래디언트 배경으로 처리했다.
+
+메뉴판 위 캐릭터는 몇 초마다 눈을 깜빡이고 각자 다른 리듬으로 튄다. 클릭하면 눈이 `^^` 모양으로 바뀌면서 반짝임이 터진다.
+
+## 데모와 소스
+
+[CodePen에서 보기 →](https://codepen.io/Laura-Norwood/pen/PwWvZBW)
+
+라이브 데모: [lanthanum89.github.io](https://lanthanum89.github.io/dev.to-Frontend-Challenge-Comfort-Food-Edition/)
+소스 코드: [GitHub](https://github.com/Lanthanum89/dev.to-Frontend-Challenge-Comfort-Food-Edition)
+
+작성자는 다음 개선안으로 두 가지를 언급했다. 키오스크가 뽑는 주문 번호를 마지막으로 탭한 음식과 연동하는 것, 그리고 버튼이 맥동할 때 캐릭터들이 키오스크 쪽을 힐끗 쳐다보게 만드는 것이다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

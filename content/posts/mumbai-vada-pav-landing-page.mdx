@@ -1,0 +1,94 @@
+﻿---
+title: "₹15짜리 랜딩 페이지를 만들었다 — 뭄바이 소울푸드 '바다 파브' 이야기"
+description: "인도 개발자 Sarvar Nadaf가 프레임워크도 빌드 도구도 없이 HTML·CSS·바닐라 JS만으로 만든 스크롤 기반 랜딩 페이지. 뭄바이 길거리 음식 바다 파브와 가난했던 대학 시절의 기억을 담았다."
+date: "2026-08-10"
+published_at: "2026-08-14"
+category: "news"
+tags: ["devchallenge", "frontendchallenge", "webdev", "javascript"]
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fimg.youtube.com%2Fvi%2FqZHzBS3UQbA%2Fmaxresdefault.jpg"
+coverAlt: "I Built a ₹15 Landing Page About Mumbai's Soul Food"
+slug: "mumbai-vada-pav-landing-page"
+source_id: "devto-4361820"
+source_url: "https://dev.to/sarvar_04/i-built-a-15-landing-page-about-mumbais-soul-food-1l78"
+source_title: "I Built a ₹15 Landing Page About Mumbai's Soul Food"
+source_author: "Sarvar Nadaf"
+source_published: "2026-08-10"
+---
+
+<LinkCard url="https://dev.to/sarvar_04/i-built-a-15-landing-page-about-mumbais-soul-food-1l78" author="Sarvar Nadaf" date="2026-08-10" />
+
+## 개요
+
+인도 개발자 Sarvar Nadaf가 Dev.to의 프론트엔드 챌린지(Comfort Food Edition, Perfect Landing)에 랜딩 페이지 하나를 냈다. 주제는 뭄바이의 길거리 음식 바다 파브(Vada Pav). 가격은 15루피, 우리 돈으로 300원이 채 안 된다.
+
+기술 스택이 눈에 띈다. React도, Tailwind도, 빌드 단계도 없다. `index.html` 한 개와 `styles.css` 한 개가 전부다. 파일을 더블클릭하면 그냥 열린다.
+
+그런데 이 글에서 가장 많이 회자된 건 기술이 아니라 페이지에 적힌 한 문장이다. "버스비가 모자라면 걸어갔다"에서 "지금은 수백만을 번다"로 넘어가는 대목.
+
+## 15루피가 하루를 버티게 했다
+
+Nadaf는 RMD 신갓 공과대학을 다녔다. 수업이 끝나면 열 명 남짓이 우르르 몰려나와 와르제 바다 파브 센터로 향했다. 가방은 무거웠지만 정작 펼쳐본 책은 없었다고 그는 적었다.
+
+돈은 늘 없었다. 낭만적인 가난이 아니라 진짜 가난이었다. 버스 요금을 맞추려고 동전을 세고, 모자라면 걸었다. 그래도 15루피면 배는 채울 수 있었다. 매일 저녁 그렇게 버텼다.
+
+"지금은 수백만을 번다. 그런데 그 어느 것도 그때만큼은 아니다." 페이지를 만든 이유를 그는 이렇게 설명했다. 와르제 바다 파브 센터를 위해, 그리고 그 원 안에 서 있던 모든 친구들을 위해 만들었다는 것이다.
+
+바다 파브는 하루에 2천만 명을 먹인다. 1966년 다다르역 앞에서 아쇼크 바이디아가 처음 수레를 세운 것이 시작이었고, 그 이야기도 페이지 안에 한 섹션으로 들어가 있다.
+
+## 페이지에 담긴 것들
+
+| 섹션 | 내용 |
+|---|---|
+| Hero | 해질 무렵 뭄바이 노점 위에 화면을 가득 채운 "₹15" 타이포그래피 |
+| Origin (1966) | 다다르역 아쇼크 바이디아의 첫 수레 이야기 |
+| Personal Story | 이 페이지가 존재하는 이유. 대학 시절의 기억 |
+| Build Your Own | 5단계 조립 인터랙션 (탭 UI, 이미지 전환, 진행 바) |
+| Recipe | 인분 수를 바꾸면 재료 양이 실시간으로 바뀌는 레시피 카드 |
+| Culture | 바다 파브를 먹는 여섯 가지 '불문율' |
+| Closer | "खाल्ला का?" — 마라티어로 "밥 먹었어?", 실은 "사랑한다"는 뜻 |
+
+[영상으로 보기 →](https://www.youtube.com/watch?v=qZHzBS3UQbA)
+
+🔗 **[라이브 데모](https://simplynadaf.github.io/mumbai-vada-pav/)** · 📦 **[소스 코드](https://github.com/simplynadaf/mumbai-vada-pav)**
+
+![Hero Screenshot](https://raw.githubusercontent.com/simplynadaf/mumbai-vada-pav/main/img/screenshot-hero.jpg)
+
+## 프레임워크를 안 쓴 건 의도였다
+
+Nadaf는 프레임워크를 빼기로 한 것이 실수나 타협이 아니라 처음부터의 결정이었다고 못 박았다. 제약이 오히려 더 나은 설계를 강제한다는 것이다.
+
+색은 하나의 분위기로 고정했다. 밤의 뭄바이. 텅스텐 전구의 노란 빛, 짙은 네이비 배경 위의 사프란 색 포인트. 섹션이 바뀔 때마다 색이 튀는 일은 없다.
+
+타이포그래피가 대부분의 일을 한다. 페이지를 열면 가장 먼저 보이는 것은 Playfair Display로 크게 찍은 "₹15"뿐이다. 히어로 이미지 갤러리도, 슬라이더도 없다. 바다 파브의 핵심이 그 가격이기 때문이다.
+
+### 인터랙션 구현
+
+내비게이션은 스크롤 양에 비례해 링크가 서서히 나타난다. `requestAnimationFrame`에 이징 보간을 얹어 처리했고, ₹15 표시만 우측 상단에 항상 남는다.
+
+조립 인터랙션은 ARIA tablist 패턴으로 만들었다. 파브 → 그린 처트니 → 바다 → 갈릭 처트니 → 튀긴 고추, 다섯 단계를 방향키로 오갈 수 있고 단계마다 이미지와 설명이 바뀐다.
+
+레시피 섹션에서는 인분 수를 1에서 8까지 조절하면 모든 재료 양이 즉시 다시 계산된다. `data-base` 속성에 기준값을 넣어두고 곱하는 방식이다. 스크롤 등장 효과는 IntersectionObserver로 처리했다.
+
+### 접근성은 나중에 붙이지 않았다
+
+접근성 항목을 처음부터 넣고 시작했다는 점도 그가 강조한 부분이다.
+
+- 시맨틱 HTML5 (`<section>`, `<nav>`, `<article>`)
+- 조립 UI에 `role="tablist"` + `role="tab"`
+- 방향키 이동 지원
+- 동적 콘텐츠에 `aria-live="polite"`
+- 마라티어 텍스트에 `lang="mr"`
+- `prefers-reduced-motion` 적용 시 모든 애니메이션 정지
+- WCAG AA 명도 대비 검증 완료
+
+## 3.2MB, 의존성 0개
+
+최종 결과물은 HTML 32KB, CSS 27KB, 이미지 2.8MB로 전체 약 3.2MB다. 폰트는 구글 폰트(Playfair Display, Lora)를 쓰고 GitHub Pages에 올렸다. `node_modules`도, 빌드 스크립트도 없다.
+
+Nadaf가 가장 뿌듯해한 부분은 성능 수치가 아니라 감정의 낙차였다. "동전을 세던" 문장에서 "지금은 수백만을 번다"로 곧장 넘어가는 그 간극이 이야기 자체라는 것. 나머지 디자인은 전부 그 한 순간을 위해 존재한다고 그는 썼다.
+
+라이선스는 MIT다. 글 말미에 그가 던진 질문도 함께 옮긴다. "당신의 15루피는 무엇인가? 힘든 시절을 버티게 해준 그 음식은?"
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
