@@ -1,0 +1,85 @@
+﻿---
+title: "폐기된 오픈소스를 되살리다: Weave Scope에 멀티 플랫폼 Docker 지원을 붙인 하루"
+description: "관리가 중단된 컨테이너 모니터링 도구 Weave Scope를 포크해 ARM64/AMD64 멀티 아키텍처 Docker 이미지로 되살린 과정. 개발자 Mario Ezquerro는 AI 도구 Antigravity를 활용해 하루 만에 작업을 마쳤다고 밝혔다."
+date: "2026-08-14"
+published_at: "2026-08-18"
+category: "news"
+tags: ["opensource", "devops", "docker", "ai"]
+slug: "weave-scope-revival-multi-arch-docker"
+cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fz8wmw0i3d7nb5a68wkxw.png"
+coverAlt: "Reviving Open Source Giants: How I Brought Weave Scope Back with Multi-Platform Docker Support in One Afternoon Using Antigravity"
+source_id: "devto-4398133"
+source_url: "https://dev.to/gde/reviving-open-source-giants-how-i-brought-weave-scope-back-with-multi-platform-docker-support-in-cmo"
+source_title: "Reviving Open Source Giants: How I Brought Weave Scope Back with Multi-Platform Docker Support in One Afternoon Using Antigravity"
+source_author: "Mario Ezquerro"
+source_published: "2026-08-14"
+---
+
+<LinkCard url="https://dev.to/gde/reviving-open-source-giants-how-i-brought-weave-scope-back-with-multi-platform-docker-support-in-cmo" author="Mario Ezquerro" date="2026-08-14" />
+
+## 개요
+
+컨테이너 클러스터를 시각적으로 들여다보는 도구로 한 시대를 풍미했던 **Weave Scope**가 다시 돌아왔다. 원본 저장소가 아카이브된 뒤 방치되면서 의존성 트리는 그대로 굳었고, 빌드는 `x86_64` 아키텍처에 묶여 있었다.
+
+개발자 Mario Ezquerro는 이 프로젝트를 포크해 빌드 파이프라인을 현대화하고 멀티 플랫폼 Docker 이미지를 만들었다. 되살아난 프로젝트는 [github.com/mario-ezquerro/scope](https://github.com/mario-ezquerro/scope)에서 확인할 수 있고, 멀티 아키텍처 이미지는 Docker Hub에 올라가 있다.
+
+그가 강조한 대목은 소요 시간이다. **작업 전체가 오후 반나절과 토큰 몇 개로 끝났다**는 것. AI 코딩 플랫폼 Antigravity를 썼다.
+
+## 왜 지금 이 작업이 필요했나
+
+Weave Scope는 만만한 코드베이스가 아니다. 저자가 정리한 구조는 이렇다.
+
+- **Go**와 **eBPF**로 짠 저수준 커널 프로브와 에이전트
+- 반응형 인터랙티브 웹 UI
+- `amd64/x86_64` 전용으로 설계된 복잡한 레거시 Makefile과 컨테이너 툴체인
+
+문제는 서버 환경이 그사이 달라졌다는 점이다. AWS Graviton, Apple Silicon, 라즈베리파이 클러스터까지 ARM이 널리 퍼졌는데, 원본 빌드는 이런 환경에서 사실상 돌릴 수 없는 상태였다.
+
+![오래된 창틀에서 새로 자라난 식물](https://images.pexels.com/photos/38211230/pexels-photo-38211230.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Murat Ak](https://www.pexels.com/@murat-ak) on [Pexels](https://www.pexels.com/photo/weathered-window-with-new-plant-growth-38211230/)*
+
+이 스택을 `docker buildx` 기반 워크플로로 끌어올리면서 **ARM64**와 **AMD64**를 모두 네이티브로 지원하게 만드는 일은, 예전 방식대로라면 며칠짜리 소프트웨어 고고학이었다. 깨진 Go 패키지, 낡은 C 라이브러리, 호환되지 않는 패키징 스크립트, 그리고 끝없이 이어지는 컴파일 에러를 하나씩 파헤쳐야 했다.
+
+## 작업은 어떻게 진행됐나
+
+저자는 레거시 `Makefile`과 폐기된 툴체인을 붙들고 며칠을 보내는 대신, Antigravity로 저장소 구조를 읽히고 빌드가 막히는 지점을 진단한 뒤 컴파일·패키징 파이프라인을 멀티 아키텍처 타깃에 맞게 손봤다. 지루한 마이그레이션이 짧은 반복 세션으로 바뀌었다는 설명이다.
+
+작업은 세 단계로 나뉘었다.
+
+1. **의존성 점검과 수정** — 크로스 컴파일을 막고 있던 시스템 콜과 C 바인딩을 찾아냈다.
+2. **Dockerfile과 buildx 리팩터링** — 멀티 스테이지 빌드 파이프라인을 손봐 `linux/amd64`와 `linux/arm64` 양쪽 네이티브 바이너리를 뽑아냈다.
+3. **배포 자동화** — 멀티 아키텍처 매니페스트 리스트를 만들어 Docker Hub에 바로 푸시했다.
+
+## 지금 바로 써보기
+
+되살아난 프로젝트는 커뮤니티가 쓸 수 있는 상태다.
+
+- **새 GitHub 저장소:** [https://github.com/mario-ezquerro/scope](https://github.com/mario-ezquerro/scope)
+- **원본 저장소(레거시):** [https://github.com/weaveworks/scope](https://github.com/weaveworks/scope)
+- **Docker Hub 멀티 아키텍처 이미지:** x86과 ARM 인프라 양쪽에 배포 가능
+
+Apple Silicon 맥북이든 라즈베리파이 클러스터든, 로컬 머신이나 서버에서 프로브와 시각화 UI를 이렇게 띄운다.
+
+```bash
+# 멀티 아키텍처를 지원하는 Scope 이미지 실행
+docker run -d --name weave-scope \
+  --net=host \
+  --pid=host \
+  --privileged \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  marioezquerro/scope:latest
+```
+
+브라우저에서 `http://localhost:4040`을 열면 실시간 컨테이너 토폴로지가 보인다.
+
+## 저자의 결론: 오픈소스 유지보수의 황금기
+
+Antigravity 같은 최신 AI 플랫폼의 진짜 힘은 백지에서 보일러플레이트를 뽑아내는 데 있지 않다고 저자는 말한다. 이미 존재하는 소프트웨어를 복원하고 현대화하는 능력이 놀랍다는 것이다.
+
+GitHub에는 훌륭하지만 버려진 프로젝트가 수천 개 있다. 필요한 건 반나절의 관심, 의존성 업데이트, 컨테이너 현대화 정도다. 이제 어떤 개발자든 잊힌 오픈소스를 되살려 커뮤니티에 돌려줄 수 있다는 게 저자의 마무리다.
+
+저자는 독자들에게 되살리고 싶은 방치된 오픈소스 프로젝트가 있는지 댓글로 알려달라고 덧붙였다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
