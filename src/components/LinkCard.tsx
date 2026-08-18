@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { getCachedOG, isKnownBadOG } from "@/lib/og-cache";
 
 interface OGData {
   title: string;
@@ -14,6 +15,64 @@ interface LinkCardProps {
   date?: string;
 }
 
+/**
+ * Hard ceiling for the live-fetch fallback. Next wraps `fetch` for its own
+ * caching and the `signal` we hand it is not always honoured, so the race
+ * below — not the AbortSignal — is what actually bounds the wait. Without it
+ * a slow host stalls the whole page past Next's 60s per-page export limit and
+ * fails the build.
+ */
+const OG_FETCH_TIMEOUT_MS = 4000;
+
+async function raceTimeout<T>(
+  work: (signal: AbortSignal) => Promise<T>,
+  ms: number
+): Promise<T | null> {
+  const controller = new AbortController();
+  let timer: ReturnType<typeof setTimeout> | undefined;
+
+  const bail = new Promise<null>((resolveBail) => {
+    timer = setTimeout(() => {
+      controller.abort();
+      resolveBail(null);
+    }, ms);
+  });
+
+  try {
+    return await Promise.race([work(controller.signal), bail]);
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function parseOG(html: string, fallbackTitle: string, url: string): OGData {
+  function getMeta(property: string): string {
+    // property="og:*" or name="og:*"
+    const re = new RegExp(
+      `<meta[^>]+(?:property|name)=["\']${property}["\'][^>]+content=["\']([^"\']*)["\']`,
+      "i"
+    );
+    const re2 = new RegExp(
+      `<meta[^>]+content=["\']([^"\']*)["\'][^>]+(?:property|name)=["\']${property}["\']`,
+      "i"
+    );
+    return (re.exec(html)?.[1] ?? re2.exec(html)?.[1] ?? "").trim();
+  }
+
+  return {
+    title: getMeta("og:title") || fallbackTitle || url,
+    description: getMeta("og:description"),
+    image: getMeta("og:image"),
+    siteName: getMeta("og:site_name"),
+  };
+}
+
+/**
+ * Cache first, network never if we can help it. `pnpm og:cache` fills
+ * data/og-cache.json ahead of time so CI builds make zero external requests.
+ */
 async function fetchOGData(url: string, fallbackTitle?: string): Promise<OGData> {
   const empty: OGData = {
     title: fallbackTitle ?? url,
@@ -22,44 +81,36 @@ async function fetchOGData(url: string, fallbackTitle?: string): Promise<OGData>
     siteName: "",
   };
 
-  try {
+  const cached = getCachedOG(url);
+  if (cached) {
+    return {
+      title: cached.title || fallbackTitle || url,
+      description: cached.description,
+      image: cached.image,
+      siteName: cached.siteName,
+    };
+  }
+
+  // Cached as unfetchable — don't burn 4s rediscovering that on every build.
+  if (isKnownBadOG(url)) return empty;
+
+  const html = await raceTimeout(async (signal) => {
     const res = await fetch(url, {
       headers: {
         "User-Agent":
           "Mozilla/5.0 (compatible; RicoCheeseBlog/1.0; +https://ricocheese.dev)",
         Accept: "text/html",
       },
-      // Build-time fetch — Next.js caches by default; force-cache is fine for static export
       cache: "force-cache",
-      signal: AbortSignal.timeout(6000),
+      signal,
     });
+    if (!res.ok) return null;
+    return res.text();
+  }, OG_FETCH_TIMEOUT_MS);
 
-    if (!res.ok) return empty;
+  if (!html) return empty;
 
-    const html = await res.text();
-
-    function getMeta(property: string): string {
-      // property="og:*" or name="og:*"
-      const re = new RegExp(
-        `<meta[^>]+(?:property|name)=["\']${property}["\'][^>]+content=["\']([^"\']*)["\']`,
-        "i"
-      );
-      const re2 = new RegExp(
-        `<meta[^>]+content=["\']([^"\']*)["\'][^>]+(?:property|name)=["\']${property}["\']`,
-        "i"
-      );
-      return (re.exec(html)?.[1] ?? re2.exec(html)?.[1] ?? "").trim();
-    }
-
-    return {
-      title: getMeta("og:title") || fallbackTitle || url,
-      description: getMeta("og:description"),
-      image: getMeta("og:image"),
-      siteName: getMeta("og:site_name"),
-    };
-  } catch {
-    return empty;
-  }
+  return parseOG(html, fallbackTitle ?? "", url);
 }
 
 function getDomain(url: string): string {

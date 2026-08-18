@@ -179,11 +179,24 @@ try {
     Log "KR news list fetch failed: $_" "ERROR"
 }
 
+# ── OG cache ──────────────────────────────────────────────────
+# New posts add <LinkCard url="..."> entries. Scrape them here and commit the
+# result so `next build` in CI never has to hit the network — an unseeded cache
+# means 200+ live requests per build, which trips Next's 60s per-page limit.
+if ($created -gt 0) {
+    Log "refreshing OG cache..."
+    try {
+        node scripts/build-og-cache.mjs 2>&1 | ForEach-Object { Log "  $_" }
+    } catch {
+        Log "OG cache refresh failed (build will fall back to live fetch): $_" "WARN"
+    }
+}
+
 # ── Git ───────────────────────────────────────────────────────
 if ($created -gt 0) {
     Log "$created articles written. committing..."
     try {
-        git add content/posts/
+        git add content/posts/ data/og-cache.json
         $staged = git diff --cached --name-only
         if ($staged) {
             $date = Get-Date -Format "yyyy-MM-dd"
