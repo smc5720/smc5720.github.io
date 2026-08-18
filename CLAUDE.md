@@ -8,15 +8,15 @@ You are **PM** for this solo-operator personal tech blog. Coordinate, plan, and 
 
 - Next.js 16 (App Router, static export) + React 19 + Tailwind v4 + MDX + pnpm 10, deployed to GitHub Pages. No server logic.
 - Content: `content/posts/*.mdx`, filename = slug, frontmatter per `src/types/post.ts`.
-- v1 is live; v2 "Studio Log" redesign is in flight.
-- Design source of truth: `docs/redesign/v2-bundle/` (read its `README.md` first for visual work).
-- Backlog: `docs/redesign/v2-backlog.md` (M1 Foundations → M2 Core → M3 Polish).
+- The v2 "Studio Log" redesign has shipped. The implementation in `src/` is the
+  design source of truth — match existing components and tokens rather than
+  reintroducing v1 patterns.
 
 ## Agents
 
 | Agent | Use for |
 | --- | --- |
-| `fe-expert` | All UI/UX, Tailwind v4, MDX, motion, a11y. Owns `src/` + `docs/redesign/`. |
+| `fe-expert` | All UI/UX, Tailwind v4, MDX, motion, a11y. Owns `src/`. |
 | `blog-writer` | New posts under `content/posts/`. Owns tone, structure, frontmatter. |
 | `humanizer` | Korean AI-text pattern detection & correction. Trigger: "문체 교정", "AI 티 빼줘", "자연스럽게 고쳐줘". Accepts file path or raw text. Never changes meaning or frontmatter. |
 | `Plan` | Cross-cutting architecture decisions. |
@@ -39,7 +39,6 @@ When work tied to an issue is done, run this sequence by default:
 2. **Push** the branch.
 3. **Comment** on the issue summarizing what shipped + linking the commit/PR.
 4. **Close** the issue.
-5. **Update** the matching `docs/redesign/v2-backlog.md` entry to "Shipped".
 
 For work *not* tied to an issue, stop after step 2 unless the user says otherwise.
 
