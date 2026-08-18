@@ -700,7 +700,7 @@ export default async function AboutPage() {
                 fontWeight: 360,
               }}
             >
-              <span style={{ color: "var(--color-accent)", marginRight: 4 }}>"</span>
+              <span style={{ color: "var(--color-accent)", marginRight: 4 }}>&ldquo;</span>
               좋은 도구를 만드는 일은 결국 동료의 시간을 줄여주는 일이다
               <span style={{ color: "var(--color-accent)" }}>.</span>{" "}
               <span style={{ color: "var(--color-text-2)" }}>

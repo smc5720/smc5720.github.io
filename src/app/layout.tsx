@@ -106,7 +106,6 @@ export default function RootLayout({
           __html: `(function(){try{var t=localStorage.getItem('rico-theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})()`
         }} />
         {adsensePublisherId && (
-          // eslint-disable-next-line @next/next/no-sync-scripts
           <script
             async
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsensePublisherId}`}

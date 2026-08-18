@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useThemeMode } from "@/lib/use-theme-mode";
 
 const NAV = [
   { href: "/",       label: "Home" },
@@ -12,10 +13,9 @@ const NAV = [
 ];
 
 export function Header() {
-  const [scrolled, setScrolled]     = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [isLight, setIsLight]       = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+  const isLight = useThemeMode() === "light";
 
   /* ── scroll detection ── */
   useEffect(() => {
@@ -25,19 +25,15 @@ export function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  /* ── close mobile menu on route change ── */
-  useEffect(() => {
-    setMobileOpen(false);
-  }, [pathname]);
-
-  /* ── read theme from DOM on mount ── */
-  useEffect(() => {
-    setIsLight(document.documentElement.getAttribute("data-theme") === "light");
-  }, []);
+  /* ── mobile menu ──
+     Tracked as "the route the menu was opened on" rather than a bare boolean,
+     so navigating away closes it by derivation instead of via an effect. */
+  const [menuPath, setMenuPath] = useState<string | null>(null);
+  const mobileOpen = menuPath === pathname;
 
   function toggleTheme() {
+    // No local state to update — useThemeMode observes data-theme and re-renders.
     const next = !isLight;
-    setIsLight(next);
     if (next) {
       document.documentElement.setAttribute("data-theme", "light");
       localStorage.setItem("rico-theme", "light");
@@ -316,7 +312,7 @@ export function Header() {
           {/* Hamburger — mobile only */}
           <button
             className="hdr-hamburger"
-            onClick={() => setMobileOpen((v) => !v)}
+            onClick={() => setMenuPath((p) => (p === pathname ? null : pathname))}
             aria-label={mobileOpen ? "메뉴 닫기" : "메뉴 열기"}
             aria-expanded={mobileOpen}
             style={{

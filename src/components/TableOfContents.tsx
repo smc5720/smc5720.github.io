@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
 interface TocItem {
   id: string;
@@ -8,32 +8,68 @@ interface TocItem {
   level: number;
 }
 
+const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+
+function subscribeReducedMotion(onStoreChange: () => void): () => void {
+  const mq = window.matchMedia(REDUCED_MOTION_QUERY);
+  mq.addEventListener("change", onStoreChange);
+  return () => mq.removeEventListener("change", onStoreChange);
+}
+
+/* ── Headings store ──
+   The prose is server-rendered, so the headings (and the ids rehype-slug gave
+   them) are already in the DOM at hydration. Reading them through
+   useSyncExternalStore instead of copying them into state from an effect keeps
+   the snapshot referentially stable — getSnapshot must return the same array
+   until the DOM actually changes, or React re-renders forever. */
+const NO_HEADINGS: TocItem[] = [];
+
+let headingCache: TocItem[] = NO_HEADINGS;
+let headingCacheKey = "";
+
+function subscribeHeadings(onStoreChange: () => void): () => void {
+  const prose = document.querySelector(".prose");
+  if (!prose) return () => {};
+  const observer = new MutationObserver(onStoreChange);
+  observer.observe(prose, { childList: true, subtree: true });
+  return () => observer.disconnect();
+}
+
+function getHeadingsSnapshot(): TocItem[] {
+  const headings = Array.from(
+    document.querySelectorAll<HTMLElement>(".prose h2, .prose h3")
+  );
+
+  const key = headings.map((h) => h.id).join("|");
+  if (key !== headingCacheKey) {
+    headingCacheKey = key;
+    headingCache = headings.map((h) => ({
+      id: h.id,
+      text: h.textContent?.replace(/#$/, "").trim() ?? "",
+      level: parseInt(h.tagName[1]),
+    }));
+  }
+  return headingCache;
+}
+
+function getHeadingsServerSnapshot(): TocItem[] {
+  return NO_HEADINGS;
+}
+
 export function TableOfContents() {
-  const [items, setItems] = useState<TocItem[]>([]);
   const [active, setActive] = useState<string>("");
-  const [reducedMotion, setReducedMotion] = useState(false);
 
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReducedMotion(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
+  const reducedMotion = useSyncExternalStore(
+    subscribeReducedMotion,
+    () => window.matchMedia(REDUCED_MOTION_QUERY).matches,
+    () => false
+  );
 
-  useEffect(() => {
-    const headings = Array.from(
-      document.querySelectorAll<HTMLElement>(".prose h2, .prose h3")
-    );
-
-    setItems(
-      headings.map((h) => ({
-        id: h.id,
-        text: h.textContent?.replace(/#$/, "").trim() ?? "",
-        level: parseInt(h.tagName[1]),
-      }))
-    );
-  }, []);
+  const items = useSyncExternalStore(
+    subscribeHeadings,
+    getHeadingsSnapshot,
+    getHeadingsServerSnapshot
+  );
 
   useEffect(() => {
     if (items.length === 0) return;
