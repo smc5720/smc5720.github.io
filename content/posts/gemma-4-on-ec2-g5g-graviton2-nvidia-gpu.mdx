@@ -112,7 +112,7 @@ transformers.integrations.heterogeneity.configuration_utils.AmbiguousGlobalPerLa
 
 Gemma 4의 `head_dim`은 단일 값이 아니고, 현행 `transformers`는 전역 값을 내주기를 거부한다. 그런데 vLLM의 설정 변환기는 여전히 `getattr(config, "head_dim", 0)`으로 납작하게 읽고 있었다. 이걸 처리하는 `per_layer_config` 코드는 **v0.27.2rc0**에 들어갔다. 그가 함께 확인한 v0.27.1에도 없었다. 결국 가장 최신 태그만 동작했다.
 
-여기서 얻을 교훈이 하나 있다면, 최신 릴리스부터 잡고 시작하되 되돌아갈 때는 무엇 때문에 막혔는지를 제약 조건에 명시적으로 적어 두라는 것이다.
+교훈은 하나다. 최신 릴리스부터 잡고 시작하고, 되돌아갈 때는 무엇 때문에 막혔는지 제약 조건에 적어 둘 것.
 
 ## Gemma 4의 어텐션 헤드는 크기가 제각각이다
 
