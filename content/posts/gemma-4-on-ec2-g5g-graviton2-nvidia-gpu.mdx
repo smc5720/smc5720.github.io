@@ -1,0 +1,230 @@
+﻿---
+title: "EC2 G5g에서 Gemma 4 돌리기: Graviton2 + NVIDIA T4G의 함정들"
+description: "AWS G5g는 aarch64와 컴퓨트 능력 7.5를 동시에 갖춘 유일한 하드웨어다. 여기에 Gemma 4를 vLLM으로 올린 실전 기록 — 발목을 잡은 건 패키징이 아니라 64KiB의 공유 메모리였다."
+date: "2026-08-13"
+published_at: "2026-08-19"
+category: "news"
+tags: ["aws", "vllm", "cuda", "machinelearning"]
+slug: "gemma-4-on-ec2-g5g-graviton2-nvidia-gpu"
+cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fesx30yds31pcu83y27qz.png"
+coverAlt: "Running Gemma 4 on EC2 G5g: Graviton2 AMD with NVIDIA GPU"
+source_id: "devto-4389980"
+source_url: "https://dev.to/gde/running-gemma-4-on-ec2-g5g-graviton2-amd-with-nvidia-gpu-25ci"
+source_title: "Running Gemma 4 on EC2 G5g: Graviton2 AMD with NVIDIA GPU"
+source_author: "xbill"
+source_published: "2026-08-13"
+---
+
+<LinkCard url="https://dev.to/gde/running-gemma-4-on-ec2-g5g-graviton2-amd-with-nvidia-gpu-25ci" author="xbill" date="2026-08-13" />
+
+## 개요
+
+AWS EC2 `g5g.4xlarge`에 Google의 Gemma 4 E2B를 vLLM으로 올린 실전 기록이 공개됐다. 작성자 xbill은 Graviton2(aarch64) 호스트에 NVIDIA T4G(Turing, SM 7.5) GPU가 붙은 이 조합에서 최종적으로 **단일 스트림 43.1 tok/s**, KV 캐시 329,579 토큰이라는 수치를 뽑아냈다. 다만 그 지점에 도달하기까지 vLLM 커널을 직접 패치해야 했다.
+
+정작 오래 걸린 건 예상했던 문제가 아니었다. 미리 걱정했던 패키징 이슈는 AWS가 이미 절반을 해결해 둔 상태였고, 실제로 모델을 멈춰 세운 건 Turing 세대의 **공유 메모리 64KiB 한계**였다.
+
+| 항목 | 값 |
+|---|---|
+| 모델 | `google/gemma-4-E2B-it` (레퍼런스 bf16 릴리스) |
+| 하드웨어 | `g5g.4xlarge` — Graviton2 + NVIDIA T4G 1장, 컴퓨트 능력 7.5, 15,360 MiB |
+| 베이스 이미지 | Deep Learning ARM64 AMI OSS Nvidia Driver GPU PyTorch 2.12 (Ubuntu 24.04) |
+| 소프트웨어 | torch 2.12.0+cu132 · CUDA 13.2 · vLLM v0.27.2rc0 소스 빌드(`sm_75`) |
+| 결과 | 43.1 tok/s, KV 캐시 329,579 토큰 |
+
+## G5g는 왜 외딴섬인가
+
+G5g는 AWS가 지금까지 출시한 인스턴스 중 Graviton 호스트에 NVIDIA GPU를 붙인 유일한 모델이다. 2020년에 나왔고, 후속 세대는 끝내 나오지 않았다. 그 사이 Graviton은 5세대까지 왔다.
+
+이 사실이 생각보다 무겁다. Arm + CUDA 생태계는 NVIDIA 자체 Arm CPU인 Grace 쪽으로 옮겨갔고, Grace는 SM 9.0·10.0 계열과 짝을 이룬다. Turing은 여전히 잘 지원되지만 그건 x86 이야기다. aarch64이면서 컴퓨트 능력 7.5인 하드웨어는 G5g뿐이고, 이 조합을 겨냥해 빌드를 배포하는 곳은 사실상 없다.
+
+## 공개된 빌드 중 aarch64 + SM 7.5를 함께 커버하는 건 없다
+
+가장 먼저 떠오르는 후보부터 확인해 보자. `vllm/vllm-openai:v0.27.1`은 두 플랫폼을 한 태그로 배포하는데, 레이어를 받지 않고도 이미지 설정에서 아키텍처 목록을 바로 읽을 수 있다.
+
+```bash
+docker buildx imagetools inspect vllm/vllm-openai:v0.27.1 --format '{{json .Image}}'
+```
+
+```plaintext
+linux/amd64   7.5 8.0 8.6 8.9 9.0 10.0 12.0
+linux/arm64       8.0 8.7 8.9 9.0 10.0 11.0 12.0
+```
+
+두 이미지가 어긋나는 항목이 딱 하나인데, 하필 이 하드웨어에 필요한 7.5다. arm64 목록이 Ampere 이상으로만 채워진 이유는 단순하다. Arm + NVIDIA 시스템으로 실제 출하되는 게 A100, Jetson Orin, GH200, Blackwell이기 때문이다. Turing은 그 목록에 없고 앞으로도 들어갈 일이 없다.
+
+보통은 타깃이 빠져 있어도 임베디드 PTX에서 JIT로 넘어가며 느리게라도 돈다. 여기서는 아니다. Dockerfile에 주석까지 달아 두고 막아 놨다.
+
+```shell
+# Do not add +PTX here: vLLM filters torch's top-level PTX flag when it
+# converts global gencode flags into per-kernel arch lists.
+```
+
+그래서 느려지는 게 아니라 아예 죽는다. `no kernel image is available for execution on the device`가 뜬다.
+
+생태계 전반이 비슷하게 갈린다. 계획을 세우기 전에 먼저 확인해야 할 표다.
+
+| 아티팩트 | arm64에서 7.5 | 상태 |
+|---|---|---|
+| `vllm/vllm-openai` arm64 | 없음 | 현행. 처음부터 없었음 |
+| `nvcr.io/nvidia/pytorch` arm64 | 24.10까지 | 24.12에서 제거 |
+| `drikster80/vllm-aarch64` | 있음 | 2024년 9월 방치. vLLM 0.6.1로 Gemma 4엔 너무 낡음 |
+| PyPI torch aarch64 | 없음 | 9.0 / 10.0 / 12.0으로만 빌드 |
+| **AWS ARM64 GPU DLAMI** | **있음** | 유지보수 중. PyTorch 2.2~2.12 |
+
+## Turing이 남아 있는 유일한 PyTorch는 AWS가 만든다
+
+이번 작업 전체를 살린 발견이고, 작성자도 하마터면 그냥 넘길 뻔했다고 적었다. 그는 PyTorch의 aarch64 CUDA 휠에 `sm_75`가 없으니 PyTorch부터 소스 빌드해야 한다고 봤다. PyPI 휠에 대해서는 맞는 말이다. AWS 쪽은 다르다.
+
+DLAMI 두 종류를 실제 박스에서 읽어 보면 이렇게 나온다.
+
+```python
+torch 2.7.0+cu128    ['sm_75', 'sm_90', 'sm_100', 'sm_120']
+torch 2.12.0+cu132   ['sm_75', 'sm_80', 'sm_90', 'sm_100', 'sm_110', 'sm_120']
+```
+
+AWS가 G5g를 파니까 AWS는 빌드에 Turing을 남겨 둔다. CUDA 13.2 위의 PyTorch 2.12, 석 달 전에 잘린 이미지까지 그대로다. **PyTorch는 빌드할 필요가 없다.** 빌드해야 하는 건 vLLM 자체 커널뿐이고, CMake는 아키텍처 목록을 군말 없이 받는다.
+
+```cmake
+-- CUDA target architectures: 7.5
+CMake Warning: Pytorch version 2.11.0 expected for CUDA build, saw 2.12.0 instead.
+```
+
+저 경고는 두 번 읽어 둘 만하다. 뒤에서 다시 발목을 잡는다.
+
+## PyTorch DLAMI에는 컴파일러가 없다
+
+DLAMI가 주지 않는 게 둘 있는데, 둘 다 어디에도 문서화돼 있지 않았다고 한다.
+
+먼저 `nvcc`가 없다. 이미지에는 드라이버와 CUDA로 빌드된 torch가 들어 있을 뿐 툴킷이 없다. NVIDIA의 **sbsa** 저장소에서 키링과 `cuda-toolkit-13-2`를 가져와야 한다. Arm 박스에서 x86 저장소를 무심코 집는 실수를 하기 쉬운 지점이다.
+
+그리고 요즘 vLLM은 Rust를 요구한다. `vllm-rs` 프런트엔드가 `setuptools_rust`와 툴체인을 필요로 하는데, 실패 메시지는 메타데이터 생성 단계에서 몇 분 뒤에 튀어나오는 `ModuleNotFoundError: No module named 'setuptools_rust'` 한 줄이 전부다.
+
+## 최신 vLLM만 동작했다
+
+torch 2.12를 고정한 vLLM 태그는 없다. 2.11에서 곧장 2.13으로 건너뛴다. 작성자는 오래된 코드를 새 런타임에 올리는 쪽이 안전하다고 판단해 v0.26.0을 골랐고, 그 판단이 틀렸다는 걸 확인하는 데 한 시간을 썼다.
+
+빌드는 잘 된다. 그리고 모델 로드에서 죽는다.
+
+```plaintext
+transformers.integrations.heterogeneity.configuration_utils.AmbiguousGlobalPerLayerAttributeError:
+'head_dim' is a per-layer attribute and may vary across layers.
+```
+
+Gemma 4의 `head_dim`은 단일 값이 아니고, 현행 `transformers`는 전역 값을 내주기를 거부한다. 그런데 vLLM의 설정 변환기는 여전히 `getattr(config, "head_dim", 0)`으로 납작하게 읽고 있었다. 이걸 처리하는 `per_layer_config` 코드는 **v0.27.2rc0**에 들어갔다. 그가 함께 확인한 v0.27.1에도 없었다. 결국 가장 최신 태그만 동작했다.
+
+여기서 얻을 교훈이 하나 있다면, 최신 릴리스부터 잡고 시작하되 되돌아갈 때는 무엇 때문에 막혔는지를 제약 조건에 명시적으로 적어 두라는 것이다.
+
+## Gemma 4의 어텐션 헤드는 크기가 제각각이다
+
+빌드가 끝났는데도 서버가 뜨지 않았다. 이 실패는 Arm이나 패키징과 무관하다. 이 모델과 이 칩의 문제다.
+
+```plaintext
+Gemma4 model has heterogeneous head dimensions
+{'sliding_attention': 256, 'full_attention': 512}.
+FA4 not available, forcing TRITON_ATTN backend.
+```
+
+한 줄씩 끊지 말고 사슬로 읽어야 한다. 고리 하나하나가 다음을 결정한다.
+
+1. Gemma 4의 sliding 레이어는 256 폭, global 레이어는 **512** 폭이다.
+2. 이질적인 head dim을 지원하는 건 FA4 아니면 Triton뿐이다.
+3. FA4를 못 쓰니 vLLM이 `TRITON_ATTN`을 강제한다.
+4. 이 선택은 사용자가 뒤집을 수 없다. `VLLM_ATTENTION_BACKEND`는 v0.27에서 인식되는 변수가 아니다. `Unknown vLLM environment variable detected`를 찍고 그냥 지나간다. 작성자는 경고를 읽기 전까지 이 변수를 두 번 설정했다.
+5. `head_size=512`에서 Triton의 통합 어텐션 커널은 블록당 약 96KiB의 공유 메모리를 요구한다.
+
+## 문제는 결국 64KiB였다
+
+Turing의 공유 메모리는 두 개의 숫자로 이뤄지는데, 둘 다 실재한다. 블록당 **정적** 기본 한계는 48KiB — `torch.cuda.get_device_properties().shared_memory_per_block`이 49,152바이트로 보고하는 값이다. 더 필요한 커널은 동적 공유 메모리 속성으로 opt-in해야 하고, 그렇게 해도 상한은 **64KiB**다. Ampere 이후는 164KiB 이상이다.
+
+Triton은 opt-in하므로 64KiB 천장을 기준으로 잰다. 그래도 안 들어간다.
+
+```plaintext
+triton.runtime.errors.OutOfResources: out of resource: shared memory,
+Required: 98304, Hardware limit: 65536
+```
+
+거부다. 느려지거나 성능이 깎이는 게 아니라 커널이 실행조차 되지 않는다. 게다가 CUDA 그래프 캡처 단계에서 엔진을 끌고 죽는데, 이미 가중치 로드와 KV 캐시 크기 산정을 다 지켜본 뒤라 타이밍이 늦다.
+
+수정 자체는 작다. 쿼리 블록과 K/V 타일이 예산 안에 들어올 때까지 KV 타일을 줄이고, 소프트웨어 파이프라인을 1스테이지로 낮춘다. Ampere 이전에만 걸리도록 게이트를 달면 다른 카드에서는 아무 일도 하지 않는다.
+
+```python
+if current_platform.get_device_capability()[0] < 8:
+    _smem_budget = 60000
+    _esz = q.element_size()
+    def _fits(t): return (BLOCK_M + 2 * t) * head_size * _esz <= _smem_budget
+    while TILE_SIZE_PREFILL > 16 and not _fits(TILE_SIZE_PREFILL): TILE_SIZE_PREFILL //= 2
+    while TILE_SIZE_DECODE  > 16 and not _fits(TILE_SIZE_DECODE):  TILE_SIZE_DECODE  //= 2
+    launch_num_stages = 1
+```
+
+이 코드를 `vllm/v1/attention/ops/triton_unified_attention.py`에 넣으면 그래프가 캡처되고, 엔진이 76초 만에 올라오고, 모델이 서빙된다. **업스트림에 반영된 패치는 아니다.** 작성자의 인스턴스에만 살아 있고 vLLM을 올릴 때마다 다시 적용해야 한다. 그래서 업스트림에 보내는 게 맞다고 스스로 적어 뒀다.
+
+## 빌드 대부분이 절대 로드되지 않을 커널이다
+
+`g5g.4xlarge`에서 `MAX_JOBS=12`로 67분이 걸렸고, 그중 대부분이 FlashAttention이다. vLLM은 **`TORCH_CUDA_ARCH_LIST`와 무관하게** FA2와 FA3를 컴파일한다. 7.5만 타깃으로 잡은 빌드에서 수백 개의 `sm90` Hopper 인스턴스화가 갈려 나가는 걸 지켜봤다는 것이다. FA2는 sm80, FA3는 sm90이 필요하니 둘 다 이 카드에서는 영원히 로드될 수 없다.
+
+`VLLM_FA_CMAKE_GPU_ARCHES`를 제한하면 이 시간이 크게 줄어들 것이다. 다만 작성자는 시도하지 않았다. 상황을 파악했을 땐 이미 빌드가 45분째였고, 중단하는 비용이 끝까지 가는 비용보다 컸다.
+
+## 하드웨어를 만지기 전에 틀렸던 것들
+
+작성자는 장비를 프로비저닝하기 전에 문서부터 썼다. 그중 일곱 개가 틀렸고, 정정은 전부 논쟁이 아니라 머신에서 나왔다. 다른 걸 다 버려도 이 표는 남기겠다고 적은 부분이다.
+
+| 문서에 쓴 것 | 박스가 말한 것 |
+|---|---|
+| PyTorch aarch64에 `sm_75`가 없다 | AWS DLAMI에는 있다. 확인한 두 버전 모두 |
+| 여기서 bfloat16은 하드 실패다 | Torch가 업컨버트한다. vLLM이 `Casting torch.bfloat16 to torch.float16`을 찍고 진행 |
+| 백엔드는 XFORMERS다 | `TRITON_ATTN`이 강제되며, 고를 수 없다 |
+| `VLLM_ATTENTION_BACKEND`로 선택한다 | 인식되지 않는 변수. 죽은 설정을 출하했던 셈 |
+| w4a16은 sm80 이상 Marlin이 필요하다 | 빌드가 `sm75_kernel_float16_u4b8_float16.cu.o`를 컴파일했다 |
+| GPU는 16GB다 | 15,360 MiB |
+| `/v1/completions`가 빈 응답을 준다 | `': ok: ok: ok: ok'`를 준다. 침묵이 아니라 쓰레기값 |
+
+마지막 항목은 특히 위험하다. 빈 응답 여부로 헬스 체크를 짜 두면 이 엔드포인트는 헛소리를 뱉으면서 검사를 통과한다. `/v1/chat/completions`를 쓰고 텍스트를 직접 읽어야 한다.
+
+한 가지 주장은 검증하지 않아 그대로 남아 있다. `g5g.xlarge`의 호스트 RAM 8GiB로 9.5GiB의 가중치를 스테이징할 수 있는지다. Safetensors 로딩이 mmap 기반이라 가능할 것으로 보지만, 사실로 단정하지 않고 '미검증'으로 표시해 뒀다. 처음부터 그 자리에 있었어야 할 라벨이라는 게 그의 정리다.
+
+## 돌아가면 무엇을 하나
+
+```yaml
+content: 'Site Reliability Engineering (SRE) is a discipline that applies
+          software engineering principles to infrastructure and operations
+          problems to create highly reliable, scalable, and efficient systems.'
+finish_reason: stop      usage: 19 prompt / 32 completion / 51 total
+```
+
+| 측정 항목 | 값 |
+|---|---|
+| 처리량, 단일 스트림 greedy | 42.9 tok/s @ 64, 43.1 @ 256 |
+| KV 캐시 | 2.95 GiB, 329,579 토큰 |
+| 16k 컨텍스트 동시성 | 20.12x |
+| 서빙 중 GPU 메모리 | 13,501 / 15,360 MiB |
+| 엔진 초기화 | 76.4초, 그래프 캡처 17초 |
+| 측정 메모리 대역폭 | 읽기 277.0 GB/s · 복사 234.3 GB/s (이론치 320.1) |
+
+43 tok/s라는 숫자를 해석하기 전에 메모리 쪽을 봐야 한다. T4G는 HBM이 아니라 **GDDR6**를 쓴다. 256비트 버스에 5,001MHz니 이론치가 320GB/s다. 스트리밍 읽기에서 **277GB/s**(피크의 87%), read-modify-write에서 234GB/s가 측정됐다. 디코드는 대역폭에 묶이는 작업이라 277이 실질 천장이다. 비교하자면 TPU v5e가 정규화 기준 약 859GB/s, v6e가 약 1,638GB/s다. 이 카드는 각각의 1/3, 1/6 수준이다. 대역폭 제약이 있는 카드가 대역폭 제약이 있는 카드답게 움직인 셈이다.
+
+작성자는 측정의 한계도 함께 적었다. 단일 실행, 단일 스트림, 반복 없음, 분산 수치 없음. 셀당 샘플 하나이고 타일을 줄인 상태에서 잰 값이라 특성화가 아니라 하한선에 가깝다. 그의 Inferentia 포팅에서 E2B가 코어 하나에 약 44 tok/s를 냈으니 비슷한 동네이긴 하지만, 하네스도 실리콘도 달라서 한 표에 넣지 않겠다고 했다.
+
+## 증상별 원인 정리
+
+| 증상 | 원인 |
+|---|---|
+| `no kernel image is available` | 기본 arm64 이미지. 7.5도 PTX도 없음. 소스 빌드 필요 |
+| `OutOfResources: shared memory` | 512 폭 헤드 대 Turing의 64KiB. 타일을 줄일 것 |
+| `AmbiguousGlobalPerLayerAttributeError` | vLLM이 v0.27.2rc0보다 낮음 |
+| `No module named 'setuptools_rust'` | `vllm-rs`용 Rust 툴체인 없음 |
+| `nvcc: not found` | PyTorch DLAMI에 툴킷 없음. `cuda-toolkit-13-2`(sbsa) 설치 |
+| `Unknown vLLM environment variable` | `VLLM_ATTENTION_BACKEND`를 설정한 것. 아무 효과 없음 |
+| 엔드포인트는 정상, 출력은 헛소리 | `/v1/completions`를 확인한 것. chat completions를 쓸 것 |
+
+## 짧게 정리하면
+
+AWS ARM64 GPU PyTorch DLAMI를 쓴다. `sm_75`가 살아 있는 유일한 유지보수 aarch64 스택이다. 이미지에 없는 두 가지, sbsa 저장소의 `cuda-toolkit-13-2`와 Rust 툴체인을 추가한다. vLLM은 v0.27.2rc0 이상을 `TORCH_CUDA_ARCH_LIST=7.5`와 `use_existing_torch.py`로 소스 빌드하고, 서버를 띄우기 전에 Triton 어텐션 커널을 Turing의 공유 메모리에 맞게 패치한다. 서빙은 `--dtype float16`, `--kv-cache-dtype auto`로 한다.
+
+작성자의 마무리는 이렇다. 어느 것도 요란하게 실패하지 않았고, 어느 것도 그가 보고 있던 자리에서 실패하지 않았다. 장비를 준비하며 대비했던 패키징 격차는 AWS가 이미 메워 둔 상태였고, 실제로 그를 멈춰 세운 건 공유 메모리와 sliding 헤드보다 두 배 넓은 global 어텐션 헤드였다. 주류에서 이만큼 벗어난 하드웨어는 계속 이런 모양의 놀라움을 만들어 낸다. 해법은 더 오래 추론하는 게 아니라, 더 빨리 박스에 올라가서 하드웨어가 직접 말하게 두는 것이다.
+
+측정 환경은 `us-east-1a`의 EC2 `g5g.4xlarge` 스팟이다. NVIDIA T4G, 컴퓨트 능력 7.5, 15,360 MiB, 드라이버 595.71.05. Deep Learning ARM64 AMI OSS Nvidia Driver GPU PyTorch 2.12(Ubuntu 24.04), torch 2.12.0+cu132, CUDA 13.2, vLLM 0.27.2rc1.dev0+g7f7a32cfe(v0.27.2rc0에서 빌드).
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

@@ -783,6 +783,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/gde/running-gemma-4-on-ec2-g5g-graviton2-amd-with-nvidia-gpu-25ci": {
+    "ok": true,
+    "title": "Running Gemma 4 on EC2 G5g: Graviton2 AMD with NVIDIA GPU",
+    "description": "A field report on serving Gemma 4 E2B under vLLM on AWS G5g — the only aarch64 + SM 7.5 hardware there is. No published build covers that combination, AWS quietly solves half of it, and the thing that actually blocks you is 64 KiB of shared memory.",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fesx30yds31pcu83y27qz.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-19"
+  },
   "https://dev.to/gde/smash-story-the-demo-script-that-out-debugged-my-test-suite-430k": {
     "ok": true,
     "title": "Smash Story: The Demo Script That Out-Debugged My Test Suite",
@@ -1495,6 +1503,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/pascal_cescato_692b7a8a20/the-ai-badge-doesnt-measure-what-you-think-it-does-3ne9": {
+    "ok": true,
+    "title": "The \"AI\" Badge Doesn't Measure What You Think It Does",
+    "description": "Anthropic signed the EU AI Act's Code of Practice on Transparency of AI-Generated Content, and...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fa1w7sthmal7fhwluddqa.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-19"
+  },
   "https://dev.to/pascal_cescato_692b7a8a20/too-cheap-to-be-good-think-again-4nj0": {
     "ok": true,
     "title": "Too cheap to be good? Think again.",
@@ -1639,6 +1655,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/sushyam_nagallapati/morning-on-a-banana-leaf-a-south-indian-breakfast-still-life-in-css-c3g": {
+    "ok": true,
+    "title": "Morning on a Banana Leaf: A South Indian Breakfast Still Life in CSS",
+    "description": "This is a submission for Frontend Challenge - Comfort Food Edition, CSS Art.          ...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fgbvbks7p2e7lo17n44uj.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-19"
+  },
   "https://dev.to/sylwia-lask/4-tiny-mistakes-that-secretly-destroy-app-performance-3cgo": {
     "ok": true,
     "title": "4 Tiny Mistakes That Secretly Destroy App Performance",
@@ -1654,6 +1678,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fz9bz444wofl6aoi7iucu.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/sylwia-lask/7-productivity-tips-that-sound-wrong-but-actually-work-5602": {
+    "ok": true,
+    "title": "7 Productivity Tips That Sound Wrong (But Actually Work)",
+    "description": "Struggling with burnout? Procrastination? Reaching your goals? Let me share a few methods that help...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fwz867ipsbvux9v6ketul.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-19"
   },
   "https://dev.to/sylwia-lask/8-things-developers-confidently-explain-after-watching-one-youtube-video-3jio": {
     "ok": true,
@@ -1814,6 +1846,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F7iguu14tk6h4bo6pc7u1.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/xulingfeng/24-cups-36-seats-the-bartenders-ledger-40aj": {
+    "ok": true,
+    "title": "24 Cups, 36 Seats — The Bartender's Ledger",
+    "description": "24 stories. 24 visits. One counter, same six faces.              The Third Cup   The AI wave hit, and...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ffs2okw5d4za2fq1v81yw.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-19"
   },
   "https://dev.to/xulingfeng/my-company-packaged-12-years-of-my-experience-into-an-ai-skill-then-laid-me-off-when-it-crashed-4b3e": {
     "ok": true,
