@@ -1,0 +1,110 @@
+﻿---
+title: "PawBot — 파일을 먹어치우는 AI 데스크톱 강아지"
+description: "90년대 다마고치와 네코 고양이를 2026년 버전으로 되살린 크롬 확장 프로그램. 픽셀 강아지가 커서를 쫓아다니고, 드래그한 파일을 씹어먹고, Gemini가 붙여준 성격으로 짖는다."
+date: "2026-08-15"
+published_at: "2026-08-20"
+category: "news"
+tags: []
+slug: "pawbot-ai-desktop-puppy"
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fuq3ff9pyplhva3x49y7z.png"
+coverAlt: "PawBot - An AI Desktop Puppy That Eats Your Files"
+source_id: "devto-4402757"
+source_url: "https://dev.to/varshithvhegde/pawbot-an-ai-desktop-puppy-that-eats-your-files-301a"
+source_title: "PawBot - An AI Desktop Puppy That Eats Your Files 🐾"
+source_author: "Varshith V Hegde"
+source_published: "2026-08-15"
+---
+
+<LinkCard url="https://dev.to/varshithvhegde/pawbot-an-ai-desktop-puppy-that-eats-your-files-301a" author="Varshith V Hegde" date="2026-08-15" />
+
+## 개요
+
+화면 구석을 어슬렁거리다가 마우스가 가까이 오면 쪼르르 달려오는 픽셀 강아지. 개발자 Varshith V Hegde가 만든 **PawBot**은 90년대 데스크톱 펫을 2026년식으로 되살린 크롬 확장 프로그램이다. 다른 점이 하나 있다면, 이 강아지에게는 LLM이 붙어 있다는 것.
+
+브라우저 탭 위에 떠 있는 골든 리트리버 새끼는 파일을 드래그해서 던져주면 받아먹는다. `.pdf`를 먹이면 "음, 바삭한 숙제네!" 같은 말을 내뱉고, 40초 넘게 무시하면 슬픈 눈으로 몸을 웅크린 채 Zzz 파티클을 띄우며 잠든다. 짖는 대사는 미리 써둔 문장이 아니라 Google Gemini가 그때그때 지어낸다.
+
+PawBot은 DEV의 [Weekend Challenge: Dog Days Edition](https://dev.to/challenges/weekend-2026-08-13) 출품작으로, 세계 강아지의 날에 맞춰 공개됐다.
+
+## 강아지가 하는 일
+
+강아지의 행동은 일곱 가지 상태를 오간다. idle → walk → run → eat → sleep → bark → wave 순서로 전이하는 상태 머신이 Canvas 2D 위에서 돌아간다.
+
+- **배회** — 고전 데스크톱 펫처럼 화면을 돌아다닌다
+- **추격** — 커서가 가까워지면 달려온다
+- **식사** — PDF, 코드 파일, 이모지, 붙여넣은 텍스트를 가리지 않고 먹는다
+- **대화** — Gemini가 기분을 반영한 짧은 대사를 만들어 짖는다
+- **수면** — 오래 방치하면 잠든다
+- **애정 표현** — 클릭하면 쓰다듬기, 더블클릭하면 손 흔들기
+
+조작은 전부 마우스와 키보드 한두 번으로 끝난다. 파일이나 이모지를 드래그 앤 드롭하거나 텍스트를 붙여넣으면 먹이 주기, 클릭은 쓰다듬기, `F`는 간식 던지기, `B`는 짖기다. 화면 왼쪽 아래에는 배고픔과 행복도를 보여주는 HUD가 실시간으로 떠 있다.
+
+![데스크톱 위의 작은 피규어](https://images.pexels.com/photos/15539615/pexels-photo-15539615.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [COPPERTIST WU](https://www.pexels.com/@coppertist-wu) on [Pexels](https://www.pexels.com/photo/figurine-on-laptop-15539615/)*
+
+## 만드는 과정에서 내린 선택들
+
+구조는 단순하다. 브라우저 탭 안에서 콘텐츠 스크립트가 Shadow DOM 캔버스 오버레이를 띄우고, 그 위에서 펫 엔진과 스프라이트 로더가 돌아간다. 짖기 엔진은 기분·배고픔·마지막으로 먹은 것을 묶어 Gemini API로 보낸다.
+
+기술 선택마다 이유가 붙어 있다.
+
+| 선택 | 이유 |
+|------|------|
+| **Vanilla JS + Canvas** | 웹 데모에 빌드 단계가 아예 없음. 화면 녹화하기도 편함 |
+| **Shadow DOM 오버레이** | 페이지 CSS가 강아지를 숨겨버리는 문제 — AI Studio에서 호되게 겪고 배움 |
+| **esbuild 번들** | 크롬 콘텐츠 스크립트는 ES `import`를 못 씀. 단일 번들 파일로 해결 |
+| **AI 스프라이트 시트** | 픽셀 아트를 생성한 뒤 파이썬 스크립트로 투명 PNG 33장으로 자동 분할 |
+| **추격 후 식사 흐름** | 먹이 드롭 → 강아지 달려옴 → 4프레임 먹는 애니메이션 → 부스러기 파티클 |
+| **폴백 대사** | API 키 없이 오프라인에서도 동작. Gemini는 있으면 더 좋아지는 요소 |
+
+Shadow DOM을 쓴 이유가 특히 현실적이다. 일반 DOM에 오버레이를 올리면 페이지 쪽 CSS가 그대로 먹혀서 강아지가 사라지는 사이트가 있었다고 한다.
+
+### 33장을 전부 쓴 스프라이트
+
+잘라낸 프레임 33장은 하나도 남기지 않고 상태별로 배분했다.
+
+| 상태 | 스프라이트 |
+|------|-----------|
+| Idle | 4프레임 숨쉬기 루프 |
+| Walk / Run | 좌우 방향별 스프라이트 |
+| Eat | 4프레임 씹기 사이클 + 날아오는 먹이 이모지 |
+| Sleep | 웅크린 자세 + 떠다니는 Zzz 파티클 |
+| Mood | 행복·슬픔·호기심·신남 오버레이 |
+| Bark | AI 말풍선이 떠 있는 동안 표시 |
+| Wave | 발 idle + 3프레임 손 흔들기 |
+
+## Gemini를 챗봇이 아니라 성격으로 쓰기
+
+PawBot에서 **Gemini 2.0 Flash Lite**는 대화 상대가 아니다. 데스크톱 펫의 성격 엔진 역할을 한다.
+
+짖을 때마다 실제 맥락이 함께 전달된다.
+
+| 상황 | Gemini에 보내는 맥락 | 나오는 대사 |
+|------|---------------------|------------|
+| `.py` 파일을 먹임 | `"Just ate: main.py (file)"`, mood: happy | *"아침부터 파이썬? 과감한데."* |
+| 40초 넘게 방치 | mood: lonely, ignoredMs: 45000 | *"...저기요? 자리 맡아뒀는데."* |
+| 콕 찌름 | happiness: 85, mood: excited | *"헤헤! 배 만져주는 거 감지됨!"* |
+| 배고픔 | hunger: 82/100 | *"저거 먹을 거야? 먹을 거 맞지?"* |
+
+API 키는 [Google AI Studio](https://aistudio.google.com/apikey)에서 무료로 받아 확장 프로그램 팝업에 붙여넣으면 된다. 키를 넣지 않으면 미리 준비된 대사로 대체된다.
+
+## 직접 돌려보기
+
+웹 데모는 저장소를 받아 정적 서버만 띄우면 끝난다.
+
+```bash
+git clone https://github.com/Varshithvhegde/pawbot.git
+cd pawbot/web
+python3 -m http.server 8080
+# → http://localhost:8080
+```
+
+크롬 확장으로 쓰려면 저장소를 받은 뒤 `./scripts/sync-extension.sh`를 실행하고, 확장 프로그램 페이지에서 압축해제된 확장 로드로 `extension/` 폴더를 선택한다.
+
+- **저장소:** [github.com/Varshithvhegde/pawbot](https://github.com/Varshithvhegde/pawbot)
+- **전체 시연 영상:** [YouTube에서 보기 →](https://youtu.be/31XDjzV8mgU)
+
+앞으로 계획으로는 ElevenLabs를 붙인 짖는 소리, 견종 추가, 파이어폭스 확장을 꼽았다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

@@ -1,0 +1,190 @@
+﻿---
+title: "JavaScript 없이 만드는 접근성 좋은 아코디언 — HTML details 태그 제대로 쓰기"
+description: "HTML의 details·summary 태그만으로 WAI-ARIA 없이 접근성을 갖춘 펼침/접힘 컴포넌트를 만드는 방법. ::details-content 의사 요소와 스크린 리더 실측 결과까지 정리했다."
+date: "2026-08-17"
+published_at: "2026-08-20"
+slug: "native-html-details-disclosure-component"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F45l68i6gbmqi5b6h6bkv.png"
+coverAlt: "Learn how to build a disclosure component using the native HTML details tag"
+source_id: "devto-4418367"
+source_url: "https://dev.to/micaavigliano/learn-how-to-build-an-expandable-and-collapsible-component-using-the-native-html-details-tag-1h8j"
+source_title: "Learn how to build a disclosure component using the native HTML details tag"
+source_author: "Mica"
+source_published: "2026-08-17"
+---
+
+<LinkCard url="https://dev.to/micaavigliano/learn-how-to-build-an-expandable-and-collapsible-component-using-the-native-html-details-tag-1h8j" author="Mica" date="2026-08-17" />
+
+## 개요
+
+접었다 펴는 UI를 만들 때 습관처럼 `useState`와 `aria-expanded`를 꺼내 든다. 그런데 브라우저에는 이미 같은 일을 하는 태그가 있다. `<details>`와 `<summary>`다.
+
+접근성 컴포넌트 시리즈를 연재 중인 개발자 Mica가 이 두 태그만으로 disclosure(펼침/접힘) 컴포넌트를 만드는 방법을 정리했다. JavaScript도, WAI-ARIA 속성도 쓰지 않는다. 여기에 2025년 9월부터 쓸 수 있게 된 `::details-content` 의사 요소까지 더하면, 감싸는 `div` 하나 없이 애니메이션까지 붙일 수 있다.
+
+## 접근성 있는 disclosure의 조건
+
+먼저 무엇을 충족해야 "접근성 있는" 컴포넌트인지 짚어보자. Mica가 꼽은 조건은 네 가지다.
+
+- 헤더 역할을 하는 `<summary>`에 포커스가 있을 때 <kbd>Enter</kbd> 또는 <kbd>Space</kbd>로 펼치고 접을 수 있어야 한다.
+- <kbd>Tab</kbd>을 누르면 disclosure 내부의 다음 인터랙티브 요소로, 그런 요소가 없으면 페이지의 다음 인터랙티브 요소로 포커스가 넘어가야 한다.
+- <kbd>Shift</kbd> + <kbd>Tab</kbd>은 이전 인터랙티브 요소로 포커스를 되돌려야 한다.
+- 스크린 리더가 접힘/펼침 상태와 접근성 이름(accessible name)을 함께 읽어줘야 한다.
+
+직접 구현하면 상태 관리와 ARIA 속성이 줄줄이 따라붙는 항목들이다. `<details>` 태그는 이걸 전부 네이티브로 처리한다.
+
+## details 태그의 구조
+
+- **`<details>`** — disclosure 전체를 감싸는 주 요소.
+- **`<summary>`** — `<details>`의 첫 번째 직계 자식. 펼침·접힘을 제어하는 헤더다. 내용을 별도 태그로 묶을 필요는 없지만, `<h1>`~`<h6>`이나 [phrasing content](https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Content_categories#phrasing_content)는 넣어도 된다.
+- **`::marker`** — 열림/닫힘을 표시하는 삼각형 아이콘.
+- **`::details-content`** — `<details>`의 직계 자식이자 `<summary>`의 형제. 유효한 HTML 요소면 무엇이든 올 수 있다. 내용을 `div`나 프래그먼트로 감쌀 필요가 없다는 게 핵심이다. 브라우저가 알아서 콘텐츠로 인식한다.
+
+### 속성은 두 개뿐
+
+**`open`** 은 콘텐츠가 펼쳐진 상태인지를 나타낸다. 기본값이 접힘이라 굳이 명시할 필요가 없고, `open`을 그냥 붙이면 처음부터 펼쳐진 채로 렌더링된다.
+
+**`name`** 은 여러 `<details>`를 하나의 그룹으로 묶을 때만 쓴다. 같은 `name`을 공유하는 요소들은 하나가 열리면 먼저 열려 있던 것이 자동으로 닫힌다. 아코디언 동작을 JS 없이 얻는 방법이다.
+
+## CSS로 스타일링하기
+
+### summary 다루기
+
+`<summary>`는 기본적으로 `display: list-item` 속성을 갖는다. 이 속성 덕분에 네이티브 disclosure 아이콘이 붙는데, 삼각형이나 원은 물론 열림 전용·닫힘 전용 아이콘도 쓸 수 있고, CSS 앳-룰 [@counter-style](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@counter-style)로 미리 정의된 아이콘 스타일을 지정할 수도 있다. 아이콘 자체의 색이나 크기는 `::marker` 의사 요소로 손본다.
+
+```css
+::marker {
+  color: orangered;
+  font-size: 2rem;
+}
+```
+
+[::marker 동작 예제 보기 →](https://codesandbox.io/s/9hpg6m)
+
+그럼 네이티브 아이콘을 아예 없애려면? `<summary>`가 기본으로 `display: list-item`이니, `details > summary` 선택자에 `display: flex`를 주는 것만으로 아이콘이 사라진다.
+
+```css
+details > summary {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+```
+
+[네이티브 아이콘 제거 예제 보기 →](https://codesandbox.io/s/lgqc69)
+
+다만 이렇게 지웠다면 여기가 펼칠 수 있는 영역이라는 걸 알려줄 시각적 기호를 반드시 대신 넣어야 한다. 그리고 그 아이콘에는 `aria-hidden="true"`를 붙인다. 보조 기술 사용자는 이미 요소의 역할과 상태를 전달받고 있어서, 아이콘까지 읽히면 중복이 된다.
+
+WebKit 계열 브라우저용으로 알려진 `::-webkit-details-marker`라는 의사 요소도 있다. Mica는 `::marker`가 이제 여러 브라우저에서 충분히 잘 지원되므로 굳이 쓸 필요가 없다고 덧붙였다.
+
+### div여 안녕
+
+2025년 9월부터 `::details-content` 의사 요소를 쓸 수 있게 됐다. 펼쳐지는 콘텐츠를 감싸는 박스를 브라우저가 자동으로 생성해준다는 뜻이다. 접힘 상태와 펼침 상태 사이의 전환을 처리하려고 의미 없는 `div`를 끼워 넣던 관행이 이걸로 끝난다.
+
+```css
+details::details-content {
+  block-size: 0;
+  overflow: clip;
+}
+
+details[open]::details-content {
+  padding: 0.85rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  details::details-content {
+    transition:
+      block-size 0.3s ease,
+      padding-block 0.3s ease,
+      content-visibility 0.3s ease allow-discrete;
+  }
+}
+```
+
+- `details::details-content` — 접힌 기본 상태의 스타일을 담고 콘텐츠를 숨긴다.
+- `details[open]::details-content` — 펼친 상태의 스타일. 애니메이션이 있다면 그 종착점을 결정한다.
+- `@media (prefers-reduced-motion: no-preference)` — 접근성 측면에서 중요한 부분이다. 사용자가 OS에서 애니메이션을 켜둔 경우에만 열림/닫힘 전환 효과가 적용된다.
+
+[펼침/접힘 콘텐츠 예제 보기 →](https://codesandbox.io/s/9lqjjl)
+
+결과적으로 렌더링되는 마크업에는 의미 없는 태그가 하나도 없다.
+
+```html
+<details>
+  <summary>{...}</summary>
+  {here starts the ::details-content}
+  <p>{...}</p>
+  <h4>{...}</h4>
+  <ul>
+    <li>{...}</li>
+    <li>{...}</li>
+    <li>{...}</li>
+  </ul>
+</details>
+```
+
+## 키보드 조작
+
+포커스를 받고 인터랙션을 담당하는 요소는 `summary`다.
+
+| 키 | 동작 |
+|--------|-----|
+| <kbd>Tab</kbd> | disclosure 요소로 포커스 이동, 또는 다음 disclosure 요소로 이동 |
+| <kbd>Shift</kbd> + <kbd>Tab</kbd> | 이전 disclosure 요소 또는 이전 인터랙티브 요소로 포커스 이동 |
+| <kbd>Space</kbd> 또는 <kbd>Enter</kbd> | details 요소를 펼치거나 접음 |
+
+## 스크린 리더는 어떻게 읽어줄까
+
+Mica가 브라우저·기기·스크린 리더 조합별로 실제 음성 출력을 기록했다. 테스트 문구는 'How do screen readers announce the details tag?'다.
+
+**VoiceOver (macOS Tahoe 26.5.2) + Safari 26.5.2**
+- 접힘: 'How do screen readers announce the details tag?, collapsed, summary'
+- 펼침: 'How do screen readers announce the details tag?, expanded, summary'
+- <kbd>Control</kbd> + <kbd>Option</kbd> + <kbd>Space</kbd>로 토글 시: 'collapsed' 또는 'expanded'
+
+**VoiceOver (macOS Tahoe 26.5.2) + Chrome 150.0.7871.184**
+- 접힘: 'How do screen readers announce the details tag?, collapsed, disclosure triangle, group'
+- 펼침: 'How do screen readers announce the details tag?, expanded, disclosure triangle, group'
+- 토글 시: 접힌 상태면 전체 문구를 다시 collapsed로, 펼친 상태면 전체 문구를 다시 expanded로 읽는다
+
+**VoiceOver (macOS Tahoe 26.5.2) + Firefox 152.0.6**
+- Chrome 조합과 동일
+
+**NVDA 2026.1.1 + Chrome 150.0.7871.18**
+- 접힘: 'How do screen readers announce the details tag?, button, collapsed'
+- 펼침: 'How do screen readers announce the details tag?, button, expanded'
+- <kbd>Enter</kbd> 또는 <kbd>Space</kbd>로 토글 시: 'collapsed' 또는 'expanded'
+
+**NVDA 2026.1.1 + Firefox 153.0**
+- Chrome 조합과 동일한 출력
+
+**TalkBack (Pixel 10, Android 16) + Chrome 149.0.7827.160**
+- 접힘: 'collapsed, How do screen readers announce the details tag?, disclosure triangle'
+- 펼침: 'expanded, How do screen readers announce the details tag?, disclosure triangle'
+- 더블 탭으로 토글 시: 'collapsed' 또는 'expanded'
+
+**TalkBack (Pixel 10, Android 16) + Firefox 145.0.2**
+- 접힘: 'collapsed, How do screen readers announce the details tag?, button, How do screen readers announce the details tag?, Space'
+- 펼침: 'expanded, How do screen readers announce the details tag?, button, How do screen readers announce the details tag?, Space'
+- 더블 탭으로 토글 시: 'collapsed' 또는 'expanded'
+
+조합마다 표현 방식과 순서는 다르지만, 접근성 이름과 상태는 어디서나 전달된다. 직접 구현했다면 이 정도 일관성을 맞추기가 쉽지 않다.
+
+## 어디에 쓸 수 있나
+
+같은 태그 하나가 꽤 다른 UI를 만들어낸다. Mica가 든 여덟 가지 사례는 전부 네이티브 태그와 `name` 속성, `::details-content` 의사 요소만으로 구현됐다. 여전히 JavaScript는 없다.
+
+1. **FAQ 섹션** — 한 번에 하나의 답변만 열린다. 모든 패널에 같은 `name` 속성을 주면 브라우저가 나머지를 알아서 닫는다. [예제 →](https://codesandbox.io/s/n4t52h)
+2. **인라인 "더 보기"** — 도입부는 남기고 상세만 감춘다. `details`에 `display: inline`을 주면 문장 안으로 접혀 들어간다. [예제 →](https://codesandbox.io/s/kjhxfj)
+3. **스포일러 / 정답 보기** — 답이나 코드 솔루션, 줄거리 스포일러를 명시적 노출 뒤에 숨긴다. 닫혀 있는 동안에는 화면에도, 접근성 트리에도 나타나지 않는다. [예제 →](https://codesandbox.io/s/rzdsny)
+4. **주문 상세 보기** — 카드 디자인은 유지하고 세부 정보만 토글 뒤로 넣는다. 주문 메타데이터나 기술 스펙처럼 파워 유저만 찾는 정보에 적합하다. [예제 →](https://codesandbox.io/s/nc8p8v)
+5. **마커 애니메이션** — 열림/닫힘 상태가 그냥 CSS 선택자라서 원하는 마커를 자유롭게 움직일 수 있다. 회전하는 셰브론, 링으로 변하는 점 같은 것들. [예제 →](https://codesandbox.io/s/tpl7v9)
+6. **접히는 필터 패널** — 폼 컨트롤을 접이식 헤더 아래로 묶어 긴 필터 영역을 훑기 좋게 만든다. 그룹마다 자기 상태를 기억하고, 내부 입력 요소는 평소와 똑같이 동작한다. [예제 →](https://codesandbox.io/s/js2fvf)
+7. **제품 사양** — 구매 영역은 깔끔하게 두고 전체 스펙 시트는 토글 뒤에 정리한다. 치수나 소재, 관리 방법이 필요한 사람만 열어본다. [예제 →](https://codesandbox.io/s/xwmdpk)
+8. **접힌 코드와 로그** — GitHub에서 익숙한 패턴이다. 긴 코드 샘플이나 diff, 스택 트레이스를 summary 뒤로 접어두면 이슈와 문서가 읽기 편해진다. 펼쳐진 블록은 고정폭 패널이다. [예제 →](https://codesandbox.io/s/m4d5dg) 이 사례에는 추가된 줄을 표시하는 `<ins>` 태그를 썼는데, 관련 내용은 [별도 글](https://micaavigliano.com/en/blog/semantic-ins-del-s-tags)에서 다룬다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

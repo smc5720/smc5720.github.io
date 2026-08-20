@@ -7,6 +7,14 @@
     "siteName": "",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/adamthedeveloper/greatness-is-forged-by-limitation-e20": {
+    "ok": true,
+    "title": "Greatness Is Forged by Limitation",
+    "description": "Can't believe I spent 2 weeks writing this.  Last week, I gave a talk at a Cursor community event...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fm5wj5vy9dh1m539zyqdl.webp",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-20"
+  },
   "https://dev.to/adamthedeveloper/stop-saying-you-want-ownership-mindset-34nf": {
     "ok": true,
     "title": "Stop Saying You Want Ownership Mindset",
@@ -1167,6 +1175,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/itsugo/my-first-engineering-job-is-teaching-me-something-i-didnt-expect-l96": {
+    "ok": true,
+    "title": "My First Engineering Job Is Teaching Me Something I Didn't Expect",
+    "description": "Well, first real job and I still haven't gotten used to waking up for a 6:30 AM shift... I've been...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fivcj8yxphtr79gkj0bz2.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-20"
+  },
   "https://dev.to/itsugo/to-the-people-who-read-my-weird-little-blogs-3icj": {
     "ok": true,
     "title": "To The People Who Read My Weird Little Blogs",
@@ -1422,6 +1438,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2Fmszv3kyms7o6a9vwa2w5.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/micaavigliano/learn-how-to-build-an-expandable-and-collapsible-component-using-the-native-html-details-tag-1h8j": {
+    "ok": true,
+    "title": "Learn how to build a disclosure component using the native HTML details tag",
+    "description": "Welcome to a new entry in my section dedicated to creating reusable and, above all, accessible...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F45l68i6gbmqi5b6h6bkv.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-20"
   },
   "https://dev.to/micaavigliano/what-is-going-on-fho": {
     "ok": true,
@@ -1830,6 +1854,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F6kt23zz2rtpo60bjnpmx.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/varshithvhegde/pawbot-an-ai-desktop-puppy-that-eats-your-files-301a": {
+    "ok": true,
+    "title": "PawBot - An AI Desktop Puppy That Eats Your Files 🐾",
+    "description": "This is a submission for Weekend Challenge: Dog Days Edition           What I Built   Remember Neko...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fuq3ff9pyplhva3x49y7z.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-20"
   },
   "https://dev.to/virtualcoffee/virtual-coffee-needs-your-help-46ih": {
     "ok": true,
