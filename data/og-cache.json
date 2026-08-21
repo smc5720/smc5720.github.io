@@ -7,6 +7,14 @@
     "siteName": "",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/abbeyperini/state-management-in-front-end-web-development-mutators-24gp": {
+    "ok": true,
+    "title": "State Management in Front-end Web Development: Mutators",
+    "description": "Libraries like Valtio and Pinia for Vue use a mutator pattern instead of the actions, dispatch, and...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2F8tow8sshtz7dygaghwzb.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-21"
+  },
   "https://dev.to/adamthedeveloper/greatness-is-forged-by-limitation-e20": {
     "ok": true,
     "title": "Greatness Is Forged by Limitation",
@@ -102,6 +110,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2F1brc4961ufbeiz8ilnyr.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/annavi11arrea1/engineering-dreams-or-self-actualization-41ok": {
+    "ok": true,
+    "title": "Engineering: Dreams, or Self-Actualization?",
+    "description": "At what point did you start to think you were an engineer?  An engineer. What a lofty,...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F6zgk8zwfcw16aeklfeto.jpeg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-21"
   },
   "https://dev.to/annavi11arrea1/server-access-logs-with-goaccess-333d": {
     "ok": true,
@@ -734,6 +750,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2Fh2slnm8u1x1nui1b3qsu.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/gde/dart-313-primary-constructors-blocsignal-boilerplate-free-reactive-architecture-5fll": {
+    "ok": true,
+    "title": "Dart 3.13 Primary Constructors + BlocSignal: Boilerplate-Free Reactive Architecture",
+    "description": "Discover how Dart 3.13 primary constructors, 'this' constructor bodies, and constructor shorthands transform BlocSignal into the cleanest state management architecture in Flutter.",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fo5vl21659gefkqgabeqk.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-21"
   },
   "https://dev.to/gde/gemma-4-e2b-on-a-single-tpu-v6e-chip-a-serving-deep-dive-53n": {
     "ok": true,
@@ -1566,6 +1590,22 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2F6va5qwq53mi9oq33ixg4.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/playfulprogramming/functional-languages-are-heavily-imperative-4c1": {
+    "ok": true,
+    "title": "Functional languages are heavily imperative.",
+    "description": "Functional and declarative are not the same thing. Haskell creators knew it, and we can clearly see the difference between purity and program structure with certain Haskell, FRP, RxJS, HTML, and JavaScript examples.",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fcrcgtujuv9n9kd0hoj7b.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-21"
+  },
+  "https://dev.to/playfulprogramming/my-ai-content-journey-1b8p": {
+    "ok": true,
+    "title": "My AI Content Journey",
+    "description": "I apologize ahead of time, what follows has no tooling applied to it. No grammar checks, no AI, and...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ft7fgab29vtqhencvqukv.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-21"
   },
   "https://dev.to/ramkumar-m-n/github-actions-cicd-explained-like-a-robot-assembly-line-1f7c": {
     "ok": true,

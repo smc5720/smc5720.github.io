@@ -1,0 +1,329 @@
+﻿---
+title: "함수형 언어는 사실 명령형이다 — Haskell 창시자들이 남긴 힌트"
+description: "함수형과 선언형은 같은 말이 아니다. Haskell 창시자들의 90년대 논문과 RxJS, HTML, JavaScript 예제를 통해 순수성과 코드 구조가 서로 독립된 축임을 짚어본다."
+date: "2026-08-17"
+published_at: "2026-08-21"
+category: "news"
+tags: ["Imperative", "Declarative", "Haskell"]
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fcrcgtujuv9n9kd0hoj7b.png"
+coverAlt: "Functional languages are heavily imperative."
+slug: "functional-languages-are-heavily-imperative"
+source_id: "devto-4415514"
+source_url: "https://dev.to/playfulprogramming/functional-languages-are-heavily-imperative-4c1"
+source_title: "Functional languages are heavily imperative."
+source_author: "Mike Pearson"
+source_published: "2026-08-17"
+---
+
+<LinkCard url="https://dev.to/playfulprogramming/functional-languages-are-heavily-imperative-4c1" author="Mike Pearson" date="2026-08-17" />
+
+## 개요
+
+"함수형이면 선언형"이라는 등식은 업계에서 거의 상식처럼 통한다. Mike Pearson은 이 등식을 정면으로 반박한다. 함수형(functional)과 선언형(declarative)은 하나의 축이 아니라 서로 독립된 두 개의 축이라는 것이다.
+
+근거는 Haskell을 만든 사람들이 직접 쓴 90년대 논문들이다. Simon Peyton Jones, Philip Wadler, John Launchbury, Paul Hudak — 이들은 Haskell 내부의 기능을 여러 차례 "명령형(imperative)"이라고 불렀다. 순수 함수만으로 작성한 코드가 명령형 구조를 갖는 일은 얼마든지 가능하다.
+
+저자가 지금 이 주제를 꺼낸 이유는 AI다. AI는 코드베이스에 이미 자리 잡은 패턴을 증폭시키는데, 정작 우리에게는 그 패턴을 정확히 지칭할 용어가 없다. 용어가 없으면 문제를 논의할 수도, 고칠 수도 없다.
+
+## 하나의 축이 아니라 두 개의 축
+
+업계 도그마는 코드를 두 갈래로 나눈다. 부수효과가 있으면서 명령형이거나, 순수하면서 선언형이거나.
+
+![Functional - imperative_declarative_binary.svg](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/aey3mpooal8jd4cz6kcs.png)
+
+하지만 저자는 이 둘이 독립된 차원이라고 본다.
+
+![good_quadrants_horizontal_left_labels_gap_tuned.svg](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/jtgonata1s3kbc8vq8pc.png)
+
+함수형이면서 명령형인 코드, 그리고 부수효과가 있으면서 선언형인 코드. 둘 다 실제로 존재한다.
+
+## "명령형 함수형 프로그래밍"이라는 제목
+
+![quadrants_tl_br_questions_other_three_70pct_transparent.svg](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/kx3xdtmq2byf8nqrc14i.png)
+
+Simon L Peyton Jones와 Philip Wadler는 Haskell을 만든 사람들이다. 두 사람이 1993년에 쓴 논문 제목이 하필 ["Imperative Functional Programming"](https://dl.acm.org/doi/epdf/10.1145/158511.158524)이다. 모순처럼 들리지만 모순이 아니다.
+
+당시 함수형 프로그래밍 커뮤니티는 I/O 같은 부수효과를 어떻게 다룰지 씨름하고 있었다. 두 저자는 I/O 명령의 *표현*과 *실행*을 분리하는 방식을 제안했다. 그리고 한 가지를 눈치챘다.
+
+> 모나딕 스타일로 작성한 프로그램이 명령형 프로그램과 상당히 비슷하게 보인다는 점을 독자도 놓치지 않았을 것이다. 예를 들어 C로 쓴 echo 프로그램:
+
+```c
+echo() {
+loop: a = getchar(a);
+	if (a == eof)
+		return;
+	else { putchar (a);
+		goto loop; }
+}
+```
+
+Haskell로 쓰면:
+
+```haskell
+echo :: IO ()
+	echo = getcIO 'bindI0' \a ->
+	if (a == eof) then
+		doneIO
+	else putcI0 a 'seqI0'
+```
+
+> 모나딕 스타일은 결국 명령형 프로그램의 함수형 복제본을 쓰도록 강요하는 것이며, 그래서 함수형 언어로 작성하는 이점을 잃어버리는 것은 아닐까?
+
+Jones와 Wadler의 답은 "아니다"였다. 남는 이점이 두 가지 있다.
+
+1. `map`이나 `append` 같은 리스트 연산을 모나딕 커맨드에도 그대로 적용할 수 있다
+2. 효과를 즉시 실행하지 않고 표현만 해둘 수 있다. 논문 표현을 빌리면 "명령형 언어에서 자기만의 제어 구조를 정의할 수 있는 것과 비슷하다"
+
+Haskell 모나딕 패턴이 명령형 구조를 갖는다고 인정하는 것과, 순수 함수형에 *본질적으로* 딸려 오는 이점을 포기하는 것은 별개다. 다만 그것이 여전히 명령형 구조라는 사실은 변하지 않는다.
+
+### "게으른 명령형 프로그래밍"
+
+Haskell을 만든 또 한 사람, John Launchbury는 이듬해 [Lazy Imperative Programming](https://www.researchgate.net/publication/2248360_Lazy_Imperative_Programming)이라는 논문을 냈다. 여기에 이런 문장이 있다.
+
+> 입출력을 표현하기 위해 Glasgow Haskell에 명령형 기능을 도입했다.
+
+더 분명하게 쓸 수 있을까. Haskell에는 명령형 기능이 있다. 그리고 그 기능을 쓴 Haskell 코드는 명령형이다. 같은 논문에 실린 "Imperative Scan Left" 예제를 보자.
+
+![Haskell - John Launchbury - Imperative Scan Left](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/5iit2emkaq4q22osqiz2.png)
+
+`writeVar`는 명령형 문장이다. 그래서 이 코드는 명령형 코드의 예시가 된다 — 전부 순수 함수로 작성했는데도.
+
+논문에는 명령형에 관한 언급이 여러 군데 더 나온다. 이런 대목도 있다.
+
+> IO 모나드 같은 엄격한(strict) 명령형 프레임워크에서는(대부분의 명령형 언어도 마찬가지) 리스트 전체를 순회하기 전까지 어떤 값도 반환할 수 없다. 하지만 게으른 시퀀스를 쓰면 사정이 다르다. 리스트의 head만 필요하다면 계산은 거의 일어나지 않는다. 변수를 할당하고 초기화한 뒤 읽어서, 그 값을 head에 담은 리스트를 반환하면 끝이다. 요구하는 것이 그보다 더 적다면, 예컨대 최종 리스트가 비어 있는지 여부만 알면 된다면, 변수는 아예 할당되지도 않는다. ys의 구조를 알려면 xs만 살펴보면 되기 때문이다.
+
+Haskell의 모든 것이 선언형이어야 이런 놀라운 *실행* 특성을 누릴 수 있는 건 아니라는 뜻이다.
+
+### Concurrent Haskell의 "명령형 느낌"
+
+Haskell을 만든 또 다른 사람 Paul Hudak과 Conal Elliott는 1997년 [논문](https://dl.acm.org/doi/pdf/10.1145/258948.258973)에서 Concurrent Haskell의 "강한 명령형 느낌"에 불만을 드러냈다. 100% 순수 함수형인데도 말이다.
+
+그 "명령형 느낌"이 나는 순수 함수형 코드는 이렇게 생겼다.
+
+```haskell
+box <- newEmptyMVar
+
+forkIO $ do
+  threadDelay 1000000
+  putMVar box 42
+
+result <- takeMVar box
+```
+
+`putMVar box 42`는 `box`의 값을 42로 설정하라는 명령을 표현한다. 저자들의 표현은 이렇다.
+
+> **이 시스템은 기술적으로는 순수 함수형이지만, 의미론은 강하게 명령형인 느낌을 준다.** 즉 표현식은 부수효과 없이 평가되어 병행적·명령형 계산을 만들어내고, 그 계산이 실행되면서 **암묵적인 부수효과**를 일으킨다. 반면 전체 동작을 연속적인 시간의 암묵적 병행 함수로 모델링하면 **더 선언적인 느낌**이 된다.
+
+영어에서 "imperative"의 정의가 "명령을 표현하는 것"이고, 실제로 명령을 표현하는 코드 한 줄이 "강한 명령형 느낌"을 준 것은 우연이 아니다. Haskell 안에서조차 그렇다.
+
+저자들은 그 느낌이 마음에 들지 않아 함수형 반응형 프로그래밍(FRP)을 만들었다.
+
+```haskell
+box t0 =
+  0 `untilB`
+    predicate (time >=* t0 + 1) t0
+      -=> 42
+```
+
+선언 하나뿐이다. 명령을 표현하는 부분이 어디에도 없다. `putMVar`는 100% 명령형이고, 이쪽은 100% 선언형이며 명령형은 0%다.
+
+#### "더 선언적"이라는 표현과 단일 패러다임 도그마
+
+1990년대 업계 도그마가 "함수형 = 선언형"이었으니, 저자들은 FRP를 **더 선언적**이라고 부를 수밖에 없었다. Concurrent Haskell은 Haskell로 작성되었다는 이유만으로 이미 선언형이라고 여겨졌으므로, FRP는 *추가로* 더 선언적이어야 했던 셈이다.
+
+"Lazy Imperative Programming" 논문은 더 모순적이다. 저자는 Haskell을 "명령형 언어들"과 대비시키면서도, Haskell *내부의* 기능을 수십 번 명령형이라고 불렀다.
+
+> 한편으로 함수형 언어는 명령형 언어보다 표현력이 좋고 추론하기 쉬운 경우가 많다,
+
+원문 저자는 1990년대 논문 20여 편을 읽고 나서야 당시 용어가 얼마나 굳어 있었는지 이해했다고 말한다. 학자들은 그 시절의 프로그래밍 패턴을 설명하기 위해 언어를 딱딱한 범주로 분류했다. 함수형 프로그래머들은 소수였고 흐름을 거슬러 싸워야 했으니, 함수형 언어를 자동으로 100% 선언형이라고 브랜딩하는 것은 매력적인 판매 포인트였다.
+
+당시에는 "명령형 언어"에 함수형 기능이 거의 없었고 병행 처리를 크게 다룰 일도 없었다. 언어들이 실제로 깔끔한 범주에 들어맞았고, 지금처럼 멀티 패러다임 언어가 표준이 아니었다. 언어 전체를 "명령형" 또는 "선언형"이라 부르는 개념은 그때는 어느 정도 통했지만, 오늘날에는 동일한 구조 패턴 두세 개로 수렴하던 동기 코드 시절의 잔재일 뿐이다.
+
+용어를 바로잡지 않으면 개발자와 AI 모두 계속 혼란에 빠진다. 많은 개발자가 명령형 기능을 `< >` 사이에 넣으면 HTML이라는 "선언형 언어"의 일부이므로 마법처럼 선언형이 된다고 생각한다. 그렇게 만들어진 코드는 작년에 쓰던 명령형 JavaScript 스파게티와 겉모습만 다르다.
+
+### 정리 — 명령형 함수형 프로그래밍
+
+"imperative"의 정확한 영어 정의는 명령을 표현하는 것이다. Haskell과 다른 함수형 언어에서 순수 함수가 하는 일이 바로 그것이다. 덜 엄격한 정의들도 실행 세부사항보다 **코드에 작성된 구조적 서술**에 초점을 맞춘다.
+
+- "명령형 프로그래밍은 **프로그램을 명시적 명령의 시퀀스로 작성**하고 위에서 아래로 순서대로 실행하는 것" — [builtin.com](https://builtin.com/articles/imperative-programming)
+- "**순서가 정해진 연산의 시퀀스로 인코딩된** 로직" — [Wikipedia](https://en.wikipedia.org/wiki/Programming_language)
+- "명령형 프로그래밍은 기대 결과에 대한 고수준 **서술**보다 프로그램이 단계별로 어떻게 동작하는지 **기술하는 데 초점**을 둔다" — [Wikipedia](https://en.wikipedia.org/w/index.php?title=Imperative_programming)
+- "명령형 접근에서 개발자는 컴퓨터가 목표 달성을 위해 취해야 할 **단계를 지정하는 코드를 작성**한다" — [Microsoft Learn](https://learn.microsoft.com/en-us/dotnet/standard/linq/functional-vs-imperative-programming)
+- "명령형 프로그래밍 언어는 **단계별 명령(how)으로 구성**된다. 반면 선언형 프로그래밍에서는 원하는 결과(what)를 직접 **기술**한다" — [IONOS](https://www.ionos.com/digitalguide/websites/web-development/imperative-programming/)
+- "명령형 프로그래밍은 프로그램이 원하는 결과를 어떻게 달성할지 **명시적으로 진술하는** 패러다임" — [Octopus](https://octopus.com/devops/infrastructure-as-code/declarative-vs-imperative-programming/)
+
+Haskell에는 순수 함수로도 문자 그대로의 명령형 커맨드를 쓸 수 있게 하는 기능이 있다. 그 결과 코드는 명령형으로 구조화된다. 다른 곳에 기술된 동작에 명시적 명령이 하나씩 덧붙는 형태다. 명령 한 줄이 등장하는 순간, 최종 결과를 미리 기술한다는 선언형의 성질은 완전히 사라진다. Haskell의 명령형 기능은 *덜* 선언적인 정도가 아니라 반(反)선언적이다.
+
+함수형 프로그래밍도 명령형일 *수* 있다.
+
+## 선언형 부수효과
+
+![quadrants_only_br_opaque_br_question.svg](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/tlmlbw9u3y3b6qacq7zo.png)
+
+### RxJS
+
+RxJS는 부수효과가 잠재되어 있는데도 완전히 선언형인 코드를 가능하게 한다.
+
+![multicolored text on the screen](https://images.pexels.com/photos/3872166/pexels-photo-3872166.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Markus Spiske](https://www.pexels.com/@markusspiske) on [Pexels](https://www.pexels.com/photo/multicolored-text-on-the-screen-3872166/)*
+
+RxJS의 출발점은 앞서 본 Fran 논문이다. 이 논문은 다음과 같은 Concurrent Haskell 코드를
+
+```haskell
+box <- newEmptyMVar
+
+forkIO $ do
+  threadDelay 1000000
+  putMVar box 42
+
+result <- takeMVar box
+```
+
+이렇게 바꾸는 방법을 제안했다.
+
+```haskell
+box t0 =
+  0 `untilB`
+    predicate (time >=* t0 + 1) t0
+      -=> 42
+```
+
+둘 다 부수효과를 일으키지 않는다. 다만 선언형 버전은 코드를 완결된 최종 논리 결과(시간에 따른 동작) 하나의 기술로 구조화한다. 첫 번째를 명령형으로, 두 번째를 선언형으로 만든 것은 부수효과 실행 모델이 아니라 코드의 *구조*다.
+
+같은 구조적 전환은 부수효과가 있는 코드에서도 할 수 있다.
+
+```js
+const box = Promise.withResolvers();
+
+setTimeout(() => {
+  box.resolve(42);
+}, 1000);
+
+const result = await box.promise;
+```
+
+```js
+const box = await lastValueFrom(
+  timer(1000).pipe(map(() => 42)),
+);
+```
+
+둘 다 실행하면 부수효과가 생기지만, 선언형 버전은 코드를 완결된 최종 논리 결과 하나의 기술로 구조화한다. 여기서도 차이를 만든 것은 실행 모델이 아니라 구조다.
+
+이 네 개의 코드 조각만으로 네 개의 사분면이 모두 채워진다.
+
+![good_quadrants_large_labels_no_axes_even_offset_code_centered_with_titles_rxjs_2021.svg](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/sy79h7y2wgex22octp2s.png)
+
+### HTML
+
+"HTML은 선언형"이라는 말을 자주 한다. 대체로 맞다.
+
+그런데 HTML의 존재 이유 자체가 부수효과다. 사용자가 화면에서 인터페이스를 볼 수 있다는 것 말이다.
+
+![Old Webpage](https://storage.googleapis.com/blog-images-backup/1*tY3o3UFtBaMQ103en48qxA.png)
+
+DOM만 부수효과인 것도 아니다. 페이지에 렌더링된 HTML은 네트워크 호출 같은 다른 부수효과도 일으킨다.
+
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<!-- ... -->
+<img src="https://storage.googleapis.com/blog-images-backup/1*tY3o3UFtBaMQ103en48qxA.png" />
+<iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" />
+```
+
+### 비결정적 선언
+
+`Math.random()`은 런타임 내부의 숨은 전역 상태(시드나 PRNG 알고리즘 포인터)에 의존하고 그것을 변경하므로 엄밀히는 부수효과를 만든다. 그런데도 다음 코드는 완전히 선언형이다.
+
+```ts
+const x = Math.random();
+```
+
+`Date.now()`나 `crypto.randomUUID()`, `process.memoryUsage()` 같은 것들도 마찬가지다.
+
+```ts
+const now = Date.now();
+const date = new Date();
+const perfNow = performance.now();
+const randomBytes = crypto.getRandomValues(new Uint32Array(1));
+const uuid = crypto.randomUUID();
+const hrtime = process.hrtime();
+const uptime = process.uptime();
+const memoryUsage = process.memoryUsage();
+const freeMemory = os.freemem();
+const battery = await navigator.getBattery();
+const windowWidth = window.innerWidth;
+const visibility = document.visibilityState;
+const online = navigator.onLine;
+```
+
+전부 완전히 선언형이다. 최종 결과를 선언하고 있으며, 뒤따르는 단계별 명령형 코드가 없다.
+
+다만 이들은 순수 함수가 아니다. 부수효과(side effect)는 없지만 부수원인(side cause)이 있어서 함수형은 아니다. 부수효과를 일으키는 선언형 코드의 예는 아니지만, 함수형 프로그래밍 규칙을 어기는 선언형 코드의 예이므로 두 축이 독립적이라는 사실을 보여준다.
+
+### 부수효과가 있는 선언형 "순수" 함수
+
+CPU를 보자.
+
+```ts
+const fib = (n: number) => n < 2 ? n : fib(n - 1) + fib(n - 2);
+const result = fib(50);
+```
+
+순수해 보이고, 확실히 선언형이다. 부수효과가 전혀 없어 보인다. 실제로는 40,730,022,147번의 호출을 일으킨다. 원문 저자는 이 코드를 개발자 도구에 붙여넣고 실행하는 것을 권하지 않는다. CPU를 잠가버려 페이지의 모든 동작이 사라지기 때문이다.
+
+메모리도 같은 이야기다.
+
+```ts
+new Array(2 ** 30).fill(0);
+```
+
+선언형이지만, 컴파일된 어셈블리는 이런 모습일 수 있다.
+
+```asm
+mov     rdi, 8589934592
+call    malloc
+
+mov     rcx, 1073741824
+mov     rdi, rax
+xor     eax, eax
+rep stosq
+```
+
+`call malloc`이 요청하는 크기는 8589934592바이트, 즉 (2 ** 30) × 8바이트 = 1,073,741,824 × 8바이트 ≈ **8 GiB**다. 이만큼 큰 배열에는 가드레일이 있을 수 있지만, 우회할 수 있는 변형도 있다.
+
+```ts
+Array.from({ length: 1000 }, () => new Array(1_000_000).fill(0));
+```
+
+내부 배열은 100만 개짜리지만 그것이 1000개, 합쳐서 10억 개다. 예상되는 부수효과는 이렇다.
+
+- 런타임이 배열을 할당하고 초기화하는 동안 페이지나 Node.js 프로세스가 응답하지 않는다
+- 심한 경우 메모리 한계를 넘어 브라우저 탭이 죽는다
+
+그런데도 여전히 선언형이다.
+
+### 정리 — 선언형 부수효과
+
+선언형과 함수형은 동의어가 아니다. 선언형은 *계산을 어떻게 구조화하는지*에 관한 것이다. 결과에 도달하는 명령의 시퀀스를 늘어놓는 대신 결과를 기술한다.
+
+함수형 순수성은 *그 계산이 무엇에 의존하고 무엇에 영향을 주는지*에 관한 것이다. 선언 하나가 네트워크 요청을 일으키고 CPU와 메모리를 소모하고 시계와 런타임 상태를 관찰하고 숨은 가변 상태에 의존해도, 그것이 명령형이 되지는 않는다.
+
+## 결론
+
+두 축을 분리하는 목적은 용어 논쟁에서 이기는 것이 아니다. AI가 우리의 아키텍처 패턴에 엄청난 압력을 가하는 지금, 더 나은 엔지니어링 결정을 내리기 위한 것이다.
+
+**함수형**을 **선언형**에 뭉개 넣으면 코드가 무엇을 하는지 정확히 말할 능력을 잃는다. 순수한 코드도 명령형으로 구조화될 수 있다. 선언형 코드도 가변 상태를 관찰하고 I/O를 일으키고 터무니없는 양의 메모리를 할당하며 세상에 영향을 줄 수 있다. 구조와 순수성은 독립된 속성이고, 때로 겹치지만 반드시 겹쳐야 하는 것은 아니다.
+
+숨은 상태나 예상치 못한 효과, 의존성 추론의 어려움이 문제라면 함수형 프로그래밍이 도움이 된다. 명시적 입력, 불변 값, 순수 변환, 효과 격리가 있으니까. 다만 원문 저자의 경험으로는 순수 함수형이 아니라는 이유로 심각한 대가를 치르는 앱은 거의 없었다.
+
+반대로 명령형이라는 이유로 심하게 고생하는 앱은 많았다. 명령형은 늘 제어를 흩뿌린다. 명령이 시스템을 가로질러 손을 뻗는 스파게티 코드가 되거나, 여러 컨텍스트에 걸친 스무 단계를 머릿속으로 실행해야 이해되는 동작이 된다. 저자의 결론은 명확하다. 선언형 코드는 이 문제를 해결하고, 함수형 프로그래밍은 해결하지 못한다.
+
+![Spaghetti Nuclear Explosion](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/6ls6q4kldampko6y2zd7.png)
+
+저자는 선언형 코드를 좋아한다고 말할 때마다 "그럼 Elm이나 Haskell 쓰라"는 대답을 듣는 데 지쳤다고 한다. 사람들이 문제를 이해하지 못하는 이유는 그것을 제대로 논의할 단어가 없기 때문이다. 여기에 AI까지 끼어들면 결과가 어떻게 될지는 위 그림이 말해준다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
