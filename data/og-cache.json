@@ -607,6 +607,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/devteam/what-was-your-win-this-week-1330": {
+    "ok": true,
+    "title": "What was your win this week?!",
+    "description": "👋👋👋👋 Looking back on your week -- what was something you're proud of? All wins count -- big or small...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F4ss9uu4l7dfylfgc1u3l.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-22"
+  },
   "https://dev.to/devteam/what-was-your-win-this-week-23ob": {
     "ok": true,
     "title": "What was your win this week??",
@@ -1055,6 +1063,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/he4rt/1a-vez-trabalhando-com-git-com-time-tudo-que-voce-precisa-saber-19il": {
+    "ok": true,
+    "title": "1ª vez trabalhando com git em um time: tudo que você precisa saber",
+    "description": "Faz mais de 5 anos que eu não abria um PR ou issue técnica no Github, mas essa semana tenho aprendido...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fgab63cudl91jmsh9orcs.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-22"
+  },
   "https://dev.to/he4rt/2-metodos-que-usei-e-uso-nos-estudos-de-programacao-4n1f": {
     "ok": true,
     "title": "2 métodos que usei (E USO) nos estudos de programação.",
@@ -1335,6 +1351,22 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/kenwalger/the-kitchen-doesnt-care-about-your-excuses-i10": {
+    "ok": true,
+    "title": "The Kitchen Doesn't Care About Your Excuses",
+    "description": "There is a moment in every high-stakes environment when something goes completely, objectively wrong,...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fdw8pa0hrazb4uz34l7ty.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-22"
+  },
+  "https://dev.to/kenwalger/the-reasoning-ledger-remembering-decisions-not-just-data-56gm": {
+    "ok": true,
+    "title": "The Reasoning Ledger: Remembering Decisions, Not Just Data",
+    "description": "Part 4 of the Building the AI Memory Stack series  After finishing the previous article, I looked at...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fmpjcvof042qvkiv4cs49.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-22"
+  },
   "https://dev.to/klaudiagrz/celebrate-june-rituals-with-solstice-bingo-1al6": {
     "ok": true,
     "title": "Celebrate June rituals with Solstice Bingo!",
@@ -1486,6 +1518,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F8g2ou80or7pl9r07qktj.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/mk023/i-wrote-a-test-for-prompt-injection-it-passed-while-the-attack-worked-kc9": {
+    "ok": true,
+    "title": "I wrote a test for prompt injection. It passed while the attack worked.",
+    "description": "This is a submission for DEV's Summer Bug Smash: Smash Stories powered by Sentry.  I maintain a small...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fn3fc6qvm2147ifscxo7g.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-22"
   },
   "https://dev.to/mlh/your-vibe-coded-app-works-is-it-any-good-28co": {
     "ok": true,

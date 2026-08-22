@@ -1,0 +1,118 @@
+﻿---
+title: "Reasoning Ledger: 데이터가 아니라 결정을 기억하는 계층"
+description: "AI 시스템은 지식은 잘 보존하지만 그 지식이 왜 그렇게 결정됐는지는 남기지 못한다. Ken W Alger가 제안한 Reasoning Ledger는 모델 내부의 사고 과정이 아니라 결정을 둘러싼 관찰 가능한 근거를 기록하는 아키텍처 계층이다."
+date: "2026-08-20"
+published_at: "2026-08-22"
+category: "news"
+tags: []
+slug: "reasoning-ledger-remembering-decisions"
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fmpjcvof042qvkiv4cs49.png"
+coverAlt: "The Reasoning Ledger: Remembering Decisions, Not Just Data"
+source_id: "devto-4418983"
+source_url: "https://dev.to/kenwalger/the-reasoning-ledger-remembering-decisions-not-just-data-56gm"
+source_title: "The Reasoning Ledger: Remembering Decisions, Not Just Data"
+source_author: "Ken W Alger"
+source_published: "2026-08-20"
+---
+
+<LinkCard url="https://dev.to/kenwalger/the-reasoning-ledger-remembering-decisions-not-just-data-56gm" author="Ken W Alger" date="2026-08-20" />
+
+## 개요
+
+Ken W Alger가 'Building the AI Memory Stack' 시리즈 4편에서 한 가지 빈틈을 지적했다. 잘 관리된 저장소에는 스펙 문서도, 아키텍처 결정 기록(ADR)도, 용어집도 다 남아 있다. 살아남을 만한 지식은 제대로 살아남는다. 그런데 **무엇이** 있는지는 보이는데 **왜** 그것이 있는지는 보이지 않는다.
+
+기억은 무엇을 알려주고, 추론은 왜를 알려준다. Alger는 이 차이가 실제로 중요하다고 본다. 그가 제안하는 해법은 AI 메모리 스택에 계층을 하나 더 얹는 것, 이른바 **Reasoning Ledger**다.
+
+## Durable Memory만으로는 부족하다
+
+시리즈 3편의 주장은 Durable Memory가 "어떤 지식이 그것을 만든 작업보다 오래 살아남을 자격이 있는가"를 결정한다는 것이었다. 그 주장 자체는 여전히 유효하다.
+
+문제는 6개월 뒤다. ADR 문서를 다시 열고 "이 결정은 왜 내려졌나"를 물으면, 문서는 결론만 보여준다. 그 결론에 도달한 경로는 남아 있지 않을 수 있다. 서로 충돌하는 스펙에서 나온 타협이었을 수도, 여러 차례의 도구 호출 결과였을 수도, 사람의 리뷰를 거친 판단이었을 수도 있다. 지금은 사라진 정책 제약이 원인이었을 수도 있다.
+
+최종 산출물은 살아남는다. 그 산출물을 만든 추론 과정은 대개 살아남지 못한다.
+
+![결정 기록을 남기는 원장](https://images.pexels.com/photos/164686/pexels-photo-164686.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Pixabay](https://www.pexels.com/@pixabay) on [Pexels](https://www.pexels.com/photo/close-up-photo-of-ledger-s-list-164686/)*
+
+## 스택의 새 계층
+
+Alger는 메모리 스택을 네 개 계층으로 정리하고, 그 위에 Reasoning Ledger를 놓는다. 각 계층은 서로 다른 질문에 답한다.
+
+| 계층 | 답하는 질문 | 보존하는 것 |
+| --- | --- | --- |
+| [Reasoning Ledger](https://sovereignplatform.dev/terms/reasoning-ledger.html) | 왜 이런 일이 일어났나? | 결정 |
+| [Durable Memory](https://sovereignplatform.dev/terms/durable-memory.html) | 무엇이 살아남아야 하나? | 지식 |
+| [Active Working Memory](https://sovereignplatform.dev/terms/active-working-memory.html) | 지금 중요한 것은 무엇인가? | 작업 세트 |
+| Context Window | 모델이 볼 수 있는 것은 무엇인가? | 현재 토큰 |
+
+정보는 Reasoning Ledger에서 Durable Memory, Active Working Memory, Context Window를 거쳐 모델 추론으로 흐른다.
+
+## Git이 이미 절반은 풀어놓은 문제
+
+비슷한 문제를 소프트웨어 업계는 이미 한 번 풀었다. Git 저장소는 소스 코드만 담지 않는다. 커밋 이력, 풀 리퀘스트, 코드 리뷰, 이슈, 논의가 함께 쌓인다. 이 기록들이 모여 소프트웨어가 어떻게 진화했는지를 설명한다.
+
+Git이 모든 파일의 최신 버전만 저장한다고 가정해보자. 소프트웨어는 여전히 존재하지만, 그것을 이해하는 일은 훨씬 어려워진다.
+
+Git은 개발자가 자기 코드의 모양을 잊어버려서 만들어진 게 아니다. 개발자가 결국 "우리가 이걸 왜 바꿨지?"를 묻게 되기 때문에 존재한다. Alger는 에이전틱 시스템에도 같은 아키텍처 역량이 필요하다고 말한다.
+
+## 비어 있는 계층
+
+대부분의 AI 시스템은 검색(retrieval)을 최적화하는 데 공을 들인다. 반면 추론을 둘러싼 관찰 가능한 결정 과정을 보존하는 시스템은 훨씬 적다.
+
+몇 달 뒤 누군가 "시스템이 왜 이걸 추천했나"를 물었을 때 답할 수 있는가. 유일한 답이 "모델이 그렇게 말했으니까"라면, 그 시스템은 신뢰받을 만큼의 정보를 남기지 못한 것이다. 지식은 보존했지만 이해는 잃어버린 상태다.
+
+## Reasoning Ledger가 기록하는 것
+
+Sovereign Systems Specification은 이 아키텍처 계층을 Reasoning Ledger라고 부른다. 여기서 중요한 설계 선택이 하나 있다. **모델 내부의 사적 chain-of-thought는 의도적으로 기록하지 않는다.** 대신 결정을 둘러싼 관찰 가능한 구조를 기록한다.
+
+원장이 담을 수 있는 항목은 다음과 같다.
+
+- 참조한 증거(evidence)
+- 도구 호출 내역
+- 정책 평가 결과
+- 사람의 승인
+- 타임스탬프
+- 신뢰도 평가
+- 영속 산출물에 대한 참조
+- [Forensic Receipt](https://sovereignplatform.dev/terms/forensic-receipt.html) 링크
+
+실제 레코드 하나는 이런 모양이 된다.
+
+```yaml
+reasoning_ledger:
+  decision: "Approve deployment"
+  timestamp: 2026-03-14T09:22:00Z
+  evidence:
+    - artifact: ADR-014
+      authority: architecture-review
+      version: 3
+    - artifact: production-health-metrics
+      observed_at: 2026-03-14T09:20:00Z
+    - artifact: security-policy
+      authority: security-team
+      version: 7
+  tools:
+    - GitHub
+    - CI pipeline
+  approvals:
+    - release manager
+  outcome: approved
+```
+
+눈여겨볼 지점은 이 원장이 "보안 정책을 참조했다"에서 멈추지 않는다는 것이다. 어떤 정책인지, 몇 번째 버전인지, 그 순간 어떤 권한(authority)이 결정을 지배했는지까지 남는다. Alger는 이 차이가 중요하다고 강조한다. 증거는 검색 가능한 상태로 남아 있어도, 그 증거를 권위 있게 만들던 조건은 이미 바뀌어 있을 수 있기 때문이다.
+
+그래서 Reasoning Ledger는 과거의 기록이지 권위의 연장 보증서가 아니다. 그 시점에 무엇이 결정을 지배했는지를 알려줄 뿐, 같은 증거가 미래의 결정도 지배하는지 판단하는 일은 아키텍처의 다른 부분이 맡는다.
+
+목표는 모델 안에서 벌어진 일을 복원하는 게 아니다. 나중에 누군가 그 결정을 검토할 수 있도록, 외부에서 관찰 가능한 증거·권한·정책·도구·승인·결과를 남기는 것이다. Alger의 정리는 간결하다. 관찰 가능한 추론은 아키텍처의 몫이고, 사적 추론은 모델의 몫이다.
+
+## 기억은 지식을, 추론은 결정을 남긴다
+
+Alger는 두 층의 성격 차이를 이렇게 구분한다. 기억은 근본적으로 쓰기(write) 문제고, 추론은 근본적으로 책임(accountability) 문제다. 기억은 지식을 보존하고, 추론은 결정을 보존한다. 신뢰할 수 있는 AI 시스템에는 둘 다 필요하다.
+
+## 다음 편 예고
+
+Reasoning Ledger는 결정을 만들어낸 관찰 가능한 경로를 설명한다. 그렇다면 그 기록 자체가 변조되지 않았다는 것은 어떻게 아는가. 5편은 [Write-Side Custody](https://sovereignplatform.dev/terms/write-side-custody.html)에서 시작한다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

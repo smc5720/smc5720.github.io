@@ -1,0 +1,113 @@
+﻿---
+title: "팀 프로젝트에서 처음 Git을 써봤다 — 브랜치부터 PR까지, 알아야 할 것들"
+description: "오픈소스 저장소에 README 수정 하나 올리기까지 겪은 망설임과, 그 과정에서 정리한 협업 Git의 기본기. 브랜치·push·PR의 차이부터 좋은 PR 설명 쓰는 법까지 담았다."
+date: "2026-08-20"
+published_at: "2026-08-22"
+category: "news"
+tags: []
+slug: "first-time-git-with-a-team"
+cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fgab63cudl91jmsh9orcs.png"
+coverAlt: "1ª vez trabalhando com git em um time: tudo que você precisa saber"
+source_id: "devto-4439037"
+source_url: "https://dev.to/he4rt/1a-vez-trabalhando-com-git-com-time-tudo-que-voce-precisa-saber-19il"
+source_title: "1ª vez trabalhando com git em um time: tudo que você precisa saber"
+source_author: "vitoriazzp"
+source_published: "2026-08-20"
+---
+
+<LinkCard url="https://dev.to/he4rt/1a-vez-trabalhando-com-git-com-time-tudo-que-voce-precisa-saber-19il" author="vitoriazzp" date="2026-08-20" />
+
+## 개요
+
+5년 넘게 GitHub에서 PR도 이슈도 열어본 적 없던 개발자가 오픈소스 저장소에 작은 수정을 올렸다. He4rt 커뮤니티의 [4noobs](https://github.com/he4rt/4noobs) 프로젝트 README에서 배지를 바꾸고, 로고 대비를 조정하고, 폴더를 정리하고, 목차를 붙인 게 전부였다.
+
+작업 자체는 어렵지 않았다. 정작 시간을 잡아먹은 건 그 앞에 있던 질문이었다. "이걸 메인 브랜치에 바로 올렸다가 다 망가뜨리면 어떡하지?"
+
+내 것이 아닌 저장소를 건드릴 때 배 속이 서늘해지는 감각. 작성자 vitoriazzp는 그 감각이 경력과 무관하다고 말한다. 몇 년 차 개발자든 터미널을 처음 여는 사람이든, "뭘 깨뜨리지 않고 기여하는 법"의 원리는 똑같고 생각보다 단순하다는 것이다.
+
+## 협업 Git이란 무엇인가
+
+Git을 처음 배울 때 대부분은 버전 관리와 GitHub에 파일 올리기까지만 익힌다. 하지만 Git의 쓸모는 거기서 끝나지 않는다.
+
+거대한 팀이 하나의 프로젝트를 놓고 질서 있게 움직이는 것도 Git 위에서 벌어지는 일이다. 댓글을 달고, 작업을 나눠 갖고, 개선을 제안하고, 다른 사람이 지금 무엇을 하고 있는지 파악한다. 이 영역을 **협업 Git(Git Colaborativo)**이라고 부른다.
+
+Git은 이 문제를 **브랜치(branch, 가지)** 라는 개념 하나로 푼다. 브랜치는 프로젝트의 평행 복사본이다. `main`이나 `master`라고 불리는 "공식" 버전을 건드리지 않은 채, 자기 가지 안에서는 마음껏 손댈 수 있다. 자기 몫이 끝나면 **Pull Request(PR)** 로 그 변경을 원래 자리에 합쳐달라고 제안한다.
+
+기본 흐름은 이렇게 정리된다.
+
+1. 메인 프로젝트에서 새 브랜치를 딴다
+2. 그 격리된 공간에서 수정한다
+3. 브랜치를 원격 저장소로 `push`한다
+4. Pull Request를 열어 리뷰를 요청하고, 승인되면 메인 브랜치에 `merge`된다
+
+아무도 "프로덕션" 버전을 직접 건드리지 않는다. 수백 명이 같은 저장소에 기여해도 난장판이 되지 않는 이유가 여기 있다.
+
+![여러 사람이 책상에 앉아 함께 작업하는 넓은 사무 공간](https://images.pexels.com/photos/27892094/pexels-photo-27892094.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Thigas](https://www.pexels.com/@thigas) on [Pexels](https://www.pexels.com/photo/a-large-room-with-many-people-sitting-at-desks-27892094/)*
+
+## 직접 해보며 알게 된 것들
+
+손으로 해보니 알게 된, 혹은 다시 떠오른 것들이 있다.
+
+### 새 브랜치는 불신이 아니라 안전장치다
+
+기여할 때마다 브랜치를 새로 만드는 건 의미 없는 절차가 아니다. 뭔가 잘못되더라도 그 "잘못"이 거기에 갇혀 메인 프로젝트까지 번지지 않게 하는 장치다. 기여하는 쪽에도, 리뷰하는 쪽에도 똑같이 이롭다.
+
+### `git push`와 PR 열기는 다른 일이다
+
+작성자가 의외로 놀랐다고 밝힌 지점이다. push는 브랜치를 GitHub으로 보내기만 한다. PR은 별도의 단계로, 리뷰 요청을 정식으로 거는 행위다. 참고로 push하고 나면 터미널이 PR 생성 링크를 바로 뱉어준다.
+
+### 이슈가 없어도 기여할 수 있다
+
+작성자가 한동안 발이 묶였던 부분이기도 하다. "아무도 이 개선을 요청한 적 없는데 그냥 보내도 되나?" 보내도 된다. 특히 문서라면 더 그렇다. 개선할 여지를 발견했다는 사실 자체가 기여의 명분이 된다.
+
+### 좋은 PR 설명은 변경 목록이 아니다
+
+한 줄 한 줄 무엇이 바뀌었는지 나열하는 게 아니라, 주제별로 묶어 요약하는 쪽이 낫다. 예를 들면 이런 항목들이다.
+
+- 무엇을 했는가
+- 왜 했는가
+- 주제별로 묶은 핵심 변경점
+
+리뷰하는 사람의 시간을 크게 아껴준다.
+
+### `.github` 폴더는 저장소용일 수도, 조직 전체용일 수도 있다
+
+계정에 `.github`라는 이름의 특수 저장소가 있느냐에 따라 달라진다. 사소한 차이지만, 누가 복붙한 적도 없는데 여러 저장소에 같은 설정이 "나타나는" 이유를 설명해준다.
+
+하나하나 뜯어보면 어려운 내용은 없다. 우리를 붙잡는 건 대개 기술이 아니라 **두려움**이다.
+
+## 틀릴까 봐 겁나는 마음 다루기
+
+작성자가 이 글에서 가장 중요하다고 꼽은 대목이다.
+
+내 것만이 아닌 저장소를 건드릴 때마다 — 오픈소스든 회사 일이든 — 같은 걱정이 올라온다. 실수하면 어쩌지? 뭔가 깨뜨리면? 얘가 뭘 하는지도 모르는구나 싶으면 어쩌지?
+
+이 감각이 하룻밤 사이에 사라지진 않는다. 다만 두 가지가 관계를 크게 바꿔놓았다고 한다.
+
+### 도구를 이해하면 두려움의 힘이 빠진다
+
+우리가 겁내는 것의 상당 부분은 모르는 것이다. 브랜치가 말 그대로 격리된 공간이고, 누군가 merge를 승인하기 전까지는 거기서 무엇을 하든 `main`에 닿지 않는다는 걸 이해한 순간 두려움이 줄었다. 용감해서가 아니다. 시스템 자체가 실수로부터 보호하도록 설계돼 있다는 걸 알게 됐기 때문이다.
+
+### 공개적으로 틀리는 건 과정의 일부다
+
+오픈소스 커뮤니티 전체가 사람들이 틀리고, 고치고, 서로의 작업을 리뷰하는 위에 지어졌다. 거절당한 PR이나 수정 요청이 달린 PR은 실력에 대한 판결이 아니라 시스템이 제대로 돌아가고 있다는 증거다.
+
+기여를 시작하기 전에 누가 이 말을 해줬으면 좋았겠다고 작성자는 적는다. 아무도 당신이 다 알고 오기를 기대하지 않는다. 브랜치도, PR도, 리뷰도, 틀리는 게 당연하기 때문에 존재하는 장치다.
+
+첫 PR 앞에서 사고 칠까 봐 미루고 있다면, 브랜치를 만들고 고치고 그냥 올리면 된다. 최악의 경우래봐야 누군가 피드백을 주는 것뿐이고, 결국 우리는 그렇게 배운다.
+
+## 함께 볼 자료
+
+작성자가 위 과정에서 추천받았거나 읽은 자료들이다. 구조를 다루는 것도, 좋은 관행을 다루는 것도 섞여 있다.
+
+- [How to Write a Bug Report](https://marker.io/blog/how-to-write-bug-report)
+- [What Makes a Good Bug Report](https://marker.io/blog/bug-report)
+- [Pull Request에서 제안된 변경 검토하기 — GitHub 공식 문서](https://docs.github.com/pt/pull-requests/how-tos/review-pull-requests/reviewing-proposed-changes-in-a-pull-request)
+- [Where to Publish: Article Types — Frontiers](https://www.frontiersin.org/for-authors/where-to-publish/article-types#article-types-brief-research-report)
+- [Conventional Branch](https://conventionalbranch.org)
+- [Semantic Versioning (SemVer)](https://semver.org/lang/pt-BR/)
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
