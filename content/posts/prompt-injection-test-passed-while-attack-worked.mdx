@@ -4,7 +4,7 @@ description: "테스트는 통과했지만 취약점은 살아 있었다. 오픈
 date: "2026-08-20"
 published_at: "2026-08-22"
 category: "news"
-tags: []
+tags: ["security","ai","llm","opensource","programming"]
 cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fn3fc6qvm2147ifscxo7g.png"
 coverAlt: "I wrote a test for prompt injection. It passed while the attack worked."
 slug: "prompt-injection-test-passed-while-attack-worked"
@@ -86,7 +86,7 @@ def _new_nonce() -> str:
     return secrets.token_hex(8)
 ```
 
-`random`이 아니라 `secrets`를 쓴 이유는 명확하다. 여기는 보안 경계고, 예측 가능한 PRNG는 nonce가 없애려던 것을 그대로 돌려준다.
+`random` 대신 `secrets`를 쓴 데는 이유가 있다. 여기는 보안 경계고, 예측 가능한 PRNG는 nonce가 없애려던 것을 그대로 돌려준다.
 
 테스트도 산술이 아니라 속성을 검증하도록 다시 썼다. 아래는 축약본이다. 실제 소스에는 mypy가 요구하는 `assert ... is not None` 좁히기와 이탈리아어 단정문 메시지가 붙어 있다.
 
