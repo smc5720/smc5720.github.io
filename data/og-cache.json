@@ -63,6 +63,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/ale3oula/html-is-getting-cool-again-meet-the-invoker-commands-api-1367": {
+    "ok": true,
+    "title": "HTML is getting cool again: Meet the Invoker Commands API",
+    "description": "For years, frontend development has had a slightly embarrassing relationship with HTML. We all read...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Feqpmsld9yirw9miywn1q.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-23"
+  },
   "https://dev.to/ale3oula/what-is-a-context-window-actually-13l6": {
     "ok": true,
     "title": "What is a context window, actually?",
@@ -759,6 +767,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/gde/breaking-the-multimodal-barrier-exploring-gemini-omni-and-my-time-with-gdg-calabar-569o": {
+    "ok": true,
+    "title": "Breaking the Multimodal Barrier: Exploring Gemini Omni and My Time with GDG Calabar",
+    "description": "The energy following a major Google I/O announcement always ripples through the developer ecosystem,...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fh43gl7gigubj7unbkkaz.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-23"
+  },
   "https://dev.to/gde/dart-313-primary-constructors-blocsignal-boilerplate-free-reactive-architecture-5fll": {
     "ok": true,
     "title": "Dart 3.13 Primary Constructors + BlocSignal: Boilerplate-Free Reactive Architecture",
@@ -1327,6 +1343,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/jenlooper/kitchen-sune-a-community-cookbook-5fea": {
+    "ok": true,
+    "title": "Kitchen-Sune: A Community Cookbook",
+    "description": "This is a submission for Frontend Challenge - Comfort Food Edition, Perfect Landing           What I...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fg0krhrqgrh4ay7daoa6h.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-23"
+  },
   "https://dev.to/jennapederson/you-can-build-it-should-you-9e0": {
     "ok": true,
     "title": "You can build it. Should you?",
@@ -1486,6 +1510,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F6hb2eaocrxwugk2i4q8g.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/marcosomma/i-write-less-code-than-i-used-to-that-may-be-the-point-3kk": {
+    "ok": true,
+    "title": "I Write Less Code Than I Used To. That May Be the Point.",
+    "description": "Over the last year, my day-to-day job has changed in a way I am still trying to understand. I am...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fy4z131nuq0nja0o5gj35.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-23"
   },
   "https://dev.to/marvsonhelbs/ai-slop-is-everywhere-heres-what-i-keep-coming-back-to-1i42": {
     "ok": true,
@@ -1902,6 +1934,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fc33v29xaubc7n0x4qgqe.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/tomsun28/why-does-every-ai-agent-still-look-like-while-true--258a": {
+    "ok": true,
+    "title": "Why Does Every AI Agent Still Look Like `while (true) { ... }`?",
+    "description": "Most agent runtimes share the same brittle skeleton. Here's what happens when you replace it with an event log.",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fraw.githubusercontent.com%2Ftomsun28%2Fpizza%2Fmain%2Fresources%2Fpizza-desktop-white.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-23"
   },
   "https://dev.to/ujja/how-i-built-a-treasure-run-game-where-australia-saves-the-sun-kck": {
     "ok": true,
