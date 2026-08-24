@@ -415,6 +415,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/devengers/dev-opportunity-radar-13-a16z-alpha-a-740k-hackathon-and-an-ai-agent-competition-1l1i": {
+    "ok": true,
+    "title": "Dev Opportunity Radar #13: a16z Alpha, a $740K Hackathon, and an AI Agent Competition",
+    "description": "TL;DR  Welcome back to Dev Opportunity Radar.  This is a weekly series where I share opportunities,...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F26shsqi6y6qppm8abxh3.jpeg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-24"
+  },
   "https://dev.to/devengers/dev-opportunity-radar-3-neo-scholars-a-2m-ai-challenge-and-an-85k-ai-fellowship-cjf": {
     "ok": true,
     "title": "Dev Opportunity Radar #3: Neo Scholars, a $2M AI Challenge, and an $85K AI Fellowship",
@@ -2014,6 +2022,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fdn7qpeug3pgwjxowsm4i.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/yashksaini/the-test-was-green-every-real-connection-would-have-failed-3e37": {
+    "ok": true,
+    "title": "The test was green. Every real connection would have failed.",
+    "description": "This is a submission for DEV's Summer Bug Smash: Smash Stories powered by Sentry.           The...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F4psw7hul09kmcfugswlc.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-24"
   },
   "https://dev.to/yechielk/the-friction-is-a-feature-not-a-bug-teaching-and-mentoring-in-the-age-of-ai-23k9": {
     "ok": true,

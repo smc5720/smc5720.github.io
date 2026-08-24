@@ -1,0 +1,147 @@
+﻿---
+title: "테스트는 초록불이었다. 그런데 실제 연결은 전부 실패할 상태였다"
+description: "py-libp2p의 WebRTC-Direct 인증서 고정 코드가 파이썬 네임 맹글링 때문에 조용히 무력화된 사례. 루프백 테스트는 계속 통과했지만 실제 다이얼은 전부 지문 검증에서 막힐 상황이었다."
+date: "2026-08-20"
+published_at: "2026-08-24"
+slug: "silent-noop-cert-pinning-aiortc-name-mangling"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F4psw7hul09kmcfugswlc.png"
+coverAlt: "The test was green. Every real connection would have failed."
+source_id: "devto-4443581"
+source_url: "https://dev.to/yashksaini/the-test-was-green-every-real-connection-would-have-failed-3e37"
+source_title: "The test was green. Every real connection would have failed."
+source_author: "Yash Kumar Saini"
+source_published: "2026-08-20"
+---
+
+<LinkCard url="https://dev.to/yashksaini/the-test-was-green-every-real-connection-would-have-failed-3e37" author="Yash Kumar Saini" date="2026-08-20" />
+
+## 개요
+
+py-libp2p 기여자 Yash Kumar Saini가 WebRTC 전송 계층에서 잡아낸 버그를 공개했다. 인증서를 고정하는 한 줄이 예외도, 경고도 없이 아무 일도 하지 않는 코드였다. 테스트는 초록불이었고 코드 리뷰도 통과했다. 하지만 그대로 배포됐다면 실제 사용자의 모든 연결이 인증 단계에서 막혔을 것이다.
+
+원인은 파이썬의 네임 맹글링(name mangling)과 라이브러리 내부 구현이 맞닿는 지점에 있었다. 겉보기에 성공한 속성 대입이 실제로는 라이브러리가 읽지도 않는 새 속성을 하나 만들어낸 것에 불과했다.
+
+## 인증서 주소가 곧 신뢰의 근거인 구조
+
+libp2p의 WebRTC-Direct는 인증 기관(CA) 없이 연결한다. 대신 피어의 multiaddr 안에 TLS 인증서의 해시가 들어 있다. `/webrtc-direct/certhash/<...>` 형태다. 다이얼을 걸면 DTLS 핸드셰이크에서 상대가 인증서를 제시하고, 그 인증서를 해싱해 주소에 박힌 `certhash`와 대조한다. CA도, 신뢰 저장소도 필요 없다. 주소 자체가 핀(pin) 역할을 한다.
+
+이 방식이 성립하려면 py-libp2p가 aiortc에게 자체 생성 인증서 대신 libp2p가 만든 인증서를 쓰도록 강제해야 한다. 기존 코드는 이렇게 되어 있었다.
+
+```python
+config = RTCConfiguration(certificates=[rtc_cert])
+return RTCPeerConnection(configuration=config)
+```
+
+깔끔하고 직관적이다. 그리고 aiortc 1.5 이상에서는 두 가지 방식으로 완전히 틀렸다.
+
+## 눈에 띄는 오류와 눈에 띄지 않는 오류
+
+첫 번째 문제는 시끄러웠다. aiortc 1.5부터 `RTCConfiguration`에서 `certificates=` 인자가 사라졌다. 그대로 넘기면 `TypeError`가 난다. 발견하기도 쉽고, 고치기도 쉬워 보인다. 객체를 만든 뒤에 인증서를 붙이면 되니까.
+
+```python
+pc = RTCPeerConnection(configuration=config)
+pc._certificates = [rtc_cert]   # 맞아 보인다. 아니다.
+return pc
+```
+
+이렇게 고치자 테스트가 초록불로 바뀌었다. 데이터 채널을 열고 페이로드를 보내 되돌려받는 루프백 에코 테스트도 통과했다. 여기서 바로 배포할 수도 있었다.
+
+문제는 조용한 쪽이었다.
+
+![시험관 안의 초록빛 샘플](https://images.pexels.com/photos/8539941/pexels-photo-8539941.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Kaboompics](https://kaboompics.com/) on [Pexels](https://www.pexels.com/photo/chemical-sample-in-a-petri-dish-8539941/)*
+
+## 밑줄 두 개가 만든 함정
+
+`pc._certificates = [...]`는 아무 일도 하지 않는 조용한 대입이었다. aiortc는 `_certificates`를 읽지 않는다. 클래스 내부에서는 인증서를 `self.__certificates`, 즉 밑줄 두 개짜리 속성에 저장하고 거기서 읽는다.
+
+파이썬은 클래스 본문 안에 있는 밑줄 두 개 이름을 그대로 두지 않는다. 이름을 바꿔버린다. `class RTCPeerConnection` 안의 `self.__certificates`는 컴파일 시점에 `self._RTCPeerConnection__certificates`로 변환된다. 그래서 바깥에서 보면 이렇게 갈린다.
+
+- `pc._certificates` — 작성자가 새로 만들어낸 속성. aiortc는 절대 읽지 않는다.
+- `pc._RTCPeerConnection__certificates` — aiortc가 `createOffer`/`createAnswer` 시점에 읽어서 SDP의 `a=fingerprint` 줄을 쓰는 실제 자리. (`aiortc/rtcpeerconnection.py:295`, `:1129`)
+
+작성자는 앞쪽에 값을 넣었고, aiortc는 뒤쪽을 읽었다. 뒤쪽에는 여전히 aiortc가 스스로 만든 인증서가 들어 있었다. 결과는 이렇다.
+
+- `/webrtc-direct/certhash/<...>` 주소는 libp2p 인증서의 해시를 광고한다.
+- 정작 DTLS 핸드셰이크는 aiortc 자체 생성 인증서로 진행된다.
+- 실제 다이얼은 전부 `Remote DTLS fingerprint does not match certhash`로 피어 검증에 실패한다.
+
+그런데도 루프백 에코 테스트는 통과했다. 루프백은 DTLS 지문을 multiaddr과 대조하지 않기 때문이다. 채널을 열고 바이트를 되돌려주면 그만이다. 깨진 유일한 속성이 하필 해피 패스 테스트가 한 번도 확인하지 않는 속성이었다.
+
+![프라이빗 슬롯을 가리키는 이름 맹글링 도식](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/eap9wbqa0w3ixankweg6.png)
+
+## 어느 쪽도 틀리지 않았다
+
+이 버그는 두 시스템이 맞닿는 이음매에 산다.
+
+파이썬의 언어 규칙 쪽을 보면, 네임 맹글링은 서브클래스가 부모 클래스의 "프라이빗" 속성을 실수로 덮어쓰지 못하게 막으려고 만들어진 기능이다. 설계 의도대로 정확히 동작하고 있다. aiortc 쪽도 마찬가지다. 인증서를 `__certificates`에 저장하면서 그 맹글링에 캡슐화를 맡긴다. 라이브러리 입장에서 합리적인 선택이다.
+
+각자 놓고 보면 잘못한 쪽이 없다. 문제는 바깥에서 라이브러리의 프라이빗 상태에 손을 뻗을 때 생긴다. 그 순간 유일하게 통하는 이름은 맹글링된 쪽이고, 자연스럽게 타이핑하게 되는 원래 이름은 조용히 실패한다. `AttributeError`도, `TypeError`도, 경고 한 줄도 없다. 쓰레기 속성 하나가 생기고 아무 일 없다는 듯 넘어간다. 보안 속성만 빼고 하위 동작이 전부 멀쩡하게 굴러간다.
+
+## 못생겼지만 맞는 코드
+
+수정은 맹글링된 속성에 직접 값을 넣는 것이다. 객체 생성 이후, SDP 연산이 핸드셰이크를 유발하기 전에 실행해야 한다.
+
+```python
+config = RTCConfiguration(iceServers=list(ice_servers) if ice_servers else [])
+pc = RTCPeerConnection(configuration=config)
+# aiortc가 자동 생성한 인증서를 교체한다. 맹글링된 이름을 써야만 한다 —
+# aiortc는 self.__certificates만 읽고, 그게 이 이름으로 맹글링된다.
+pc._RTCPeerConnection__certificates = [rtc_cert]  # type: ignore[attr-defined]
+return pc
+```
+
+작성자 본인도 못생긴 줄이라고 인정한다. `_RTCPeerConnection__certificates`에 손을 뻗는 건 라이브러리 업그레이드 한 번이면 깨지는 전형적인 프라이빗 상태 결합이다. 그래도 이건 맞는 코드다. 그리고 왜 `pc._certificates`로는 안 되는지 주석에 남겨뒀다. 다음 사람이 같은 함정에 빠지지 않도록.
+
+## 진짜 수정은 테스트였다
+
+한 줄짜리 패치보다 중요한 건 이 조용한 실패를 시끄럽게 만드는 테스트다. 해피 패스 에코 테스트로는 이 버그가 보이지 않는다. 그래서 불변식 자체를 검증하는 테스트를 추가했다. 고정한 인증서의 지문이 SDP에 실제로 나타나야 한다는 조건이다.
+
+```python
+@pytest.mark.trio
+async def test_cert_pinning_lands_in_sdp_fingerprint() -> None:
+    """
+    Guards against a class of cert-pin bug: if the pin is a no-op (e.g.
+    written to a public attribute aiortc never reads because it actually
+    stores the cert under a name-mangled private slot), the SDP a=fingerprint
+    line reflects aiortc's auto-generated cert instead of ours.
+    """
+    cert = WebRTCCertificate.from_aiortc()
+    pc = await bridge.run_coro(create_peer_connection(cert._rtc_certificate, ice_servers=[]))
+
+    # Need at least one data channel for the SCTP m-line, otherwise
+    # createOffer omits the DTLS fingerprint entirely.
+    await bridge.run_coro(_create_dummy_channel(pc))
+
+    sdp = await bridge.run_coro(_offer())
+    expected = _sdp_fingerprint_string(cert)
+    assert expected in sdp.upper(), "SDP fingerprint does not match pinned cert."
+```
+
+이 테스트를 쓰는 과정에도 작은 지뢰가 있었다. `createOffer`는 SCTP m-line이 하나도 없으면 DTLS 지문 자체를 SDP에서 빼버린다. 그래서 카나리아 테스트가 먼저 더미 데이터 채널을 만들어야 한다. 안 그러면 빈 오퍼를 상대로 단언하게 된다. 재현 과정에도 층이 하나 더 있었던 셈이다.
+
+맹글링 수정을 되돌리면 이 테스트는 즉시 지문 불일치로 빨간불이 된다. 예전의 `pc._certificates = [...]` 무효 대입을 유지해도 빨간불이다. 그게 핵심이다. 실패하는 쪽으로 닫힌다.
+
+![흰 표면 위의 유리 실험 기구](https://images.pexels.com/photos/10181436/pexels-photo-10181436.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Ron Lach](https://www.pexels.com/@ron-lach) on [Pexels](https://www.pexels.com/photo/glass-laboratory-equipment-on-white-surface-10181436/)*
+
+## 남은 교훈 두 가지
+
+작성자는 방향이 다를 뿐 같은 이야기라며 두 가지를 정리했다.
+
+**해피 패스 말고 불변식을 테스트하라.** 에코 테스트가 증명한 건 바이트가 오갔다는 사실뿐이다. 어떤 인증서로 오갔는지는 아무 말도 하지 않았다. 그런데 보안 측면에서 중요한 건 그것 하나였다. 초록불 테스트의 가치는 그 테스트가 단언하는 속성만큼이다. "엔드투엔드로 잘 돌아간다"는 말은 그 경로가 확인하지 않는 모든 속성을 조용히 제외한다.
+
+**조용한 무효 동작은 크래시보다 나쁘다.** `pc._certificates = [...]`가 예외를 던졌다면 30초 만에 고쳤을 것이다. 성공했기 때문에, 진짜 속성을 만들고 에러도 안 냈기 때문에 리뷰와 테스트를 통과했고 모든 인증 다이얼이 실패하는 전송 계층을 배포할 뻔했다. 캡슐화 경계를 넘어 라이브러리 내부 상태에 손을 뻗을 때는 언어가 이름을 가지고 뭔가 하고 있다고 가정하는 편이 낫다. 그리고 내 대입이 라이브러리가 읽는 자리에 정말 도착했는지 증명하는 테스트를 써야 한다.
+
+## 관련 링크
+
+- 커밋: [`ca8331ff` — fix(webrtc): pin DTLS certificate via aiortc's mangled private slot](https://github.com/libp2p/py-libp2p/commit/ca8331ff)
+- 카나리아 테스트: [`test_cert_pinning_lands_in_sdp_fingerprint`](https://github.com/libp2p/py-libp2p/blob/main/tests/core/transport/webrtc/test_multiplexing_loopback.py)
+- 이슈: [#546](https://github.com/libp2p/py-libp2p/issues/546)
+- 참조된 aiortc 내부: `aiortc/rtcpeerconnection.py:295, 1129`
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
