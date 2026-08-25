@@ -1,0 +1,247 @@
+﻿---
+title: "React DataGrid로 10만 건짜리 우주 미션 탐색기를 만들어봤다"
+description: "개발자 Hadil Ben Abdallah가 오픈소스 React DataGrid를 실제 프로젝트에 투입해 1,200행 클라이언트 데이터셋과 10만 행 서버사이드 아카이브를 다뤄본 기록. 피벗 테이블, Tree Data, 패싯 검색까지 직접 써보고 남긴 후기다."
+date: "2026-08-24"
+published_at: "2026-08-25"
+category: "news"
+tags: ["react", "datagrid", "typescript", "frontend"]
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fo2cju3bl5dyv99bq0tyx.png"
+coverAlt: "I Used React DataGrid to Build a Real Space Mission Explorer"
+slug: "react-datagrid-space-mission-explorer"
+source_id: "devto-4433940"
+source_url: "https://dev.to/hadil/i-used-react-datagrid-to-build-a-real-space-mission-explorer-4g8b"
+source_title: "I Used React DataGrid to Build a Real Space Mission Explorer"
+source_author: "Hadil Ben Abdallah"
+source_published: "2026-08-24"
+---
+
+<LinkCard url="https://dev.to/hadil/i-used-react-datagrid-to-build-a-real-space-mission-explorer-4g8b" author="Hadil Ben Abdallah" date="2026-08-24" />
+
+## 개요
+
+기능 목록만 읽고 라이브러리를 평가하는 건 한계가 있다. Hadil Ben Abdallah는 앞서 React DataGrid의 문서와 기능 목록을 정리한 글을 쓴 뒤, 이번엔 아예 실제 프로젝트를 하나 만들어 붙여봤다.
+
+결과물은 **Space Mission & Satellite Explorer**다. 여러 우주 기관의 미션을 목적지, 미션 유형, 연대별로 훑어볼 수 있는 비행역학 스타일 웹 애플리케이션이다. 데이터는 두 갈래로 나눴다. 상호작용 분석에는 **1,200행 클라이언트 사이드 워킹셋**을 쓰고, 그 뒤에 **10만 건 규모의 라이브 아카이브**를 서버사이드 무한 스크롤로 붙였다.
+
+정렬과 페이지네이션만 테스트했다면 굳이 이런 구성을 만들 이유가 없었다. 필터링, 패싯 검색, 그룹화, 피벗, 행 고정, 커스텀 셀 렌더러, 가상 스크롤까지 한 화면에서 부딪혀보려는 의도였다.
+
+## 왜 하필 우주 미션 데이터였나
+
+또 하나의 평범한 CRUD 대시보드를 만들지 않은 이유는 분명하다. 미션 레코드는 데이터 그리드가 진짜로 필요해지는 종류의 문제를 자연스럽게 만들어낸다.
+
+미션 하나에는 기관, 목적지, 상태, 미션 유형, 발사일, 기간, 비용, 연대 같은 구조화된 필드가 충분히 들어간다. 기관이나 목적지로 묶을 수 있고, 비용과 기간은 집계할 수 있다. 게다가 미션 자체가 계층 구조를 갖는다.
+
+**발사 → 지구 궤도 → 달 전이 분사 → 달 궤도 → 하강 및 착륙 → 표면 활동 → 지구 귀환**
+
+이 마지막 성질 덕분에 Tree Data를 "기능 체크리스트 채우기"가 아니라 실제 필요에 의해 써볼 수 있었다.
+
+애플리케이션은 세 페이지로 나뉜다.
+
+- **Mission Explorer** — 검색, 필터, 그룹화, 피벗, 편집을 담당하는 메인 그리드 화면
+- **Mission Analytics** — 같은 데이터를 성공률, 기관 비교, 목적지 분포, 비용 분석 차트로 풀어낸 화면
+- **Mission Details** — 개별 미션의 메타데이터, 승무원, 장비, 계층형 타임라인
+
+스택은 React, TypeScript, Tailwind CSS, React DataGrid, 그리고 분석 화면용 차트 라이브러리 조합이다. 작성자는 초기 프로젝트 셋업 일부를 AI에 맡겨 보일러플레이트에 시간을 쓰지 않았다고 밝혔다. 목적이 우주 미션 사이트를 처음부터 직접 만드는 게 아니라 그리드를 실제로 굴려보는 것이었기 때문이다.
+
+[라이브 데모 보기 →](https://orbitalindex.vercel.app/)
+
+[GitHub 저장소 보기 →](https://github.com/Hadil-Ben-Abdallah/space-mission-explorer)
+
+## 설치부터 첫 렌더까지
+
+인터페이스를 손대기 전에 그리드부터 띄웠다. 오픈소스 패키지로 시작했고 첫 렌더는 일부러 단순하게 잡았다.
+
+```bash
+npm install react-open-source-grid
+```
+
+스타일시트를 불러온다.
+
+```tsx
+import 'react-open-source-grid/dist/lib/index.css';
+```
+
+첫 테스트에서는 미션 필드 몇 개만 골라 컬럼을 정의했다.
+
+```tsx
+const columns: Column[] = [
+  { field: 'mission', headerName: 'Mission', width: 200 },
+  { field: 'agency', headerName: 'Agency', width: 120 },
+  { field: 'status', headerName: 'Status', width: 140 },
+  { field: 'launchDate', headerName: 'Launch Date', width: 130 },
+  { field: 'destination', headerName: 'Destination', width: 150 },
+];
+```
+
+여기서부터 Mission, Agency, Status, Launch Date, Destination, Mission Type, Duration에 대한 타입 지정 컬럼을 정의하고 데이터셋을 매핑했다. 작성자는 이 단계에서 API가 낯설지 않아 새로운 그리드 모델을 배우는 데 시간을 크게 쓰지 않았다고 적었다. 작업 내내 [GitHub 저장소](https://github.com/bhushanpoojary/react-open-source-datagrid)와 [공식 문서](https://reactdatagrid.dev/)를 옆에 켜뒀다고 한다.
+
+![코드가 떠 있는 검은 화면](https://images.pexels.com/photos/4164418/pexels-photo-4164418.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Antonio Batinić](https://www.pexels.com/@antonio-batinic-2573434) on [Pexels](https://www.pexels.com/photo/black-screen-with-code-4164418/)*
+
+## Mission Explorer: 그리드를 실제로 밀어붙인 곳
+
+데이터셋 모드를 둘로 나눈 게 여기서 효과를 봤다. 상호작용 분석과 가상 스크롤 테스트에는 1,200행 워킹셋을, 서버사이드 무한 스크롤 검증에는 10만 행 아카이브를 썼다. 벤치마크용으로 억지로 거대한 데이터를 만들어내는 대신, 같은 미션 데이터를 두 가지 방식으로 다뤄본 셈이다.
+
+![Mission Explorer 화면](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/8wst1qo75owysjxmt71m.png)
+
+### 정렬, 필터, 검색
+
+먼저 어느 데이터 그리드에나 기대할 법한 상호작용부터 확인했다. 컬럼 헤더는 다중 정렬을 지원해서, 기관으로 한 번 묶고 발사일로 다시 정렬하는 작업을 별도 정렬 로직 없이 처리했다.
+
+필터는 전역 검색바와 컬럼별 필터 두 축으로 쓸 수 있다. 전역 검색은 미션이나 기관, 목적지를 빠르게 찾을 때 편하고, 헤더 바로 아래 붙는 컬럼 필터는 특정 필드를 좁혀 들어갈 때 세밀하다.
+
+이 데이터셋에서 가장 쓸모 있었던 건 사이드바의 **패싯 검색**이다. 검색창에 일일이 타이핑하는 대신 기관, 상태, 목적지, 미션 유형, 연대로 걸러낼 수 있고, 각 항목에 **NASA (265)**, **Successful (839)** 같은 실시간 카운트가 붙는다. 필터 하나가 데이터 몇 건을 담고 있는지 바로 보인다는 뜻이다.
+
+1990년대에 화성으로 간 NASA의 성공 미션만 보고 싶다면, 그리드 주변에 복잡한 필터 UI를 따로 짜지 않고도 여러 축에서 범위를 좁혀갈 수 있다. 컬럼 리사이즈와 순서 변경도 테스트했는데, 화면 크기나 작업 흐름에 맞춰 조정하기에 무리가 없었다.
+
+![정렬, 필터, 검색 화면](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/2xlibapshn0gvvn6ooeb.png)
+
+### 그룹화와 행 고정
+
+필터가 자리를 잡은 뒤에는 좀 더 분석적인 조작으로 넘어갔다. React DataGrid는 테이블 위쪽 그룹화 영역으로 컬럼을 끌어다 놓는 방식을 쓴다. 미션을 Agency로 묶고 다른 필드로 한 번 더 정리할 수 있으니, 모든 미션을 고립된 행으로 취급할 이유가 사라진다.
+
+![그룹화와 행 고정 화면](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/5yjzaeat7pkiny02kz5x.png)
+
+기준이 되는 미션 네 건은 그리드 상단에 고정해뒀다. 작은 기능이지만 큰 데이터셋을 다룰 때 체감이 컸다. 아카이브를 한참 스크롤하는 동안에도 중요한 레코드가 계속 눈에 남는다.
+
+### 피벗 테이블
+
+Explorer에서 가장 흥미로웠던 부분은 내장 **피벗 테이블** 빌더다.
+
+분석할 때마다 집계 로직을 손으로 짜는 대신, **Row Group By**, **Pivot Column**, **Value Column**, **Aggregation**을 인터페이스에서 고르고 바로 적용했다. 합계 행과 총계 컬럼도 토글로 켜고 끌 수 있다.
+
+미션을 기관으로 묶고 목적지로 피벗한 다음 기간이나 비용을 집계하는 식이다. 그러면 그리드가 단순히 레코드를 훑는 화면에서 데이터셋을 탐색하는 도구로 성격이 바뀐다.
+
+![피벗 테이블 화면](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/k7qdwxqsxppwz8wdja0h.png)
+
+### 커스텀 셀, 합계, 내보내기
+
+눈으로 훑기 편하도록 셀 렌더링도 손봤다. 미션 상태는 텍스트가 아니라 색상 배지로 표시된다. Successful, Planned, Partial Success, Failed, Cancelled, in progress 여섯 가지다. 워킹셋에는 기간과 비용 같은 값을 합산하는 푸터도 붙였다.
+
+그리드 주변에는 실제 프로덕션 테이블에서 쓸 법한 컨트롤을 채웠다. 컬럼 선택기, CSV·엑셀 내보내기, 레이아웃 초기화 버튼, 그리고 **Ultra Compact**부터 **Comfortable**까지 네 단계 밀도 옵션이다.
+
+![커스텀 셀과 합계 화면](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/wq10z52r41oe2n9w4uvi.png)
+
+![CSV·엑셀 내보내기 화면](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/zty62z763b3cl2osf0qa.png)
+
+작성자가 가장 마음에 들어한 지점은 패싯 필터, 그룹화, 피벗, 고정 행, 커스텀 렌더러, 내보내기를 한 화면에 다 넣고도 페이지가 따로 노는 컨트롤 더미로 변하지 않았다는 것이다.
+
+## Mission Analytics: 같은 데이터를 차트로
+
+Explorer가 돌아가기 시작하자 같은 데이터셋으로 레코드 열람 이상의 일을 해보고 싶어졌다. 두 번째 페이지 **Mission Analytics**가 그래서 나왔다.
+
+이 페이지는 의도적으로 차트 중심이다. 테이블을 하나 더 얹는 대신, Explorer에서 쓰던 데이터와 집계 로직을 그대로 가져와 미션 역사·기관·목적지·비용에 대한 상위 질문에 답하는 시각화를 만들었다.
+
+상단 요약 카드는 네 개다.
+
+- 대상 미션 **1,200건**
+- 평균 성공률 **79.6%**
+- 총 프로그램 비용 **$669.12B**
+- 평균 미션 기간 **1,543일**
+
+그 아래로는 연대별 발사 빈도, 기관 신뢰도, 목적지 분포, 미션 유형별 성공 프로파일, 비용 대비 기간까지 다섯 가지 시각화가 이어진다.
+
+![Mission Analytics 페이지](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/cvf9536sydypny9zb2f9.png)
+
+### 발사 빈도와 기관 신뢰도
+
+첫 차트인 **Launch Cadence by Decade**는 연대별 미션 수와 성공 미션 수가 어떻게 변했는지 보여준다. Explorer에서 개별 행을 볼 때는 드러나지 않던 시간축이 여기서 생긴다. "어떤 미션이 발사됐나"에서 "미션 활동이 어떻게 변해왔나"로 질문이 옮겨간다.
+
+**Agency Reliability** 차트는 NASA, SpaceX, Roscosmos, ESA, CNSA, ISRO, JAXA, Blue Origin의 발사 규모와 평균 성공률을 비교한다. 집계 기능이 빛을 본 지점이다. 대시보드용으로 따로 만든 데이터가 아니라, Explorer에서 이미 필터링하고 그룹화하던 바로 그 미션 레코드에서 나온 수치다.
+
+![발사 빈도와 기관 신뢰도 차트](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/m7t77ws14red24bpq9gn.png)
+
+### 목적지, 미션 유형, 비용
+
+나머지 세 시각화는 같은 데이터의 다른 단면을 본다.
+
+**Destination Distribution**은 미션들이 어디로 향하는지를 보여준다. 지구 궤도, 달, 화성, 소행성대, 심우주, 목성이 목록에 올라 있다. **Success Profile by Mission Type**은 로버, 궤도선, 플라이바이, 로봇 착륙선, 우주망원경, 샘플 회수 미션의 성공률을 비교한다. 마지막 **Cost vs. Mission Duration** 산점도는 비싼 미션이 실제로 더 오래 가는지를 확인하는 용도다. 점 하나가 미션 하나여서 유난히 비싸거나 유난히 긴 프로그램이 눈에 띈다.
+
+여기서 작성자가 흥미롭게 본 건, 이 페이지에 그리드를 하나 더 놓지 않았는데도 React DataGrid가 여전히 일을 하고 있다는 점이다. 밑단의 데이터셋과 집계 로직은 그대로고, 결과를 눈으로 해석하기 쉬운 형태로 바꿔 보여줄 뿐이다.
+
+![목적지, 미션 유형, 비용 차트](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/n6n6yetlx9bgv5ty0lot.png)
+
+## Mission Details: 10만 건에서 한 건으로
+
+전체 아카이브를 다뤄본 뒤 세 번째 페이지는 정반대 방향을 잡았다. **10만 건에서 미션 한 건으로** 내려가는 화면이다.
+
+예시로 쓴 건 **MX-000006, Apollo VIII**다. 발사일, 기간, 프로그램 비용, 승무원 같은 주요 정보를 또 하나의 거대한 테이블에 밀어 넣지 않고 한자리에 모았다.
+
+![Mission Details 페이지](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/5iv0qy6sdujj0qx8tdgv.png)
+
+### Tree Data로 만든 미션 타임라인
+
+미션은 서로 무관한 필드의 묶음이 아니다. 발사가 궤도 진입보다 먼저 오고, 궤도 진입이 본 운용보다 먼저 온다. 순서가 있는 구조다. 그래서 타임라인이 **Tree Data**를 쓰기 좋은 자리였다.
+
+Apollo VIII는 다섯 단계로 나눴다.
+
+```text
+Apollo VIII
+├── Launch
+├── Orbit Insertion
+├── Payload Commissioning
+├── Operations
+└── Deorbit
+```
+
+각 단계에는 **COMPLETE** 상태 배지와 `T+` 일수 오프셋이 붙는다. 계층과 시간 맥락을 한 번에 보여주는 구성이다.
+
+![Tree Data 미션 타임라인](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/a3yzwns5ygign9pxhrjj.png)
+
+작성자는 이 기능이야말로 실제 애플리케이션을 만들어보고 나서 이해가 된 쪽이라고 적었다. 중첩 컴포넌트를 직접 만들 수도 있었지만, Tree Data가 이런 구조화된 정보에 이미 자연스럽게 들어맞았다.
+
+페이지 나머지는 **Crew Manifest**, **Payload & Equipment**, **Related Dossiers** 섹션이다. 추가 정보를 놓치지 않으면서도 화면이 또 하나의 빽빽한 데이터 관리 도구로 변하지 않게 잡았다.
+
+![승무원, 장비, 관련 문서 섹션](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/u1c0xue3mbjmjz9kwokk.png)
+
+## 테마와 UI 커스터마이징
+
+기능이 돌아가기 시작한 뒤에는 그리드를 애플리케이션 안에 녹이는 작업에 시간을 썼다. 기본 외형으로도 동작에는 문제가 없었지만, 목표했던 어두운 청록 계열의 비행 관제 터미널 분위기와는 어울리지 않았다.
+
+테마 변수로 외형을 조정하고, 미션 상태 배지에는 커스텀 셀 렌더러를 붙였다. 상태별로 색이 다르니 Explorer를 훑는 속도가 확실히 달라진다. 밀도 모드도 **Ultra Compact, Compact, Normal, Comfortable** 네 단계로 두어 그리드 레이아웃을 다시 짜지 않고도 행당 정보량을 조절할 수 있게 했다.
+
+작성자가 높이 평가한 지점은 커스터마이징이 컴포넌트 기본 스타일과 싸우는 작업이 아니었다는 것이다. 대부분의 작업은 그리드를 우회하는 게 아니라 프로젝트의 시각 언어에 맞추는 쪽이었다.
+
+## 쉬웠던 것과 시간이 더 걸린 것
+
+이번 프로젝트에서 가장 큰 수확은 개발 경험 쪽이었다. 설치부터 첫 그리드를 화면에 띄우기까지 예상보다 짧게 걸렸고, API도 눈에 익었다.
+
+기본 그리드가 돌아간 다음에는 정렬, 필터, 그룹화, 피벗 테이블 빌더를 붙이는 과정이 문서 예제와 크게 다르지 않았다. Mission Details의 Tree Data도 마찬가지였다. 라이브러리가 애초에 하도록 설계되지 않은 일을 억지로 시키느라 씨름한 시간은 없었다는 게 작성자의 평가다.
+
+접근성도 확인 대상이었다. 키보드 내비게이션을 테스트하고 그리드의 ARIA 동작을 살펴봤다. 덜 쓰이는 기능도 문서 예제가 충분해 이해에 무리가 없었다.
+
+물론 전 과정이 똑같이 매끄럽지는 않았다. 정렬이나 필터 같은 일상적인 조작에 비해 특화 기능은 이해에 시간이 더 들었다. 피벗 테이블 빌더와 Tree Data 설정이 그랬다. 예제를 반복해서 확인하고 데이터 구조를 어떻게 잡을지 결정하는 데 시간을 더 썼다.
+
+## 그냥 HTML 테이블을 쓰면 안 될까
+
+정적인 데이터 다섯 줄, 열 줄을 보여줄 뿐이라면 작성자는 React DataGrid를 꺼내지 않겠다고 못 박았다. 기본 HTML 테이블이나 가벼운 React 테이블이 더 단순하고 충분하다.
+
+이번 프로젝트는 상황이 달랐다. 10만 건의 미션, 패싯 검색, 다중 정렬, 그룹화, 피벗, Tree Data, 커스텀 셀 렌더러, 서버사이드 무한 스크롤이 필요해지는 순간 기본 테이블로는 그 기능 대부분을 직접 만들어야 한다.
+
+그리드를 쓴 덕분에 테이블 인프라를 만들고 유지보수하는 대신, 미션을 어떻게 조직할지·사용자가 무엇을 탐색할 수 있어야 할지·분석은 어떻게 동작해야 할지에 시간을 쓸 수 있었다.
+
+## 어떤 프로젝트에 맞을까
+
+프로젝트를 끝낸 뒤 작성자가 내린 결론은, 데이터 자체가 사용자 경험의 큰 축인 애플리케이션에 React DataGrid가 어울린다는 것이다. 구체적으로는 이런 경우다.
+
+- 데이터 집약적 대시보드
+- 분석 애플리케이션
+- 관리자 인터페이스
+- 금융 애플리케이션
+- 사내 업무 도구
+- 대용량 데이터셋을 다루는 애플리케이션
+- 복잡한 필터링·그룹화가 필요한 프로젝트
+- 계층형 데이터를 다루는 애플리케이션
+- 서버사이드 데이터 로딩이 필요한 React 애플리케이션
+
+Space Mission Explorer가 좋은 테스트였던 이유는 이 조건들이 한꺼번에 겹쳤기 때문이다. 상호작용 분석용 1,200행 클라이언트 워킹셋과 서버사이드 무한 스크롤로 붙인 10만 건 라이브 아카이브가 동시에 굴러갔다.
+
+## 마무리
+
+Space Mission Explorer를 만들면서 작성자는 기능 체크리스트만으로는 얻을 수 없었을 감각을 얻었다고 정리한다. 실제 데이터셋을 가져와 10만 행 아카이브 탐색기로 만들고, 그 위에 분석 화면을 얹고, 미션 타임라인에 Tree Data를 쓰기까지 그리드 인프라를 직접 구축할 필요가 없었다.
+
+데이터가 무거운 React 애플리케이션에서 결국 중요한 건 이 지점이라는 게 글의 결론이다. **그리드가 데이터의 복잡도를 감당해주면, 개발자는 그 위에 제품을 만드는 데 집중할 수 있다.**
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

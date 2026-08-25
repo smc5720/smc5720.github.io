@@ -655,6 +655,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/dj29/the-optimization-that-was-too-good-why-our-push-notifications-only-worked-when-you-werent-looking-2f4d": {
+    "ok": true,
+    "title": "The Optimization That Was Too Good: Why Our Push Notifications Only Worked When You Weren't Looking",
+    "description": "This is a submission for DEV's Summer Bug Smash: Smash Stories powered by Sentry.  When I was...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F9e33djy5ucon8jyd9zim.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-25"
+  },
   "https://dev.to/dumebii/has-the-audience-for-technical-articles-dropped-5ceh": {
     "ok": true,
     "title": "Has the audience for technical articles dropped?",
@@ -1015,6 +1023,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/hadil/i-used-react-datagrid-to-build-a-real-space-mission-explorer-4g8b": {
+    "ok": true,
+    "title": "I Used React DataGrid to Build a Real Space Mission Explorer",
+    "description": "I went through the documentation and feature list of React DataGrid, and I wrote React DataGrid: A...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fo2cju3bl5dyv99bq0tyx.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-25"
+  },
   "https://dev.to/hadil/youre-a-real-typescript-developer-only-if-1d9o": {
     "ok": true,
     "title": "You’re a Real TypeScript Developer Only If...",
@@ -1022,6 +1038,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2Flgcuztrn2q01f8kze8pu.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/hammad4june1999/a-missing-exchange-rate-is-not-an-exchange-rate-of-1-4474": {
+    "ok": true,
+    "title": "A missing exchange rate is not an exchange rate of 1",
+    "description": "This is a submission for DEV's Summer Bug Smash: Smash Stories powered by Sentry.    var fx =...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fss37q2xrofydogs6c8oe.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-25"
   },
   "https://dev.to/harsh2644/deepseek-is-running-inside-your-favorite-ai-tool-and-nobody-told-you-5g47": {
     "ok": true,

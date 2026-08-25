@@ -1,0 +1,112 @@
+﻿---
+title: "너무 잘 만든 최적화: 푸시 알림이 안 볼 때만 울린 이유"
+description: "실시간 소셜 앱 ShelfTalk 개발자가 document.hidden으로 중복 알림을 막으려다, 듀얼 모니터 사용자들이 메시지를 통째로 놓치는 버그를 만든 이야기."
+date: "2026-08-22"
+published_at: "2026-08-25"
+category: "news"
+tags: []
+slug: "push-notification-document-hidden-bug"
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F9e33djy5ucon8jyd9zim.png"
+coverAlt: "The Optimization That Was Too Good: Why Our Push Notifications Only Worked When You Weren't Looking"
+source_id: "devto-4458421"
+source_url: "https://dev.to/dj29/the-optimization-that-was-too-good-why-our-push-notifications-only-worked-when-you-werent-looking-2f4d"
+source_title: "The Optimization That Was Too Good: Why Our Push Notifications Only Worked When You Weren't Looking"
+source_author: "Dhruv Jani"
+source_published: "2026-08-22"
+---
+
+<LinkCard url="https://dev.to/dj29/the-optimization-that-was-too-good-why-our-push-notifications-only-worked-when-you-werent-looking-2f4d" author="Dhruv Jani" date="2026-08-22" />
+
+## 개요
+
+DEV의 GitHub Finish Up A Thon 챌린지에서 우승한 실시간 소셜 앱 [ShelfTalk](https://shelftalk-community.vercel.app/). 이 앱의 개발자 Dhruv Jani는 사용자를 배려하려고 알림 코드에 조건 하나를 넣었다가, 정반대의 결과를 마주했다. 사용자들이 중요한 DM과 멘션을 통째로 놓치기 시작한 것이다.
+
+원인은 코드 세 줄이었다. 브라우저 창이 화면에 보이면 데스크톱 알림을 띄우지 않도록 막아둔 부분이다. 문제는 "창이 보인다"와 "사용자가 보고 있다"가 전혀 다른 이야기였다는 점이다.
+
+## 배려에서 출발한 코드
+
+앱을 보면서 채팅하는 중인데 지금 읽고 있는 그 메시지로 데스크톱 알림이 뜨는 건 성가시다. Jani는 그 상황을 없애고 싶었다. 그래서 [Page Visibility API](https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API)의 `document.hidden`을 조건으로 걸었다.
+
+```javascript
+export const sendPushNotification = (title, options = {}, requireHidden = false) => {
+  if (!('Notification' in window)) return;
+
+  if (Notification.permission === 'granted') {
+    // requireHidden이 true면 탭이 숨겨져 있을 때만 발송
+    if (requireHidden && !document.hidden) {
+      return; // <-- "기발한" 최적화
+    }
+
+    try {
+      const notification = new Notification(title, options);
+      // ...
+    } catch (e) {
+      console.error(e);
+    }
+  }
+};
+```
+
+논리는 단순했다. 사용자가 ShelfTalk 탭을 보고 있으면 알림을 억제한다. 중복 알림 없음, 깔끔한 UX. 배포하고, 스스로 만족하고, 하루를 마무리했다.
+
+## 재현되지 않는 버그
+
+며칠 뒤 버그 리포트가 쌓이기 시작했다. 중요한 DM과 그룹 멘션을 못 받았다는 내용이었다.
+
+Jani는 자기 컴퓨터에서 직접 테스트했다. 브라우저를 최소화하고 친구에게 메시지를 보내달라고 했다 — 알림이 정확히 떴다. 창을 열어두고 또 메시지를 받았다 — 알림이 뜨지 않았다. **설계한 그대로 동작하고 있었다.**
+
+그렇다면 사용자들은 왜 메시지를 놓쳤을까.
+
+![최적화(optimize) 개념을 표현한 이미지](https://images.pexels.com/photos/33137126/pexels-photo-33137126.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Ann H](https://www.pexels.com/@ann-h-45017) on [Pexels](https://www.pexels.com/photo/optimize-concept-on-pink-textured-background-33137126/)*
+
+## 듀얼 모니터라는 사각지대
+
+사용자 한 명에게 어떤 환경에서 쓰는지 물었더니 답이 이랬다.
+
+> "저는 보통 ShelfTalk을 보조 모니터에 띄워두고 메인 화면에서 일해요."
+
+여기서 퍼즐이 맞춰졌다.
+
+`document.hidden`이 `true`가 되는 건 페이지가 **완전히 가려졌을 때**뿐이다. 다른 창 뒤로 밀린 백그라운드 탭이거나, 창이 최소화된 경우다. **보조 모니터에 창이 떠 있다면 — 사용자가 메인 모니터에서 완전히 다른 앱에 집중하고 있어도 — `document.hidden`은 `false`다.**
+
+운영체제 입장에서 그 탭은 "보이는" 상태이므로, 코드는 사용자가 화면을 응시하고 있다고 판단했다. 그리고 알림을 조용히 버렸다. 메인 화면에 집중하던 사용자는 아무 소리도 듣지 못한 채 메시지를 놓쳤다.
+
+더 나쁜 경우도 있다. 사무실 데스크톱에 ShelfTalk을 켜둔 채 퇴근하면, 집에 있는 노트북에서도 알림이 오지 않는다. 사무실 기기가 여전히 앱을 "보고 있는" 것으로 처리되기 때문이다.
+
+> **한 줄 요약**: `document.hidden === false`는 사용자가 주의를 기울이고 있다는 뜻이 아니다. 운영체제가 그 창을 볼 수 있다는 뜻일 뿐이다.
+
+## 해결: 자랑스러웠던 코드를 지우다
+
+수정 방법은 최적화를 통째로 걷어내는 것이었다.
+
+```diff
+-    // requireHidden이 true면 탭이 숨겨져 있을 때만 발송
+-    if (requireHidden && !document.hidden) {
+-      return;
+-    }
++    // 탭이 보이는 상태에서도 알림을 발송한다.
++    // 활성 상태인 모든 기기에서 알림이 뜨도록 보장하기 위함.
+```
+
+실제 커밋은 [여기서](https://github.com/JaniDhruv/ShelfTalk/commit/b0c9b1645b4543e48778fea7137cdf5d4761b10e) 확인할 수 있다. ShelfTalk 저장소는 [JaniDhruv/ShelfTalk](https://github.com/JaniDhruv/ShelfTalk)에 공개돼 있다.
+
+## 남은 교훈 세 가지
+
+Jani는 UX 최적화에서 "너무 똑똑하게" 굴려다 실수했다고 정리한다. **"창이 보임 = 사용자가 주목 중"** 이라는 전제를 세운 것이 화근이었다. 울트라와이드 모니터, 다중 화면, 다섯 개 기기에 동시 로그인이 일상인 시대에 이 전제는 성립하지 않는다. 살짝 성가신 알림에서 사용자를 구하려다, 알림 시스템의 핵심 약속 — 무슨 일이 생기면 알려준다 — 을 깨뜨린 셈이다.
+
+원문이 꼽은 교훈은 셋이다.
+
+1. **내 환경이 아니라 실제 사용자 환경에서 테스트하라.** 모니터 한 대짜리 개발 머신으로는 재현되지 않았다. 다중 모니터, 책상에 세워둔 태블릿, 회사 컴퓨터에 켜둔 브라우저 — 전부 운영체제에는 "보이는" 상태다.
+
+2. **`document.hidden`은 OS 뷰포트 얘기지, 사람의 주의력 얘기가 아니다.** [MDN 문서](https://developer.mozilla.org/en-US/docs/Web/API/Document/hidden)에 명확히 나와 있지만, 그런 의미를 담도록 설계된 적 없는 불리언 값에 인간적 해석을 덧씌우기는 쉽다.
+
+3. **애매하면 알려라.** 조금 중복되는 알림은 성가신 정도다. 조용히 사라진 메시지는 망가진 제품이다.
+
+이제 ShelfTalk은 화면을 똑바로 보고 있어도 알림을 띄운다. 대신 메시지를 놓치는 일은 없다.
+
+이 글은 Sentry가 후원하는 [DEV Summer Bug Smash: Smash Stories](https://dev.to/bugsmash)에 출품된 글이다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

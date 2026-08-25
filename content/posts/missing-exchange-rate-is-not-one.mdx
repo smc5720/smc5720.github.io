@@ -1,0 +1,153 @@
+﻿---
+title: "환율이 없다는 건 환율이 1이라는 뜻이 아니다"
+description: "한 줄짜리 `|| 1` 폴백이 비트코인 가격을 280배 틀리게 표시했다. 값이 없을 때 그럴듯한 기본값으로 메우는 습관이 어떻게 확신에 찬 거짓말을 만드는지 짚은 디버깅 사례."
+date: "2026-08-20"
+published_at: "2026-08-25"
+category: "news"
+tags: []
+slug: "missing-exchange-rate-is-not-one"
+cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fss37q2xrofydogs6c8oe.png"
+coverAlt: "A missing exchange rate is not an exchange rate of 1"
+source_id: "devto-4445081"
+source_url: "https://dev.to/hammad4june1999/a-missing-exchange-rate-is-not-an-exchange-rate-of-1-4474"
+source_title: "A missing exchange rate is not an exchange rate of 1"
+source_author: "Hammad Shams Uddin"
+source_published: "2026-08-20"
+---
+
+<LinkCard url="https://dev.to/hammad4june1999/a-missing-exchange-rate-is-not-an-exchange-rate-of-1-4474" author="Hammad Shams Uddin" date="2026-08-20" />
+
+## 개요
+
+암호화폐 가격을 방문자가 고른 통화로 바꿔주는 코드 한 줄이 있었다. 몇 달 동안 아무 문제 없이 돌아갔고, 겉보기엔 흠잡을 데 없는 방어 코드처럼 읽혔다.
+
+```js
+var fx = (rates.rates && rates.rates[v.currency]) || 1;
+```
+
+Utilorax를 만드는 개발자 Hammad Shams Uddin이 Sentry 후원 DEV Summer Bug Smash에 제출한 글에서 이 한 줄을 뜯어봤다. 결론은 간단하다. 이 코드는 280배 틀린 값을 화면에 띄울 수 있었고, 실제로 그렇게 했다.
+
+## `|| 1`이 실제로 하는 일
+
+환율 표는 외부 통화 API에서 받아온다. 그 API가 죽으면 서버 캐시는 확실히 아는 값 하나만 남긴다.
+
+```php
+return $c['data'] ?? ['USD' => 1.0];
+```
+
+여기까진 정직하다. `USD => 1.0`은 참이고, 폴백은 보증할 수 없는 값을 담지 않았다.
+
+문제는 그다음이다. 브라우저가 이 표에 `PKR`을 물어본다. `undefined`가 돌아온다. 그리고 `|| 1`이 "그 통화는 모릅니다"를 "환율은 1입니다"로 바꿔버린다.
+
+화면에는 이렇게 찍힌다.
+
+```
+1 BTC = 95,000.00 PKR
+```
+
+실제 값은 약 26,600,000이다. 별표도, 흐리게 처리된 상태 표시도, "대략"이라는 단서도 없다. 정답과 똑같아 보인다. 정답을 만들어내는 코드 경로와 완전히 같은 경로에서 나왔기 때문이다.
+
+## 같은 함수 안에 하나 더
+
+세 줄 아래에 쌍둥이가 있었다.
+
+```js
+var ago = rates.cached_age_sec != null ? Math.round(rates.cached_age_sec / 60) : 0;
+...
+note: 'Live spot price, updated about ' + (ago <= 0 ? 'just now' : ago + ' min ago')
+```
+
+`cached_age_sec`는 캐시 레이어가 데이터 나이를 알 수 없을 때 null이 된다. 삼항 연산자는 null 검사까지 꼼꼼히 한다. 그러고 나서 그 null을 `0`으로 매핑한다. 바로 다음 줄에서 `0`은 **"방금 갱신됨"**으로 읽힌다.
+
+신선도를 정말로 알 수 없는 그 한 가지 경우가, 페이지에서 가장 안심되는 문장을 만들어낸다.
+
+## 두 버그의 공통 형태
+
+옷만 다를 뿐 같은 실수다.
+
+> **없던 값을 그럴듯한 기본값으로 대체하고, 측정된 값과 똑같은 확신을 담아 화면에 그린다.**
+
+![흩어진 스크래블 타일 클로즈업](https://images.pexels.com/photos/7437729/pexels-photo-7437729.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Brett Jordan](https://www.pexels.com/@brettjordan) on [Pexels](https://www.pexels.com/photo/close-up-shot-of-scrabble-tiles-on-a-white-surface-7437729/)*
+
+기본값 자체가 멍청한 선택은 아니다. 환율 1은 곱셈의 항등원이고, 나이 0은 덧셈의 항등원이다. 떼어놓고 보면 뭔가 빠졌을 때 손이 가는 합리적인 값이다. 피해는 표시하는 지점에서 발생한다. 대체품과 진짜가 구분되지 않는 그 지점 말이다.
+
+크래시보다 나쁘다. 크래시는 나쁜 경험이지만 최소한 진실을 말한다. 이건 방문자의 통화로 확신에 찬 거짓말을 한다.
+
+## 정작 부끄러운 대목
+
+올바른 처리는 이미 같은 파일에 있었다. 스무 줄 위, 일반 통화 변환기는 처음부터 이렇게 하고 있었다.
+
+```js
+var fr = rates.rates[v.from], to = rates.rates[v.to];
+if (!(fr > 0) || !(to > 0)) {
+  return { error: 'That currency is not in the live feed.' };
+}
+```
+
+같은 파일, 같은 환율 표, 같은 작성자. 한 엔진은 거부하고, 바로 옆 두 엔진은 대체한다. 차이라곤 어느 쪽을 쓸 때 실패를 염두에 두고 있었느냐뿐이다.
+
+원문 저자가 꼽은 진짜 교훈은 통화 이야기가 아니다. **방어적 습관은 저절로 일반화되지 않는다.** 파일 안에서 한 번 제대로 했다는 게 그 파일이 옳다는 증거는 아니다. 함수 하나에 대한 데이터 포인트 하나일 뿐이다.
+
+## 어떻게 고쳤나
+
+거부하고, 뭐가 없는지 이름을 밝힌다.
+
+```js
+var fx = (rates.rates && rates.rates[v.currency] > 0) ? rates.rates[v.currency] : null;
+if (fx === null) {
+  return { error: 'Live rates for ' + (v.currency || 'that currency')
+    + ' are unavailable right now — try USD, or refresh in a moment.' };
+}
+```
+
+truthy 검사 대신 `> 0`을 쓴 게 포인트다. 환율 `0`은 값이 없는 것만큼이나 쓸모없고, `undefined > 0`은 `false`라서 두 경우가 별도 검사 없이 같은 분기로 모인다.
+
+모르는 건 모르는 채로 둔다.
+
+```js
+function freshness(age, unit) {
+  if (age === null || age === undefined) { return 'age unknown'; }
+  if (age <= 0) { return 'updated just now'; }
+  return 'updated about ' + age + ' ' + unit + ' ago';
+}
+```
+
+세 가지 상태에 두 문장을 쓰던 걸 세 문장으로 바꿨다. 버그는 통째로 그 빠진 세 번째 분기에 있었다.
+
+## 실패한 피드를 테스트하기
+
+두 버그 모두 페이지를 써서는 도달할 수 없다. 상위 API가 *부분적으로만* 죽어야 한다. 표를 돌려줄 만큼은 살아 있고, 내 통화가 거기 없을 만큼은 망가진 상태. 저자는 브라우저에서 그 상태를 한 번도 본 적이 없고 일부러 만들 생각도 없다고 적었다.
+
+그래서 엔진을 테스트에서 부를 수 있게 만들었다. 브라우저 IIFE 안에 살고 있으니, 위젯 파일이 이미 쓰던 export 가드를 붙였다.
+
+```js
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { ENGINES, freshness, trueCost };
+}
+```
+
+핵심은 픽스처다. 의도적으로, 그럴듯하게 불완전한 피드를 만든다.
+
+```js
+const feed = {
+  coins: { bitcoin: 95000 },        // but not dogecoin
+  rates: { USD: 1, EUR: 0.92 },     // but not PKR
+  cached_age_sec: 120,
+};
+```
+
+지어낸 모양이 아니다. 통화 제공자는 죽고 암호화폐 제공자는 살아 있을 때 서버가 정확히 이렇게 돌려준다. `['USD' => 1.0]` 하나뿐인 상태.
+
+열아홉 개 단언 중 하나는 손대지도 않은 함수를 겨눈다.
+
+```js
+const bad = ENGINES.currencyConvert({ amount: '100', from: 'USD', to: 'PKR' }, fx);
+check('and a missing one was always refused', typeof bad.error === 'string', true);
+```
+
+오늘 실패할 수 없는 테스트다. 같은 표를 읽는 세 엔진이 다시 조용히 갈라서지 못하게 두려고 남겼다. 애초에 이 사달이 난 이유가 그거였으니까.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
