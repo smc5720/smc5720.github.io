@@ -4,7 +4,7 @@ description: "실시간 소셜 앱 ShelfTalk 개발자가 document.hidden으로 
 date: "2026-08-22"
 published_at: "2026-08-25"
 category: "news"
-tags: []
+tags: ["webdev","javascript","frontend","programming"]
 slug: "push-notification-document-hidden-bug"
 cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F9e33djy5ucon8jyd9zim.png"
 coverAlt: "The Optimization That Was Too Good: Why Our Push Notifications Only Worked When You Weren't Looking"
@@ -70,7 +70,7 @@ Jani는 자기 컴퓨터에서 직접 테스트했다. 브라우저를 최소화
 
 `document.hidden`이 `true`가 되는 건 페이지가 **완전히 가려졌을 때**뿐이다. 다른 창 뒤로 밀린 백그라운드 탭이거나, 창이 최소화된 경우다. **보조 모니터에 창이 떠 있다면 — 사용자가 메인 모니터에서 완전히 다른 앱에 집중하고 있어도 — `document.hidden`은 `false`다.**
 
-운영체제 입장에서 그 탭은 "보이는" 상태이므로, 코드는 사용자가 화면을 응시하고 있다고 판단했다. 그리고 알림을 조용히 버렸다. 메인 화면에 집중하던 사용자는 아무 소리도 듣지 못한 채 메시지를 놓쳤다.
+운영체제 입장에서 그 탭은 "보이는" 상태였고, 코드는 사용자가 화면을 응시하고 있다고 판단해 알림을 조용히 버렸다. 메인 화면에 집중하던 사용자는 아무 소리도 듣지 못한 채 메시지를 놓쳤다.
 
 더 나쁜 경우도 있다. 사무실 데스크톱에 ShelfTalk을 켜둔 채 퇴근하면, 집에 있는 노트북에서도 알림이 오지 않는다. 사무실 기기가 여전히 앱을 "보고 있는" 것으로 처리되기 때문이다.
 
@@ -99,7 +99,7 @@ Jani는 UX 최적화에서 "너무 똑똑하게" 굴려다 실수했다고 정�
 
 1. **내 환경이 아니라 실제 사용자 환경에서 테스트하라.** 모니터 한 대짜리 개발 머신으로는 재현되지 않았다. 다중 모니터, 책상에 세워둔 태블릿, 회사 컴퓨터에 켜둔 브라우저 — 전부 운영체제에는 "보이는" 상태다.
 
-2. **`document.hidden`은 OS 뷰포트 얘기지, 사람의 주의력 얘기가 아니다.** [MDN 문서](https://developer.mozilla.org/en-US/docs/Web/API/Document/hidden)에 명확히 나와 있지만, 그런 의미를 담도록 설계된 적 없는 불리언 값에 인간적 해석을 덧씌우기는 쉽다.
+2. **`document.hidden`은 OS 뷰포트 얘기지, 사람의 주의력 얘기가 아니다.** [MDN 문서](https://developer.mozilla.org/en-US/docs/Web/API/Document/hidden)에 명확히 나와 있지만, 그런 의미를 담도록 설계된 적 없는 불리언 값에 인간적 해석을 덧씌우기는 참 쉽다.
 
 3. **애매하면 알려라.** 조금 중복되는 알림은 성가신 정도다. 조용히 사라진 메시지는 망가진 제품이다.
 
