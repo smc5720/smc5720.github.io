@@ -1,0 +1,125 @@
+﻿---
+title: "AI가 모든 개발자를 리뷰어로 승진시켰다, 리뷰어를 검증한 사람은 없었다"
+description: "한 개발자가 자신의 저장소에서 자동화 검사 204개를 세어봤더니, 실패할 수 있음을 증명한 것은 22개뿐이었다. 나머지 89%는 단 한 번도 잘못된 입력을 받아본 적이 없었다."
+date: "2026-08-24"
+published_at: "2026-08-26"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fmhp0ukaw2xook5tccxej.png"
+coverAlt: "AI promoted every developer to reviewer. Nobody tested the reviewer."
+slug: "ai-promoted-every-developer-to-reviewer"
+source_id: "devto-4479046"
+source_url: "https://dev.to/heinrichneb/ai-promoted-every-developer-to-reviewer-nobody-tested-the-reviewer-m4h"
+source_title: "AI promoted every developer to reviewer. Nobody tested the reviewer."
+source_author: "Heinrich Neb"
+source_published: "2026-08-24"
+---
+
+<LinkCard url="https://dev.to/heinrichneb/ai-promoted-every-developer-to-reviewer-nobody-tested-the-reviewer-m4h" author="Heinrich Neb" date="2026-08-24" />
+
+## 개요
+
+개발자 Heinrich Neb이 자신의 저장소 세 곳을 뒤져 자동화 검사 204개를 셌다. 이 중 "나는 실패할 수 있다"를 증명한 검사는 22개, 11%였다. 나머지 182개는 잘못된 입력을 한 번도 받아본 적이 없다. 전부 초록불이다. 문제가 없어서 초록불인지, 문제를 찾아낼 능력이 없어서 초록불인지는 그 검사를 직접 작성한 본인도 구분하지 못했다.
+
+이 글은 Michael Amachree가 쓴 「AI가 나를 더 나쁜 리뷰어로 만들었다」에 반박하려다 시작됐다. 결과는 반박이 아니라 더 날 선 동의였다. Neb의 표현을 빌리면 이렇다. **AI는 우리 모두를 리뷰어로 승진시켰고, 그 리뷰어를 검증한 사람은 아무도 없다.**
+
+## 무엇을 셌는가
+
+정의부터 짚는다. 받아들이든 거부하든 판단은 각자의 몫이다.
+
+**결론을 내리는 가드(conclusion-bearing guard)** 는 소스 코드, 설정, 시스템 상태를 읽고 그에 대한 주장을 단언하는 모든 테스트다. "이 함수가 4를 반환하는가"가 아니라 "네트워크로 캐시를 내려받는 워크플로가 없는가", "모든 페이지가 동일한 분기 필터를 통과하는가", "이 기능 플래그가 배포된 명세와 일치하는가" 같은 것들이다. 사람 리뷰어를 대신하는 테스트다.
+
+**네거티브 컨트롤(negative control)** 은 그 가드에 명백히 잘못된 입력을 먹여보고, 예상한 이유로 거부되는지까지 확인하는 탐침이다. Neb의 팀은 테스트 이름에 `KONTROLLE:` 를 붙여 이를 표시한다.
+
+집계는 기계적이다. 저장소 세 곳에 가드 파일 204개, 컨트롤 탐침을 하나라도 가진 파일이 22개, 탐침 총 54개. 마커 기반이라 표시하지 않은 컨트롤이나 오탐 가드 파일 때문에 실제 수치는 몇 퍼센트 오차가 있다. 그래도 그림은 바뀌지 않는다. 리뷰어 대부분이 리뷰받은 적이 없다.
+
+## 초록불인데 아무것도 못 보는 검사 세 개
+
+이론이 아니다. 셋 다 지난 일주일 동안, 실제 운영 도구에서 벌어진 일이다.
+
+### 자기가 막으려던 병으로 죽은 배포 게이트
+
+파이프라인에 특정 단계가 있었다. 도구가 없을 때 조용히 빈 결과로 넘어가는 실패 모드를 잡으려고 만든 단계다. 이 단계는 헬스 응답을 파싱하려고 `node -e` 를 호출했다. 그런데 배포 러너에는 Node가 없었다. 여섯 번 연속 배포가 exit 127로 죽었다. 도구 누락을 잡으려던 검사가 도구 누락으로 죽었고, 여섯 시간 동안 아무것도 나가지 못했다. 리뷰에서 이 단계는 초록불이었다. 실제로 돌아갈 환경에서 아무도 실행해본 적이 없었기 때문이다.
+
+### 자기가 한 일을 버린 수집기
+
+자율 작업 하나가 공개 저장소에서 데이터를 모으고, 각 실행을 exit code로 판정했다. 어떤 실행은 멀쩡한 레코드 일곱 개를 쓴 뒤 치명적이지 않은 경고를 만나 0이 아닌 코드로 종료했다. 기계는 자기가 끝낸 작업을 "실패, 나중에 재시도"로 기록했다. 성공과 실패만 있고 부분 결과를 안고 중단됨이라는 상태가 표현되지 않았기 때문이다. 발견은 우연이었다. 결과 파일이 그 존재를 부정하는 exit code 바로 옆 디스크에 놓여 있었다.
+
+### 엉뚱한 500을 잡은 패턴
+
+에러 분류기가 서버 오류를 찾겠다며 `50[024]` 패턴을 출력 전체에서 뒤졌다. 그리고 *"4258 of 5000 quota points remaining"* 안의 "500"에 걸렸다. 성공한 실행이 서버 장애로 분류됐다. 읽은 필드는 전부 진짜였다. 다만 묻지 않은 질문에 답하고 있었을 뿐이다.
+
+![세 가지 사례가 공유하는 하나의 모양](https://images.pexels.com/photos/6005381/pexels-photo-6005381.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [DS stories](https://www.pexels.com/@ds-stories) on [Pexels](https://www.pexels.com/photo/a-phrase-on-a-white-background-6005381/)*
+
+서로 다른 시스템 셋, 모양은 하나다. 검사는 전령을 보고 있었다. exit code, 패턴, 상태. 정작 중요한 산출물은 다른 이야기를 하고 있었다.
+
+## AI와 리뷰어 문제가 만나는 지점
+
+Neb은 Michael의 글이 본인이 말한 것보다 더 세게 꽂힌다고 본다.
+
+AI는 그의 업무를 옮겨놓았다. 예전에는 하루의 대부분을 산출물 만드는 데 쓰고 검증에 조금 썼다. 지금은 에이전트가 산출물 대부분을 만들고, 그의 일은 검증 그 자체다. 그렇다면 그의 판단이 실제로 흘러나가는 진짜 코드베이스는 그 가드 204개다.
+
+그리고 그 코드베이스는 애플리케이션 코드였다면 절대 통과시키지 않았을 기준으로 관리되고 있다. 테스트 커버리지 없음(11%), 리뷰어에 대한 리뷰 없음, 초록불이 기본 상태, 침묵이 성공으로 기록됨.
+
+Michael이 AI가 자신을 더 나쁜 리뷰어로 만들었다고 했을 때, Neb은 이렇게 벼린다. AI는 우리 전부를 리뷰어로 승진시켰고, 아무도 그 리뷰어를 테스트하지 않았다. 약한 고리는 모델이 아니다. 반증 불가능한 초록 체크마크다.
+
+## 일주일을 버틴 규칙
+
+위의 모든 이야기가 한 문장으로 압축된다. Neb의 팀은 이 문장을 기계적으로 적용한다.
+
+**전령이 아니라 산출물을 판정하라.**
+
+exit code는 전령이다. 요약도 전령이다. 에이전트가 스스로 말하는 "완료"도 전령이다. 초록 배지도 전령이다. 산출물은 diff이고, 디스크 위의 파일이고, 실제로 서빙된 응답 본문이고, 데이터베이스의 행이다. 전령과 산출물이 어긋나면 산출물이 옳다. 그리고 전령만 읽는 검사는 아무리 초록불이어도 미검증으로 취급해야 한다.
+
+가드에 적용하면 이런 따름정리가 나온다. **초록색 0은 검사가 내놓을 수 있는 가장 위험한 답이다.** "위반을 찾지 못했다"와 "위반을 찾을 능력이 없다"는 똑같은 출력을 만든다. 둘을 갈라놓는 건 네거티브 컨트롤뿐이다.
+
+## 내 비율은 얼마인가 (60초)
+
+이 부분은 Neb의 주장을 믿지 않아도 써먹을 수 있다. 저장소 루트에 아래 스크립트를 넣으면 소스나 상태를 읽는 테스트 파일 수와, 그중 표시된 네거티브 컨트롤을 가진 파일 수를 센다. 마커는 각자 팀 관례에 맞게 바꾸면 된다.
+
+```js
+// count-controls.mjs — node count-controls.mjs
+import { readFileSync, readdirSync, statSync } from "node:fs";
+import { join } from "node:path";
+const files = [];
+(function walk(d) {
+  for (const n of readdirSync(d)) {
+    if (n === "node_modules" || n === ".git" || n === "dist") continue;
+    const p = join(d, n);
+    statSync(p).isDirectory() ? walk(p) : /\.test\.(t|j)sx?$/.test(n) && files.push(p);
+  }
+})(".");
+let guards = 0, withControl = 0, probes = 0;
+for (const f of files) {
+  const t = readFileSync(f, "utf8");
+  if (!/readFileSync|readdirSync|execSync/.test(t)) continue; // "reads state" proxy
+  guards++;
+  const n = (t.match(/KONTROLLE|negative.control|can.?not.?find/gi) ?? []).length;
+  if (n) withControl++;
+  probes += n;
+}
+console.log(`${guards} conclusion-bearing guard files · ${withControl} with a negative control (${guards ? Math.round(100 * withControl / guards) : 0} %) · ${probes} probes`);
+```
+
+Neb은 30%를 넘는 팀이 있다면 어떻게 거기까지 갔는지 듣고 싶다고 덧붙였다.
+
+## 글쓴이가 두 번 웃음거리가 된 대목
+
+Neb은 자기 글의 규칙 2가 "묻지 않아도 스스로를 정정하는 것"이라며 두 건을 공개했다.
+
+이 글의 데이터가 나온 기능을 만들다가 동등성 테스트가 정확히 0.25만큼 어긋났다. 버그는 코드가 아니라 그의 테스트에 있었다. min-max 스프레딩이 0으로만 채워진 열을 0.5의 열로 바꿔놓고 상수를 더한 것이다. 바로 그 실패 유형을 측정하는 와중에, 묻지 않은 질문에 답하는 탐침을 만들어놓고 있었던 셈이다.
+
+같은 시간대에 나간 푸시 하나는 빨간 테스트를 달고 배포됐다. `npm test | grep` 이 테스트의 exit code를 grep의 것으로 갈아치웠기 때문이다. 파이프라인이 전령을 읽었다. 산출물, 즉 실패한 테스트는 바로 옆에 있었다.
+
+리뷰어를 테스트하라고 말하는 사람이 하룻저녁에 두 번이나 자기 리뷰어를 테스트하지 못했다. 그는 이걸 아이러니가 아니라 기본 발생률이라고 부른다. 그리고 그래서 규율보다 관례가 이긴다고 말한다.
+
+## 이 글이 증명하지 못하는 것
+
+개발자 한 명, 저장소 세 곳, 일주일. 표본이 아니라 사례 모음이다. 11%는 마커 기반의 근삿값이다. 반증 가능성 커버리지를 올리면 결과가 나아진다는 것도 증명하지 못했다. 증명한 건 하나다. 11%에서는 작동하는 가드와 장식용 가드를 구분할 수 없었다는 것. 의미 있는 숫자가 30%인지 80%인지는 아직 모르고, 자기 팀 수치를 올리면서 측정 중이라고 했다.
+
+정당한 반론도 있다. 네거티브 컨트롤 자체도 썩을 수 있는 테스트다. 맞는 말이다. 다만 썩은 컨트롤은 가드가 바뀌는 순간 시끄럽게 실패한다. 그 비대칭성이 컨트롤을 쓸 가치가 있게 만든다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

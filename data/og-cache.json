@@ -79,6 +79,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/alvaromontoro/comicss-255-yellow-1bj": {
+    "ok": true,
+    "title": "comiCSS #255: Yellow",
+    "description": "comiCSS cartoon for August 24, 2026",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fz8kj845st0ugfjtptp9h.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-26"
+  },
   "https://dev.to/alvaromontoro/the-sword-of-damocles-at-work-the-human-cost-of-delayed-layoffs-2gon": {
     "ok": true,
     "title": "The Sword of Damocles at Work: The Human Cost of Delayed Layoffs",
@@ -94,6 +102,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fn45db23r2sc5kbo79ej5.jpg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/anchildress1/what-do-you-do-while-ai-codes-k8k": {
+    "ok": true,
+    "title": "What Do You Do While AI Codes?",
+    "description": "AI coding agents leave you with 5-to-20-minute gaps all day. Five real ways I fill them — and the one \"quick\" habit that makes you the bottleneck.",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ffe7bw0pscsaiq8wh4i3t.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-26"
   },
   "https://dev.to/anmolbaranwal/chat-to-build-and-schedule-your-own-personal-hacker-news-email-digest-42a4": {
     "ok": true,
@@ -687,6 +703,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/fm/i-won-a-writing-challenge-that-i-almost-didnt-publish-2cn0": {
+    "ok": true,
+    "title": "I Won a Writing Challenge That I Almost Didn't Publish!",
+    "description": "All praise to almighty God, and thanks to Google and the DEV Team, a while back, I won the Google...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F13dx91199uopjoeapxta.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-26"
+  },
   "https://dev.to/francescoxx/better-than-nextjs-is-rust-finally-ready-for-full-stack-web-development-introducing-topcoat-2h09": {
     "ok": true,
     "title": "Better than Next.js? Is Rust Finally Ready for Full-Stack Web Development? Introducing Topcoat",
@@ -1167,6 +1191,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/heinrichneb/ai-promoted-every-developer-to-reviewer-nobody-tested-the-reviewer-m4h": {
+    "ok": true,
+    "title": "AI promoted every developer to reviewer. Nobody tested the reviewer.",
+    "description": "I wanted to disagree with 'AI made me a worse reviewer' from Michael Amachree (@dev_michael) ....",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fmhp0ukaw2xook5tccxej.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-26"
+  },
   "https://dev.to/hemapriya_kanagala/from-silent-reader-to-25-articles-what-3-months-on-dev-taught-me-ama-2b0j": {
     "ok": true,
     "title": "From Silent Reader to 25 Articles: What 3 Months on DEV Taught Me + AMA",
@@ -1630,6 +1662,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fimages.weserv.nl%2F%3Furl%3Dwww.nazarboyko.com%2Fassets%2Fimgs%2Farticles%2Ftypescript-7-native-compiler-what-changes%2Fcover.webp%26w%3D1600%26h%3D672%26fit%3Dcover%26a%3Dtop",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/p0rt/the-model-scored-30-the-harness-scored-100-which-one-did-you-benchmark-3mp4": {
+    "ok": true,
+    "title": "The Model Scored 30%. The Harness Scored 100%. Which One Did You Benchmark?",
+    "description": "Four harnesses took the same public ARC-AGI-3 set from 13% to 100% without touching a single weight. Then Microsoft put the harness inside the training loop.",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Frewf6tr4myrksokx6ht9.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-26"
   },
   "https://dev.to/parsajiravand/your-browser-renders-everything-even-what-you-cant-see-content-visibility-auto-fixes-that-3g7c": {
     "ok": true,
