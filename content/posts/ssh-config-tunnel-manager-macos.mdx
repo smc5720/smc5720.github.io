@@ -1,0 +1,127 @@
+﻿---
+title: "macOS용 SSH 설정·터널 관리 앱을 직접 만든 이유"
+description: "개발자 Dusan Malusev가 하루 네 번씩 반복하던 SSH 터널 명령을 없애려고 네이티브 macOS 앱을 만든 과정을 정리했다. 앱 샌드박스 제약 때문에 ssh 바이너리 대신 swift-nio-ssh로 터널 엔진을 직접 구현한 이야기가 핵심이다."
+date: "2026-08-26"
+published_at: "2026-08-27"
+category: "news"
+tags: ["ssh", "macOS", "swift", "tunneling"]
+cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F50hep6ieicbiielg9o2z.png"
+coverAlt: "Why I Built an SSH Config and Tunnel Manager for macOS"
+slug: "ssh-config-tunnel-manager-macos"
+source_id: "devto-4496859"
+source_url: "https://dev.to/malusev998/why-i-built-an-ssh-config-and-tunnel-manager-for-macos-58n8"
+source_title: "Why I Built an SSH Config and Tunnel Manager for macOS"
+source_author: "Dusan Malusev"
+source_published: "2026-08-26"
+---
+
+<LinkCard url="https://dev.to/malusev998/why-i-built-an-ssh-config-and-tunnel-manager-for-macos-58n8" author="Dusan Malusev" date="2026-08-26" />
+
+## 개요
+
+Grafana도, Prometheus도, 스테이징 클러스터도, 사내 AI 툴링도 전부 SSH 뒤에 숨어 있다. 공개 주소로는 아무것도 응답하지 않고, 유일한 출입구는 키를 가진 배스천 하나뿐이다. Dusan Malusev는 이 구조 자체는 옳다고 본다. 실제 데이터가 걸린 시스템이라면 당연히 그래야 한다는 것이다.
+
+문제는 그 다음이었다. `ssh -N -L 3000:localhost:3000 -J bastion prod-1`을 머릿속에서 꺼내 하루 네 번씩, 그것도 서로 다른 머신 세 대에서 타이핑하는 일. 그래서 주말 하나를 들여 [SSH Config Manager](https://www.sshmanager.app)를 만들기 시작했다.
+
+`~/.ssh/config`를 포맷을 망가뜨리지 않고 편집하고, 터널을 프리셋으로 저장하고, `ssh` 바이너리를 띄우는 대신 앱 안에서 직접 터널을 여는 네이티브 macOS 앱이다. 처음엔 자기 워크플로만 생각하고 만들었고, App Store 등록은 스스로 쓸 만해진 뒤에 나온 결정이었다.
+
+![Image description](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/zuy65n42ow98c83cpb65.png)
+
+## VPN을 쓰면 되지 않나
+
+사람들이 가장 먼저 묻는 질문이다. 저자의 대답은 솔직하다. SSH는 이미 속속들이 아는 도구라서다.
+
+`sshd`를 여러 번 설정해봤기 때문에 `PermitRootLogin no`와 `PasswordAuthentication no`가 실제로 뭘 바꾸는지 안다. 연결이 끊기면 어느 줄이 문제인지 대개 짚어낼 수 있다. 반면 VPN은 아래쪽에 네트워크 계층을 하나 더 깐다. 별도의 자격 증명, 계속 패치해야 할 백그라운드 데몬, 그리고 프로덕션이 죽은 새벽 2시에 디버깅해야 할 고유한 장애 모드까지 딸려온다. SSH는 손대는 모든 리눅스 서버와 모든 개발 머신에 이미 깔려 있다. 새로 배포할 것도, 새로 보안을 챙길 것도 없다.
+
+물론 대가가 있다. VPN 없이 간다는 건 투명한 네트워크 라우팅을 포기한다는 뜻이다. 내부 서비스에 접근하려면 미리 로컬 포트로 하나씩 명시적으로 포워딩해둬야 하고, 내 설정을 갖고 있지 않은 동료는 아무 데도 닿지 못한다. 그래도 저자는 백그라운드 데몬을 하나 더 관리하느니 포트 포워딩 목록을 깔끔하게 유지하는 쪽을 택했다.
+
+## 셸 별칭은 머신 세 대를 못 버틴다
+
+긴 명령을 줄이는 뻔한 해법은 셸 함수다. 저자에게는 통하지 않았다.
+
+일상 작업은 맥북 프로에서 하지만 ScyllaDB 작업은 리눅스에서 한다. 팀원 전원이 리눅스를 쓰고 툴링도 그걸 전제로 돌아가기 때문이다. 두 환경은 공통점이 거의 없다. 셸이 다르고, 키 경로가 다르고, 인벤토리 호스트 목록도 다르다. dotfile 동기화는 끝내 SSH 별칭이 깔끔하게 공유되는 수준까지 가지 못했고, 늘 지저분한 병합으로 끝났다. 실패 양상도 뻔했다. 노트북에서 쓴 별칭이 정작 필요한 원격 머신엔 없거나, 더 나쁘게는 몇 달 전에 바뀐 포트를 가리키고 있었다.
+
+이미 이식 가능하고 표준화된 조각은 설정 파일 그 자체다. `ssh`, `scp`, `rsync -e ssh`, 에디터의 원격 개발 플러그인까지 전부 별도 설정 없이 이 파일을 읽는다. 셸 스크립트가 아니라 `~/.ssh/config`를 중심에 두는 것, 이게 나머지 설계가 전부 파생되는 핵심 결정이었다.
+
+## 설정 키가 무슨 뜻인지 알려주는 곳이 없다
+
+![Image description](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/9sedj8mgm07sfs0vkeov.png)
+
+또 하나의 마찰 지점. 일반 텍스트 에디터는 `~/.ssh/config`를 그냥 글자 덩어리로 취급한다. 지시어 철자를 틀려도 자동완성이 잡아주거나 경고를 띄우지 않는다. 설정했다고 믿었던 값이 조용히 무시됐다는 사실은 접속하는 순간에야 알게 된다. 키워드가 실제로 뭘 하는지는 `ssh_config(5)` 맨 페이지에 적혀 있는데, 그건 편집하면서 창을 왔다 갔다 하기 가장 싫은 위치다.
+
+그래서 앱에 키워드 카탈로그를 통째로 넣었다. `KeywordRegistry.swift`에는 현재 95개 항목이 들어 있고, 각각 표준 철자, 기대하는 값 타입(문자열, 정수, 불리언, 고정 열거형, 경로, 리스트), 카테고리 섹션, 그리고 `ssh_config(5)`에서 그대로 뽑아온 짧은 도움말을 담고 있다.
+
+```swift
+.init(
+    canonical: "IdentityFile", field: .path, category: .identity,
+    help: "Private key file for public-key authentication. May be repeated."),
+.init(
+    canonical: "ProxyJump", field: .string, category: .connection,
+    help: "Connect through one or more jump hosts, e.g. user@bastion:22."),
+```
+
+이 레지스트리가 실시간 자동완성, 검색 가능한 "Add Setting" 피커, 필드 인라인 문서를 굴린다. `IdentityFile`인지 `IdentityKey`인지, `IdentitiesOnly`가 파일 경로를 받는지 헷갈릴 일이 사라진다.
+
+에디터 엔진은 완전 무손실이다. 주석, 빈 줄, 직접 넣은 들여쓰기가 그대로 남는다. 저장할 때 다시 쓰이는 건 수정된 지시어뿐이다. 이 부분이 결정적이었다. 저자의 SSH 설정에는 난해한 호스트 설정을 설명하는 인라인 주석이 몇 년치 쌓여 있고, 저장할 때마다 포맷을 갈아엎거나 주석을 날려버리는 도구라면 딱 한 번 쓰고 지웠을 거라고 한다.
+
+## 터널 엔진은 `ssh`를 실행하지 않는다
+
+![Image description](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/lxppcu3gu2t4m3017yo4.png)
+
+가장 흥미로운 아키텍처 제약은 Apple의 App Store 가이드라인에서 나왔다. 샌드박스 macOS 앱은 시스템의 `/usr/bin/ssh` 바이너리를 마음대로 띄울 수 없다. 그래서 모든 SSH 터널은 `NIOTunnelEngine.swift` 안에서 `swift-nio-ssh`를 써 앱 프로세스 내부에서 열린다. 실행 경로 어디에도 `ssh` 하위 프로세스가 없다.
+
+이걸 구현하는 데 나머지 앱 전부를 합친 것보다 많은 공이 들어갔다. 세 가지 포워딩 모드가 모두 같은 연결 모델 위에서 동작한다.
+
+* `-L`은 고정된 목적지를 향한 `direct-tcpip` 채널에 로컬 리스너를 붙인다.
+* `-D`는 같은 채널 타입을 동적 SOCKS5 프록시 리스너로 구동한다.
+* `-R`은 반대 방향이다. 엔진이 서버에 `tcpip-forward`를 요청하고, 돌아온 `forwarded-tcpip` 채널을 각각 로컬 포트에 매핑한다.
+
+`ProxyJump` 지시어는 접속 전에 재귀적으로 풀어 순서가 잡힌 홉 체인으로 만든다. 각 점프 호스트는 자기 설정(`User`, `IdentityFile`, 중첩된 `ProxyJump`)을 OpenSSH가 평가하는 방식 그대로 물려받는다. 호스트 키는 `known_hosts`로 검증하고, 처음 보는 호스트는 TOFU(trust-on-first-use)로 처리한다.
+
+완전한 동작 일치를 맞추기 위해 `swift-nio-ssh`에 없던 기능 두 가지를 직접 채워 넣었다.
+
+1. **RSA 지원** — `swift-nio-ssh`는 기본적으로 RSA 키를 지원하지 않는다. 시작 시점에 `NIOSSHRSA`를 커스텀 키 핸들러로 등록해, 파일이나 SSH 에이전트에서 온 `ssh-rsa` 신원을 핸드셰이크 때 제시할 수 있게 했다.
+2. **포스트 양자 키 교환** — macOS 15 이전 시스템에는 CryptoKit의 네이티브 ML-KEM 지원이 없다. 시작 시 ML-KEM-768 폴백 백엔드를 설치해 지원 대상 macOS 전 버전에서 최신 포스트 양자 키 교환이 동작하도록 했다.
+
+재접속 로직은 `TunnelBackoff.swift`의 결정적 지수 백오프를 따른다. 1초, 2초, 5초, 15초로 올라가다 상한에 걸리고 ±20% 지터가 붙는다. 이 로직을 독립된 순수 타입으로 떼어놨기 때문에 살아 있는 네트워크 서버 없이도 백오프 스케줄을 전부 단위 테스트할 수 있다.
+
+명시해둘 트레이드오프도 있다.
+
+* `ProxyCommand`는 아예 거부한다. 앱 샌드박스 안에서는 임의의 하위 프로세스 실행이 막혀 있다.
+* `ControlMaster` 멀티플렉싱 지시어는 파싱과 검증까지만 하고 실행하지 않는다. 다중화할 로컬 하위 프로세스 자체가 없기 때문이다.
+* 앱을 종료하면 열려 있던 터널도 끊긴다.
+
+네이티브 바이너리를 꼭 돌려야 하는 예외 상황을 위해, 앱이 그에 해당하는 명령 문자열을 만들어 클립보드에 복사해준다.
+
+```bash
+ssh -N -T -o ControlPath=none -L 3000:localhost:3000 prod-1
+```
+
+해석된 IP가 아니라 호스트 별칭을 넘기기 때문에 `ssh`가 자체적으로 이름을 해석한다. 셸에서 손으로 친 것과 동작이 완전히 같다는 뜻이다.
+
+![retro MS-DOS terminal with keyboard illumination](https://images.pexels.com/photos/37657434/pexels-photo-37657434.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Rafael Minguet Delgado](https://www.pexels.com/@rafael-minguet-delgado) on [Pexels](https://www.pexels.com/photo/retro-ms-dos-terminal-with-keyboard-illumination-37657434/)*
+
+## 연결 상태가 눈에 보인다는 것
+
+시각적 인터페이스에는 분명한 운영상 이점이 있다. 활성 터널, 불안정하게 끊겼다 붙었다 하는 연결, 해석된 신원 키, 정확한 에러 진단이 한 화면에 보이는 대시보드는 터미널 명령을 하나씩 두드려 확인하는 것과 비교하면 화면을 내줄 값어치를 한다.
+
+가장 쓸모 있는 기능으로 드러난 건 내장 `known_hosts` 감사기였다. 네트워크에 손대지 않고 정적 분석만으로 아래 문제들을 잡아낸다.
+
+* **깨진 항목** — 파싱되지 않는 문법이나 손상된 줄.
+* **중복** — 충돌하거나 불필요하게 반복되는 호스트 정의.
+* **고아 항목** — `~/.ssh/config`의 어떤 호스트 항목과도 맞지 않는 호스트 키.
+
+해시 처리된 항목은 호스트명을 되돌릴 수 없어 고아 검사에서 제외하고, 폐기(revoked) 키 항목은 의도적으로 남긴다. 하나하나는 대단한 발견이 아니지만, 다 합치면 `known_hosts`가 끝없이 불어나는 잡동사니 서랍에서 실제로 이해하고 관리하는 파일로 바뀐다.
+
+## App Store가 남긴 것
+
+Mac App Store 제출은 저자의 첫 경험이었다. 보람과 번거로움이 반반이었다고 한다. 샌드박스 제약 때문에 어쩔 수 없이 앱 내부 터널 엔진을 만들게 됐는데, 결과적으로 바이너리를 호출하는 방식보다 깔끔하고 튼튼한 아키텍처가 나왔다. 플랫폼의 한계가 더 나은 설계로 이어진 사례다.
+
+Apple 개발자 등록비는 한 번만 내면 되는 적은 금액이고, 구독 모델 없이 유지보수 비용을 스스로 감당할 정도로 단순하게 가격을 매기는 쪽을 택했다. 개인적 필요에서 출발한 도구라, 사용자가 몇 명이든 저자에겐 여전히 가치가 있다는 것이다.
+
+잠긴 서버 구조와 부실한 SSH 설정을 함께 다루고 있다면, 당장 가져다 쓰기 가장 쉬운 조각은 `known_hosts` 감사 패턴이다. 깨지고 중복되고 고아가 된 줄을 찾아내는 일은 구현이 간단하면서도, 대부분의 개발자가 방치하는 기술 부채를 즉시 걷어낸다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

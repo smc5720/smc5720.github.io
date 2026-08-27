@@ -575,6 +575,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/devteam/introducing-ai-disclosure-on-dev-tools-for-nuance-clarity-and-better-feeds-34mk": {
+    "ok": true,
+    "title": "Introducing AI Disclosure on DEV: Tools for Nuance, Clarity, and Better Feeds",
+    "description": "We're introducing structured AI disclosure tiers to foster transparency, preserve human connection, and give you control over your reading experience.",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fa5ng5823j7o5rqdpp91x.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-27"
+  },
   "https://dev.to/devteam/join-our-latest-frontend-challenge-comfort-food-edition-28a0": {
     "ok": true,
     "title": "Join our latest Frontend Challenge: Comfort Food Edition 🍲",
@@ -1567,6 +1575,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/malusev998/why-i-built-an-ssh-config-and-tunnel-manager-for-macos-58n8": {
+    "ok": true,
+    "title": "Why I Built an SSH Config and Tunnel Manager for macOS",
+    "description": "Every internal tool I need sits behind SSH. Grafana, Prometheus, the staging clusters, internal AI...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F50hep6ieicbiielg9o2z.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-27"
+  },
   "https://dev.to/manolito99/the-nodejs-mistake-that-cost-my-client-3000-in-aws-bills-30a5": {
     "ok": true,
     "title": "The Node.js Mistake That Cost My Client $3,000 in AWS Bills",
@@ -1870,6 +1886,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fgbvbks7p2e7lo17n44uj.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-19"
+  },
+  "https://dev.to/sylwia-lask/10-git-commands-youll-wish-you-knew-earlier-4fcp": {
+    "ok": true,
+    "title": "10 Git Commands You’ll Wish You Knew Earlier",
+    "description": "Do you know Git?&nbsp;Of course you do! Today, I’ve got a few of my favorite Git commands for...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fg32incg59t688pdez6il.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-27"
   },
   "https://dev.to/sylwia-lask/4-tiny-mistakes-that-secretly-destroy-app-performance-3cgo": {
     "ok": true,
