@@ -23,6 +23,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-20"
   },
+  "https://dev.to/adamthedeveloper/portfolio-update-i-guess-4ob3": {
+    "ok": true,
+    "title": "Portfolio Update, I Guess",
+    "description": "This isn't my main piece for the week, it's more of a \"contributes nothing to knowledge\" kind of...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fol9qutu60fzdga2jtns2.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-28"
+  },
   "https://dev.to/adamthedeveloper/stop-saying-you-want-ownership-mindset-34nf": {
     "ok": true,
     "title": "Stop Saying You Want Ownership Mindset",
@@ -1462,6 +1470,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fmpjcvof042qvkiv4cs49.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-22"
+  },
+  "https://dev.to/kenwalger/your-hiring-process-needs-http-status-codes-png": {
+    "ok": true,
+    "title": "Your Hiring Process Needs HTTP Status Codes",
+    "description": "Because \"we'll be in touch\" is not an observable state.  I submitted a job application recently.  It...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fco4gfhxofczaypfm6mmx.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-28"
   },
   "https://dev.to/klaudiagrz/celebrate-june-rituals-with-solstice-bingo-1al6": {
     "ok": true,

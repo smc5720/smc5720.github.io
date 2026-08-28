@@ -1,0 +1,103 @@
+﻿---
+title: "포트폴리오를 갈아엎었다 — 개발자 Adam의 개인 사이트 리뉴얼기"
+description: "Dev.to 개발자 Adam이 지나치게 격식 있던 포트폴리오를 성격이 드러나는 사이트로 새로 만들었다. 말투 토글, 날씨 테마, Dev.to API 조회수 연동, 역대 디자인 아카이브까지 담았다."
+date: "2026-08-26"
+published_at: "2026-08-28"
+category: "news"
+tags: ["portfolio", "devto", "frontend", "webdev"]
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fol9qutu60fzdga2jtns2.png"
+coverAlt: "Portfolio Update, I Guess"
+slug: "portfolio-update-i-guess"
+source_id: "devto-4491188"
+source_url: "https://dev.to/adamthedeveloper/portfolio-update-i-guess-4ob3"
+source_title: "Portfolio Update, I Guess"
+source_author: "Adam - The Developer ✨"
+source_published: "2026-08-26"
+---
+
+<LinkCard url="https://dev.to/adamthedeveloper/portfolio-update-i-guess-4ob3" author="Adam - The Developer ✨" date="2026-08-26" />
+
+## 개요
+
+Dev.to에 글을 쓰는 개발자 Adam이 자신의 포트폴리오 사이트를 새로 단장했다. 이유는 단순하다. 예전 버전이 너무 격식만 차렸다는 것.
+
+본인 표현으로는 "포트폴리오에 성격 이식 수술을 했다"고 한다. 결과물은 [a-thedeveloper.vercel.app](https://a-thedeveloper.vercel.app)에서 볼 수 있다. 글 서두에서 그는 이번 포스트가 "지식에 아무 기여도 하지 않는 종류의 글"이라고 미리 선을 그었다.
+
+![Updated portfolio](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/pkmbjwmekzd93tee28v5.png)
+
+## 말투를 고를 수 있는 사이트
+
+가장 눈에 띄는 기능은 톤 토글이다. 기본값은 professional 모드고, 여기서 스위치를 넘기면 그가 "필터 없는 버전의 나"라고 부르는 말투로 사이트 전체 문구가 바뀐다.
+
+![Tone](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/kq0g48i0p0rppfeuk7ot.png)
+
+그 말투는 실제 지금의 그가 쓰는 말투는 아니다. 영어권에서 자란 십 대 시절의 화법을 옮겨온 것이라고 설명한다. 다들 그렇듯 뚱한 십 대였는데, 자기는 남들보다 **유난히** 더 심했다고. 문제는 당시 인스타그램 계정 접근 권한을 잃어버렸다는 점이다. 그 시절 글이 아직도 공개 상태로 남아 있어서, 계정이 조용히 삭제되기만을 매일 빌고 있다고 한다.
+
+그 에너지가 완전히 사라졌냐고 묻는다면, 답은 아니다. 다만 지금은 적절한 맥락 안에서만 꺼낸다는 게 달라진 점이다.
+
+옛 마이크로소프트 드라이브를 뒤지다 찾은 16세 시절 자료도 함께 공개했다. 아래 이미지는 실제 토론 대회에서 그가 했던 오프닝 발언이다. 그 팀이 이겼는지 졌는지는 기억나지 않는다고.
+
+![Debate opening](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/qzvjn7swy7kselmu7ans.png)
+
+![absolutely unhinged](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/xyv6ll1kgtaakzpa6r5b.png)
+
+## 날씨 테마와 배경 음악
+
+포트폴리오 성격과는 직접 관련이 없지만, 날씨를 고르는 옵션도 넣었다.
+
+원래 계획은 비 오는 날씨 하나만 넣는 것이었다. 어둡고 흐리고 우중충한 날씨를 워낙 좋아해서, 그런 날씨 덕에 영국이 천국처럼 보인다고 할 정도다. 그러다 생각을 바꿔 전부 넣기로 했다.
+
+지금은 날씨를 고를 때마다 그에 맞는 요소가 화면 위로 떨어지고, 분위기에 어울린다고 판단한 음악도 함께 재생된다. 실용적인 목적은 없지만 있으면 좋은 소소한 장치라는 게 그의 설명이다.
+
+![Weather options](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/m3dan4n38ebvduu8cb4t.png)
+![Music Bar](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/r3pmt17c94lmjup22som.png)
+
+## API 키로 Dev.to 조회수 가져오기
+
+![Update lettering text on black background](https://images.pexels.com/photos/5697254/pexels-photo-5697254.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Anna Tarazevich](https://www.pexels.com/@anna-tarazevich) on [Pexels](https://www.pexels.com/photo/update-lettering-text-on-black-background-5697254/)*
+
+2023년 Dev.to에 가입했을 때 그는 API 키 생성 옵션을 봤다. 무슨 용도인지 몰랐고 문서도 확인하지 않은 채, 자기 사이트에 글 목록을 띄우려면 이게 필요하겠거니 짐작만 했다고 한다.
+
+결론은 반은 맞고 반은 틀렸다. Dev.to는 API 키 없이도 글 목록을 가져올 수 있는 공개 URL을 제공한다. 다만 조회수는 주지 않는다.
+
+조회수까지 붙여보자는 아이디어는 @ketanchavan이 쓴 [이 글](https://dev.to/ketanchavan/devto-api-fetch-public-private-data-effortlessly-1nba)을 보고 떠올렸다. 그가 사용한 코드는 다음과 같다.
+
+```ts
+async function fetchFromUpstream(): Promise<DevToArticle[]> {
+  const apiKey = process.env.DEVTO_API_KEY;
+  if (!apiKey) {
+    throw new Error("DEVTO_API_KEY is not configured");
+  }
+
+  const upstreamResponse = await fetch(DEVTO_PUBLISHED_URL, {
+    headers: {
+      "api-key": apiKey,
+      Accept: "application/json",
+    },
+  });
+
+  if (!upstreamResponse.ok) {
+    throw new Error(`Failed to fetch dev articles (${upstreamResponse.status})`);
+  }
+
+  const payload = (await upstreamResponse.json()) as DevToArticlePayload[];
+  return mapArticles(payload);
+}
+```
+
+환경변수에서 API 키를 읽어 `api-key` 헤더에 실어 보내는 구조다. 응답이 정상이 아니면 상태 코드를 담아 에러를 던지고, 정상이면 JSON을 파싱해 매핑한다.
+
+![DEV articles](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/wr34k9x8vg8m10zc2ijn.png)
+
+## 역대 디자인 아카이브
+
+마지막으로 추가한 건 아카이브 섹션이다. 버전 관리로도 이력은 남지만, 지난 디자인을 한눈에 이미지로 훑는 쪽이 훨씬 낫다는 것이다.
+
+그는 2023년 처음 포트폴리오를 만든 뒤로 디자인을 여러 번 바꿔왔다. 첫 포트폴리오를 만든 시점은 커리어를 시작한 지 2년째, 두 번째 소프트웨어 엔지니어 직장을 구한 직후였다. 지금 돌아보면 스스로도 좀 이상하다고 느낀다고 한다.
+
+![Archives](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/q0q8oqsv6f46io827asz.png)
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
