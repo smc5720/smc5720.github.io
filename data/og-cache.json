@@ -679,6 +679,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/devteam/what-was-your-win-this-week-51oc": {
+    "ok": true,
+    "title": "What was your win this week?!",
+    "description": "👋👋👋👋 Looking back on your week -- what was something you're proud of? All wins count -- big or small...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fjigcix6ooxf6c7l7jvyi.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-29"
+  },
   "https://dev.to/devteam/what-was-your-win-this-week-amo": {
     "ok": true,
     "title": "What was your win this week!?",
@@ -790,6 +798,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F02xgmyhot3rv6vpj20u0.jpg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/francistrdev/monthly-dev-report-august-2026-4mh2": {
+    "ok": true,
+    "title": "🗓️ Monthly Dev Report: August 2026",
+    "description": "Hey everyone! I bring you my development journey on what I have discovered, accomplishments for this...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F2vbpmkm968po73mdufan.gif",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-29"
   },
   "https://dev.to/francistrdev/monthly-dev-report-july-2026-1jdm": {
     "ok": true,
@@ -1207,6 +1223,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/he4rt/velocidade-de-entrega-e-custo-de-manutencao-pos-ia-5gei": {
+    "ok": true,
+    "title": "Velocidade de entrega e custo de manutenção pós IA",
+    "description": "Entregar ficou rápido demais. O problema é que manter continuou custando o mesmo preço de sempre.    ...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fv4142qa7xnvwr93p1kii.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-29"
+  },
   "https://dev.to/heinrichneb/ai-promoted-every-developer-to-reviewer-nobody-tested-the-reviewer-m4h": {
     "ok": true,
     "title": "AI promoted every developer to reviewer. Nobody tested the reviewer.",
@@ -1615,6 +1639,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-23"
   },
+  "https://dev.to/marcosomma/your-ai-remembers-everything-and-trusts-all-of-it-4gg": {
+    "ok": true,
+    "title": "Your AI Remembers Everything and Trusts All of It",
+    "description": "I think we are still talking about AI memory in the wrong way. Most implementations are variations of...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F8x6s64goy0ycw1604j6n.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-29"
+  },
   "https://dev.to/marvsonhelbs/ai-slop-is-everywhere-heres-what-i-keep-coming-back-to-1i42": {
     "ok": true,
     "title": "AI slop is everywhere. Here's what I keep coming back to.",
@@ -1782,6 +1814,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ft7fgab29vtqhencvqukv.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-21"
+  },
+  "https://dev.to/playfulprogramming/nobody-argued-for-your-stack-51fj": {
+    "ok": true,
+    "title": "Nobody Argued For Your Stack",
+    "description": "Last week, it came to light Cursor had mostly finished migrating from SolidJS to React. This...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fdt196dzugry1anlsqkvf.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-29"
   },
   "https://dev.to/ramkumar-m-n/github-actions-cicd-explained-like-a-robot-assembly-line-1f7c": {
     "ok": true,

@@ -1,0 +1,112 @@
+﻿---
+title: "당신의 스택을 옹호한 사람은 아무도 없었다 (Nobody Argued For Your Stack)"
+description: "Cursor의 SolidJS → React 마이그레이션이 근거 없이 Anthropic 문서의 예시로 굳어진 과정을 짚으며, SolidJS 창시자 Ryan Carniato가 기술 선택에서 '논증'이 사라지고 '판결'만 유통되는 현상을 진단했다."
+date: "2026-08-27"
+published_at: "2026-08-29"
+category: "news"
+tags: ["javascript", "react", "solidjs", "ai"]
+slug: "nobody-argued-for-your-stack"
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fdt196dzugry1anlsqkvf.png"
+coverAlt: "Nobody Argued For Your Stack"
+source_id: "devto-4496488"
+source_url: "https://dev.to/playfulprogramming/nobody-argued-for-your-stack-51fj"
+source_title: "Nobody Argued For Your Stack"
+source_author: "Ryan Carniato"
+source_published: "2026-08-27"
+---
+
+<LinkCard url="https://dev.to/playfulprogramming/nobody-argued-for-your-stack-51fj" author="Ryan Carniato" date="2026-08-27" />
+
+## 개요
+
+SolidJS를 만든 Ryan Carniato가 자기 프레임워크가 "마이그레이션해서 벗어나는 대상"의 표준 예시로 굳어지는 순간을 목격했다. Anthropic이 Claude Code의 대규모 마이그레이션 기능을 설명하는 공식 문서에서 든 예시 명령이 하필 SolidJS에서 React로 옮기는 작업이었다.
+
+시점이 공교로웠다. Cursor가 SolidJS에서 React로 넘어간 사실이 알려진 게 지난주, Solid 2.0 RC를 공개한 것도 같은 주였다. 프로젝트 역사상 가장 큰 릴리스를 내놓은 주에 자기 작업이 탈출 대상의 대명사가 된 셈이다.
+
+그런데 Carniato가 Internet Archive를 뒤져보니 그 문서는 최소 2026년 4월부터 그 자리에 있었다. Cursor 이야기가 터지기 넉 달 전이다. 그가 이 글에서 던지는 문제는 여기서 시작한다. 업계가 어느새 논증(argument) 대신 판결(verdict)을 주고받기 시작했다는 것.
+
+## 근거 없이 굳어진 결론
+
+Cursor의 마이그레이션이 공개적으로 남긴 흔적은 1월 블로그 글에 실험 하나가 언급된 게 전부였다. 더 큰 업데이트들 사이에 끼어 있어 업계 밖에서는 알아채기도 어려운 수준이었다. 논거도, 벤치마크도, 주장도 없었다.
+
+![논쟁하는 두 사람](https://images.pexels.com/photos/8780508/pexels-photo-8780508.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Afif Ramdhasuma](https://www.pexels.com/@afiframdhasuma) on [Pexels](https://www.pexels.com/photo/a-man-and-woman-arguing-while-pointing-fingers-8780508/)*
+
+Carniato는 Anthropic 쪽에서 그 Cursor 글을 읽었다고 증명할 방법은 없다고 분명히 못 박는다. 문서 작성자가 실험을 봤을 수도, Claude가 스스로 예시를 뽑아냈을 수도 있다. 다만 어느 쪽이든 결론은 불편하다. 한 회사 릴리스 노트에 묻혀 있던 한 줄이 다른 회사 공식 문서로 건너갔거나, 아니면 애초에 출처 자체가 필요 없었거나. 공개된 마이그레이션 사례가 존재하기도 전에 이미 전제로 깔려 있었다는 뜻이다.
+
+## 왜 지금 더 문제인가
+
+팀이 대형 업체를 따라 하는 건 새로운 일이 아니다. "Netflix가 쓴다", "Facebook이 쓴다"는 AI 이전부터 수십 년간 작동했고, React 초기 확산에도 Facebook의 무게가 분명히 도움이 됐다.
+
+달라진 건 마찰이다. 예전에도 서사는 경쟁에 참여했지만 논증을 앞지르지는 못했다. Carniato는 두 가지가 이 균형을 무너뜨렸다고 본다.
+
+### 실행 비용이 무너졌다
+
+[Bun이 Zig에서 Rust로 갈아탄 작업](https://bun.com/blog/bun-in-rust)은 약 100만 줄 규모였는데, 대부분을 Claude 에이전트가 처리했다. 몇 달이 아니라 며칠이 걸렸다. 락인을 걱정할 필요도 없다. 반대 방향으로 되돌리는 것도 쉽지는 않지만 지금보다 쉬웠던 적은 없다. Rust에서 Zig로, React에서 Solid로 옮기는 것 역시 마찬가지다.
+
+표면적으로는 좋은 소식이다. 마이그레이션에 수년의 인력이 들던 시절에는 비용이 유행을 눌러줬다. 이제는 어느 방향이든 실행이 싸졌고, 남은 건 이유뿐이다. 그래서 기술적 타당성이 결정을 이끌어야 마땅한데, 실제로 방향을 정하는 게 서사라면 문서에 묻힌 한 줄이 에세이 한 편만큼의 무게를 갖게 된다.
+
+### 판결이 산업적으로 생산된다
+
+[Cognition은 마케팅 사이트를 Astro에서 Next.js로 옮겼다](https://x.com/jaredpalmer/status/2089463862085251372). 콘텐츠 사이트, 그러니까 이해관계 없는 사람들까지 거의 만장일치로 Astro의 영역이라고 보는 그 분야다. 이 작업은 Devin이 직접 수행했고 케이스 스터디로 발행됐다. 에이전트가 코드를 바꾸고, 테스트하고, 자기 검증 실행 기록을 남겼다. 저장소도, 전후 수치도, 벤치마크도 없다. 결과물은 사이트가 아니라 이야기였다.
+
+이런 이야기는 넘쳐난다. 마이그레이션은 에이전트 업계의 대표 데모 장르가 됐다. 그런데 데모가 매끄럽게 굴러가는 마이그레이션은 정의상 오늘날 에이전트가 가장 잘 쓰는 쪽으로 향하는 작업이다. 마케팅 부서가 "X → 지배적 라이브러리" 판결을 찍어내는 속도는, 실제 엔지니어링 판단이 도저히 따라갈 수 없는 수준이다.
+
+정리하면 이렇다. 스택은 그 어느 때보다 유통되는 판결에 민감해졌고, 판결은 그 어느 때보다 빠르게, 그 어느 때보다 적은 근거를 달고 생산된다.
+
+## 논증은 이렇게 생겼다
+
+논증이 사라진 건 아니다. 드물어졌을 뿐이다.
+
+[Bun이 Zig에서 Rust로 옮겼을 때](https://bun.com/blog/bun-in-rust) Jarred Sumner는 공개적으로, 증거를 붙여 근거를 설명했다. 버그 유형과 메모리 관리 문제를 짚었다. 동의하지 않아도 된다. [실제로 반박한 사람도 있다](https://andrewkelley.me/post/my-thoughts-bun-rust-rewrite.html). 공개적으로, 항목별로. 그게 가치다. 논증은 붙어볼 수 있고, 검증하고, 범위를 좁히고, 반박하거나 보강할 수 있다. 판결은 반복할 수 있을 뿐이다.
+
+TanStack이 React Server Components를 두고 걸어온 길도 좋은 예다. tanstack.com은 거의 1년 내내 자기 자신과 논쟁했다. [RSC를 도입했을 때](https://tanstack.com/blog/react-server-components) 그 과정을 글로 쓰고 측정했다. [RSC 사용을 중단했을 때](https://tanstack.com/blog/we-stopped-using-rsc-on-tanstack-com)도 똑같이 했다. 무엇이 바뀌었고, 무엇으로 대체했고, 자기들 사례에서 왜 트레이드오프가 뒤집혔는지 적었다. 그러면서 TanStack Start는 RSC를 opt-in 프리미티브로 계속 지원했다.
+
+번복을 알리는 글이 그 결정을 "특별할 것 없는(uneventful)" 일로 표현한 게 핵심이다. React 대표 아키텍처에 대한 공개 번복인데도 열기 대신 통찰을 남겼다. 판결이 아니라 분석을 내놓았기 때문이다.
+
+jQuery는 학습 데이터가 그렇게 말해서 React에 진 게 아니다. 여러 해에 걸쳐 공개적으로, 실력으로 논쟁에서 밀렸다. 당신이 존중하는 모든 라이브러리는 그런 싸움을 이겨서 지금 자리에 있다. 앞서 설명한 흐름에는 그런 싸움이 없다. 방향만 있고, 그 방향이 복리로 쌓인다.
+
+## 아무도 발행하지 않은 논증
+
+공정하게 말하면 Cursor는 판결을 내린 적이 없다. "여전히 신중한 검토가 필요하다"고 한 실험, 그리고 [Solid 2.0 RC 릴리스를 축하하는 글](https://x.com/poteto/status/2089227731305464150)이 전부다. 다만 그 글은 시그널을 "perf footguns", "accidental fan out"으로 규정했다. 수치도, 붙어볼 지점도 없이 곧장 React Compiler를 해법으로 집었다. 악의는 필요 없다. 진단과 처방이 같은 곳에서 나왔을 뿐이다.
+
+Carniato가 Cursor 입장에서 만들 수 있었을 논증을 직접 재구성해보니 결과가 흥미로웠다. "perf footguns"보다 훨씬.
+
+문제 제기 자체는 명확했다. 에이전트가 "좋은 Solid 코드를 쓰는 데 상당히 서툴렀고", 모든 게 "실수로 추적되는" 상태가 됐다는 것. React의 사고 모델을 체화한 에이전트는 Solid를 React처럼 쓰고, React처럼 쓴 Solid는 나쁜 Solid다. 반대 경우도 있다. 차이는 에이전트가 React에서 헛발질하면 학습 데이터가 잡아주지만, Solid에서 헛발질하면 학습 데이터가 어깨를 으쓱한다는 점이다. 순수하게 물량 싸움이다.
+
+### 물량과 검증, 두 개의 축
+
+그런데 같은 글에 정반대 방향의 결정도 담겨 있다. Cursor는 Tailwind에서 StyleX로도 옮기는 중이다. 이건 물량을 거스르는 마이그레이션이다. StyleX가 대신 제공하는 건 에이전트의 실수가 걸린다는 점이다. 스타일에 타입이 붙고 병합 순서가 결정적이라, 환각으로 만들어낸 클래스는 빌드 에러가 된다.
+
+두 결정을 나란히 놓으면 하나의 결론이 나온다. 에이전트의 실수를 싸게 만들어라. 방법은 두 가지, 물량과 검증이다. React는 컴파일러까지 더해 물량에서 이기고 검증에서도 어느 정도 앞선다. StyleX는 물량에서 지고 검증에서 압도적으로 이긴다. Carniato는 이 관점에서 Solid 1.0 시절의 시그널 기반 반응성이 편한 위치는 아니라고 인정한다. 그리고 우연이 아니게도, Solid 2.0의 설계가 집중한 지점이 바로 거기다.
+
+물량과 검증이라는 두 축은 구체적이고, 검증 가능하고, 쓸모 있다. 테스트 가능한 주장을 함의하고, 모든 프레임워크 제작자에게 설계 목표를 준다. 틀렸을 수도 있다. 벤치마크 없는 글과 본인 추론으로 재구성한 것이라, Cursor의 실제 판단 근거는 전혀 다를 수 있다고 그는 덧붙인다.
+
+StyleX 쪽 결정이 더 흥미롭다. 검증이 이길 때는 에이전트 주도 개발도 물량을 거슬러 움직일 수 있다는 뜻이기 때문이다. 규모가 작은 기술이 붙잡을 수 있는 두 번째 각도다.
+
+## 이대로 두면 벌어질 일
+
+이 논리를 끝까지 밀면, 몇몇 예외를 빼고 각 계층이 오늘 가장 인기 있는 해법으로 수렴한다. 프론트엔드는 React로, 시스템은 Rust로, 스크립팅은 Python으로. 페이지만 있으면 되는 사이트조차 적합성과 무관하게 Next로 간다. 모노컬처다. 누군가 실력을 따져 라이브러리를 고른 결과가 아니라, "학습 데이터에 많다"와 "더 좋다"를 구분하지 못하게 된 시스템이 만들어낸 결과다.
+
+![회의실에서 대화하는 사람들](https://images.pexels.com/photos/7640480/pexels-photo-7640480.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Yan Krukau](https://www.pexels.com/@yankrukov) on [Pexels](https://www.pexels.com/photo/a-boss-arguing-with-his-employee-7640480/)*
+
+React 팬이라도 걱정해야 한다고 Carniato는 말한다. React가 좋았던 건 경쟁이 있었기 때문이다. Hooks는 컴포지션 패턴을 여기저기서 탐색하던 세계에서 나왔다. React Compiler가 존재하는 이유 중 하나는 시그널 기반 프레임워크들이 몇 년간 밀어붙인 질문이다. 왜 개발자가 세상 전체를 다시 렌더링하는 비용을 치러야 하나? React의 최대 강점은 언제나 바깥의 압력을 소화해내는 능력이었다. 모노컬처는 대안만 죽이는 게 아니라 압력을 죽인다. 압력 없는 생태계는 좋은 상태로 남지 않고, 정체된 상태로 남는다.
+
+돌아갈 길은 있다. 팀은 판결이 아니라 분석을 발행한다. 모델 벤더는 자기가 내보내는 것을 공개적으로 평가한다. 라이브러리는 StyleX의 사례에서 배워 검증에 걸어본다. 그리고 나머지 사람들은 증폭하기 전에 출력과 논증을 구분하는 법을 익힌다. 마지막 항목은 소셜 미디어가 등장한 이래 계속 실패해온 일이기도 하다.
+
+그동안에도 룰 파일, llms.txt, MCP로 제공하는 문서, 큐레이션한 예제는 계속 만들 수 있다. Solid 2.0 팀도 전부 하고 있고 도움이 된다. 하지만 컨텍스트는 빌린 것이지 소유한 게 아니다. 매 세션, 매 도구마다 영원히 주입해야 하는 반면, 관성은 공짜로 반대편에서 작동한다.
+
+## 다음 아이디어는 어디서 오는가
+
+Carniato가 마지막에 남긴 질문은 Solid의 생존이 아니다. 자기들은 괜찮다고 그는 말한다. 역사상 가장 큰 릴리스를 내고 있고, 이 프레임워크를 의도적으로 선택했으며 그 이유를 아는 커뮤니티가 있다.
+
+질문은 다음 아이디어가 어디서 오느냐다.
+
+의미 있었던 모든 패러다임은 기득권이 쓸 수 없던 것에서 출발했다. React는 JSX 때문에 거의 1년을 조롱당했다. JavaScript 안에 마크업? 제정신인가? 관심사 분리는 어쩌고? 지금의 기계 장치가 2013년에 있었다면, jQuery와 Backbone뿐인 웹으로 학습한 모델과 모두가 이미 하고 있던 마이그레이션을 정전화하는 문서, 논증보다 몇 달 앞서 도는 판결 속에서 React가 그 단계를 통과할 수 있었을까?
+
+React가 이긴 건 기본값이 유리해서가 아니다. 검증 가능한 주장을 공개적으로 편 사람들이 있었기 때문이다. 그리고 그 메커니즘이 사라졌다고 보지는 않는다고 그는 적는다. 마이그레이션은 모든 방향으로 그 어느 때보다 싸졌다. 모노컬처를 빠져나가는 문은 그 어느 때보다 열려 있다. 구현에서 거리를 두더라도 분석만큼은 대화에 남겨두면 된다. 그게 아는 것이고, 그게 책임지는 것이다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
