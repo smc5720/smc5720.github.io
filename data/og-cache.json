@@ -15,6 +15,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-21"
   },
+  "https://dev.to/adamthedeveloper/go-doesnt-force-clean-architecture-thats-your-job-116": {
+    "ok": true,
+    "title": "Go Doesn't Force Clean Architecture. That's Your Job.",
+    "description": "The criticism of this is everywhere. Open any Go thread long enough and someone will show up to...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fjeeyy0qeg4luuo502enj.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-30"
+  },
   "https://dev.to/adamthedeveloper/greatness-is-forged-by-limitation-e20": {
     "ok": true,
     "title": "Greatness Is Forged by Limitation",
@@ -1727,6 +1735,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/nyaomaru/learn-valid-parentheses-reverse-linked-list-and-tree-max-depth-with-step-by-step-visualization-in-3o09": {
+    "ok": true,
+    "title": "Learn Valid Parentheses, Reverse Linked List, and Tree Max Depth with Step-by-Step Visualization in DSA View View 👀👀",
+    "description": "Hoi hoi!  I’m @nyaomaru, a frontend engineer who struggles to make game sounds. 😿  Have you used DSA...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fwkg82y5x1irq337p6yc5.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-30"
+  },
   "https://dev.to/p0rt/the-model-scored-30-the-harness-scored-100-which-one-did-you-benchmark-3mp4": {
     "ok": true,
     "title": "The Model Scored 30%. The Harness Scored 100%. Which One Did You Benchmark?",
@@ -2158,6 +2174,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ffs2okw5d4za2fq1v81yw.jpg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-19"
+  },
+  "https://dev.to/xulingfeng/back-from-wudang-mountain-the-book-is-under-review-2o3b": {
+    "ok": true,
+    "title": "Back from Wudang Mountain. The book is under review.",
+    "description": "I'm back.😂  Wudang Mountain（武当山） wrecked me. Way harder than I expected. Way more worth it than I...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fs06ypbeqmd85w8ss38gk.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-30"
   },
   "https://dev.to/xulingfeng/my-company-packaged-12-years-of-my-experience-into-an-ai-skill-then-laid-me-off-when-it-crashed-4b3e": {
     "ok": true,

@@ -1,0 +1,203 @@
+﻿---
+title: "Go는 클린 아키텍처를 강제하지 않는다. 그건 당신 몫이다"
+description: "Go가 구조를 강제하지 않아 프로젝트가 엉망이 된다는 비판에 대해, 아키텍처는 폴더가 아니라 의존성 방향에서 나온다고 짚은 Dev.to 글을 정리했다."
+date: "2026-08-28"
+published_at: "2026-08-30"
+category: "news"
+tags: []
+slug: "go-doesnt-force-clean-architecture"
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fjeeyy0qeg4luuo502enj.png"
+coverAlt: "Go Doesn't Force Clean Architecture. That's Your Job."
+source_id: "devto-4511950"
+source_url: "https://dev.to/adamthedeveloper/go-doesnt-force-clean-architecture-thats-your-job-116"
+source_title: "Go Doesn't Force Clean Architecture. That's Your Job."
+source_author: "Adam - The Developer ✨"
+source_published: "2026-08-28"
+---
+
+<LinkCard url="https://dev.to/adamthedeveloper/go-doesnt-force-clean-architecture-thats-your-job-116" author="Adam - The Developer ✨" date="2026-08-28" />
+
+## 개요
+
+Go 커뮤니티에서 반복되는 불만이 하나 있다. "Go 프로젝트는 금방 지저분해진다. 어디에 뭘 둬야 할지 알려주는 프레임워크가 없다. Nest, Django, Spring은 위치를 정확히 지정해주는데 Go는 그냥 '알아서 정리하라'고 한다."
+
+Dev.to에 글을 올린 개발자 Adam은 이 지적이 틀리지 않다고 인정한다. Go가 구조에 대해 유독 관대한 언어라는 건 사실이다. 다만 그는 지저분한 코드베이스의 책임을 Go에 돌리는 건 형편없는 에세이를 빈 문서 탓하는 것과 같다고 말한다. Go는 나쁜 아키텍처를 조장하는 게 아니라 드러낼 뿐이라는 것이다.
+
+## 완벽한 폴더 구조라는 환상
+
+Go 개발자 백 명에게 비즈니스 로직을 어디 둬야 하냐고 물으면 백 개의 답과 이백 개의 의견이 돌아온다. `internal/`을 써야 하나? 전부 `pkg/` 아래로 가야 하나? 클린 아키텍처를 따라야 하나? `cmd/` 디렉터리는 뭘 넣는 곳인가?
+
+글쓴이는 우리가 디렉터리 배치가 코드 품질을 결정하기라도 하는 것처럼 폴더 구조 논쟁에 너무 많은 시간을 쓴다고 지적한다. `utils/`를 `pkg/shared/`로 이름만 바꾼다고 뭐가 달라지지 않는다.
+
+> **폴더가 아키텍처를 만들지 않는다. 의존성이 만든다.**
+
+프로젝트를 이렇게 꼼꼼하게 정리해놓고도,
+
+```plaintext
+my-app/
+  cmd/main.go
+  internal/
+    handler/
+    service/
+    repository/
+  pkg/domain/
+  pkg/utils/
+```
+
+여전히 강하게 결합된 쓰레기를 쓸 수 있다. 핸들러가 리포지터리를 직접 호출하고, 서비스가 데이터베이스 드라이버를 import하고, 비즈니스 로직에 HTTP 관심사가 섞이고, 모든 게 순환한다. 폴더만 예쁘다. GitHub에서 보기엔 아주 잘 정리된 것처럼 보인다.
+
+글쓴이는 패키지 다섯 개짜리 프로젝트가 더 나았던 경우를 여러 번 봤다고 말한다. 스크린샷이 덜 그럴듯할 뿐이다.
+
+## 아키텍처는 의존성 방향의 문제다
+
+아키텍처란 코드가 다른 코드에 어떻게 의존할지 의도를 갖고 결정하는 일이다.
+
+```plaintext
+HTTP Handler
+    ↓
+Business Service
+    ↓
+Data Repository
+```
+
+이 흐름이 가치 있는 건 폴더 이름 때문이 아니라 각 계층이 맡은 범위 때문이다.
+
+- 핸들러는 HTTP를 번역하는 방법만 안다
+- 서비스는 비즈니스 규칙만 안다
+- 리포지터리는 데이터를 가져오는 방법만 안다
+- 각 계층은 아래 계층에만 의존하고, 절대 위로 올라가지 않는다
+
+방향을 뒤집으면 전부 깨진다.
+
+```plaintext
+Repository
+    ↓
+Service
+    ↓
+Handler
+```
+
+이제 리포지터리가 HTTP를 알아야 한다. 글쓴이의 표현을 빌리면, REST도 할 줄 아는 데이터베이스 드라이버를 발명한 셈이다.
+
+이 흐름은 파일 세 개짜리 프로젝트에서도, 모놀리스에서도, 패키지 50개짜리 마이크로서비스에서도 똑같이 통한다. Go는 README에 박힌 디렉터리 트리가 얼마나 인상적인지 신경 쓰지 않는다.
+
+## 인터페이스는 사용하는 쪽의 것이다
+
+Java에서 넘어온 사람들이 정체성 혼란을 겪는 지점이 여기다. Java에서는 보통 구현체 옆에 인터페이스를 정의한다.
+
+```java
+// repository package
+public interface UserRepository {
+    User find(String id);
+    void save(User user);
+    void delete(String id);
+}
+
+public class PostgresUserRepository implements UserRepository {
+    // ...
+}
+```
+
+리포지터리가 계약을 정의하고 구현체가 그걸 충족한다. 자연스러워 보인다. 문제는 소비자 쪽이다. 소비자는 요청한 적도 없는 추상화에 의존하게 되고, `find`만 필요했는데 `delete`까지 딸려온다.
+
+Go는 이 방향을 뒤집는다.
+
+```go
+// service package
+type UserFinder interface {
+    Find(id string) (*User, error)
+}
+
+type UserStorage interface {
+    Save(user *User) error
+}
+
+type UserService struct {
+    finder  UserFinder
+    storage UserStorage
+}
+```
+
+소비자가 자기에게 필요한 것만 정확히 정의하고, 구현체는 그 인터페이스를 만족하기만 하면 된다.
+
+```go
+type PostgresUserRepository struct {
+    db *sql.DB
+}
+
+func (r *PostgresUserRepository) Find(id string) (*User, error) {
+    // ...
+}
+
+func (r *PostgresUserRepository) Save(user *User) error {
+    // ...
+}
+```
+
+> **인터페이스는 구현체가 아니라 소비자가 소유한다.**
+
+글쓴이는 제공하는 것에 대해 인터페이스를 정의하지 말고, 필요한 것에 대해 정의하라고 정리한다. `UserService`는 의존성이 Postgres든 Redis든 파일이든 API든 상관하지 않는다. Find와 Save를 요구했을 뿐이고, 그게 관계의 전부다.
+
+## 자유는 기능이자 부담이다
+
+![Jet fighter performing aerobatic maneuver in sky](https://images.pexels.com/photos/34081633/pexels-photo-34081633.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Gibson G. Wairagu](https://www.pexels.com/@gibson-g-wairagu) on [Pexels](https://www.pexels.com/photo/jet-fighter-performing-aerobatic-maneuver-in-sky-34081633/)*
+
+지시받는 걸 선호한다면 Go의 자유는 두렵다. 사려 깊게 설계하고 싶다면 자유다. "프레임워크가 없다"를 "생각할 필요가 없다"로 이해했다면 함정이다.
+
+글쓴이는 프레임워크가 선택지를 제한해 나쁜 결정을 막는다는 통념에도 단서를 단다. 사실 프레임워크 안에서도 얼마든지 망칠 수 있고, 그 제약은 대체로 심리적인 것에 가깝다. Go는 선택의 책임을 개발자에게 넘긴다. 덜 편안하지만 더 정직한 방식이다.
+
+그래서 Go 팀은 "프레임워크가 그렇게 시켰다"는 핑계를 쓸 수 없다. 아키텍처가 엉망이라면 그건 팀이 그렇게 만든 것이다. 떠넘길 프레임워크가 없다는 것, 그게 Go의 특성이다.
+
+## 클린 아키텍처는 프레임워크가 아니다
+
+글쓴이가 자주 본다는 오해가 하나 더 있다. 클린 아키텍처 글을 읽고 폴더 트리를 저장소에 그대로 복사한 뒤, 깨끗함이 찾아오기를 기다리는 것이다. 그런 일은 일어나지 않는다.
+
+```plaintext
+cmd/
+internal/
+  application/
+  domain/
+  infrastructure/
+  entity/
+  repository/
+  usecase/
+pkg/
+tests/
+```
+
+클린 아키텍처의 핵심은 비즈니스 규칙을 구현 세부사항으로부터 독립시키는 것이다. 파일 세 개로도 가능하다.
+
+```plaintext
+cmd/main.go
+internal/
+  service.go
+  postgres.go
+pkg/models.go
+```
+
+`service.go`가 Postgres를 모르고, 비즈니스 로직이 HTTP를 모르고, 구체적인 구현체를 갈아 끼울 수 있으면 된다. `usecase`라는 이름의 폴더를 만들었다고 아키텍처 점수를 더 받지는 않는다.
+
+## 단순함이 규율 없음을 뜻하진 않는다
+
+Go는 보일러플레이트를 덜 쓰게 해주지만, 규율까지 덜어주진 않는다. 규율을 개발자가 직접 챙겨야 한다는 뜻이다. 글쓴이는 최소한 보일러플레이트는 진척처럼 느껴지긴 했다고 덧붙인다. 그가 제시한 기준은 다섯 가지다.
+
+**명확한 패키지 경계** — 모든 패키지는 하나의 방어 가능한 목적을 가져야 한다. `import "user/service"`는 뭔가를 말해주지만 `import "user/pkg1/internal/common/helpers"`는 잡동사니 서랍을 열었다는 신호다.
+
+**최소한의 공개 API** — Go에서는 대문자가 곧 export다. 각 패키지에서 무엇을 내보낼지 생각하라. 전부 내보내고 있다면 선택을 하지 않은 것이다.
+
+**필요한 곳에만 의존성 역전** — 모든 것에 인터페이스를 쓰라는 뜻이 아니다. 성급한 추상화는 실재하는 문제다. 다만 데이터베이스, API, 파일 시스템 같은 외부 의존성은 뒤집어야 한다. 비즈니스 로직이 의존성이 만족해야 할 인터페이스를 정의하게 하라.
+
+**작은 인터페이스** — Go에서 좋은 인터페이스는 메서드 두세 개가 최대다. 메서드 열 개짜리 인터페이스는 관심사가 섞였거나 Java 인터페이스를 그대로 옮겨왔다는 힌트다.
+
+**설계 중심 코드 리뷰** — 보통의 체크리스트에는 테스트, 에러 처리, 효율성이 들어간다. 여기에 "이 의존성 흐름이 말이 되는가?", "이게 맞는 추상화인가?"를 추가하라. 설계는 정확성만큼 중요한데 놓치기 더 쉽다. 아키텍처가 조용히 무너지는 동안에도 테스트는 통과하기 때문이다.
+
+## 마무리
+
+글쓴이의 결론은 간단하다. 아키텍처는 프로그래밍 언어 안에 있지 않고 엔지니어가 내리는 결정 안에 있다. 프레임워크는 일관성을 강제할 수 있어도 좋은 판단을 강제하진 못한다. Go는 가드레일을 덜 주고 개발자가 알아서 쓸 거라 가정할 뿐이다.
+
+때로는 그게 훌륭하게 맞아떨어지고, 때로는 자야 할 시간에 엉망이 된 코드를 디버깅하게 만든다. 어느 쪽이든 책임은 개발자에게 있다. 그게 언어의 버그가 아니라 애초의 계약이라는 것이다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
