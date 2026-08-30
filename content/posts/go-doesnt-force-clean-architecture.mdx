@@ -4,7 +4,7 @@ description: "Go가 구조를 강제하지 않아 프로젝트가 엉망이 된�
 date: "2026-08-28"
 published_at: "2026-08-30"
 category: "news"
-tags: []
+tags: ["programming","backend","tech","discuss"]
 slug: "go-doesnt-force-clean-architecture"
 cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fjeeyy0qeg4luuo502enj.png"
 coverAlt: "Go Doesn't Force Clean Architecture. That's Your Job."
@@ -27,7 +27,7 @@ Dev.to에 글을 올린 개발자 Adam은 이 지적이 틀리지 않다고 인�
 
 Go 개발자 백 명에게 비즈니스 로직을 어디 둬야 하냐고 물으면 백 개의 답과 이백 개의 의견이 돌아온다. `internal/`을 써야 하나? 전부 `pkg/` 아래로 가야 하나? 클린 아키텍처를 따라야 하나? `cmd/` 디렉터리는 뭘 넣는 곳인가?
 
-글쓴이는 우리가 디렉터리 배치가 코드 품질을 결정하기라도 하는 것처럼 폴더 구조 논쟁에 너무 많은 시간을 쓴다고 지적한다. `utils/`를 `pkg/shared/`로 이름만 바꾼다고 뭐가 달라지지 않는다.
+글쓴이는 디렉터리 배치가 코드 품질을 결정하기라도 하는 양 폴더 구조 논쟁에 시간을 너무 많이 쓴다고 지적한다. `utils/`를 `pkg/shared/`로 이름만 바꾼다고 뭐가 달라지지 않는다.
 
 > **폴더가 아키텍처를 만들지 않는다. 의존성이 만든다.**
 
@@ -143,7 +143,7 @@ func (r *PostgresUserRepository) Save(user *User) error {
 ![Jet fighter performing aerobatic maneuver in sky](https://images.pexels.com/photos/34081633/pexels-photo-34081633.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
 *Photo by [Gibson G. Wairagu](https://www.pexels.com/@gibson-g-wairagu) on [Pexels](https://www.pexels.com/photo/jet-fighter-performing-aerobatic-maneuver-in-sky-34081633/)*
 
-지시받는 걸 선호한다면 Go의 자유는 두렵다. 사려 깊게 설계하고 싶다면 자유다. "프레임워크가 없다"를 "생각할 필요가 없다"로 이해했다면 함정이다.
+지시받는 걸 선호하는 사람에게 Go의 자유는 두려운 것이다. 직접 고민해서 설계하고 싶은 사람에게는 말 그대로 자유고. "프레임워크가 없다"를 "생각할 필요가 없다"로 읽었다면 그때부터 함정이다.
 
 글쓴이는 프레임워크가 선택지를 제한해 나쁜 결정을 막는다는 통념에도 단서를 단다. 사실 프레임워크 안에서도 얼마든지 망칠 수 있고, 그 제약은 대체로 심리적인 것에 가깝다. Go는 선택의 책임을 개발자에게 넘긴다. 덜 편안하지만 더 정직한 방식이다.
 
