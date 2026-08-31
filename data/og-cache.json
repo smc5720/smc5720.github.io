@@ -1479,6 +1479,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/jon_at_backboardio/the-matrix-wasnt-a-battery-farm-it-was-a-gpu-cluster-made-of-human-brains-23e5": {
+    "ok": true,
+    "title": "The Matrix Wasn't A Battery Farm. It Was A GPU Cluster Made Of Human Brains.",
+    "description": "Nvidia is worth more than most countries because we cannot figure out how to do cheap...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fc2sj1zjour931gewisl1.jpeg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-31"
+  },
   "https://dev.to/kaleman15/gotta-earn-em-all-the-gym-badges-of-agentic-engineering-part-1-5bff": {
     "ok": true,
     "title": "Gotta Earn 'Em All: The Gym Badges of Agentic Engineering (Part 1)",
@@ -1711,6 +1719,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/nazar-boyko/goroutines-are-cheap-their-stacks-arent-4ena": {
+    "ok": true,
+    "title": "I Spawned 1000000 Goroutines. Here's Where 13 GB of RAM Went.",
+    "description": "Ask any Go developer what a goroutine costs and you'll get the same answer with the exact byte count:...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fikndj4ba7fudnjd9xi2e.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-31"
+  },
   "https://dev.to/nazar-boyko/slopsquatting-the-supply-chain-attack-that-weaponizes-ai-hallucinations-2m2": {
     "ok": true,
     "title": "Slopsquatting: The Supply Chain Attack That Weaponizes AI Hallucinations",
@@ -1734,6 +1750,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fimages.weserv.nl%2F%3Furl%3Dwww.nazarboyko.com%2Fassets%2Fimgs%2Farticles%2Ftypescript-7-native-compiler-what-changes%2Fcover.webp%26w%3D1600%26h%3D672%26fit%3Dcover%26a%3Dtop",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/ndcodes/16-posts-started-commenting-then-got-the-shield-bk3": {
+    "ok": true,
+    "title": "16 Posts, Started Commenting, then got the Shield",
+    "description": "I joined DEV in June and started doing what I have been avoiding for a long time. Now and then, I hit...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fbi4ugkmc4dqyw40guuvv.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-08-31"
   },
   "https://dev.to/nyaomaru/learn-valid-parentheses-reverse-linked-list-and-tree-max-depth-with-step-by-step-visualization-in-3o09": {
     "ok": true,

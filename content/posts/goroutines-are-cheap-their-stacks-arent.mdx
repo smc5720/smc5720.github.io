@@ -1,0 +1,237 @@
+﻿---
+title: "고루틴 100만 개를 띄웠더니 13GB가 사라졌다"
+description: "고루틴 하나에 2KB라는 통념은 아무 일도 하지 않은 고루틴에만 해당한다. 함수 호출 한 번이 스택을 16KB로 키우고, 100만 개면 13GB가 된다는 사실을 실측으로 확인한 기록."
+date: "2026-08-27"
+published_at: "2026-08-31"
+category: "news"
+tags: ["go", "goroutine", "memory", "performance"]
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fikndj4ba7fudnjd9xi2e.png"
+coverAlt: "I Spawned 1000000 Goroutines. Here's Where 13 GB of RAM Went."
+slug: "goroutines-are-cheap-their-stacks-arent"
+source_id: "devto-4499807"
+source_url: "https://dev.to/nazar-boyko/goroutines-are-cheap-their-stacks-arent-4ena"
+source_title: "I Spawned 1000000 Goroutines. Here's Where 13 GB of RAM Went."
+source_author: "Nazar Boyko"
+source_published: "2026-08-27"
+---
+
+<LinkCard url="https://dev.to/nazar-boyko/goroutines-are-cheap-their-stacks-arent-4ena" author="Nazar Boyko" date="2026-08-27" />
+
+## 개요
+
+Go 개발자에게 고루틴 하나가 얼마나 드느냐고 물으면 대부분 정확한 숫자를 말한다. 2KB. 공식 FAQ는 "몇 킬로바이트"라고 적었고, 컨퍼런스 발표는 "백만 개도 띄울 수 있다"고 말한다.
+
+Nazar Boyko는 68GB 메모리가 달린 노트북으로 이 숫자를 직접 확인했다. 결과는 대체로 맞았다. 아무 일도 하지 않는 고루틴 100만 개는 2.8GB를 썼다. 스택 2KB에 런타임 관리 비용을 더한 값이다.
+
+그런데 조건을 하나 바꿨다. 각 고루틴이 파킹되기 전에 8KB 배열을 스택에 올리는 함수를 딱 한 번, 한 번만 호출하도록 했다. 같은 고루틴 100만 개가 이번엔 13GB를 먹었다. 이 글은 그 차이가 어디서 왔는지에 대한 기록이다.
+
+## 2KB는 사실이다. 다만 스택만 그렇다
+
+테스트 프로그램은 일부러 단순하게 짰다. N개의 고루틴을 띄워 채널에서 블로킹시키고, 전부 파킹될 때까지 기다린다. 그다음 런타임 메모리 카운터를 출력하고, GC를 한 번씩 강제로 돌리며 매번 카운터를 다시 찍는다. `mode` 인자가 고루틴이 파킹 전에 스택을 건드릴지, 얼마나 건드릴지를 결정한다.
+
+**`main.go`**
+
+```go
+package main
+
+import (
+	"fmt"
+	"os"
+	"runtime"
+	"strconv"
+	"sync"
+	"time"
+)
+
+func stats(label string) {
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	fmt.Printf("%-24s goroutines=%-8d StackInuse=%8.1fMB HeapInuse=%6.1fMB Sys=%8.1fMB\n",
+		label, runtime.NumGoroutine(), float64(m.StackInuse)/1e6,
+		float64(m.HeapInuse)/1e6, float64(m.Sys)/1e6)
+}
+
+//go:noinline
+func sink(b []byte) byte { return b[0] + b[len(b)-1] }
+
+// A function whose frame holds an 8KB local. The slice goes to a
+// noinline sink so the compiler can't drop the array.
+//go:noinline
+func touch8() byte {
+	var buf [8 << 10]byte
+	buf[0], buf[len(buf)-1] = 1, 1
+	return sink(buf[:])
+}
+
+// Same, with a 64KB local.
+//go:noinline
+func touch64() byte {
+	var buf [64 << 10]byte
+	buf[0], buf[len(buf)-1] = 1, 1
+	return sink(buf[:])
+}
+
+func main() {
+	n, _ := strconv.Atoi(os.Args[1])
+	mode := os.Args[2] // idle | 8k | 64k
+	var wg sync.WaitGroup
+	block := make(chan struct{})
+	start := time.Now()
+	for i := 0; i < n; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			switch mode {
+			case "8k":
+				touch8()
+			case "64k":
+				touch64()
+			}
+			<-block
+		}()
+	}
+	for runtime.NumGoroutine() < n {
+		time.Sleep(10 * time.Millisecond)
+	}
+	fmt.Printf("spawned %d (%s) in %v\n", n, mode, time.Since(start).Round(time.Millisecond))
+	stats("parked, before any GC")
+	for i := 1; i <= 6; i++ {
+		runtime.GC()
+		stats(fmt.Sprintf("after GC #%d", i))
+	}
+	close(block)
+	wg.Wait()
+}
+```
+
+측정 조건 두 가지를 짚어두자. 숫자가 달라지는 지점이다. `StackInuse`는 런타임이 직접 세는 스택 스팬 바이트 수라서, "지금 밖에 나가 있는 스택 메모리가 얼마인가"를 가장 정직하게 보여준다. 그리고 고루틴을 만드는 동안 컬렉터가 몰래 스택을 줄이지 못하도록 스폰 루프는 `GOGC=off`로 돌렸다. 그 뒤에 나오는 여섯 번의 명시적 `runtime.GC()` 호출이 이 프로그램에서 일어나는 유일한 수거다. 환경은 Go 1.26.4, Apple 실리콘 맥.
+
+아무것도 하지 않는 고루틴 100만 개:
+
+```bash
+GOGC=off ./gor 1000000 idle
+# spawned 1000000 (idle) in 290ms
+# parked, before any GC    goroutines=1000001  StackInuse=  2048.8MB HeapInuse= 724.8MB Sys=  2817.8MB
+# after GC #6              goroutines=1000001  StackInuse=  2048.9MB HeapInuse= 639.1MB Sys=  2821.0MB
+# maximum resident set size: 2812690432
+```
+
+고루틴 1,000,001개에 스택 2,048.8MB. 나누면 개당 정확히 2,048바이트다. `runtime/stack.go`의 `stackMin = 2048`, 모두가 2KB라고 말할 때 인용하는 바로 그 상수다.
+
+옆에 힙 639MB가 더 붙어 있고, GC를 여섯 번 돌려도 그대로 남는다. 쓰레기가 아니라는 뜻이다. 고루틴마다 런타임이 들고 있는 `g` 구조체에 클로저와 defer 호출까지 더한 값으로, 개당 약 640바이트다. 저자는 클로저도 defer도 없이 `go park(c)`만 호출해봤는데도 같은 639바이트가 나왔다고 한다. 대부분이 `g` 자체라는 얘기다.
+
+전체 상주 메모리 2.8GB. 고루틴당 2.8KB로 치면 흔히 도는 숫자가 반올림 오차 안에서 맞는 셈이다.
+
+비교 대상으로 OS 스레드를 보자. 리눅스에서 스레드 하나는 `ulimit -s`가 정한 만큼 스택을 예약하는데, 대부분 시스템에서 8MB다. 가상 메모리라 실제로 다 건드리지는 않지만, 100만 개면 주소 공간만 8TB고 커널이 그 한참 전에 거절한다. FAQ가 말하는 "고루틴이 그냥 스레드였다면 훨씬 적은 수에서 시스템 자원이 바닥났을 것"은 사실이다.
+
+문제는 FAQ가 바로 다음 문장에서 하는 말인데, 아무도 이 문장은 인용하지 않는다. 런타임이 "스택 저장용 메모리를 자동으로 늘리고(그리고 줄인다)".
+
+## 8KB 지역 변수 하나가 2KB를 16KB로 만든다
+
+늘어난다는 게 실제로 무슨 뜻인지 보자. 거의 모든 Go 함수는 시작할 때 검사를 한 번 한다. 내 프레임이 들어갈 자리가 이 고루틴 스택에 남아 있나? 없으면 `runtime.morestack`이 돈다. Go 1.4부터 이 함수가 하는 일은 두 배 크기의 새 스택을 할당하고, 전부 복사하고, 옛 스택을 가리키던 포인터를 전부 고쳐 쓰는 것이다. Keith Randall이 2013년에 쓴 연속 스택 설계 문서는 이걸 "2의 거듭제곱 크기를 쓰고 재할당마다 그냥 두 배로"라고 표현했고, 지금 런타임 코드에도 `newsize := oldsize * 2`가 그대로 들어 있다.
+
+두 배씩 커지니 크기는 2KB, 4KB, 8KB, 16KB 순으로 간다. 8KB 지역 변수를 가진 함수는 8KB 스택에 들어가지 못한다. 프레임에는 리턴 주소도, 호출자 프레임도, 런타임이 바닥에 유지하는 가드 영역도 자리가 필요하기 때문이다. 그래서 16KB에 안착한다.
+
+같은 고루틴 10만 개가 파킹 전에 `touch8`을 한 번씩 호출하면:
+
+```bash
+GOGC=off ./gor 100000 8k
+# spawned 100000 (8k) in 151ms
+# parked, before any GC    goroutines=100001   StackInuse=  1461.8MB HeapInuse=  72.2MB Sys=  1555.1MB
+# maximum resident set size: 2567208960
+```
+
+고루틴 100,001개에 1,461.8MB, 평균 14.6KB다. 사실상 전부 16KB 스택을 잡았다는 뜻이다(나머지는 P별 스택 캐시로 보인다). 곧바로 리턴한 함수 호출 한 번 때문에 idle 대비 여덟 배다.
+
+64KB 버전은 같은 이야기가 한 단계 더 간 것뿐이다.
+
+```bash
+GOGC=off ./gor 100000 64k
+# spawned 100000 (64k) in 619ms
+# parked, before any GC    goroutines=100001   StackInuse= 12093.6MB HeapInuse=  72.8MB Sys= 12219.8MB
+# maximum resident set size: 11055398912
+```
+
+스택만 12기가바이트. 개당 128KB인데, 64KB짜리에 프레임을 더하면 64KB 스택에 안 들어가기 때문이다. 스폰 시간도 43ms가 아니라 619ms로 늘었다.
+
+성장 비용의 실체가 여기 있다. 런타임은 할당 전에 필요한 크기를 미리 계산한다(프레임이 들어갈 때까지 두 배씩 키운 뒤 한 번에 할당한다). 그래서 고루틴마다 128KB 스택 하나, 복사 한 번, 포인터 조정 한 라운드를 치렀고, 프로세스는 그 과정에서 새 메모리 12GB를 실제로 건드렸다. CockroachDB도 2016년 gRPC 핸들러에서 같은 비용을 만났다. 당시엔 성장이 단계별로 일어나던 시절이었다.
+
+누수도 버그도 아니다. 문서에 적힌 대로 설계가 작동한 결과다. 사람들이 건너뛰는 부분은 이거다. 고루틴이 최종적으로 갖게 되는 스택 크기는 지금 무엇을 하고 있느냐가 아니라, 그동안 호출했던 것 중 가장 깊었던 것이 정한다.
+
+## 스택은 GC 한 번에 절반씩 내려오고 4KB에서 멈춘다
+
+FAQ는 스택이 줄어든다고 말한다. 실제로 줄어든다. 다만 규칙이 "줄어든다"보다 훨씬 구체적이다. `runtime/stack.go`의 `shrinkstack`에 있다. 가비지 컬렉션 중에 고루틴이 자기 스택의 4분의 1도 안 쓰고 있으면, 런타임은 절반 크기의 스택을 새로 할당해 내용을 옮긴다. 필요한 만큼이 아니라 절반이고, 최소치 아래로는 절대 안 내려간다. Randall의 2013년 설계 문서에도 같은 계획이 적혀 있다. "GC 시점에 고루틴이 스택의 1/4 이하를 쓰고 있으면 스택 아래쪽 절반을 해제한다."
+
+테스트가 GC를 여섯 번 강제하고 매번 출력한 이유가 이거다. 64KB 실행의 뒷부분:
+
+```bash
+# parked, before any GC    goroutines=100001   StackInuse= 12093.6MB
+# after GC #1              goroutines=100001   StackInuse=  6554.6MB
+# after GC #2              goroutines=100001   StackInuse=  3277.8MB
+# after GC #3              goroutines=100001   StackInuse=  1639.4MB
+# after GC #4              goroutines=100001   StackInuse=   820.3MB
+# after GC #5              goroutines=100001   StackInuse=   410.8MB
+# after GC #6              goroutines=100001   StackInuse=   410.8MB
+```
+
+128KB, 64, 32, 16, 8, 4. 그리고 멈춘다. 고루틴 100,001개에 410.8MB면 개당 2KB가 아니라 4KB다. 한 번이라도 뭔가를 호출했던 파킹 고루틴은 4KB 스택의 4분의 1보다 조금 더 쓰고 있다. 자기 프레임에 `defer` 레코드에 런타임 가드 공간까지 합쳐서다. 그래서 축소 규칙이 거기서 손을 뗀다. 저자가 확인한 한 그 상태로 계속 남거나, 고루틴이 종료될 때까지 간다. 8KB 실행도 같은 지점인 410.6MB에서 끝난다. GC 두 번 일찍 도착할 뿐이다.
+
+정리하면 고루틴의 메모리는 숫자 하나가 아니라 셋이다. 시작할 때 갖는 값(2KB), 처음 제대로 된 함수를 호출했을 때 커지는 값(가장 깊은 프레임이 들어갈 만한 2의 거듭제곱), 그리고 GC가 충분히 지나간 뒤 정착하는 값(한 번이라도 커진 적 있으면 4KB).
+
+GC가 몇 초마다 도는 서버라면 가운데 숫자는 잠깐 스쳐 간다. 하지만 `GOGC=off`로 도는 배치 작업이나 힙이 거대해서 수거 간격이 몇 분인 서비스라면, 그 가운데 숫자가 실제로 지불하는 값이다.
+
+### "몇 초마다"에 숨은 함정
+
+저자가 대충 넘어간 부분을 dev.to 댓글에서 @vinhnguyenthanhdn이 짚었다. 컬렉터를 깨우는 건 힙 할당이다. 스택이 커지는 건 힙 할당이 아니다. 그래서 힙이 평평해진 서비스는 수거를 그냥 멈추고, 스택은 커진 자리에 그대로 남는다.
+
+그가 Go 1.26.2에서 기본 `GOGC`에 `runtime.GC()` 호출 없이 8KB 케이스를 다시 돌린 결과, 고루틴 100,001개가 스택 770MB를 잡은 채 파킹했고 `NumGC`는 4에서 멈췄다. 18초를 놀린 뒤에도 여전히 770MB였다.
+
+도움 없이 여기서 빠져나오게 해주는 유일한 장치는 아무것도 수거를 유발하지 않을 때 런타임이 2분마다 돌리는 강제 수거다(`runtime/proc.go`의 `forcegcperiod`). 2분에 절반씩 한 번이니, 128KB에서 4KB까지는 아무것도 안 하고 10분쯤 걸린다. 진짜 해법은 `GOMEMLIMIT`이다. 메모리 한도는 스택도 계산에 넣기 때문에, 한도 아래에서 컬렉터가 계속 돌면서 `shrinkstack`까지 도달한다. 그의 실행에서 같은 바이너리가 `GOMEMLIMIT=600MiB` 아래에서는 448MB에 정착했다.
+
+출력에서 한 줄 더, 저자가 이해하는 데 잠시 걸렸다는 대목이 있다. `Sys`가 첫 GC 전 12.2GB에서 GC 후 19.4GB로 뛰었다. 스택을 줄인다는 건 더 작은 스택을 새로 할당하고 복사한다는 뜻이고, 옛 스택 스팬은 OS로 돌아가는 게 아니라 프리 리스트로 간다. 적어도 바로는 아니다. 결국 프로세스는 메모리를 덜 쓰려고 커널에 메모리를 더 달라고 한 셈이다. 상주 메모리는 11GB에서 정점을 찍었다. 대시보드가 1분쯤 이상해 보이다가 다시 정상으로 돌아오는 부류의 현상인데, 카운터를 직접 보지 않았다면 그래프를 믿지 않았을 것 같다고 저자는 적었다.
+
+## 각자 딱 한 가지만 한 고루틴 100만 개, 13GB
+
+조각을 다 모아 컨퍼런스가 좋아하는 규모로 돌려보자. 고루틴 100만 개, 각자 `touch8`을 한 번 호출하고 파킹. `GOGC`는 기본값이라 생성 중에도 컬렉터가 돈다.
+
+```bash
+./gor 1000000 8k
+# spawned 1000000 (8k) in 1.861s
+# parked, before any GC    goroutines=1000001  StackInuse=  8995.1MB HeapInuse= 658.9MB Sys= 13411.7MB
+# after GC #6              goroutines=1000001  StackInuse=  4097.0MB HeapInuse= 639.3MB Sys= 13413.3MB
+# maximum resident set size: 13407453184
+```
+
+상주 13.4GB. 2GB가 아니다. 만드는 내내 컬렉터가 스택을 줄이고 있었기 때문에 `StackInuse`가 16GB가 아니라 9GB에서 잡혔다. 여섯 번 더 수거하면 4.1GB까지 내려간다. 4KB 바닥에 100만을 곱한 값이다. 하지만 프로세스는 이미 OS에서 13.4GB를 받아 쥐고 있고, 서둘러 돌려주지 않는다. 스폰 중에 `GOGC=off`를 걸면 같은 실행이 25.5GB에서 정점을 찍었다. 앞에서 왕창 할당하고 수거는 드물게 하는 작업이 어떤 모양인지 보여주는 숫자다.
+
+같은 100만 개의 idle 버전은 2.8GB였다. 같은 고루틴, 같은 코드, 각자의 과거에 함수 호출 하나가 더 있을 뿐인데 프로세스는 네 배 반으로 커진다.
+
+## 그런데 고루틴 스택에 8KB를 올리는 게 대체 뭔가
+
+정당한 반문이다. `var buf [8 << 10]byte`는 보통의 고루틴 모습이 아니니까. 답은 두 가지인데, 두 번째가 저자를 놀라게 했다.
+
+첫째, 큰 지역 변수 하나가 필요한 게 아니라 깊이가 필요하다. 핸들러가 라우터를 부르고, 라우터가 미들웨어를 부르고, 미들웨어가 내 코드를 부르고, 내 코드가 DB 드라이버를 부르고, 드라이버가 인코더를 부르면 프레임이 열두 개다. 그게 쌓인다.
+
+공개된 숫자 중 가장 확실한 건 CockroachDB 사례다. 2016년 12월 Peter Mattis가 Go 이슈 18138을 열었는데, 그들의 gRPC `Server.Batch` 진입점이 스택을 16~32KB 필요로 했다. 그는 "스택이 2KB에서 32KB로 4단계에 걸쳐 커지는 걸 볼 수 있다"고 적었고 "스택 성장이 제법 비싸서 런타임을 속여 스택을 미리 키워두는 게 쓸모 있다"고 했다. 복사를 건너뛰려고 손으로 스택을 미리 키우고 있었던 것이다. 평범한 서비스의 평범한 HTTP 핸들러는 그보다 작겠지만, 2KB도 아니다.
+
+둘째, Go도 이걸 알고 기본값을 바꿨다. Go 1.19부터 런타임은 "고루틴의 과거 평균 스택 사용량을 근거로 초기 고루틴 스택을 할당"하며, 릴리스 노트 표현대로 "평균 이하 고루틴에서 최대 2배의 공간 낭비를 감수"한다. `stack.go` 코드는 GC 때마다 평균 스캔 스택에서 `startingStackSize`를 다시 계산해 2의 거듭제곱으로 올림하고, 이유로 이슈 18138을 인용한다.
+
+그러니 대부분의 고루틴이 8KB나 16KB로 커지는 실제 서버에서 새 고루틴은 더 이상 2KB로 시작하지 않는다. 8KB나 16KB로 시작한다. 사람들이 2KB를 인용하며 이야기하는 바로 그 워크로드에서, 런타임 스스로 2KB가 나쁜 기본값이라고 판단한 것이다. (`GODEBUG=adaptivestackstart=0`으로 끌 수 있는데, 절대 커지지 않는 고루틴 100만 개 실험에서는 차이가 없었다. 그게 핵심이기도 하다. 평균이 2KB였으니까.)
+
+천장도 있다. Go 1.2부터 64비트 시스템에서 고루틴 하나의 스택은 1GB까지 커질 수 있고, 그 이상이면 런타임이 프로그램을 죽인다. `debug.SetMaxStack`으로 옮길 수 있다. 폭주하는 재귀가 머신을 다 먹기 전에 빨리 죽으라고 있는 장치다.
+
+## 실제로 무엇을 할 것인가
+
+저자의 결론은 이렇다.
+
+**측정 지표는 `StackInuse` 나누기 `NumGoroutine`이다.** 둘 다 읽는 비용이 싸다(`ReadMemStats`는 stop-the-world라 프로덕션에서 부르기 꺼려진다면 `runtime/metrics`에 `/memory/classes/heap/stacks:bytes`와 `/sched/goroutines:goroutines`가 있다). 평균이 2~4KB면 고루틴이 싼 종류고 개수만 보면 된다. 16KB나 32KB면 개수가 생각보다 4배에서 16배 더 중요해지고, 봐야 할 건 몇 개냐가 아니라 그것들이 무엇을 호출하느냐다.
+
+**많이 띄우는 고루틴 안에 큰 지역 변수를 두지 말자.** 커넥션마다 하나씩 도는 고루틴에 `[64 << 10]byte` 스크래치 버퍼를 두면, 다음 몇 번의 GC가 올 때까지 커넥션당 128KB 스택이고 그 뒤로도 4KB다. `sync.Pool`에 넣거나 힙에 두자. 거기서는 따로 집계되고 자기 일정대로 수거되며, 스택이 두 배가 될 때마다 복사되지도 않는다.
+
+**워커 풀을 쓴다면 이유를 정확히 알자.** 고루틴 생성이 비싸서가 아니다(비싸지 않다. 100만 개에 290ms다). 고루틴 수를 묶으면 커진 스택의 수가 묶이기 때문이고, 진짜 값이 붙어 있는 쪽은 커진 스택이다.
+
+2KB는 사실이다. 다만 그건 아직 아무 일도 하지 않은 고루틴의 가격이다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
