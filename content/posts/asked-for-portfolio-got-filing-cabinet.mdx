@@ -1,0 +1,86 @@
+﻿---
+title: "포트폴리오를 부탁했더니 서류 캐비닛이 나왔다"
+description: "AI에게 포트폴리오 사이트 리디자인을 열 번 넘게 맡겼지만 결과물은 전부 잘 정리된 서류함이었다. 스타일 가이드로도 고쳐지지 않던 문제를 뒤집은 건 지시문 한 줄이었다."
+date: "2026-08-29"
+published_at: "2026-09-01"
+category: "news"
+slug: "asked-for-portfolio-got-filing-cabinet"
+tags: ["ai", "webdev", "design", "ux"]
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Feo5mp49vi6xqro2xqpgo.jpg"
+coverAlt: "I Asked for a Portfolio but Got a Filing Cabinet"
+source_id: "devto-4522857"
+source_url: "https://dev.to/anchildress1/i-asked-for-a-portfolio-but-got-a-filing-cabinet-4ef8"
+source_title: "I Asked for a Portfolio but Got a Filing Cabinet"
+source_author: "Ashley Childress"
+source_published: "2026-08-29"
+---
+
+<LinkCard url="https://dev.to/anchildress1/i-asked-for-a-portfolio-but-got-a-filing-cabinet-4ef8" author="Ashley Childress" date="2026-08-29" />
+
+## 개요
+
+개발자 Ashley Childress가 자기 포트폴리오 사이트를 다시 만드는 데 일주일 가까이 썼다. 대부분의 시간은 좌절이었다. Claude와 함께 뽑아낸 시안이 열 개를 넘겼는데, 하나같이 처음 것보다 더 싫었다고 한다.
+
+문제는 색도 폰트도 아니었다. 열 번째 시안쯤 가서야 알아챈 건, 시안이 전부 **아카이브**를 그리고 있었다는 사실이다. 필터, 개수 표시, 드롭다운, 검색. 작업물을 훑어보기 좋은 인터페이스였을 뿐, 그 뒤에 있는 사람을 설명하는 화면은 단 하나도 없었다.
+
+## "무섭다"는 피드백
+
+원래 사이트가 AI가 만든 티가 난다는 건 본인도 알고 있었다. 실제로 AI가 만든 게 맞으니까. 그래서 그런 피드백을 받아도 반응은 "그래서 뭐" 쪽에 가까웠다.
+
+방문 지표를 들여다보다가 예상 못 한 익명 피드백을 발견하면서 태도가 바뀌었다. 한 단어였다.
+
+> ***무섭다(Scary).***
+
+썩 훌륭하지 않다는 자각은 있었지만 "무섭다"는 새로운 바닥이었다. Childress는 Gemini를 붙여 사이트를 크롤링시키고 AI 티가 나는 요소를 전부 뽑아달라고 했다. 돌아온 답은 사실상 "전체가 다 별로"였다. 색부터 인덱스 카드 구현까지 전부 지적을 받았고, 사람 손길이 느껴진다고 평가받은 건 소개 프로필 한 곳뿐이었다. 그 부분은 본인이 직접 쓴 글이었다.
+
+![Screenshot the original version of my portfolio site](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/t6dqfwsm3usjqrkq3sb7.png)
+
+## 열 개가 넘는 시안, 전부 데이터베이스
+
+[Impeccable](https://impeccable.style)을 스타일 가이드로 붙여도 보고 Claude Design도 써봤지만, AI가 만든 듯한 인상은 어느 쪽으로도 지워지지 않았다.
+
+![Screenshots of rejected portfolio redesigns](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/pctfig2bkrjs1p8vaug3.png)
+
+색을 계속 갈아치운 것도 답이 아니었다. 한동안 기본값처럼 쓰던 보라색이 지겨워져서 무지개를 시도했다가 상황을 몇 배로 악화시켰다. 파랑, 초록, 분홍, 빨강, 주황을 거쳐 마지막에 고른 노랑이 그나마 마음에 들었지만, 전체 인상은 여전히 그대로였다.
+
+![문서를 들여다보며 펜을 쥔 사람](https://images.pexels.com/photos/9480123/pexels-photo-9480123.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Monstera Production](https://www.pexels.com/@monstera) on [Pexels](https://www.pexels.com/photo/a-woman-holding-a-pen-while-looking-at-documents-9480123/)*
+
+## 대시보드 말고, 예술적인 페이지
+
+완전히 지친 상태에서 Childress는 Claude에게 대시보드 말고 "예술적인 페이지(artsy page)"를 원한다고 말했다.
+
+여기서 뭔가 맞아떨어졌다. 처음으로 완전히 싫지는 않은 선택지가 나왔다.
+
+다크 모드에서는 노랑이 괜찮았다. 라이트 모드는 밋밋했고, 뭘 하는지 모르는 사람이 대충 만든 것처럼 보였다. 본인 표현으로는 실제로 그게 맞았으니 놀랄 일도 아니었다. 조사와 자문자답을 반복한 끝에 정리한 규칙은 여섯 개다.
+
+1. **아이브로우 텍스트 금지.** 섹션 상단에 붙는 그 작은 글자에 이름이 있다는 걸 이때 처음 알았다고 한다.
+2. **강조색은 단 하나의 색상(hue)**만 쓰고, 필요하면 투명도로 변주한다.
+3. **성격이 다른 폰트 두 개.** 하나는 개성, 하나는 가독성 담당.
+4. **오프셋과 어긋난 텍스트 요소**를 의도적으로 넣는다.
+5. **직접 판단한다.** 모든 디자인 결정을 AI에 미루지 말고, 일단 고르고 나중에 마음을 바꾼다.
+6. **작업물이 아니라 사람을 설명한다**는 목표를 기억한다.
+
+## "완전히 별로는 아님"이라는 성과
+
+형광펜 느낌의 강조 요소는 여러 선택지를 한꺼번에 겹쳐보다 나온 결과물이다.
+
+[리디자인 결과 보기 →](https://system-notes-288489184837.us-east1.run.app)
+
+> 전체 페이지는 [https://anchildress1.dev](https://anchildress1.dev)에서 볼 수 있다.
+
+이전 사이트를 Gemini에게 검토시켰을 때 Childress가 요약한 결론은 "전체가 다 별로"였다. 새 버전을 다시 검토시키자 "완전히 별로는 아님"이 돌아왔다. 본인은 이걸 승리로 기록했다.
+
+![Screenshot of Gemini's final review of my portfolio versus the original](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/cl8pr0215ar45mkqu1da.png)
+
+시안 열 개를 넘기고 나서야 왜 소개 프로필만 매번 살아남았는지 알았다. 나머지는 자기 작업물을 아주 잘 정리해서 보여주는 방법이었을 뿐이다.
+
+**사람을 설명하는 부분은 결국 본인이 직접 써야 하는 몫이었다.**
+
+## 정정 사항
+
+Childress는 글 말미에 하나를 덧붙였다. 자기 웹사이트에 대해 Claude와 인터뷰하는 과정에서, Claude가 만든 적 없는 제품과 하지도 않은 리디자인을 지어냈다는 것이다. 그 부분은 본인이 바로잡았고, 이 각주만큼은 Claude가 쓰게 뒀다고 한다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

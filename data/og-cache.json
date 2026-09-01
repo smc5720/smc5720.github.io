@@ -111,6 +111,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/anchildress1/i-asked-for-a-portfolio-but-got-a-filing-cabinet-4ef8": {
+    "ok": true,
+    "title": "I Asked for a Portfolio but Got a Filing Cabinet",
+    "description": "Every AI redesign of my portfolio looked different and was the same filing cabinet underneath. What a style guide couldn't fix — and the one instruction that did.",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Feo5mp49vi6xqro2xqpgo.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-01"
+  },
   "https://dev.to/anchildress1/i-recreated-management-with-ai-9-things-i-do-differently-3j8g": {
     "ok": true,
     "title": "I Recreated Management With AI: 9 Things I Do Differently",
@@ -575,6 +583,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/devteam/fixing-delicate-cache-mismatches-in-a-brownfield-spa-a-pragmatic-solution-dk9": {
+    "ok": true,
+    "title": "Fixing Delicate Cache Mismatches in a Brownfield SPA: A Pragmatic Solution",
+    "description": "How we eliminated subtle stylesheet caching glitches during deployments on DEV without a massive rewrite.",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fcmhfcuzbrbwh981r7fnr.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-01"
+  },
   "https://dev.to/devteam/hey-all-im-jem-the-dev-community-program-coordinator-2g2": {
     "ok": true,
     "title": "Hey all! I’m Jem, the DEV Community Program Coordinator",
@@ -774,6 +790,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fxgx172uk117loqmhycay.gif",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/francistrdev/how-long-does-it-take-for-you-to-write-a-devto-article-49m1": {
+    "ok": true,
+    "title": "How long does it take for you to write a dev.to article?",
+    "description": "It takes me 2 hours.    I am not joking. Usually, I don't have it \"planned\" before I started to...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fzoij3up8ypff2hjioovq.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-01"
   },
   "https://dev.to/francistrdev/how-would-you-decide-whether-the-content-is-good-or-bad-295p": {
     "ok": true,
@@ -1294,6 +1318,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fq9wlxh67z9gebb2drssb.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/highflyer910/i-tried-to-beat-peter-norvig-and-accidentally-became-ryan-gosling-45b8": {
+    "ok": true,
+    "title": "I Tried to Beat Peter Norvig and Accidentally Became Ryan Gosling",
+    "description": "A few days ago, I posted my submission for the DEV Frontend Challenge: Khachapuri made entirely with...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fax2ltdwkh151y8w4tcc0.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-01"
   },
   "https://dev.to/highflyer910/khachapuri-georgian-cheese-bread-in-pure-css-47o7": {
     "ok": true,
