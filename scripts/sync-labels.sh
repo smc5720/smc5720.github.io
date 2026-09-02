@@ -58,7 +58,12 @@ for row in "${ROWS[@]}"; do
   IFS=$'\t' read -r name color desc <<< "$row"
   DEFINED+=("$name")
   echo "▸ $name (#$color)"
-  gh label create "$name" --color "$color" --description "$desc" --force >/dev/null
+  # MSYS_NO_PATHCONV / MSYS2_ARG_CONV_EXCL:
+  #   Git Bash·MSYS2에서 "/"로 시작하는 인자를 Windows 경로로 변환한다. area:* 라벨의
+  #   설명이 "/blog 목록"처럼 슬래시로 시작해서, 그대로 두면 "C:/Program Files/Git/blog 목록"
+  #   으로 망가진 채 등록된다. 리눅스·macOS에서는 쓰이지 않는 변수라 무해하다.
+  MSYS_NO_PATHCONV=1 MSYS2_ARG_CONV_EXCL='*' \
+    gh label create "$name" --color "$color" --description "$desc" --force >/dev/null
 done
 
 if [ "$PRUNE" -eq 1 ]; then

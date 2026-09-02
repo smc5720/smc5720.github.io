@@ -18,7 +18,7 @@
   description: "새 기능 / 페이지 / 사용자 가치 추가"
 - name: "type:design"
   color: "c8ff00"
-  description: "v2 디자인 시스템·UI·UX 구현"
+  description: "디자인 시스템·UI·UX 구현"
 - name: "type:content"
   color: "a78bfa"
   description: "블로그 글 (content/posts)"
