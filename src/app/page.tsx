@@ -1,420 +1,199 @@
 import Link from "next/link";
-import { getAllPosts, CATEGORY_LABELS } from "@/lib/posts";
+import Image from "next/image";
+import { getAllPosts, getPostCountsByYear } from "@/lib/posts";
+import { CATEGORY_LABELS } from "@/lib/constants";
 import type { Category } from "@/types/post";
-import { SectionHead } from "@/components/SectionHead";
-import { PostCardFeatured } from "@/components/PostCardFeatured";
-import { PostCardCompact } from "@/components/PostCardCompact";
+import { IndexRail } from "@/components/IndexRail";
+import { PostRow } from "@/components/PostRow";
+import { TagIndex } from "@/components/TagIndex";
 
-// Canonical category order for the cat-grid (01~05)
-const CAT_ORDER: Category[] = ["news", "dev", "retrospective", "release", "etc"];
+const RECENT_COUNT = 6;
+const TAG_LIMIT = 16;
+
+/** 카테고리 → @theme 카테고리 색 토큰. "retrospective"는 토큰명이 "retro"로 줄어든다(5b 전재). */
+const CATEGORY_COLOR_VAR: Record<Category, string> = {
+  news: "--color-cat-news",
+  dev: "--color-cat-dev",
+  retrospective: "--color-cat-retro",
+  release: "--color-cat-release",
+  etc: "--color-cat-etc",
+};
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
-  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
 }
 
 export default function HomePage() {
   const posts = getAllPosts();
   const featured = posts[0] ?? null;
-  const recent = posts.slice(1, 7);
+  const recent = posts.slice(1, 1 + RECENT_COUNT);
+  const years = getPostCountsByYear();
 
-  // Tag index: frequency descending, same-frequency alphabetical, top 16
+  const categoryCounts = posts.reduce<Partial<Record<Category, number>>>((acc, p) => {
+    acc[p.category] = (acc[p.category] ?? 0) + 1;
+    return acc;
+  }, {});
+
   const tagFreq = new Map<string, number>();
   for (const p of posts) {
-    for (const t of p.tags) {
-      tagFreq.set(t, (tagFreq.get(t) ?? 0) + 1);
-    }
+    for (const t of p.tags) tagFreq.set(t, (tagFreq.get(t) ?? 0) + 1);
   }
   const topTags = [...tagFreq.entries()]
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-    .slice(0, 16);
-
-  const updatedDate = posts[0] ? formatDate(posts[0].date) : "";
-  const oldestDate =
-    posts.length > 0 ? formatDate(posts[posts.length - 1].date) : "";
-
-  const categoryCount = posts.reduce<Partial<Record<Category, number>>>(
-    (acc, p) => ({ ...acc, [p.category]: (acc[p.category] ?? 0) + 1 }),
-    {}
-  );
+    .slice(0, TAG_LIMIT)
+    .map(([tag, count]) => ({ tag, count }));
 
   return (
     <>
-      {/* ── Hero ── */}
-      <section
-        className="relative bg-grid overflow-hidden"
-        style={{ paddingTop: 48, paddingBottom: 80 }}
-      >
-        <div className="container relative">
-          {/* ── Meta strip ── */}
-          <div
-            className="mono-label flex justify-between items-center flex-wrap"
-            style={{ marginBottom: 56, gap: 12 }}
-          >
-            {/* left: RICOCHEESE / STUDIO LOG / EST. 2022 */}
-            <div className="flex items-center flex-wrap" style={{ gap: 14 }}>
-              <span>RICOCHEESE / STUDIO LOG</span>
-              <span style={{ color: "var(--color-text-3)" }}>/</span>
-              <span style={{ color: "var(--color-text-3)" }}>EST. 2022</span>
+      {/* ── 히어로 ── */}
+      <section className="home-hero">
+        <div className="frame">
+          <div className="home-hero-inner">
+            <h1 className="home-hero-title">
+              매일의 기술 뉴스를 모으고,
+              <br />
+              가끔 직접 쓴다.
+            </h1>
+            <p className="home-hero-lead">
+              <span className="home-hero-em">인프라</span>와{" "}
+              <span className="home-hero-em">오픈소스</span>, 그리고{" "}
+              <span className="home-hero-em">개발 조직</span>에 관한 글을 남기는 개인
+              블로그입니다.
+            </p>
+            <div className="home-hero-actions">
+              <Link href="/blog" className="home-cta">
+                글 보러가기
+              </Link>
+              <Link href="/about" className="home-cta-ghost">
+                소개
+              </Link>
             </div>
-
-            {/* right: NOW PLAYING — only when there is at least one post */}
-            {featured && (
-              <div
-                className="mono-label tabular flex items-center"
-                style={{ gap: 10, maxWidth: 360, overflow: "hidden" }}
-              >
-                <span style={{ whiteSpace: "nowrap" }}>NOW PLAYING</span>
-                <span
-                  style={{
-                    color: "var(--color-accent)",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                  }}
-                >
-                  ●{" "}
-                  {featured.title.length > 24
-                    ? featured.title.slice(0, 24) + "…"
-                    : featured.title}
-                </span>
-              </div>
-            )}
-          </div>
-
-          {/* ── 2-col hero grid ── */}
-          <div
-            className="hero-grid animate-fade-up"
-            style={{
-              display: "grid",
-              gridTemplateColumns: "auto 1fr",
-              gap: 80,
-              alignItems: "end",
-              marginBottom: 48,
-            }}
-          >
-            {/* Left: giant serif title */}
-            <div>
-              <h1
-                className="display display-hero"
-                style={{ margin: 0, color: "var(--color-text)" }}
-              >
-                <span
-                  style={{
-                    fontStyle: "italic",
-                    fontVariationSettings: '"opsz" 144, "SOFT" 100',
-                  }}
-                >
-                  Rico
-                </span>
-                <br />
-                Cheese
-                <span
-                  style={{
-                    color: "var(--color-accent)",
-                    display: "inline-block",
-                    transform: "translateY(.1em)",
-                  }}
-                >
-                  .
-                </span>
-              </h1>
-            </div>
-
-            {/* Right: ASCII + lede + CTA */}
-            <div
-              className="animate-fade-up delay-2"
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 24,
-                alignItems: "flex-end",
-                paddingBottom: 18,
-              }}
-            >
-              {/* ASCII art */}
-              <pre
-                aria-hidden="true"
-                className="ascii-box"
-                style={{
-                  margin: 0,
-                  fontSize: 10,
-                  color: "var(--color-text-3)",
-                  lineHeight: 1.3,
-                  textAlign: "right",
-                }}
-              >{`         ╱╲    ╱╲
-        ╱  ╲  ╱  ╲
-       ╱    ╲╱    ╲
-       ──── ✦ ────
-       writing as
-       making things`}</pre>
-
-              {/* Lede copy */}
-              <p
-                className="lede"
-                style={{
-                  maxWidth: 380,
-                  textAlign: "right",
-                  color: "var(--color-text-2)",
-                  margin: 0,
-                }}
-              >
-                <span style={{ color: "var(--color-text)" }}>코드</span>,{" "}
-                <span style={{ color: "var(--color-text)" }}>회고</span>,{" "}
-                <span style={{ color: "var(--color-text)" }}>릴리스 노트</span>
-                를 기록하는 블로그.
-              </p>
-
-              {/* CTA buttons */}
-              <div style={{ display: "flex", gap: 10 }}>
-                <Link href="/blog" className="btn btn-primary">
-                  <span>글 보러가기</span>
-                  <span style={{ opacity: 0.6 }}>→</span>
-                </Link>
-                <Link href="/about" className="btn btn-ghost">
-                  소개
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          {/* ── Scroll indicator ── */}
-          <div
-            className="flex items-center gap-3 animate-fade-in delay-6"
-            style={{ marginTop: 0 }}
-          >
-            <div className="w-px h-10 bg-border-2" />
-            <span
-              style={{
-                fontSize: 10,
-                fontFamily: "var(--font-mono)",
-                letterSpacing: "0.2em",
-                color: "var(--color-text-3)",
-                textTransform: "uppercase",
-              }}
-            >
-              Scroll
-            </span>
           </div>
         </div>
       </section>
 
-      {/* ── Category counter grid ── */}
-      <section
-        aria-label="카테고리별 글 수"
-        style={{ maxWidth: "var(--container)", margin: "0 auto", paddingLeft: 32, paddingRight: 32 }}
-      >
-        <nav className="cat-grid">
-          {/* Total cell */}
-          <Link href="/blog" className="cat-cell">
-            <span className="mono-label" style={{ color: "var(--color-text-3)" }}>Total</span>
-            <span className="cat-cell-count">
-              {String(posts.length).padStart(2, "0")}
-            </span>
-            <span className="mono-label" style={{ color: "var(--color-text-3)" }}>essays · since 2022</span>
-          </Link>
+      {/* ── 레일 + 단일 열 ── */}
+      <div className="home-body">
+        <IndexRail total={posts.length} years={years} categoryCounts={categoryCounts} />
 
-          {/* Per-category cells */}
-          {CAT_ORDER.map((cat, i) => (
-            <Link key={cat} href={`/blog?category=${cat}`} className="cat-cell">
-              <span className="mono-label" style={{ color: "var(--color-text-3)" }}>
-                {String(i + 1).padStart(2, "0")} · {CATEGORY_LABELS[cat]}
-              </span>
-              <span className="cat-cell-count">
-                {String(categoryCount[cat] ?? 0).padStart(2, "0")}
-                <span
-                  className="cat-cell-dot"
-                  aria-hidden="true"
-                  style={{ background: `var(--cat-${cat})` }}
-                />
-              </span>
-              <span className="mono-label" style={{ color: "var(--color-text-3)" }}>view filter →</span>
-            </Link>
-          ))}
-        </nav>
-      </section>
-
-      {/* ── Featured ── */}
-      {posts.length === 0 ? (
-        <section style={{ marginTop: 64 }}>
-          <div className="container">
-            <div
-              style={{
-                textAlign: "center",
-                padding: "80px 0",
-                color: "var(--color-text-3)",
-              }}
-            >
-              <p
-                style={{
-                  fontFamily: "var(--font-serif)",
-                  fontSize: 28,
-                  marginBottom: 12,
-                }}
-              >
-                아직 작성된 글이 없습니다.
-              </p>
-              <p
-                style={{
-                  fontFamily: "var(--font-mono)",
-                  fontSize: 12,
-                  letterSpacing: "0.14em",
-                }}
-              >
-                content/posts/ 에 .mdx 파일을 추가하세요
-              </p>
+        <div className="home-column frame">
+          {posts.length === 0 ? (
+            <div className="home-empty">
+              <p className="home-empty-title">아직 작성된 글이 없습니다.</p>
+              <p className="home-empty-desc">content/posts/ 에 .mdx 파일을 추가하세요</p>
             </div>
-          </div>
-        </section>
-      ) : (
-        <>
-          {/* ── 01 Featured ── */}
-          <section style={{ marginTop: 64 }}>
-            <div className="container">
-              <SectionHead
-                num="01"
-                kicker="Featured · this week"
-                title="가장 최근의 긴 글"
-                right={
-                  <Link href="/blog" className="arrow-link">
-                    <span>All posts</span>
-                    <span className="arrow" />
-                  </Link>
-                }
-              />
+          ) : (
+            <>
+              {/* ── 피처드 ── */}
               {featured && (
-                <PostCardFeatured
-                  post={featured}
-                  index={1}
-                  total={posts.length}
-                />
-              )}
-            </div>
-          </section>
-
-          {/* ── 02 Recent grid ── */}
-          <section style={{ marginTop: 88 }}>
-            <div className="container">
-              <SectionHead
-                num="02"
-                kicker="Recently written"
-                title="새 글 여섯 편"
-                right={
-                  <div
-                    className="mono-label tabular"
-                    style={{ display: "flex", gap: 18 }}
-                  >
-                    <span>UPDATED</span>
-                    <span style={{ color: "var(--color-text)" }}>
-                      {updatedDate}
+                <section aria-labelledby="home-featured-heading">
+                  <div className="home-section-row" style={{ marginBottom: 16 }}>
+                    <h2 id="home-featured-heading" className="home-section-label">
+                      가장 최근 글
+                    </h2>
+                    <span className="home-meta-date">
+                      {formatDate(featured.published_at ?? featured.date)}
                     </span>
                   </div>
-                }
-              />
-              {recent.length > 0 && (
-                <div className="recent-grid">
-                  {recent.map((post) => (
-                    <PostCardCompact key={post.slug} post={post} />
-                  ))}
-                </div>
-              )}
-              {/* bottom strip */}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginTop: 36,
-                  flexWrap: "wrap",
-                  gap: 12,
-                }}
-              >
-                <div
-                  className="mono-label"
-                  style={{ display: "flex", gap: 14 }}
-                >
-                  <span style={{ color: "var(--color-text-3)" }}>
-                    Showing {Math.min(6, posts.length - 1)} of {posts.length}
-                  </span>
-                  {oldestDate && (
-                    <>
-                      <span style={{ color: "var(--color-text-3)" }}>·</span>
-                      <span>oldest essay: {oldestDate}</span>
-                    </>
-                  )}
-                </div>
-                <Link href="/blog" className="btn">
-                  <span>Read all {posts.length} essays</span>
-                  <span style={{ opacity: 0.5 }}>→</span>
-                </Link>
-              </div>
-            </div>
-          </section>
 
-          {/* ── 03 Pull quote ── */}
-          <section style={{ marginTop: 120 }}>
-            <div className="container">
-              <div className="pull-quote-grid">
-                <div>
-                  <div className="mono-label" style={{ marginBottom: 18 }}>
-                    03 · A NOTE
-                  </div>
-                  <p
-                    style={{
-                      fontFamily: "var(--font-body)",
-                      fontSize: 14,
-                      lineHeight: 1.65,
-                      color: "var(--color-text-2)",
-                    }}
-                  >
-                    2026년 블로깅 운영 규칙.
-                  </p>
-                </div>
-                <blockquote className="pull-quote">
-                  <span style={{ color: "var(--color-accent)", marginRight: 6 }}>
-                    &ldquo;
-                  </span>
-                  주 한 편.
-                  <span style={{ color: "var(--color-text-2)" }}>
-                    {" "}
-                    빠지는 주는 메모로 대체.
-                  </span>{" "}
-                  초안은 한 번에, 다듬기는 다음 날 30분
-                  <span style={{ color: "var(--color-accent)" }}>.</span>
-                </blockquote>
-              </div>
-            </div>
-          </section>
+                  <Link href={`/blog/${featured.slug}`} className="home-featured-card">
+                    <div className="home-featured-meta">
+                      <span style={{ color: `var(${CATEGORY_COLOR_VAR[featured.category]})` }}>
+                        {CATEGORY_LABELS[featured.category]}
+                      </span>
+                      <span>·</span>
+                      <span>{featured.readingTime}분</span>
+                    </div>
 
-          {/* ── 04 Tag index ── */}
-          <section style={{ marginTop: 120, marginBottom: 96 }}>
-            <div className="container">
-              <SectionHead
-                num="04"
-                kicker="Tag index"
-                title="자주 쓰는 주제들"
-              />
-              <div className="tag-index">
-                {topTags.map(([tag, count]) => (
-                  <Link
-                    key={tag}
-                    href={`/blog?tag=${encodeURIComponent(tag)}`}
-                    className="chip"
-                  >
-                    <span style={{ color: "var(--color-text-2)" }}>
-                      #{tag}
-                    </span>
-                    <span className="count">
-                      {String(count).padStart(2, "0")}
-                    </span>
+                    <h3 className="home-featured-title">{featured.title}</h3>
+
+                    {featured.description && (
+                      <p className="home-featured-desc">{featured.description}</p>
+                    )}
+
+                    {featured.tags.length > 0 && (
+                      <div className="home-featured-tags">
+                        {featured.tags.slice(0, 3).map((t) => (
+                          <span key={t} className="home-featured-tag">
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="home-featured-cover">
+                      {featured.cover ? (
+                        <Image
+                          src={featured.cover}
+                          alt={featured.coverAlt ?? featured.title}
+                          fill
+                          style={{ objectFit: "cover" }}
+                          sizes="(max-width: 900px) 100vw, 300px"
+                        />
+                      ) : (
+                        <div className="home-featured-cover-fallback">cover 16:9</div>
+                      )}
+                    </div>
                   </Link>
-                ))}
+                </section>
+              )}
+
+              {/* ── 최근 글 ── */}
+              {recent.length > 0 && (
+                <section aria-labelledby="home-recent-heading">
+                  <div className="home-section-row" style={{ paddingBottom: 14 }}>
+                    <h2 id="home-recent-heading" className="home-section-label">
+                      최근 글
+                    </h2>
+                    <span className="home-meta-date">
+                      {posts.length}개 중 {recent.length}개
+                    </span>
+                  </div>
+
+                  <div className="post-row-list">
+                    {recent.map((post) => (
+                      <PostRow key={post.slug} post={post} />
+                    ))}
+                  </div>
+
+                  <div className="home-more-row">
+                    <Link href="/blog" className="home-more-link">
+                      전체 글 보기 →
+                    </Link>
+                  </div>
+                </section>
+              )}
+
+              {/* ── 운영 원칙 ── */}
+              <div className="home-principle">
+                <div className="home-principle-label">운영 원칙</div>
+                <p className="home-principle-text">
+                  매일 수집되는 뉴스는 기록이고, 직접 쓴 글은 기준이다. 이 블로그는 그
+                  둘을 같은 자리에 둔다.
+                </p>
               </div>
-            </div>
-          </section>
-        </>
-      )}
+
+              {/* ── 태그 인덱스 ── */}
+              {topTags.length > 0 && (
+                <section aria-labelledby="home-tags-heading">
+                  <h2
+                    id="home-tags-heading"
+                    className="home-section-label"
+                    style={{ marginBottom: 16 }}
+                  >
+                    태그
+                  </h2>
+                  <TagIndex tags={topTags} />
+                </section>
+              )}
+            </>
+          )}
+        </div>
+      </div>
     </>
   );
 }
