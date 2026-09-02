@@ -95,6 +95,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/ale3oula/what-two-months-of-interviewing-taught-me-about-the-2026-tech-job-market-3d8n": {
+    "ok": true,
+    "title": "What two months of interviewing taught me about the 2026 tech job market",
+    "description": "July wasn’t a particularly pleasant month for me. I was affected by the restructuring of the company...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fv10e75rtgkjjtnejixuk.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-02"
+  },
   "https://dev.to/alvaromontoro/comicss-255-yellow-1bj": {
     "ok": true,
     "title": "comiCSS #255: Yellow",
@@ -1023,6 +1031,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/googleai/how-to-design-ai-evaluations-you-can-actually-trust-41c3": {
+    "ok": true,
+    "title": "How to Design AI Evaluations You Can Actually Trust",
+    "description": "As part of my work at Google, we are publishing a suite of Agent Skills for Google products and...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F2ya5hqnsnkh2tl5jp2vy.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-02"
+  },
   "https://dev.to/googleai/how-we-built-aiventure-an-ai-powered-retro-dungeon-2f54": {
     "ok": true,
     "title": "How we built AIventure, an AI-Powered Retro Dungeon",
@@ -1495,6 +1511,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-23"
   },
+  "https://dev.to/jennapederson/what-happens-to-technical-debt-when-ai-makes-code-cheap-9oa": {
+    "ok": true,
+    "title": "What happens to technical debt when AI makes code cheap?",
+    "description": "Dear past Jenna,  I know you're used to dealing with large, complex, legacy codebases riddled with...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fpibqnjcnvslms7r50f40.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-02"
+  },
   "https://dev.to/jennapederson/you-can-build-it-should-you-9e0": {
     "ok": true,
     "title": "You can build it. Should you?",
@@ -1958,6 +1982,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fklovfev1i5y6fp60qjrm.jpg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/shubhradev/react-19-actions-i-explained-3-hooks-without-ever-explaining-what-an-action-is-m79": {
+    "ok": true,
+    "title": "React 19 Actions: I Explained 3 Hooks Without Ever Explaining What an Action Is",
+    "description": "Three parts into this series, and if you'd asked me to define the word sitting underneath every...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F24lwvfoej2cd2ccywek0.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-02"
   },
   "https://dev.to/shubhradev/react-19s-useactionstate-showed-me-why-disabling-my-submit-button-was-never-enough-53jd": {
     "ok": true,

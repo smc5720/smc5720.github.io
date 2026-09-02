@@ -1,0 +1,231 @@
+﻿---
+title: "React 19 Actions: 훅 세 개를 설명하면서 정작 Action이 뭔지는 말하지 않았다"
+description: "React 19의 useActionState, useOptimistic, useFormStatus는 모두 'Action'이라는 하나의 메커니즘 위에 서 있다. startTransition 안에서 호출된 함수가 Action이라는 정의부터, 네 개의 진입점과 각 훅이 맡는 역할까지 정리했다."
+date: "2026-09-01"
+published_at: "2026-09-02"
+category: "news"
+slug: "react-19-actions-what-is-an-action"
+tags: ["react", "javascript", "webdev", "frontend"]
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F24lwvfoej2cd2ccywek0.png"
+coverAlt: "React 19 Actions: I Explained 3 Hooks Without Ever Explaining What an Action Is"
+source_id: "devto-4543414"
+source_url: "https://dev.to/shubhradev/react-19-actions-i-explained-3-hooks-without-ever-explaining-what-an-action-is-m79"
+source_title: "React 19 Actions: I Explained 3 Hooks Without Ever Explaining What an Action Is"
+source_author: "Shubhra Pokhariya"
+source_published: "2026-09-01"
+---
+
+<LinkCard url="https://dev.to/shubhradev/react-19-actions-i-explained-3-hooks-without-ever-explaining-what-an-action-is-m79" author="Shubhra Pokhariya" date="2026-09-01" />
+
+## 개요
+
+React 19 훅 시리즈를 세 편 쓴 개발자가 네 번째 글에서 스스로 고백했다. 세 편 내내 "Action"이라는 단어를 계속 썼는데, 정작 그게 뭔지 한 번도 정의하지 않았다는 것이다.
+
+정의 자체는 짧다. **`startTransition` 안에서 호출된 함수가 Action이다.** 함수 안에 뭘 썼는지는 상관없다. 어느 문을 통과했느냐만 본다.
+
+세 편의 글은 각각 다른 문제를 다뤘다. `useActionState`는 결과·pending·에러라는 세 개의 상태 변수를 한 번의 호출로 합쳤고, `useOptimistic`은 서버 응답 전에 UI를 먼저 바꿨고, `useFormStatus`는 세 단계 떨어진 버튼이 prop 없이 폼의 pending 상태를 읽게 했다. 서로 다른 세 가지 해법처럼 보였지만, 셋 다 이름 없이 같은 메커니즘에 기대고 있었다.
+
+## Action이 되는 네 개의 문
+
+```jsx
+async function submitFeedback(previousState, formData) {
+  const message = formData.get("message");
+  await saveFeedback(message);
+  return { sent: true };
+}
+```
+
+위 함수는 코드베이스에 영원히 남아 있어도 Action처럼 동작하지 않을 수 있다. 스위치를 켜는 건 함수 내부가 아니라 진입 경로다. 그 문은 네 개다.
+
+- 직접 호출한 `startTransition`
+- `useTransition`이 돌려주는 `startTransition`
+- 문자열 대신 함수를 받은 `<form>`의 `action` prop
+- `useActionState`
+
+이 중 하나를 통과하면 React가 Transition과 그 아래의 pending 추적을 대신 맡는다. 다만 **반환값까지 챙겨주지는 않는다.** `useTransition`은 `isPending`만 주고, 원시 `startTransition` 호출은 아무것도 돌려주지 않는다. 반환값을 붙잡아 상태로 들고 있도록 만들어진 문은 `useActionState` 하나뿐이다. 1편에서 `isPending`과 실제 결과가 함께 등장한 게 거기뿐이었던 이유다.
+
+이걸 알고 나면 세 편의 글이 서로 다른 훅 세 개가 아니라 같은 방을 보는 세 개의 창문으로 보인다. `useFormStatus`가 가장 가까운 부모 폼의 pending 상태를 읽을 수 있는 건, 애초에 무언가가 제출을 Transition으로 감쌌기 때문에 그 상태가 존재하는 것이다.
+
+`useOptimistic`은 예외다. Action이 되는 문이 아니라, **이미 실행 중인 Action 안에서 호출하는 setter**다. Transition 바깥에서 부르면 2편에서 보여준 대로 동작하지 않는다.
+
+![코드가 떠 있는 노트북 화면](https://images.pexels.com/photos/4164418/pexels-photo-4164418.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Antonio Batinić](https://www.pexels.com/@antonio-batinic-2573434) on [Pexels](https://www.pexels.com/photo/black-screen-with-code-4164418/)*
+
+## 애초에 왜 이런 게 필요했나
+
+폼마다 똑같은 상태 세 개를 손으로 배선해야 했다. 폼만의 문제도 아니었다. 삭제 버튼, 팔로우 토글, 체크아웃 단계 모두 같은 뼈대를 처음부터 다시 만들어야 했다.
+
+React 19는 transition 안에서 async 함수를 쓸 수 있게 했고, 이 시리즈의 모든 내용이 그 위에 서 있다. 그 기반 위에서 무엇을 얻느냐 — 추적된 결과까지 받을지, pending 플래그만 받을지 — 는 어느 문을 통과했는지에 달렸다. 가장 멀리 가는 건 `useActionState`고, 나머지는 설계상 덜 준다.
+
+## `<form action={fn}>`이 바꾸는 세 가지
+
+Action 이전에는 폼에서 코드를 실행하는 실질적인 경로가 `onSubmit`뿐이었다. 그리고 그 경로엔 매번 기억해야 할 절차가 딸려 왔다. `preventDefault` 호출, 이벤트 타깃에서 `FormData` 직접 생성, 로딩·에러 상태 수동 관리.
+
+```jsx
+function OldForm() {
+  function handleSubmit(e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    // 요청 실행, 로딩·에러 상태는 직접 관리
+  }
+  return <form onSubmit={handleSubmit}>{/* ... */}</form>;
+}
+```
+
+`onSubmit`을 `action`에 직접 넘긴 함수로 바꾸면 문법보다 사고 모델이 더 크게 바뀐다.
+
+**첫째, `preventDefault`를 아무도 부르지 않는다.** 깜빡해서가 아니다. 폼이 발화하기 전에 React가 이미 이게 Action이라는 걸 알기 때문에, 브라우저의 전체 페이지 리로드는 애초에 일어날 일이 없었다.
+
+**둘째, 함수가 이벤트를 받지 않는다.** 페이지의 모든 `name` 필드로 이미 만들어진 `FormData`를 바로 받는다. 손으로 쓰던 단계가 하나 줄었다.
+
+**셋째, 요청 메서드가 설정 대상이 아니게 된다.** `action`에 넘긴 함수는 바로 옆에 `method` 속성을 뭐라고 써두든 항상 POST로 제출한다. 3편에서 `useFormStatus` 쪽에서 마주쳤던 게 정확히 이 사실이다. `method`가 뭘 기대하든 계속 `'post'`로 돌아왔던 건 속성을 읽고 있던 게 아니라 그 아래의 Action을 읽고 있었기 때문이다.
+
+`onSubmit`이 여전히 제 몫을 하는 자리도 있다. **제출이 시작되기 전에 막아야 하는 일** — 비밀번호 두 필드가 일치하는지 확인하는 것 같은 — 은 거기 있어야 한다. Action 내부 코드가 돌아가는 시점엔 이미 제출이 시작된 뒤라, 그 안의 어떤 것도 제출을 막는 역할을 할 수 없다.
+
+## 동기 Action도 있다. 다만 재미가 없을 뿐
+
+Action이 반드시 async일 필요는 없다. 같은 네 개의 문에 넘긴 평범한 동기 함수도 Action으로 친다. React가 생명주기를 관리하는 것도 똑같다. 다만 pending 구간이 너무 짧아서 그 위에 UI를 만들 게 없다.
+
+```jsx
+function resetSearch(previousState, formData) {
+  return { query: "" };
+}
+```
+
+함수 안에 `await`이 등장하는 순간부터 1~3편의 내용이 값어치를 갖는다. React 18은 `startTransition`의 콜백이 동기여야 한다고 요구했다. React 19가 그 제약을 없앴고, 그 변화 하나가 `useActionState`와 `<form action={fn}>`, `useTransition`이 async 함수를 직접 받을 수 있게 만들었다.
+
+## 클라이언트 Action과 Server Function은 같은 말이 아니다
+
+시리즈에서 다룬 건 전부 클라이언트 Action이다. 내부적으로 서버와 통신하든 안 하든 브라우저에서 도는 코드고, 프레임워크 없이 React 19 환경이면 똑같이 동작한다.
+
+Server Function은 관련은 있지만 별개다. Server Component를 지원하는 프레임워크에서만 존재한다(Next.js가 대표적이다). React 공식 문서는 둘의 관계를 이렇게 못 박는다. **Server Function은 `action` prop에 넘겨지거나 Action 안에서 호출될 때 비로소 Server Action이 된다.** 모든 Server Function이 Server Action은 아니다. 반대로 그렇게 쓰인 모든 Server Action은 Server Function이다.
+
+```jsx
+"use server";
+
+export async function submitFeedback(formData) {
+  const message = formData.get("message");
+  await db.feedback.create({ message });
+}
+```
+
+인자가 `formData` 하나인 건, Server Function을 폼의 `action` prop에 직접 넘겼을 때의 모양이다. 이걸 짚어두는 이유가 있다. `useActionState`는 언제나 `(previousState, formData)` 두 인자로 함수를 호출하기 때문에, 이 상태로는 서로 호환되지 않는다. 서버 로직을 `useActionState`로 재사용하려면 처음부터 그 형태로 써야 한다. 인자 하나짜리를 그냥 끼워 넣고 React가 알아서 맞춰주길 기대하면 안 된다. 맞춰주지 않는다.
+
+## 네 번째 문: useTransition
+
+`useTransition`은 시리즈에서 이름으로 등장한 적이 한 번도 없는데, 정작 그 메커니즘은 모든 예제 아래에서 계속 돌고 있었다. 호출하면 정확히 두 개가 돌아온다. `isPending` 플래그와 `startTransition` 함수.
+
+지금까지의 체크아웃 예제는 전부 `<form>` 안에서 돌았고, 폼은 Action을 자동으로 Transition으로 감싼다. `useTransition`은 **기댈 폼이 없을 때** 쓴다. 상품 카드 위의 위시리스트 하트 아이콘을 떠올려 보자. 근처에 폼은 없고, 서버를 때리고 pending 여부를 알려야 하는 클릭 핸들러만 있다.
+
+```jsx
+import { useTransition, useState } from "react";
+
+function WishlistButton({ productId, isSaved, toggleWishlist }) {
+  const [isPending, startTransition] = useTransition();
+  const [saved, setSaved] = useState(isSaved);
+
+  function handleClick() {
+    startTransition(async () => {
+      setSaved(!saved);
+      const result = await toggleWishlist(productId);
+      startTransition(() => {
+        setSaved(result.saved);
+      });
+    });
+  }
+
+  return (
+    <button onClick={handleClick} disabled={isPending} aria-pressed={saved}>
+      {saved ? "♥ Saved" : "♡ Save"}
+    </button>
+  );
+}
+```
+
+`await` 뒤의 `setSaved`를 감싼 두 번째 중첩 `startTransition`을 눈여겨보자. 낯익다면 그럴 만하다. 2편 댓글 상자에서 `onConfirmed`를 자기만의 `startTransition`으로 감쌌던 것과 똑같은 모양이다. 우연히 두 번 본 별개의 패턴이 아니다. **React는 동기 작업만 Transition의 일부로 자동 추적한다.** `await` 이후의 코드는 댓글 폼 안이든 폼 하나 없는 하트 아이콘이든 자기 `startTransition` 호출이 있어야 Transition으로 계산된다.
+
+위 버튼이 `useOptimistic`이 아니라 평범한 `useState`를 쓴 것도 실수가 아니다. 다른 훅이 끼어들기 전에 `useTransition`이 혼자 무엇을 해주는지만 떼어놓고 보려는 예제다. 실제 앱이라면 여기서 거의 확실히 `useOptimistic`을 쓸 것이다. 2편에서 다룬 즉각 피드백이 바로 그 일이니까.
+
+### 순서 보장은 어디에서 오는가
+
+놓치기 쉽고, 뒤늦게 알면 비싼 부분이 있다. 하트를 누르고, 취소하고, 다시 빠르게 누르면 — 원시 `useTransition` 호출은 **어떤 결과가 마지막에 도착할지 보장하지 않는다.** React 문서가 직접 말한다. Transition 안의 Action은 그 자체로 실행 순서를 보장하지 않는다.
+
+여기서 쉽게 오해하는 지점이 있다. `<form action={fn}>`도 원시 `useTransition`과 똑같이 이 문제에 노출된다고 생각하기 쉽지만, 그렇지 않다. React 공식 문서는 `<form>` action과 `useActionState`를 **순서를 이미 처리해주는 두 가지 내장 방식**으로 묶어서 설명한다. 아무것도 감싸지 않은 채 혼자 쓰인 `useTransition`만 그 보장을 받지 못한다. 위 위시리스트 버튼도 마찬가지다. 순서 보장이 Action 일반에서 나온다고 생각했다면, 아니다. `useActionState`와 `<form>` action이 원시 메커니즘 위에 얹은 것이다.
+
+## 네 개가 서로 어디에 앉아 있나
+
+| 하려는 일 | 선택 |
+|---|---|
+| 폼의 결과와 pending 상태를 한곳에서 소유 | `useActionState` |
+| 서버 확인 전에 완료된 UI를 먼저 보여주기 | `useOptimistic` |
+| 폼을 관리하지 않는 컴포넌트에서 pending 상태 읽기 | `useFormStatus` |
+| 폼 바깥에서 Action을 실행하고 pending 추적 | `useTransition` |
+
+"어느 훅을 배워야 하나"에 대한 네 개의 경쟁 답이 아니다. 아래에 깔린 메커니즘 하나를 공유하는, 서로 다른 네 질문에 대한 네 답이다.
+
+3편의 체크아웃 폼이 이미 그걸 증명했다. 네 개 컴포넌트에 걸쳐 `useActionState`가 제출을 소유하고, `useFormStatus`가 `PlaceOrderButton`에 아무것도 내려보내지 않고 pending 상태를 읽게 했다. 여기에 세 번째 훅을 얹어 보자. 프로모 코드가 들어간 채 제출되는 순간, 서버 확인 전에 총액을 깎는 동작이다.
+
+```jsx
+import { useActionState, useOptimistic } from "react";
+import { useFormStatus } from "react-dom";
+
+async function placeOrder(previousState, formData) {
+  const result = await submitOrder(formData);
+  return { orderId: result.id, error: null };
+}
+
+function PlaceOrderButton() {
+  const { pending } = useFormStatus();
+  return (
+    <button type="submit" disabled={pending}>
+      {pending ? "Placing order..." : "Place order"}
+    </button>
+  );
+}
+
+function OrderForm({ cartTotal }) {
+  const [state, formAction] = useActionState(placeOrder, {
+    orderId: null,
+    error: null,
+  });
+
+  const [displayTotal, applyDiscount] = useOptimistic(
+    cartTotal,
+    (current, discount) => current - discount,
+  );
+
+  function handleSubmit(formData) {
+    if (formData.get("promoCode") === "SAVE10") {
+      applyDiscount(10);
+    }
+    formAction(formData);
+  }
+
+  return (
+    <form action={handleSubmit}>
+      <p>Total: ${displayTotal.toFixed(2)}</p>
+      <input name="promoCode" placeholder="Promo code" />
+      <PaymentFields />
+      <PlaceOrderButton />
+    </form>
+  );
+}
+```
+
+`useActionState`는 3편과 똑같이 실제 제출을 소유한다. `useOptimistic`은 `SAVE10`이 입력된 채 폼이 제출되는 순간 할인된 총액을 보여주고, `submitOrder`의 확인을 기다리지 않는다. 그리고 Transition이 정리되면 현재 `cartTotal` 값으로 알아서 되돌아간다.
+
+이 되돌아감이 보기보다 중요하다. 위 축약본은 `submitOrder`가 끝난 뒤에 `cartTotal`을 실제로 갱신하지 않기 때문에, Action이 끝나는 순간 할인이 사라진다. 2편에서 `onConfirmed`로 겪었던 함정과 같다. 제대로 만들려면 주문이 실제로 처리된 뒤 확정된 할인가를 부모가 `cartTotal`에 반영해줘야 한다. 그래야 낙관적 값이 안착할 실체가 생긴다. `useFormStatus`는 여전히 `OrderForm`에서 아무것도 내려받지 않고 `PlaceOrderButton`이 스스로 비활성화되게 한다. 훅 세 개, 폼 하나, 서로의 일을 침범하지 않는다.
+
+## 시리즈가 만들 뻔한 오해
+
+원문 작성자가 마지막에 짚은 함정이 있다. 한 편에 훅 하나씩 세 편을 연달아 쓰면, 성실한 독자일수록 "이 중 하나를 골라야 한다"고 받아들이기 쉽다. `useActionState`냐 `useOptimistic`이냐 `useFormStatus`냐, 하나의 폼에는 하나만 어울린다는 식으로.
+
+그런 적은 없었다. 처음부터 조합이 핵심이었다. 실제 폼이 이 중 정확히 하나만 쓰는 경우는 드물다. 눈앞의 문제 조각을 실제로 해결하는 둘 또는 셋을 가져다 쓰는 것이고, 넷 중 어느 것도 같은 일을 두고 경쟁하지 않는다.
+
+작성자는 개념보다 구체적인 버그 세 개를 먼저 다룬 게 의도였다고 밝혔다. 문제의 모양을 몸으로 느낀 뒤에 개념이 더 오래 붙는다는 것이다. 다만 그 개념이 결국 등장해야 성립하는 방식이고, 이 글이 그 부분이다.
+
+더 깊은 내용 — 동기 대 비동기 Action, Server Function 전체 섹션, FAQ — 은 작성자 사이트의 [React 19 Actions Explained](https://shubhra.dev/tutorials/react-19-actions)에 정리돼 있다. 네 개 API를 다루는 15문항 퀴즈도 [React 19 Actions Quiz](https://shubhra.dev/quiz/react-19-actions-quiz)에 있다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
