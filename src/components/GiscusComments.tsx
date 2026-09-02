@@ -1,7 +1,6 @@
 "use client";
 
 import Giscus from "@giscus/react";
-import { useThemeMode } from "@/lib/use-theme-mode";
 
 const REPO = process.env.NEXT_PUBLIC_GISCUS_REPO as `${string}/${string}` | undefined;
 const REPO_ID = process.env.NEXT_PUBLIC_GISCUS_REPO_ID;
@@ -9,8 +8,6 @@ const CATEGORY = process.env.NEXT_PUBLIC_GISCUS_CATEGORY;
 const CATEGORY_ID = process.env.NEXT_PUBLIC_GISCUS_CATEGORY_ID;
 
 export function GiscusComments() {
-  const theme = useThemeMode() === "light" ? "light" : "dark_dimmed";
-
   if (!REPO || !REPO_ID || !CATEGORY || !CATEGORY_ID) return null;
 
   return (
@@ -24,7 +21,7 @@ export function GiscusComments() {
       reactionsEnabled="1"
       emitMetadata="0"
       inputPosition="top"
-      theme={theme}
+      theme="dark_dimmed"
       lang="ko"
       loading="lazy"
     />
