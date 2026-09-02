@@ -1,59 +1,26 @@
 import type { Metadata, Viewport } from "next";
-import {
-  Fraunces,
-  Syne,
-  JetBrains_Mono,
-  Inter,
-  Noto_Sans_KR,
-  Noto_Serif_KR,
-} from "next/font/google";
+import { IBM_Plex_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import Script from "next/script";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  variable: "--font-fraunces",
+/* 본문·UI 전용 산세리프. 세리프는 v3에서 전면 금지.
+   Pretendard Variable은 public/fonts에 셀프 호스트한다. */
+const pretendard = localFont({
+  src: "../../public/fonts/PretendardVariable.woff2",
+  variable: "--font-pretendard",
   display: "swap",
-  axes: ["SOFT", "WONK"],
+  weight: "400 700",
 });
 
-const syne = Syne({
+/* 모노스페이스는 코드 블록과 날짜·카운트·경로에만 */
+const plexMono = IBM_Plex_Mono({
   subsets: ["latin"],
-  variable: "--font-syne",
+  variable: "--font-plex-mono",
   display: "swap",
-  weight: ["400", "500", "600", "700", "800"],
-});
-
-const jetbrains = JetBrains_Mono({
-  subsets: ["latin"],
-  variable: "--font-jetbrains",
-  display: "swap",
-  weight: ["400", "500", "600"],
-});
-
-// Inter is a variable font — no weight array needed
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
-// Noto KR fonts: next/font downloads the full CSS (all unicode ranges including Korean)
-// at build time. The 'latin' subset here only controls the <link preload> hint, not coverage.
-const notoSansKR = Noto_Sans_KR({
-  subsets: ["latin"],
-  variable: "--font-noto-sans-kr",
-  display: "swap",
-  weight: ["400", "500", "700"],
-});
-
-const notoSerifKR = Noto_Serif_KR({
-  subsets: ["latin"],
-  variable: "--font-noto-serif-kr",
-  display: "swap",
-  weight: ["400", "700"],
+  weight: ["400", "600"],
 });
 
 export const metadata: Metadata = {
@@ -80,11 +47,10 @@ export const metadata: Metadata = {
   },
 };
 
+/* 다크 단일 테마 — 라이트 대응 없음 */
 export const viewport: Viewport = {
-  themeColor: [
-    { media: '(prefers-color-scheme: dark)', color: '#07070A' },
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-  ],
+  colorScheme: "dark",
+  themeColor: "#0c0c0d",
 };
 
 const adsensePublisherId = process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID;
@@ -96,15 +62,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="ko"
-      className={`${fraunces.variable} ${syne.variable} ${jetbrains.variable} ${inter.variable} ${notoSansKR.variable} ${notoSerifKR.variable}`}
-    >
+    <html lang="ko" className={`${pretendard.variable} ${plexMono.variable}`}>
       <head>
-        {/* FOUC prevention: apply saved theme before first paint */}
-        <script dangerouslySetInnerHTML={{
-          __html: `(function(){try{var t=localStorage.getItem('rico-theme');if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}})()`
-        }} />
         {adsensePublisherId && (
           <script
             async
@@ -113,7 +72,7 @@ export default function RootLayout({
           />
         )}
       </head>
-      <body className="noise-overlay flex flex-col min-h-screen bg-bg">
+      <body className="flex flex-col min-h-screen">
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />

@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { getAllPosts, CATEGORY_LABELS } from "@/lib/posts";
 import type { Category } from "@/types/post";
-import { Marquee } from "@/components/Marquee";
 import { SectionHead } from "@/components/SectionHead";
 import { PostCardFeatured } from "@/components/PostCardFeatured";
 import { PostCardCompact } from "@/components/PostCardCompact";
@@ -235,9 +234,6 @@ export default function HomePage() {
           ))}
         </nav>
       </section>
-
-      {/* ── Marquee ── */}
-      <Marquee />
 
       {/* ── Featured ── */}
       {posts.length === 0 ? (
