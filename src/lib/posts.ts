@@ -66,6 +66,18 @@ export function getAllTags(): string[] {
   return [...new Set(tags)].sort();
 }
 
+/** 연도별 글 편수 — 최신 연도부터 내림차순. 정렬 기준은 getAllPosts()와 동일하게 published_at 우선 */
+export function getPostCountsByYear(): { year: number; count: number }[] {
+  const counts = new Map<number, number>();
+  for (const p of getAllPosts()) {
+    const year = new Date(p.published_at ?? p.date).getFullYear();
+    counts.set(year, (counts.get(year) ?? 0) + 1);
+  }
+  return [...counts.entries()]
+    .sort((a, b) => b[0] - a[0])
+    .map(([year, count]) => ({ year, count }));
+}
+
 export function getPrevNextPosts(slug: string): { prev: PostMeta | null; next: PostMeta | null } {
   const allPosts = getAllPosts(); // 날짜 내림차순 (최신→구)
   const idx = allPosts.findIndex((p) => p.slug === slug);
