@@ -823,7 +823,6 @@ a {
 .prose img {
   max-width: 100%;
   border-radius: var(--radius-md);
-  filter: grayscale(1) contrast(0.92);
 }
 
 .prose figure {
@@ -1483,10 +1482,6 @@ a {
   border-radius: var(--radius-md);
   overflow: hidden;
   background: var(--color-surface);
-}
-
-.detail-cover img {
-  filter: grayscale(1) contrast(0.92);
 }
 
 .detail-comments {
@@ -3024,10 +3019,6 @@ button.idx-rail-row {
   background: var(--color-line);
 }
 
-.home-featured-cover img {
-  filter: grayscale(1) contrast(0.92);
-}
-
 .home-featured-cover-fallback {
   position: absolute;
   inset: 0;
@@ -3118,10 +3109,6 @@ button.idx-rail-row {
   overflow: hidden;
   background: var(--color-line);
   position: relative;
-}
-
-.post-row-thumb img {
-  filter: grayscale(1) contrast(0.92);
 }
 
 .post-row-body {
@@ -3647,10 +3634,6 @@ button.idx-rail-row {
   border-radius: var(--radius-md);
   overflow: hidden;
   background: var(--color-surface);
-}
-
-.blog-card-cover img {
-  filter: grayscale(1) contrast(0.92);
 }
 
 .blog-card-cover-fallback {
