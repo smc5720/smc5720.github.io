@@ -200,7 +200,7 @@ function ProfileCard() {
             src="/images/profile.jpg"
             alt="서민철 프로필 사진"
             fill
-            style={{ objectFit: "cover", filter: "grayscale(1) contrast(0.92)" }}
+            style={{ objectFit: "cover" }}
             priority
           />
         </div>

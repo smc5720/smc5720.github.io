@@ -196,7 +196,6 @@ export async function LinkCard({ url, title, author, date }: LinkCardProps) {
             height: "100%",
             objectFit: "cover",
             display: "block",
-            filter: "grayscale(1)",
           }}
         />
       </div>
