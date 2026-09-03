@@ -1,51 +1,46 @@
-import { ImageResponse } from 'next/og'
+import { ImageResponse } from "next/og";
+import {
+  Mark,
+  MARK_16,
+  MARK_32,
+  MARK_64,
+  MARK_128,
+  scaleMark,
+  maskableMark,
+  type MarkSpec,
+} from "@/lib/mark";
 
-export const dynamic = 'force-static'
-export const size = { width: 32, height: 32 }
-export const contentType = 'image/png'
+export const dynamic = "force-static";
+export const contentType = "image/png";
 
-export default function Icon() {
-  return new ImageResponse(
-    (
-      <div
-        style={{
-          width: 32,
-          height: 32,
-          background: '#07070A',
-          borderRadius: 2,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          position: 'relative',
-          border: '1px solid #2a2a2a',
-        }}
-      >
-        {/* center R */}
-        <span
-          style={{
-            fontFamily: '"Courier New", monospace',
-            fontSize: 18,
-            fontWeight: 600,
-            color: '#C8FF00',
-            lineHeight: 1,
-          }}
-        >
-          R
-        </span>
-        {/* bottom-right accent dot */}
-        <div
-          style={{
-            position: 'absolute',
-            right: 2,
-            bottom: 2,
-            width: 6,
-            height: 6,
-            borderRadius: 1,
-            background: '#C8FF00',
-          }}
-        />
-      </div>
-    ),
-    { ...size },
-  )
+/**
+ * 16/32/64/128 — 아트보드 7a 실측값 그대로 (파비콘 멀티 해상도 `<link rel="icon">`).
+ * 192/512 — manifest.ts의 PWA "any" 아이콘. 표에 없어 128 기준 선형 스케일로 생성.
+ * 512-maskable — manifest.ts의 PWA maskable 아이콘. 80% 안전영역 스케일.
+ */
+const SIZES: Record<string, MarkSpec> = {
+  "16": MARK_16,
+  "32": MARK_32,
+  "64": MARK_64,
+  "128": MARK_128,
+  "192": scaleMark(192),
+  "512": scaleMark(512),
+  "512-maskable": maskableMark(512),
+};
+
+export function generateImageMetadata() {
+  return Object.entries(SIZES).map(([id, spec]) => ({
+    id,
+    size: { width: spec.size, height: spec.size },
+    contentType: "image/png",
+  }));
+}
+
+export default async function Icon({ id }: { id: Promise<string | number> }) {
+  const iconId = String(await id);
+  const spec = SIZES[iconId] ?? MARK_32;
+  return new ImageResponse(<Mark spec={spec} />, {
+    width: spec.size,
+    height: spec.size,
+  });
 }
