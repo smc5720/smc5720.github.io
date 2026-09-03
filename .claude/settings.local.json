@@ -143,7 +143,8 @@
       "Bash(powershell -NoProfile -Command \"taskkill /PID 2252 /T /F\")",
       "Bash(powershell -NoProfile -Command \"Get-CimInstance Win32_Process -Filter \\\\\"Name='node.exe'\\\\\" | Where-Object { \\\\$_.CommandLine -like '*smc5720.github.io*' } | Select-Object ProcessId,CommandLine | Format-List\" 2>&1 | head -14)",
       "Bash(powershell -NoProfile -Command \"Get-CimInstance Win32_Process -Filter \\\\\"Name='node.exe'\\\\\" | Where-Object { \\\\$_.CommandLine -like '*smc5720.github.io*' } | ForEach-Object { \\\\$c = \\\\$_.CommandLine; if \\(\\\\$c -match 'bin.next.\\\\\" build'\\) {'BUILD ' + \\\\$_.ProcessId} elseif \\(\\\\$c -match 'jest-worker'\\) {'worker ' + \\\\$_.ProcessId} else {'other ' + \\\\$_.ProcessId + ' ' + \\\\$c.Substring\\(0,[Math]::Min\\(80,\\\\$c.Length\\)\\)} }\")",
-      "Bash(powershell -NoProfile -Command \"Wait-Process -Id 44056 -Timeout 2400; 'BUILD_EXITED'\")"
+      "Bash(powershell -NoProfile -Command \"Wait-Process -Id 44056 -Timeout 2400; 'BUILD_EXITED'\")",
+      "Bash(netstat *)"
     ],
     "defaultMode": "bypassPermissions"
   }
