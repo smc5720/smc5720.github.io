@@ -124,7 +124,26 @@
       "Agent",
       "Task",
       "Skill",
-      "Bash(wmic process *)"
+      "Bash(wmic process *)",
+      "Bash(cd *)",
+      "Bash(netstat -ano -p tcp)",
+      "Bash(tasklist *)",
+      "Bash(MSYS_NO_PATHCONV=1 tasklist //FI \"PID eq 38956\" //FO CSV)",
+      "Bash(powershell -NoProfile -Command \"Get-Process -Id 38956 | Select-Object Id,ProcessName,Path | Format-List\")",
+      "Bash(powershell -NoProfile -Command \"Get-CimInstance Win32_Process -Filter 'ProcessId=38956' | Select-Object -ExpandProperty CommandLine\")",
+      "Bash(powershell -NoProfile -Command \"Get-CimInstance Win32_Process -Filter 'ProcessId=38956' | Select-Object ProcessId,ParentProcessId | Format-List; Get-CimInstance Win32_Process -Filter \\\\\"Name='node.exe'\\\\\" | Select-Object ProcessId,ParentProcessId,CommandLine | Format-List\")",
+      "Bash(powershell -NoProfile -Command \"taskkill /PID 33684 /T /F; taskkill /PID 11980 /T /F\")",
+      "Bash(powershell -NoProfile -Command \"Get-CimInstance Win32_Process -Filter \\\\\"Name='node.exe'\\\\\" | Where-Object { \\\\$_.CommandLine -like '*smc5720.github.io*' } | Select-Object ProcessId,ParentProcessId,CommandLine | Format-List\")",
+      "Bash(powershell -NoProfile -Command \"taskkill /PID 32664 /T /F\")",
+      "Bash(powershell -NoProfile -Command \"Get-CimInstance Win32_Process -Filter \\\\\"Name='node.exe'\\\\\" | Where-Object { \\\\$_.CommandLine -like '*smc5720.github.io*' } | Select-Object ProcessId,CreationDate,CommandLine | Format-List\" 2>&1 | head -40)",
+      "Bash(powershell -NoProfile -Command \"Get-Process | Where-Object { \\\\$_.ProcessName -match 'chrome|node|headless' } | Group-Object ProcessName | Select-Object Name,Count | Format-Table -AutoSize; '--- CPU ---'; \\(Get-CimInstance Win32_Processor | Measure-Object -Property LoadPercentage -Average\\).Average\")",
+      "Bash(powershell -NoProfile -Command \"Get-CimInstance Win32_Process -Filter \\\\\"Name='node.exe'\\\\\" | Where-Object { \\\\$_.CommandLine -like '*smc5720*' -or \\\\$_.CommandLine -like '*next*' } | Select-Object ProcessId,CommandLine | Format-List\" 2>&1 | head -30)",
+      "Bash(powershell -NoProfile -Command \"exit \\([bool]\\(Get-Process -Id 2252 -ErrorAction SilentlyContinue\\)\\)\")",
+      "Bash(powershell -NoProfile -Command \"Get-CimInstance Win32_Process -Filter \\\\\"Name='node.exe'\\\\\" | Where-Object { \\\\$_.CommandLine -like '*smc5720.github.io*' } | Select-Object ProcessId,CommandLine | Format-List\" 2>&1 | head -20; echo \"=== lock 탐색 ===\"; cd \"D:/Git/smc5720.github.io\" && find .next -maxdepth 2 -newermt \"-2 hours\" -type f 2>/dev/null | grep -iE \"lock|pid\" | head)",
+      "Bash(powershell -NoProfile -Command \"taskkill /PID 2252 /T /F\")",
+      "Bash(powershell -NoProfile -Command \"Get-CimInstance Win32_Process -Filter \\\\\"Name='node.exe'\\\\\" | Where-Object { \\\\$_.CommandLine -like '*smc5720.github.io*' } | Select-Object ProcessId,CommandLine | Format-List\" 2>&1 | head -14)",
+      "Bash(powershell -NoProfile -Command \"Get-CimInstance Win32_Process -Filter \\\\\"Name='node.exe'\\\\\" | Where-Object { \\\\$_.CommandLine -like '*smc5720.github.io*' } | ForEach-Object { \\\\$c = \\\\$_.CommandLine; if \\(\\\\$c -match 'bin.next.\\\\\" build'\\) {'BUILD ' + \\\\$_.ProcessId} elseif \\(\\\\$c -match 'jest-worker'\\) {'worker ' + \\\\$_.ProcessId} else {'other ' + \\\\$_.ProcessId + ' ' + \\\\$c.Substring\\(0,[Math]::Min\\(80,\\\\$c.Length\\)\\)} }\")",
+      "Bash(powershell -NoProfile -Command \"Wait-Process -Id 44056 -Timeout 2400; 'BUILD_EXITED'\")"
     ],
     "defaultMode": "bypassPermissions"
   }
