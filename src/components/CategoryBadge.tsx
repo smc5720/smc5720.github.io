@@ -1,5 +1,5 @@
 import type { Category } from "@/types/post";
-import { CATEGORY_LABELS } from "@/lib/constants";
+import { CATEGORY_LABELS, CATEGORY_COLOR_VAR } from "@/lib/constants";
 
 interface Props {
   category: Category;
@@ -8,17 +8,17 @@ interface Props {
 
 export function CategoryBadge({ category, size = "md" }: Props) {
   const label = CATEGORY_LABELS[category];
-  const cssVar = `var(--cat-${category})`;
+  const cssVar = `var(${CATEGORY_COLOR_VAR[category]})`;
 
   return (
     <span
-      className={`inline-flex items-center font-mono font-medium tracking-widest uppercase border rounded-sm ${
-        size === "sm" ? "text-[10px] px-1.5 py-0.5" : "text-[11px] px-2 py-1"
+      className={`inline-flex items-center font-mono border ${
+        size === "sm" ? "text-[11px] px-[6px] py-[2px]" : "text-[12px] px-[7px] py-[3px]"
       }`}
       style={{
         color: cssVar,
-        borderColor: `color-mix(in srgb, ${cssVar} 30%, transparent)`,
-        backgroundColor: `color-mix(in srgb, ${cssVar} 8%, transparent)`,
+        borderColor: `color-mix(in oklab, ${cssVar} 40%, transparent)`,
+        borderRadius: "var(--radius-xs)",
       }}
     >
       {label}

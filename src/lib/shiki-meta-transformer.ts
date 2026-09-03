@@ -30,3 +30,54 @@ export const dataLanguageTransformer = {
     node.properties["data-language"] = this.options.lang;
   },
 };
+
+/**
+ * Parses a Shiki meta string's `{1,3-5}` line-range notation into a set of
+ * 1-based line numbers. Returns an empty set if the meta string carries no
+ * such notation (e.g. it's just `filename="..."`).
+ */
+function parseHighlightLines(raw: string): Set<number> {
+  const match = raw.match(/\{([\d,\-\s]+)\}/);
+  const lines = new Set<number>();
+  if (!match) return lines;
+
+  for (const part of match[1].split(",")) {
+    const token = part.trim();
+    if (!token) continue;
+
+    const range = token.match(/^(\d+)\s*-\s*(\d+)$/);
+    if (range) {
+      const start = Number(range[1]);
+      const end = Number(range[2]);
+      for (let n = start; n <= end; n++) lines.add(n);
+    } else if (/^\d+$/.test(token)) {
+      lines.add(Number(token));
+    }
+  }
+
+  return lines;
+}
+
+/**
+ * Shiki transformer that reads the raw meta string (e.g. ```ts {2,4-6}```)
+ * off `this.options.meta.__raw` — the field @shikijs/rehype populates from
+ * the fenced-code-block header — and tags the matching `.line` spans with a
+ * `highlighted` class the codeblock CSS turns into an accent-tinted row.
+ */
+export const lineHighlightTransformer = {
+  name: "rico-blog:line-highlight",
+  line(
+    this: {
+      options: { meta?: { __raw?: string } };
+      addClassToHast: (node: unknown, className: string) => void;
+    },
+    node: unknown,
+    line: number
+  ) {
+    const raw = this.options.meta?.__raw;
+    if (!raw) return;
+    if (parseHighlightLines(raw).has(line)) {
+      this.addClassToHast(node, "highlighted");
+    }
+  },
+};

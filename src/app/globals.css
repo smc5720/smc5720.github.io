@@ -39,6 +39,9 @@
   --color-code-str: #9fc6d8;
   --color-code-num: #d8c08f;
   --color-code-comment: #7d7d85;
+  /* 인라인 code — 코드 블록 배경(--color-code-bg)보다 살짝 밝은 전용 배경.
+     아트보드 3a 인라인 code 스펙(#17181a)에 맞춰 issue #109에서 추가. */
+  --color-code-inline-bg: #17181a;
 
   /* type — next/font가 넘겨주는 변수를 먼저 두고, 스펙의 패밀리명을 폴백으로 남긴다 */
   --font-sans: var(--font-pretendard), "Pretendard Variable", Pretendard, system-ui, sans-serif;
@@ -616,136 +619,135 @@ a {
   }
 }
 
-/* ── MDX Prose ── */
+/* ──────────────────────────────────────────────────────────────
+   MDX 본문(prose) — v3 (아트보드 3a 글 상세 · 3b 상태 명세)
+   기본 리듬 26px. 헤딩 · 인용 등은 자체 margin-top으로 리듬 위에 더한다.
+   ─────────────────────────────────────────────────────────── */
 .prose {
-  counter-reset: h2;
-  font-family: var(--font-body);
-  font-size: 17.5px;
-  line-height: 1.75;
-  color: var(--color-text);
+  counter-reset: h2-counter;
+  font-family: var(--font-sans);
+  font-size: var(--text-prose);
+  line-height: var(--text-prose--line-height);
+  color: var(--color-fg-body);
   word-break: keep-all;
 }
 
 .prose > * + * {
-  margin-top: 1.25em;
+  margin-top: 26px;
 }
 
 .prose h2 {
-  font-family: var(--font-serif);
-  font-size: clamp(28px, 2.6vw, 36px);
-  line-height: 1.15;
-  letter-spacing: -0.015em;
-  font-weight: 380;
-  margin: 2.2em 0 0.7em;
-  color: var(--color-text);
-  position: relative;
-  padding-top: 24px;
-  border-top: 1px solid var(--color-border-2);
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-top: 60px;
+  font-size: var(--text-h2);
+  line-height: var(--text-h2--line-height);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--color-fg);
+  text-wrap: pretty;
 }
 
 .prose h2::before {
-  content: counter(h2, decimal-leading-zero);
-  counter-increment: h2;
-  position: absolute;
-  top: 28px;
-  right: 0;
+  content: counter(h2-counter, decimal-leading-zero);
+  counter-increment: h2-counter;
   font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  color: var(--color-text-3);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-accent);
 }
 
 .prose h3 {
-  font-family: var(--font-sans);
-  font-size: 20px;
+  margin-top: 40px;
+  font-size: var(--text-h3);
+  line-height: var(--text-h3--line-height);
   font-weight: 600;
-  letter-spacing: -0.005em;
-  margin: 2em 0 0.4em;
-  color: var(--color-text);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-fg);
 }
 
 .prose h4 {
-  font-family: var(--font-sans);
-  font-size: 16px;
+  font-size: var(--text-prose);
+  line-height: 1.4;
   font-weight: 600;
-  margin: 1.5em 0 0.3em;
-  color: var(--color-text);
+  color: var(--color-fg);
 }
 
 /* anchor links injected by rehype-autolink-headings */
 .prose h2 .anchor,
 .prose h3 .anchor {
-  opacity: 0;
-  margin-left: 0.4em;
   font-family: var(--font-mono);
-  font-size: 0.6em;
-  color: var(--color-text-3);
-  transition: opacity 0.2s;
+  font-size: 0.55em;
+  color: var(--color-line-strong);
+  transition: color var(--dur-fast) var(--ease-out);
   text-decoration: none;
-  border-bottom: none;
 }
 
 .prose h2:hover .anchor,
 .prose h3:hover .anchor {
-  opacity: 1;
+  color: var(--color-line-hover);
 }
 
 .prose p {
-  color: var(--color-text);
+  color: var(--color-fg-body);
   text-wrap: pretty;
 }
 
 .prose a {
-  color: var(--color-text);
-  border-bottom: 1px solid var(--color-accent-line);
-  transition: border-color 0.2s, color 0.2s;
+  color: var(--color-accent-text);
+  box-shadow: inset 0 -1px 0 color-mix(in oklab, var(--color-accent-text) 45%, transparent);
+  transition: box-shadow var(--dur-fast) var(--ease-out);
 }
 
 .prose a:hover {
-  color: var(--color-accent);
-  border-bottom-color: var(--color-accent);
+  box-shadow: inset 0 -1px 0 color-mix(in oklab, var(--color-accent-text) 85%, transparent);
 }
 
 .prose strong {
-  color: var(--color-text);
-  font-weight: 600;
+  color: var(--color-fg-strong);
+  font-weight: 700;
 }
 
 .prose em {
   font-style: italic;
-  color: var(--color-text);
+  color: var(--color-fg);
 }
 
 .prose blockquote {
-  margin: 1.8em 0;
-  padding: 8px 0 8px 24px;
+  margin-top: 34px;
+  padding: 20px 24px;
   border-left: 2px solid var(--color-accent);
-  font-family: var(--font-serif);
-  font-size: 22px;
-  line-height: 1.45;
-  letter-spacing: -0.005em;
-  color: var(--color-text);
-  font-style: italic;
+  background: var(--color-surface);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
 }
 
 .prose blockquote p {
   margin: 0;
-  color: var(--color-text);
-  font-style: italic;
+  color: var(--color-fg);
+  font-size: var(--text-prose);
+  line-height: 1.8;
+}
+
+/* attribution line: any paragraph after the first inside a blockquote */
+.prose blockquote p ~ p {
+  margin-top: 10px;
+  font-size: 14px;
+  color: var(--color-fg-subtle);
 }
 
 .prose code {
   font-family: var(--font-mono);
-  font-size: 0.86em;
-  background: var(--color-surface-2);
-  border: 1px solid var(--color-border);
-  padding: 1.5px 6px;
-  border-radius: 4px;
-  color: var(--color-accent);
+  font-size: 0.9em;
+  background: var(--color-code-inline-bg);
+  border: 1px solid var(--color-line-strong);
+  padding: 2px 6px;
+  border-radius: var(--radius-xs);
+  color: var(--color-code-fg);
 }
 
-/* .prose pre is now handled by the .codeblock container component.
-   Only reset margin so the codeblock div controls spacing. */
+/* .prose pre is handled by the .codeblock container component below.
+   Reset margin so the codeblock div controls spacing. */
 .prose pre {
   margin: 0;
 }
@@ -758,12 +760,135 @@ a {
   font-size: inherit;
 }
 
-/* ─── code block container ─── */
-.codeblock {
-  margin: 1.8em 0;
-  border: 1px solid var(--color-border-2);
-  border-radius: var(--r-sm);
+.prose ul {
+  padding-left: 22px;
+  list-style: none;
+}
+
+.prose ul > li {
+  position: relative;
+}
+
+.prose ul > li::before {
+  content: "";
+  position: absolute;
+  left: -18px;
+  top: 0.7em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-fg-subtle);
+}
+
+/* nested ul — dash marker, smaller/dimmer text (아트보드 3a) */
+.prose ul ul {
+  margin-top: 8px;
+  font-size: 0.94em;
+  color: var(--color-fg-muted);
+}
+
+.prose ul ul > li::before {
+  width: 5px;
+  height: 1px;
+  border-radius: 0;
+  top: 0.65em;
+}
+
+.prose ol {
+  padding-left: 26px;
+}
+
+.prose ol > li::marker {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  color: var(--color-fg-subtle);
+}
+
+.prose li + li {
+  margin-top: 10px;
+}
+
+.prose hr {
+  border: none;
+  height: 1px;
+  background: var(--color-line);
+  margin-top: 40px;
+}
+
+.prose img {
+  max-width: 100%;
+  border-radius: var(--radius-md);
+  filter: grayscale(1) contrast(0.92);
+}
+
+.prose figure {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.prose figure img {
+  margin: 0;
+}
+
+.prose figcaption {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-fg-subtle);
+}
+
+/* 표는 본문 폭을 넘을 수 있다 — MDXContent가 씌우는 래퍼가 자체 스크롤을 갖는다 */
+.table-scroll {
+  overflow-x: auto;
+}
+
+.prose table {
+  width: 100%;
+  min-width: 480px;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.prose th,
+.prose td {
+  padding: 11px 12px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.prose th {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-fg-muted);
+  border-bottom: 1px solid var(--color-line-hover);
+}
+
+.prose td {
+  color: var(--color-fg-body);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.prose tr:hover td {
   background: var(--color-surface);
+}
+
+@media (max-width: 600px) {
+  .prose {
+    font-size: 16px;
+  }
+
+  .prose h2 {
+    font-size: 24px;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────
+   코드 블록 (.codeblock) — 헤더 바(점 2개 · 파일명 · 언어 · 복사) + Shiki 본문
+   ─────────────────────────────────────────────────────────── */
+.codeblock {
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-code-bg);
   overflow: hidden;
 }
 
@@ -771,44 +896,59 @@ a {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px 8px 14px;
-  border-bottom: 1px solid var(--color-border-2);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.018), transparent);
+  gap: 12px;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--color-line);
+  background: var(--color-surface);
+}
+
+.codeblock-dots {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.codeblock-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--color-line-hover);
+  display: block;
 }
 
 .codeblock-head .filename {
   font-family: var(--font-mono);
   font-size: 12px;
-  color: var(--color-text-2);
-  letter-spacing: 0;
+  color: var(--color-fg-body);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .codeblock-head .lang {
   font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--color-text-3);
+  font-size: 11px;
+  color: var(--color-fg-subtle);
 }
 
 .codeblock-head-actions {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .copy-btn {
   font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--color-text-2);
-  border: 1px solid var(--color-border-2);
-  padding: 4px 8px;
-  border-radius: var(--r-xs);
+  font-size: 11px;
+  color: var(--color-fg-body);
+  border: 1px solid var(--color-line-hover);
+  padding: 4px 9px;
+  border-radius: var(--radius-sm);
   background: transparent;
   cursor: pointer;
-  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  transition: color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -818,19 +958,14 @@ a {
 }
 
 .copy-btn:hover {
-  color: var(--color-text);
-  border-color: var(--color-border-3);
-  background: rgba(255, 255, 255, 0.02);
+  color: var(--color-fg);
+  border-color: var(--color-line-hover);
+  background: var(--color-surface);
 }
 
 .copy-btn.ok {
-  color: var(--color-accent);
-  border-color: var(--color-accent-line);
-}
-
-.copy-btn:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
+  color: var(--color-accent-text);
+  border-color: color-mix(in oklab, var(--color-accent) 45%, transparent);
 }
 
 .codeblock pre {
@@ -838,9 +973,9 @@ a {
   padding: 16px 0;
   overflow-x: auto;
   font-family: var(--font-mono);
-  font-size: 13.5px;
-  line-height: 1.65;
-  color: var(--color-text);
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--color-code-fg);
   background: transparent !important;
   border: none !important;
 }
@@ -854,94 +989,16 @@ a {
   font-size: inherit;
 }
 
-/* shiki renders .line spans; add subtle hover highlight */
+/* shiki가 렌더하는 .line 스팬 — 좌우 패딩을 여기서 준다(하이라이트가 pre
+   폭까지 배경을 채우도록, 좌우 패딩을 상쇄하는 트릭 없이 처리) */
 .codeblock .line {
   display: block;
-  padding: 0 16px;
+  padding: 0 18px;
 }
 
-.codeblock .line:hover {
-  background: rgba(255, 255, 255, 0.018);
-}
-
-.prose ul,
-.prose ol {
-  padding-left: 1.6em;
-}
-
-.prose ul li::marker {
-  color: var(--color-accent);
-}
-
-.prose ol li::marker {
-  color: var(--color-text-3);
-  font-family: var(--font-mono);
-  font-size: 0.85em;
-}
-
-.prose li + li {
-  margin-top: 0.35em;
-}
-
-.prose hr {
-  border: none;
-  height: 1px;
-  background: var(--color-border-2);
-  margin: 3em 0;
-}
-
-.prose img {
-  max-width: 100%;
-  border-radius: 4px;
-  border: 1px solid var(--color-border-2);
-  margin: 1.6em 0;
-}
-
-.prose table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14.5px;
-  font-family: var(--font-body);
-}
-
-.prose th,
-.prose td {
-  padding: 12px 14px;
-  text-align: left;
-  border-bottom: 1px solid var(--color-border-2);
-}
-
-.prose th {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--color-text-2);
-  font-weight: 500;
-  border-bottom-color: var(--color-border-3);
-}
-
-.prose td {
-  color: var(--color-text-2);
-}
-
-.prose tr:hover td {
-  background: var(--color-surface);
-}
-
-@media (max-width: 600px) {
-  .prose {
-    font-size: 16px;
-  }
-
-  .prose blockquote {
-    font-size: 18px;
-    padding-left: 16px;
-  }
-
-  .prose h2 {
-    font-size: 26px;
-  }
+/* 라인 하이라이트 — meta {n,n-n} 표기, accent 10% 배경 */
+.codeblock .line.highlighted {
+  background: color-mix(in oklab, var(--color-accent) 10%, transparent);
 }
 
 /* ── Reading Progress Bar ── */
@@ -1108,7 +1165,7 @@ a {
   font-size: 12px;
   letter-spacing: .14em;
   text-transform: uppercase;
-  color: var(--color-text);
+  color: var(--color-fg);
   text-decoration: none;
 }
 
@@ -1273,45 +1330,18 @@ a {
   }
 }
 
-/* ── Badge chip (.badge) — tag / category chip ── */
-/* dot before is category-only; for plain tag chips, use .badge.badge-tag which suppresses the dot */
+/* ── Badge chip (.badge) — 태그 배지 (아트보드 3a 태그 배지 목록) ── */
 .badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--color-text-2);
-  border: 1px solid var(--color-border-2);
-  border-radius: 2px;
-  background: var(--badge-bg, rgba(255, 255, 255, 0.012));
+  padding: 5px 9px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  color: var(--color-fg-body);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-xs);
   white-space: nowrap;
 }
-
-/* dot before — category indicator */
-.badge::before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--badge-dot, var(--color-text-3));
-  flex-shrink: 0;
-}
-
-/* tag variant — no dot */
-.badge.badge-tag::before {
-  display: none;
-}
-
-/* category data attrs */
-.badge[data-cat="news"]           { --badge-dot: var(--cat-news); }
-.badge[data-cat="dev"]            { --badge-dot: var(--cat-dev); }
-.badge[data-cat="retrospective"]  { --badge-dot: var(--cat-retrospective); }
-.badge[data-cat="release"]        { --badge-dot: var(--cat-release); }
-.badge[data-cat="etc"]            { --badge-dot: var(--cat-etc); }
 
 /* ── Empty / no-results state card ── */
 .empty-card {
@@ -1330,35 +1360,158 @@ a {
   }
 }
 
-/* ── Blog detail: body + TOC grid ── */
+/* ──────────────────────────────────────────────────────────────
+   블로그 상세 (아트보드 3a 글 상세 · 6a 태블릿 상세 · 6b 모바일 상세)
+   264px TOC 레일 / minmax(0,1fr) 본문(최대 --container-prose) / 200px 여백
+   ─────────────────────────────────────────────────────────── */
 .detail-grid {
   display: grid;
-  grid-template-columns: 1fr min(720px, 100%) 1fr;
-  gap: 56px;
-  align-items: start;
-  padding-top: var(--s-8);
-  padding-bottom: var(--s-32);
+  grid-template-columns: var(--container-rail) minmax(0, 1fr) 200px;
 }
 
-/* TOC aside — sticky in the left column */
-.toc-aside {
+.detail-toc-rail {
+  border-right: 1px solid var(--color-line);
+  min-width: 0;
+}
+
+.detail-toc-rail-inner {
   position: sticky;
-  top: 110px;
-  justify-self: end;
-  width: 100%;
-  max-width: 220px;
+  top: 88px;
+  padding: 40px 32px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: calc(100vh - 88px);
+  overflow-y: auto;
 }
 
-/* ── TOC component ── */
-.toc { font-family: var(--font-body); }
+/* TableOfContents는 데스크톱 nav와 태블릿/모바일 접힌 블록을 함께 반환한다.
+   레일 안에서는 nav만, 본문 인라인 자리에서는 접힌 블록만 보이게 자리마다 억제한다. */
+.detail-toc-rail-inner .toc-collapse {
+  display: none !important;
+}
+
+.detail-toc-inline {
+  display: none;
+}
+
+.detail-spacer {
+  border-left: 1px solid var(--color-line);
+}
+
+.detail-article {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding: 40px 56px 72px;
+  max-width: var(--container-prose);
+}
+
+.detail-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.detail-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+.detail-back-link {
+  align-self: flex-start;
+  font-size: 13px;
+  color: var(--color-fg-muted);
+  padding-bottom: 10px;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.detail-back-link:hover {
+  color: var(--color-fg);
+}
+
+/* 데스크톱에서는 레일 안의 링크만 보인다 */
+.detail-back-link--mobile {
+  display: none;
+}
+
+.detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-fg-subtle);
+}
+
+.detail-title {
+  margin: 0;
+  font-size: var(--text-h1);
+  line-height: var(--text-h1--line-height);
+  font-weight: 700;
+  letter-spacing: var(--tracking-tighter);
+  color: var(--color-fg);
+  text-wrap: pretty;
+}
+
+.detail-lede {
+  margin: 0;
+  font-size: var(--text-lead);
+  line-height: var(--text-lead--line-height);
+  color: var(--color-fg-body);
+  text-wrap: pretty;
+}
+
+.detail-cover {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-surface);
+}
+
+.detail-cover img {
+  filter: grayscale(1) contrast(0.92);
+}
+
+.detail-comments {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detail-comments-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.detail-comments-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-fg);
+}
+
+.detail-comments-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-fg-subtle);
+}
+
+/* ── TOC 컴포넌트 ── */
+.toc-desktop {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
 
 .toc-title {
   font-family: var(--font-mono);
   font-size: 11px;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--color-text-3);
-  margin-bottom: 12px;
+  color: var(--color-fg-subtle);
 }
 
 .toc-list {
@@ -1367,78 +1520,150 @@ a {
   margin: 0;
   display: flex;
   flex-direction: column;
+  gap: 2px;
 }
 
 .toc-item {
   display: flex;
   gap: 10px;
   align-items: baseline;
-  padding: 6px 0;
-  padding-left: 12px;
-  font-size: 13px;
-  line-height: 1.45;
-  color: var(--color-text-2);
-  border-left: 1px solid var(--color-border-2);
-  transition: color .15s, border-color .15s, padding-left .2s var(--ease-out);
+  padding: 7px 0 7px 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-fg-muted);
+  transition: color var(--dur-fast) var(--ease-out);
   cursor: pointer;
   text-align: left;
   text-decoration: none;
 }
 
-.toc-item:hover { color: var(--color-text); }
+.toc-item:hover {
+  color: var(--color-fg);
+}
 
 .toc-item.active {
-  color: var(--color-text);
-  border-left-color: var(--color-accent);
-  padding-left: 14px;
+  color: var(--color-fg);
+  box-shadow: inset 2px 0 0 var(--color-accent);
 }
 
 .toc-item .num {
   font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--color-text-3);
-  letter-spacing: .1em;
+  font-size: 11px;
+  color: var(--color-fg-subtle);
 }
 
-.toc-item.h3 { padding-left: 28px; font-size: 12.5px; }
-.toc-item.h3.active { padding-left: 30px; }
+.toc-item.h3 {
+  padding-left: 28px;
+  font-size: 13px;
+  color: var(--color-fg-muted);
+}
 
-/* Reduce motion: disable TOC padding transition */
+/* Reduce motion: disable TOC color transition */
 @media (prefers-reduced-motion: reduce) {
   .toc-item {
-    transition: color .15s, border-color .15s;
+    transition: none;
   }
 }
 
-/* ── Blog detail: mobile/tablet responsive (≤900px) ── */
+/* 태블릿·모바일 전용 접힌 TOC 블록 — 기본 닫힘, 네이티브 details/summary */
+.toc-collapse {
+  display: none;
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+.toc-collapse-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 18px;
+  min-height: 44px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.toc-collapse-summary::-webkit-details-marker {
+  display: none;
+}
+
+.toc-collapse-summary-label {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--color-fg-body);
+}
+
+.toc-collapse-toggle-open,
+.toc-collapse-toggle-closed {
+  font-size: 13px;
+  color: var(--color-fg-subtle);
+}
+
+.toc-collapse-toggle-open {
+  display: none;
+}
+
+.toc-collapse[open] .toc-collapse-toggle-closed {
+  display: none;
+}
+
+.toc-collapse[open] .toc-collapse-toggle-open {
+  display: inline;
+}
+
+.toc-collapse-body {
+  padding: 10px 16px 14px;
+  border-top: 1px solid var(--color-line);
+}
+
+/* ── 태블릿·모바일 반응형 (≤900px) — 3열 → 단일 열, TOC는 접힌 블록으로 ── */
 @media (max-width: 900px) {
-  /* Blog detail layout — collapse to single column, TOC above article */
   .detail-grid {
-    grid-template-columns: 1fr !important;
-    gap: 0 !important;
+    grid-template-columns: 1fr;
   }
 
-  .detail-grid > aside {
-    position: static !important;
-    max-width: none !important;
-    width: 100% !important;
-    justify-self: start !important;
-    margin-bottom: 32px;
-    padding-bottom: 24px;
-    border-bottom: 1px solid var(--color-border-2);
-  }
-
-  /* Hide the empty right spacer aside on mobile */
-  .detail-grid > aside:last-child {
+  .detail-toc-rail,
+  .detail-spacer {
     display: none;
   }
 
-  /* TOC aside: override sticky + width when inside detail-grid on mobile */
-  .detail-grid > .toc-aside {
-    position: static !important;
-    max-width: none !important;
-    width: 100% !important;
-    top: auto;
+  .detail-article {
+    max-width: none;
+    padding: 28px 28px 56px;
+  }
+
+  .detail-back-link--mobile {
+    display: inline-flex;
+  }
+
+  .detail-toc-inline {
+    display: block;
+  }
+
+  .toc-desktop {
+    display: none;
+  }
+
+  .toc-collapse {
+    display: block;
+  }
+
+  .detail-title {
+    font-size: 36px;
+  }
+}
+
+@media (max-width: 600px) {
+  .detail-article {
+    padding: 24px 18px 40px;
+  }
+
+  .detail-title {
+    font-size: 28px;
   }
 }
 
@@ -1448,7 +1673,7 @@ a {
   }
 }
 
-/* ── Prev / Next navigation cards (.pnc-*) ── */
+/* ── Prev / Next navigation cards (.pnc-*, 아트보드 3a) ── */
 .pnc-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1458,16 +1683,17 @@ a {
 .pnc-card {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 24px;
-  border: 1px solid var(--color-border-2);
+  gap: 9px;
+  padding: 20px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-lg);
   text-decoration: none;
-  transition: border-color .2s;
+  transition: border-color var(--dur-fast) var(--ease-out);
   background: transparent;
 }
 
 .pnc-card:hover {
-  border-color: var(--color-accent-line);
+  border-color: var(--color-line-hover);
 }
 
 .pnc-card--next {
@@ -1476,18 +1702,37 @@ a {
 }
 
 .pnc-label {
-  color: var(--color-text-3);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-fg-subtle);
 }
 
 .pnc-title {
-  font-family: var(--font-serif);
-  font-size: 20px;
-  line-height: 1.2;
-  color: var(--color-text);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.45;
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-fg);
+  text-wrap: pretty;
 }
 
 .pnc-meta {
-  color: var(--color-text-3);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-fg-subtle);
+}
+
+/* 이전/다음 중 한쪽이 없을 때의 dashed 플레이스홀더 */
+.pnc-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  border: 1px dashed var(--color-line-strong);
+  border-radius: var(--radius-lg);
+  font-size: 13px;
+  color: var(--color-fg-faint);
+  text-align: center;
 }
 
 @media (max-width: 600px) {
@@ -1507,74 +1752,62 @@ a {
   }
 }
 
-/* ── LinkCard — OG preview card used in MDX (e.g. news posts) ── */
+/* ── LinkCard — 외부 링크 미리보기 (아트보드 3a 참고 자료 · 3b 폴백) ── */
 .link-card {
-  display: flex;
-  gap: 0;
-  border: 1px solid var(--color-border-2);
-  border-radius: var(--r-md);
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-lg);
   overflow: hidden;
   text-decoration: none;
   color: inherit;
   background: var(--color-surface);
-  transition: border-color 0.2s var(--ease-out), box-shadow 0.2s var(--ease-out);
-  margin: 1.6em 0;
-  /* Prevent prose <a> underline override */
-  border-bottom: 1px solid var(--color-border-2) !important;
+  transition: border-color var(--dur-fast) var(--ease-out);
+  /* prose <a> 밑줄 규칙을 덮어써야 카드 테두리가 밑줄로 오염되지 않는다 */
+  box-shadow: none !important;
 }
 
 .link-card:hover {
-  border-color: var(--color-accent-line) !important;
-  box-shadow: var(--sh-2);
+  border-color: var(--color-line-hover);
 }
 
-/* OG image — fixed 140px wide strip */
 .link-card-img {
-  flex-shrink: 0;
-  width: 140px;
-  min-height: 108px;
-  background: var(--color-surface-3);
+  min-height: 126px;
+  background: var(--color-bg);
   overflow: hidden;
   position: relative;
 }
 
-/* Text body — fills remaining width */
 .link-card-body {
-  flex: 1;
   min-width: 0;
   padding: 16px 18px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 7px;
 }
 
-/* Domain row: site name + external icon */
 .link-card-meta {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
 }
 
 .link-card-domain {
   font-family: var(--font-mono);
   font-size: 11px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--color-text-3);
+  color: var(--color-fg-subtle);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* Title */
 .link-card-title {
-  font-family: var(--font-body);
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
-  line-height: 1.4;
-  color: var(--color-text);
+  line-height: 1.45;
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-fg);
   margin: 0;
-  /* 2-line clamp */
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -1582,15 +1815,13 @@ a {
 }
 
 .link-card:hover .link-card-title {
-  color: var(--color-accent);
+  color: var(--color-accent-text);
 }
 
-/* Description — 2-line clamp */
 .link-card-desc {
-  font-family: var(--font-body);
   font-size: 13px;
-  line-height: 1.5;
-  color: var(--color-text-2);
+  line-height: 1.6;
+  color: var(--color-fg-subtle);
   margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -1598,25 +1829,88 @@ a {
   overflow: hidden;
 }
 
-/* Author / date footer */
 .link-card-footer {
   font-family: var(--font-mono);
   font-size: 11px;
-  color: var(--color-text-3);
-  margin: 2px 0 0;
+  color: var(--color-fg-subtle);
+  margin-top: auto;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* Mobile ≤600px: hide image, full-width text only */
+/* ── OG 이미지/설명이 없을 때의 폴백 — 56px 이니셜 박스 + URL + 사이트명 ── */
+.link-card--fallback {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px;
+}
+
+.link-card-initial {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  color: var(--color-fg-subtle);
+  background: var(--color-code-inline-bg);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-md);
+}
+
+.link-card-fallback-body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.link-card-fallback-title {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-fg);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.link-card-fallback-meta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-fg-subtle);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.link-card-fallback-arrow {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 14px;
+  color: var(--color-fg-subtle);
+}
+
+/* Mobile ≤600px: 리치 카드는 이미지를 숨기고 텍스트만 전체 폭으로 */
 @media (max-width: 600px) {
+  .link-card {
+    grid-template-columns: 1fr;
+  }
+
   .link-card-img {
     display: none;
   }
 
   .link-card-body {
     padding: 14px 16px;
+  }
+
+  .link-card--fallback {
+    align-items: flex-start;
   }
 }
 

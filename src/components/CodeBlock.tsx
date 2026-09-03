@@ -38,40 +38,12 @@ export function CodeBlock({
   return (
     <div className="codeblock">
       <div className="codeblock-head">
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <span style={{ display: "flex", gap: 4, alignItems: "center" }}>
-            <span
-              style={{
-                width: 8,
-                height: 8,
-                borderRadius: "var(--r-full)",
-                background: "var(--color-border-3)",
-                display: "block",
-                flexShrink: 0,
-              }}
-            />
-            <span
-              style={{
-                width: 8,
-                height: 8,
-                borderRadius: "var(--r-full)",
-                background: "var(--color-border-3)",
-                display: "block",
-                flexShrink: 0,
-              }}
-            />
-            <span
-              style={{
-                width: 8,
-                height: 8,
-                borderRadius: "var(--r-full)",
-                background: "var(--color-accent)",
-                display: "block",
-                flexShrink: 0,
-              }}
-            />
+        <div style={{ display: "flex", alignItems: "center", gap: 14, minWidth: 0 }}>
+          <span className="codeblock-dots" aria-hidden="true">
+            <span className="codeblock-dot" />
+            <span className="codeblock-dot" />
           </span>
-          <span className="filename">{filename || "untitled"}</span>
+          {filename && <span className="filename">{filename}</span>}
         </div>
         <div className="codeblock-head-actions">
           {lang && <span className="lang">{lang}</span>}
@@ -79,9 +51,9 @@ export function CodeBlock({
             type="button"
             className={copied ? "copy-btn ok" : "copy-btn"}
             onClick={handleCopy}
-            aria-label={copied ? "Copied to clipboard" : "Copy code to clipboard"}
+            aria-label={copied ? "코드가 복사되었습니다" : "코드 복사"}
           >
-            {copied ? "Copied" : "Copy"}
+            {copied ? "복사됨" : "복사"}
           </button>
         </div>
       </div>

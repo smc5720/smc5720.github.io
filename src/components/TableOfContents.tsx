@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore, type MouseEvent } from "react";
 
 interface TocItem {
   id: string;
@@ -104,42 +104,66 @@ export function TableOfContents() {
     return { ...item, num: "" };
   });
 
-  return (
-    <nav className="toc" aria-label="Table of contents">
-      <div className="toc-title">On this page</div>
-      <ul className="toc-list">
-        {numberedItems.map(({ id, text, level, num }) => {
-          const isActive = active === id;
-          const isH3 = level === 3;
-          const className = [
-            "toc-item",
-            isH3 ? "h3" : "",
-            isActive ? "active" : "",
-          ]
-            .filter(Boolean)
-            .join(" ");
+  function scrollToHeading(e: MouseEvent, id: string) {
+    e.preventDefault();
+    document.getElementById(id)?.scrollIntoView({
+      behavior: reducedMotion ? "auto" : "smooth",
+      block: "start",
+    });
+  }
 
-          return (
-            <li key={id}>
-              <a
-                href={`#${id}`}
-                className={className}
-                aria-current={isActive ? "location" : undefined}
-                onClick={(e) => {
-                  e.preventDefault();
-                  document.getElementById(id)?.scrollIntoView({
-                    behavior: reducedMotion ? "auto" : "smooth",
-                    block: "start",
-                  });
-                }}
-              >
-                {num && <span className="num">{num}</span>}
-                <span>{text}</span>
-              </a>
-            </li>
-          );
-        })}
-      </ul>
-    </nav>
+  const list = (
+    <ul className="toc-list">
+      {numberedItems.map(({ id, text, level, num }) => {
+        const isActive = active === id;
+        const isH3 = level === 3;
+        const className = ["toc-item", isH3 ? "h3" : "", isActive ? "active" : ""]
+          .filter(Boolean)
+          .join(" ");
+
+        return (
+          <li key={id}>
+            <a
+              href={`#${id}`}
+              className={className}
+              aria-current={isActive ? "location" : undefined}
+              onClick={(e) => scrollToHeading(e, id)}
+            >
+              {num && <span className="num">{num}</span>}
+              <span>{text}</span>
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  );
+
+  return (
+    <>
+      {/* 데스크톱(≥901px) — 좌측 레일에 상시 노출 */}
+      <nav className="toc-desktop" aria-label="목차">
+        <div className="toc-title">목차</div>
+        {list}
+      </nav>
+
+      {/* 태블릿·모바일(≤900px) — 본문 위 접힌 블록, 기본 닫힘 */}
+      <details className="toc-collapse">
+        <summary className="toc-collapse-summary">
+          <span className="toc-collapse-summary-label">
+            <span className="toc-title">목차</span>
+            <span>{h2Count}개 절</span>
+          </span>
+          <span className="toc-collapse-toggle-closed" aria-hidden="true">
+            펼치기 ▾
+          </span>
+          <span className="toc-collapse-toggle-open" aria-hidden="true">
+            접기 ▴
+          </span>
+        </summary>
+        <nav className="toc-collapse-body" aria-label="목차">
+          {list}
+        </nav>
+      </details>
+    </>
   );
 }

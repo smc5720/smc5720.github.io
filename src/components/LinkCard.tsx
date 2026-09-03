@@ -130,7 +130,7 @@ function ExternalIcon(): ReactNode {
       height="12"
       viewBox="0 0 12 12"
       fill="none"
-      style={{ flexShrink: 0, color: "var(--color-text-3)" }}
+      style={{ flexShrink: 0, color: "var(--color-fg-subtle)" }}
     >
       <path
         d="M2.5 2.5h7m0 0v7m0-7L2.5 9.5"
@@ -143,41 +143,38 @@ function ExternalIcon(): ReactNode {
   );
 }
 
-/** Globe placeholder shown when no OG image is available */
-function ImagePlaceholder(): ReactNode {
-  return (
-    <div
-      aria-hidden="true"
-      style={{
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "var(--color-surface-3)",
-      }}
-    >
-      <svg
-        width="28"
-        height="28"
-        viewBox="0 0 24 24"
-        fill="none"
-        style={{ color: "var(--color-text-3)" }}
-      >
-        <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.4" />
-        <path
-          d="M12 3c2.4 3 4 5.5 4 9s-1.6 6-4 9M12 3c-2.4 3-4 5.5-4 9s1.6 6 4 9M3 12h18"
-          stroke="currentColor"
-          strokeWidth="1.4"
-        />
-      </svg>
-    </div>
-  );
-}
-
 export async function LinkCard({ url, title, author, date }: LinkCardProps) {
   const og = await fetchOGData(url, title);
   const domain = getDomain(url);
+
+  // OG 이미지가 없으면 카드 전체를 풍성하게 채울 근거가 없다 —
+  // 이니셜 박스 + URL + 사이트명으로 축소한 폴백 레이아웃을 쓴다 (아트보드 3b).
+  if (!og.image) {
+    return (
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="link-card link-card--fallback"
+        aria-label={`${og.title} — 외부 링크 (${domain})`}
+      >
+        <span className="link-card-initial" aria-hidden="true">
+          {domain.charAt(0).toLowerCase()}
+        </span>
+        <span className="link-card-fallback-body">
+          <span className="link-card-fallback-title">{og.title}</span>
+          <span className="link-card-fallback-meta">
+            {og.siteName || domain}
+            <span aria-hidden="true"> · </span>
+            {og.description || "설명 없음"}
+          </span>
+        </span>
+        <span className="link-card-fallback-arrow" aria-hidden="true">
+          ↗
+        </span>
+      </a>
+    );
+  }
 
   return (
     <a
@@ -189,22 +186,19 @@ export async function LinkCard({ url, title, author, date }: LinkCardProps) {
     >
       {/* OG image column */}
       <div className="link-card-img">
-        {og.image ? (
-          /* eslint-disable-next-line @next/next/no-img-element */
-          <img
-            src={og.image}
-            alt=""
-            aria-hidden="true"
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              display: "block",
-            }}
-          />
-        ) : (
-          <ImagePlaceholder />
-        )}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={og.image}
+          alt=""
+          aria-hidden="true"
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            display: "block",
+            filter: "grayscale(1)",
+          }}
+        />
       </div>
 
       {/* Text column */}

@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
-import { ko } from "date-fns/locale";
 import Link from "next/link";
 import Image from "next/image";
 import { getAllPostSlugs, getPostBySlug, getPrevNextPosts } from "@/lib/posts";
@@ -66,7 +65,7 @@ export default async function PostPage({ params }: Props) {
   const adSlotTop = process.env.NEXT_PUBLIC_ADSENSE_SLOT_TOP ?? "";
   const adSlotBottom = process.env.NEXT_PUBLIC_ADSENSE_SLOT_BOTTOM ?? "";
 
-  const date = format(new Date(post.date), "yyyy년 M월 d일", { locale: ko });
+  const date = format(new Date(post.date), "yyyy-MM-dd");
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -87,137 +86,88 @@ export default async function PostPage({ params }: Props) {
       />
       <ReadingProgress />
 
-      {/* ── Hero header ── */}
-      <section style={{ paddingTop: 56, paddingBottom: 8 }}>
-        <div className="container-narrow">
-          {/* Back link */}
-          <Link
-            href="/blog"
-            className="arrow-link arrow-link-back"
-            style={{ marginBottom: 40, color: "var(--color-text-2)", display: "inline-flex" }}
-          >
-            <span className="arrow" />
-            <span>목록으로</span>
-          </Link>
-
-          {/* Meta strip */}
-          <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 26, flexWrap: "wrap" }}>
-            <CategoryBadge category={post.category} size="md" />
-            <span className="mono-label tabular">
-              PUBLISHED · {date}
-            </span>
-            <span className="mono-label" style={{ color: "var(--color-text-3)" }}>·</span>
-            <span className="mono-label tabular">{post.readingTime} MIN READ</span>
-          </div>
-
-          {/* Title */}
-          <h1
-            className="display"
-            style={{
-              fontSize: "clamp(40px, 5.4vw, 78px)",
-              lineHeight: 1.04,
-              letterSpacing: "-.022em",
-              fontWeight: 380,
-              color: "var(--color-text)",
-              margin: 0,
-            }}
-          >
-            {post.title}
-          </h1>
-
-          {/* Lede */}
-          {post.description && (
-            <p
-              className="lede"
-              style={{ marginTop: 24, color: "var(--color-text-2)", maxWidth: 640 }}
-            >
-              {post.description}
-            </p>
-          )}
-
-          {/* Tag strip */}
-          {post.tags.length > 0 && (
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 28 }}>
-              {post.tags.map((tag) => (
-                <span key={tag} className="badge badge-tag">
-                  #{tag}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* ── Cover image (conditional) ── */}
-      {post.cover && (
-        <section style={{ marginBottom: 56 }}>
-          <div className="container-narrow">
-            <div
-              style={{
-                aspectRatio: "16 / 9",
-                border: "1px solid var(--color-border-2)",
-                borderRadius: "var(--r-xs)",
-                position: "relative",
-                overflow: "hidden",
-              }}
-            >
-              <Image
-                src={post.cover}
-                alt={post.coverAlt ?? post.title}
-                fill
-                style={{ objectFit: "cover" }}
-              />
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* ── Ad: top (below cover / above body) ── */}
-      {adSlotTop && (
-        <div className="container-narrow" style={{ marginBottom: 32 }}>
-          <AdUnit slot={adSlotTop} />
-        </div>
-      )}
-
-      {/* ── Body + TOC ── */}
-      <section>
-        <div className="container detail-grid">
-          {/* ── TOC sidebar (left column) ── */}
-          <aside className="toc-aside">
+      {/* ── 3열 그리드: TOC 레일(264) · 본문(1fr, 최대 820) · 균형용 여백(200) ── */}
+      <div className="detail-grid">
+        {/* ── 좌측 레일 — 데스크톱 전용, 스크롤 고정 ── */}
+        <aside className="detail-toc-rail">
+          <div className="detail-toc-rail-inner">
+            <Link href="/blog" className="detail-back-link">
+              ← 목록으로
+            </Link>
             <TableOfContents />
-          </aside>
+          </div>
+        </aside>
 
-          {/* ── Main content (center column) ── */}
-          <article className="prose-col">
-            {/* MDX Content */}
+        {/* ── 본문 컬럼 ── */}
+        <div className="detail-article">
+          {/* 히어로 — 메타 · 제목 · 리드 · 태그 · 커버 · 상단 광고 */}
+          <div className="detail-hero">
+            {/* 태블릿·모바일 전용 — 레일이 사라지므로 상단에 별도 노출 */}
+            <Link href="/blog" className="detail-back-link detail-back-link--mobile">
+              ← 목록으로
+            </Link>
+
+            <div className="detail-meta">
+              <CategoryBadge category={post.category} size="md" />
+              <span>{date}</span>
+              <span aria-hidden="true">·</span>
+              <span>{post.readingTime}분</span>
+            </div>
+
+            <h1 className="detail-title">{post.title}</h1>
+
+            {post.description && <p className="detail-lede">{post.description}</p>}
+
+            {post.tags.length > 0 && (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                {post.tags.map((tag) => (
+                  <span key={tag} className="badge badge-tag">
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {post.cover && (
+              <div className="detail-cover">
+                <Image
+                  src={post.cover}
+                  alt={post.coverAlt ?? post.title}
+                  fill
+                  style={{ objectFit: "cover" }}
+                />
+              </div>
+            )}
+
+            {/* 태블릿·모바일 전용 — 좌측 레일이 사라지므로 본문 위 접힌 블록으로 노출 */}
+            <div className="detail-toc-inline">
+              <TableOfContents />
+            </div>
+
+            {adSlotTop && <AdUnit slot={adSlotTop} />}
+          </div>
+
+          {/* 본문 흐름 — prose · 하단 광고 · 이전/다음 · 댓글 (같은 26px 리듬 공유) */}
+          <div className="detail-flow">
             <MDXContent source={post.content} />
-          </article>
 
-          {/* ── Right spacer (third column balances the grid) ── */}
-          <aside aria-hidden="true" />
-        </div>
-      </section>
+            {adSlotBottom && <AdUnit slot={adSlotBottom} />}
 
-      {/* ── Ad: bottom (below body / above prev-next) ── */}
-      {adSlotBottom && (
-        <div className="container-narrow" style={{ marginTop: 56 }}>
-          <AdUnit slot={adSlotBottom} />
-        </div>
-      )}
+            <PrevNextCards prev={prev} next={next} />
 
-      {/* ── Comments ── */}
-      <section style={{ marginTop: 32 }}>
-        <div className="container-narrow">
-          <GiscusComments />
+            <div className="detail-comments">
+              <div className="detail-comments-head">
+                <span className="detail-comments-title">댓글</span>
+                <span className="detail-comments-badge">GitHub Discussions</span>
+              </div>
+              <GiscusComments />
+            </div>
+          </div>
         </div>
-      </section>
 
-      {/* ── Prev / Next ── */}
-      <section style={{ marginTop: 40, paddingBottom: 96 }}>
-        <div className="container-narrow">
-          <PrevNextCards prev={prev} next={next} />
-        </div>
-      </section>
+        {/* ── 우측 여백 — 그리드 균형용, 좌측 hairline만 ── */}
+        <aside className="detail-spacer" aria-hidden="true" />
+      </div>
     </>
   );
 }
