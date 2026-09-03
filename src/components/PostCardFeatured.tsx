@@ -62,7 +62,7 @@ function FeaturedArtwork({ post, index, total }: ArtworkProps) {
           inset: 0,
           display: "grid",
           placeItems: "center",
-          fontFamily: "var(--font-serif)",
+          fontFamily: "var(--font-sans)",
           fontSize: "clamp(160px, 22vw, 320px)",
           fontWeight: 300,
           color: "color-mix(in srgb, var(--color-text) 6%, transparent)",
@@ -191,7 +191,7 @@ export function PostCardFeatured({ post, index, total }: Props) {
           <h2
             className="featured-title"
             style={{
-              fontFamily: "var(--font-serif)",
+              fontFamily: "var(--font-sans)",
               fontSize: "clamp(36px, 4vw, 56px)",
               letterSpacing: "-.02em",
               lineHeight: 1.02,

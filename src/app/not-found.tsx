@@ -9,194 +9,77 @@ export const metadata: Metadata = {
   description: "요청한 페이지가 존재하지 않습니다.",
 };
 
-// Build hash: use a fixed placeholder (static export has no runtime)
-const BUILD_HASH = "2026.05.18 · a8e3f1";
+// Build hash: static export에는 런타임이 없어 고정 플레이스홀더로 둔다.
+// 빌드 시점 값 주입은 이슈 #110 범위 밖.
+const BUILD_HASH = "build 2026.09.03-a8e3f1";
 
 export default function NotFound() {
   const allPosts = getAllPosts();
   const suggested = allPosts.slice(0, 3);
 
-  // Code rain text lines — shown as background decoration
-  const codeRainLines = [
-    "GET /unknown → 404",
-    "GET /unknown → 404",
-    "GET /unknown → 404 not found",
-    "fallback: /404",
-    "fallback: /404 · static export",
-    "[next.js 16] route did not match any frontmatter",
-    `[mdx] no file at content/posts/unknown.mdx`,
-    `suggestion: did you mean ${suggested[0]?.slug ?? "next16-app-router-migration"}?`,
-    "suggestion: try /blog",
-    "GET /unknown → 404",
-    "GET /unknown → 404 not found",
-    "fallback: /404 · static export",
-    "[next.js 16] route did not match any frontmatter",
-    `suggestion: did you mean ${suggested[0]?.slug ?? "next16-app-router-migration"}?`,
-    "suggestion: try /blog",
-  ];
-
   return (
-    <section
-      style={{
-        paddingTop: 48,
-        paddingBottom: 120,
-        position: "relative",
-        minHeight: "70vh",
-      }}
-    >
-      {/* ── ASCII code rain backdrop ── */}
-      <div
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          inset: 0,
-          pointerEvents: "none",
-          overflow: "hidden",
-          maskImage:
-            "linear-gradient(180deg, transparent, black 30%, black 70%, transparent)",
-          WebkitMaskImage:
-            "linear-gradient(180deg, transparent, black 30%, black 70%, transparent)",
-        }}
-      >
-        <pre
-          style={{
-            margin: 0,
-            fontFamily: "var(--font-mono)",
-            color: "var(--color-text-3)",
-            fontSize: 11,
-            lineHeight: 1.4,
-            opacity: 0.25,
-            padding: "60px 32px",
-            whiteSpace: "pre-wrap",
-            letterSpacing: 0,
-          }}
-        >
-          {codeRainLines.join("\n")}
-        </pre>
-      </div>
-
-      <div className="container" style={{ position: "relative" }}>
-        {/* ── Status bar ── */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: 48,
-            flexWrap: "wrap",
-            gap: 12,
-          }}
-        >
-          <div className="mono-label" style={{ display: "flex", gap: 12 }}>
-            <span style={{ color: "var(--color-red)" }}>● ERROR</span>
-            <span style={{ color: "var(--color-text-3)" }}>/</span>
-            <span>STATIC ROUTE NOT FOUND</span>
-            <span style={{ color: "var(--color-text-3)" }}>/</span>
-            <span style={{ color: "var(--color-text-3)" }}>404</span>
+    <section style={{ paddingBottom: 40 }}>
+      <div className="frame">
+        {/* ── 상태 바 (아트보드 4b) ── */}
+        <div className="nf-status">
+          <div className="nf-status-left">
+            <span className="nf-status-chip">ERROR</span>
+            <span>라우트를 찾지 못했습니다</span>
+            <span>404</span>
           </div>
-          <div
-            className="mono-label tabular"
-            style={{ color: "var(--color-text-3)" }}
-          >
-            BUILD HASH · {BUILD_HASH}
-          </div>
+          <div>{BUILD_HASH}</div>
         </div>
 
-        {/* ── 2-column hero: 404 number | description ── */}
-        <div className="nf-grid" style={{ marginBottom: 80 }}>
-          {/* Left: giant 404 number */}
+        {/* ── 2열 히어로: 좌측 대형 404, 우측 제목·리드·요청 경로·CTA ── */}
+        <div className="nf-grid">
           <div>
-            <div
-              style={{
-                fontFamily: "var(--font-serif)",
-                fontSize: "clamp(160px, 24vw, 360px)",
-                lineHeight: 0.85,
-                letterSpacing: "-0.04em",
-                color: "var(--color-text)",
-                fontWeight: 360,
-                display: "flex",
-                alignItems: "baseline",
-                gap: 0,
-              }}
-            >
-              4
-              <span
-                style={{ color: "var(--color-accent)", fontStyle: "italic" }}
-              >
-                0
-              </span>
-              4
-              <span
-                style={{
-                  color: "var(--color-accent)",
-                  fontSize: "0.3em",
-                  marginLeft: 12,
-                }}
-              >
-                .
-              </span>
-            </div>
-            <div
-              className="mono-label"
-              style={{ marginTop: 18, color: "var(--color-text-3)" }}
-            >
-              HTTP STATUS · NOT FOUND
-            </div>
+            <p className="nf-number">404</p>
+            <div className="nf-number-sub">HTTP 404 · NOT FOUND</div>
           </div>
 
-          {/* Right: heading, lede, pathname echo, buttons */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-            <h1
-              className="display display-h2"
-              style={{ margin: 0 }}
-            >
-              여기엔 글이 없어요
+          <div style={{ display: "flex", flexDirection: "column", gap: 18, maxWidth: 560 }}>
+            <h1 style={{ margin: 0, fontSize: 34, lineHeight: 1.3, fontWeight: 700, letterSpacing: "-.03em", color: "var(--color-fg-strong)" }}>
+              이 주소에는 글이 없습니다
               <span style={{ color: "var(--color-accent)" }}>.</span>
             </h1>
 
-            <p
-              className="lede"
-              style={{ color: "var(--color-text-2)", maxWidth: 460 }}
-            >
-              주소가 잘못됐거나, 글이 옮겨졌거나, 아직 쓰지 않은 글일 수
-              있습니다. 아래 단서 중 하나를 따라가 보세요.
+            <p style={{ margin: 0, fontSize: 16, lineHeight: 1.75, color: "var(--color-fg-muted)" }}>
+              주소가 바뀌었거나 글이 지워졌을 수 있습니다. 제목을 기억한다면 목록에서 검색하는
+              편이 빠릅니다.
             </p>
 
             {/* Pathname display — Client Component (usePathname requires client) */}
             <PathnameDisplay />
 
-            {/* CTA buttons */}
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
               <Link href="/" className="btn btn-primary">
-                <span>Take me home</span>
-                <span style={{ opacity: 0.6 }}>↩</span>
+                홈으로
               </Link>
               <Link href="/blog" className="btn">
-                <span>Browse all essays</span>
-                <span style={{ opacity: 0.5 }}>→</span>
+                전체 글 보기
               </Link>
             </div>
           </div>
         </div>
 
-        {/* ── Suggested posts ── */}
+        {/* ── 추천 글 3편 ── */}
         {suggested.length > 0 && (
-          <div style={{ borderTop: "1px solid var(--color-border-2)", paddingTop: 32 }}>
+          <div style={{ borderTop: "1px solid var(--color-line)", paddingTop: 32 }}>
             <div
               style={{
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "baseline",
-                marginBottom: 24,
+                marginBottom: 20,
                 flexWrap: "wrap",
                 gap: 12,
               }}
             >
-              <div className="mono-label">
-                SUGGESTED · YOU MIGHT BE LOOKING FOR
+              <div style={{ fontSize: 14, fontWeight: 600, color: "var(--color-fg-muted)" }}>
+                최근 글에서 찾아보기
               </div>
               <Link href="/blog" className="arrow-link">
-                <span>See all essays</span>
+                <span>전체 글</span>
                 <span className="arrow" />
               </Link>
             </div>
