@@ -679,19 +679,34 @@ a {
   color: var(--color-fg);
 }
 
-/* anchor links injected by rehype-autolink-headings */
+/* anchor links injected by rehype-autolink-headings
+   선 색 토큰(--color-line-*)을 글자색으로 쓰면 다크 배경에서 대비 1.2:1 —
+   hover해도 까맣게 묻혀 어피던스가 죽는다. 평소엔 opacity로 감추고,
+   제목 hover·키보드 포커스에서 읽히는 색으로 드러낸다. */
 .prose h2 .anchor,
 .prose h3 .anchor {
   font-family: var(--font-mono);
   font-size: 0.55em;
-  color: var(--color-line-strong);
-  transition: color var(--dur-fast) var(--ease-out);
+  color: var(--color-fg-faint);
+  opacity: 0;
+  transition: color var(--dur-fast) var(--ease-out),
+    opacity var(--dur-fast) var(--ease-out);
   text-decoration: none;
 }
 
 .prose h2:hover .anchor,
-.prose h3:hover .anchor {
-  color: var(--color-line-hover);
+.prose h3:hover .anchor,
+.prose h2 .anchor:focus-visible,
+.prose h3 .anchor:focus-visible {
+  color: var(--color-accent-text);
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prose h2 .anchor,
+  .prose h3 .anchor {
+    transition: none;
+  }
 }
 
 .prose p {
@@ -1362,11 +1377,17 @@ a {
 
 /* ──────────────────────────────────────────────────────────────
    블로그 상세 (아트보드 3a 글 상세 · 6a 태블릿 상세 · 6b 모바일 상세)
-   264px TOC 레일 / minmax(0,1fr) 본문(최대 --container-prose) / 200px 여백
+   264px TOC 레일 / 본문(최대 --container-prose) / 200px 여백
+
+   본문 칼럼을 1fr로 늘리면 남는 폭이 전부 오른쪽에 쌓여 글이 왼쪽으로 쏠린다.
+   칼럼 자체를 본문 폭으로 묶고 justify-content로 3열 덩어리를 뷰포트 중앙에 둔다.
+   여백은 200px 그대로 — 레일과 대칭(264px)으로 맞추면 1280px 노트북에서
+   본문 폭이 64px 깎여서, 대칭보다 읽기 폭을 택했다.
    ─────────────────────────────────────────────────────────── */
 .detail-grid {
   display: grid;
-  grid-template-columns: var(--container-rail) minmax(0, 1fr) 200px;
+  grid-template-columns: var(--container-rail) minmax(0, var(--container-prose)) 200px;
+  justify-content: center;
 }
 
 .detail-toc-rail {
