@@ -1,9 +1,6 @@
 import Link from "next/link";
 import type { Category } from "@/types/post";
-import { CATEGORY_LABELS } from "@/lib/constants";
-
-/** 카테고리 표시 순서 — 뉴스·개발이 활성, 나머지는 현재 0편 */
-const CATEGORY_ORDER: Category[] = ["news", "dev", "retrospective", "release", "etc"];
+import { CATEGORY_LABELS, CATEGORY_ORDER } from "@/lib/constants";
 
 interface YearCount {
   year: number;

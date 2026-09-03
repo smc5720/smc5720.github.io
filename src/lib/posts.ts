@@ -66,6 +66,17 @@ export function getAllTags(): string[] {
   return [...new Set(tags)].sort();
 }
 
+/** 태그별 글 편수 — 사용 빈도 내림차순, 동률은 가나다순. /blog 필터 레일 · 홈 태그 인덱스에서 사용 */
+export function getTagCounts(): { tag: string; count: number }[] {
+  const counts = new Map<string, number>();
+  for (const p of getAllPosts()) {
+    for (const t of p.tags) counts.set(t, (counts.get(t) ?? 0) + 1);
+  }
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .map(([tag, count]) => ({ tag, count }));
+}
+
 /** 연도별 글 편수 — 최신 연도부터 내림차순. 정렬 기준은 getAllPosts()와 동일하게 published_at 우선 */
 export function getPostCountsByYear(): { year: number; count: number }[] {
   const counts = new Map<number, number>();

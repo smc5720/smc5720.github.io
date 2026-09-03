@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { getAllPosts, getPostCountsByYear } from "@/lib/posts";
-import { CATEGORY_LABELS } from "@/lib/constants";
+import { CATEGORY_LABELS, CATEGORY_COLOR_VAR } from "@/lib/constants";
 import type { Category } from "@/types/post";
 import { IndexRail } from "@/components/IndexRail";
 import { PostRow } from "@/components/PostRow";
@@ -9,15 +9,6 @@ import { TagIndex } from "@/components/TagIndex";
 
 const RECENT_COUNT = 6;
 const TAG_LIMIT = 16;
-
-/** 카테고리 → @theme 카테고리 색 토큰. "retrospective"는 토큰명이 "retro"로 줄어든다(5b 전재). */
-const CATEGORY_COLOR_VAR: Record<Category, string> = {
-  news: "--color-cat-news",
-  dev: "--color-cat-dev",
-  retrospective: "--color-cat-retro",
-  release: "--color-cat-release",
-  etc: "--color-cat-etc",
-};
 
 function formatDate(iso: string): string {
   const d = new Date(iso);

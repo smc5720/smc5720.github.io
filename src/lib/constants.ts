@@ -26,3 +26,15 @@ export const CAT_ORDER: Array<{ id: "all" | Category; label: string }> = [
   { id: "release", label: "Release" },
   { id: "etc", label: "Etc" },
 ];
+
+/** 카테고리 표시 순서 — 뉴스·개발이 활성, 나머지는 현재 0편. 홈 레일·블로그 필터 레일 공용 */
+export const CATEGORY_ORDER: Category[] = ["news", "dev", "retrospective", "release", "etc"];
+
+/** 카테고리 → @theme 카테고리 색 토큰. "retrospective"는 토큰명이 "retro"로 줄어든다(5b 전재). */
+export const CATEGORY_COLOR_VAR: Record<Category, string> = {
+  news: "--color-cat-news",
+  dev: "--color-cat-dev",
+  retrospective: "--color-cat-retro",
+  release: "--color-cat-release",
+  etc: "--color-cat-etc",
+};
