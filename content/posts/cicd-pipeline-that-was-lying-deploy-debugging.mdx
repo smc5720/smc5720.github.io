@@ -1,0 +1,239 @@
+﻿---
+title: "우리를 속이고 있던 CI/CD 파이프라인: 배포 디버깅 실화"
+description: "몇 주째 방치돼 있던 GitHub Actions 배포 워크플로를 파헤쳤더니, 서로 얽힌 열 가지 결함이 층층이 쌓여 있었다. 하나를 고칠 때마다 다음 문제가 드러난 디버깅 기록."
+date: "2026-09-01"
+published_at: "2026-09-03"
+category: "news"
+tags: []
+slug: "cicd-pipeline-that-was-lying-deploy-debugging"
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F7l0si1p0xc0gvs0ys3jh.png"
+coverAlt: "The CI/CD Pipeline That Was Lying to Us: A Deploy Debugging Story"
+source_id: "devto-4547159"
+source_url: "https://dev.to/highcenburg/-the-cicd-pipeline-that-was-lying-to-us-a-deploy-debugging-story-9fi"
+source_title: "The CI/CD Pipeline That Was Lying to Us: A Deploy Debugging Story"
+source_author: "Vicente G. Reyes"
+source_published: "2026-09-01"
+---
+
+<LinkCard url="https://dev.to/highcenburg/-the-cicd-pipeline-that-was-lying-to-us-a-deploy-debugging-story-9fi" author="Vicente G. Reyes" date="2026-09-01" />
+
+## 개요
+
+`Deploy to DigitalOcean`이라는 이름의 GitHub Actions 워크플로가 저장소에 몇 주째 들어 있었다. SSH 액션도, 시크릿 참조도 다 연결돼 있었다. 그런데도 백엔드를 고칠 때마다 개발자는 드롭릿에 직접 SSH로 접속해 `git pull`을 손으로 쳐야 했다.
+
+Vicente G. Reyes가 그 이유를 파고들어 보니, 파이프라인은 한 군데가 크게 망가진 게 아니었다. 서로 관련도 없는 자잘한 결함 여섯 개가 층층이 쌓여 있었고, 앞의 것이 뒤의 것을 가리고 있었다. 최종 집계는 열 가지. 아래는 그가 실제로 발견한 순서 그대로 정리한 기록이다.
+
+## 1막 — 한 번도 실행된 적 없는 배포 잡
+
+문서상으로는 설정이 멀쩡했다. `deploy.yml`은 이렇게 게이트를 걸어 뒀다.
+
+```yaml
+on:
+  workflow_run:
+    workflows: ['CI']
+    branches: ['main']
+    types: [completed]
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+```
+
+CI가 통과했을 때만 배포한다. 합리적이다. 그래서 첫 확인 대상은 배포 잡이 아니라, CI가 `main`에서 한 번이라도 초록불이 켜진 적 있는지였다.
+
+```bash
+gh run list --workflow=ci.yml --limit 5
+```
+
+모든 줄이 `failure`. 모든 배포 실행은 `skipped`. 배포 파이프라인은 고장 난 게 아니라 시킨 대로 정확히 동작하고 있었다. 단 한 번도 통과한 적 없는 CI에 정확하게 걸려 있었을 뿐이다. 이걸 눈치채지 못한 건 실패 기록과 사라진 배포가 Actions UI의 서로 다른 탭에 흩어져 있었기 때문이다.
+
+## 2막 — 트렌치코트 하나에 버그 둘
+
+`gh run view <run-id>`를 돌리자, 전혀 다른 이유로 실패한 잡 두 개가 나왔다.
+
+**`linter` 잡**은 즉시 죽었다.
+
+```plaintext
+The specified python version file at: .python-version doesn't exist.
+```
+
+`.python-version`은 저장소 루트에 분명히 있었다. 정확히는, 없었다. `.gitignore`에 들어가 있었다. 아무도 의심하지 않은 `pyenv` 보일러플레이트 한 줄의 잔재였다. `actions/setup-python`의 `python-version-file` 입력은 체크아웃 결과물에 파일이 실제로 존재해야 동작하는데, gitignore된 파일은 로컬 디스크에서 아무리 진짜처럼 보여도 CI에는 도달하지 않는다.
+
+**`frontend` 잡**은 다른 이유로 죽었다.
+
+```plaintext
+Error: [vitest-pool]: Failed to start forks worker for test files ...
+Caused by: TypeError: webidl.util.markAsUncloneable is not a function
+```
+
+테스트 코드와는 아무 상관 없는 에러다. `ci.yml`은 `node-version: '20'`으로 고정돼 있었는데, Vitest 의존성인 `jsdom@30`이 요구하는 버전은 이랬다.
+
+```json
+"engines": { "node": "^22.22.2 || ^24.15.0 || >=26.0.0" }
+```
+
+Node 20에는 jsdom이 필요로 하는 `markAsUncloneable`이 없다. 프런트엔드 테스트는 테스트 파일 하나 실행되기도 전에 매번 크래시하고 있었다. 정작 백엔드 테스트 스위트(`pytest`)는 그동안 계속 통과하고 있었다. 테스트 대상 코드와는 무관한 인프라 버그 두 개에 표결로 밀렸을 뿐이다.
+
+수정은 `.python-version`을 gitignore에서 빼서 커밋하고, `node-version`을 `'22'`로 올린 것. 두 줄 diff로 근본 원인 두 개가 사라졌다.
+
+## 3막 — 처음부터 쌓여 있던 부채
+
+고친 걸 푸시하고 CI를 다시 돌렸다. `pytest`와 `frontend`는 초록불. `linter`는 또 실패했다. 이번엔 이유가 달랐다.
+
+```plaintext
+black....................................................................Failed
+- hook id: black
+reformatted job_board/jobs/services.py
+
+isort....................................................................Failed
+- hook id: isort
+Fixing job_board/jobs/services.py
+
+djLint formatting for Django.............................................Failed
+- hook id: djlint-reformat-django
+1 file was updated.
+```
+
+파일 세 곳에 포맷 드리프트가 조용히 쌓여 있었다. black이 쪼개고 싶어 한 멀티라인 import, 끝 개행이 빠진 `.envs` 파일, djLint가 줄바꿈하고 싶어 한 `index.html`의 `<meta>` 태그. 로컬에서는 아무도 `pre-commit`을 git 훅에 연결해 두지 않았으니 문제될 일이 없었다. 문제가 되는 곳은 CI뿐이었고, 그 CI는 그동안 아무도 모르게 계속 실패하고 있었다.
+
+여기서의 수정은 거의 기계적이었다. CI가 뱉은 훅 출력 자체가 곧 diff다. 다시 유도하지 않고 그대로 적용했다. 포매터가 이미 답을 알려 준 마당에 "올바른 포맷"이 뭔지 헷갈릴 이유는 없다.
+
+## 4막 — 불안정한 캐시와 중복 실행
+
+실제 CI가 돌기 시작하자 자잘한 상처 두 개가 더 드러났다.
+
+![숲을 가로지르는 파이프라인](https://images.pexels.com/photos/18784617/pexels-photo-18784617.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Wolfgang Weiser](https://www.pexels.com/@wolfgang-weiser) on [Pexels](https://www.pexels.com/photo/view-of-pipelines-in-a-forest-18784617/)*
+
+**캐시 백엔드 레이스.** PR로 트리거된 빌드가 간헐적으로 이렇게 실패했다.
+
+```plaintext
+Error: cannot parse bake definitions: ERROR: failed to solve:
+failed to load cache key: repository does not contain ref refs/pull/166/merge
+```
+
+`docker/bake-action`과 GitHub Actions 캐시가 함께 쓰일 때 알려진 문제다. 캐시 백엔드가 PR의 머지 ref를 해석하는 동안 PR이 업데이트되거나 머지되면 그 ref가 재계산되거나 무효화된다. 실제로 배포를 게이트하는 `main` 푸시 트리거 실행에는 영향이 없었지만, 승격 PR마다 가짜 빨간 X를 남겼다. Buildx의 GHA 캐시 백엔드에는 바로 이런 상황을 위한 탈출구가 있다.
+
+```yaml
+django.cache-from=type=gha,scope=django-cached-tests,ignore-error=true
+```
+
+`ignore-error=true`는 캐시 복원 실패를 잡 전체 실패가 아니라 단순 캐시 미스로 강등한다.
+
+**중복 CI 실행.** 트리거에 `pull_request: branches: [main]`과 `push: branches: [main]`이 둘 다 걸려 있어서, 승격할 때마다 같은 커밋이 CI를 두 번 탔다. PR을 열 때 한 번, 머지되는 순간 또 한 번. 배포가 신경 쓰는 건 머지 이후의 `main` 상태뿐이니, 해법은 `pull_request` 트리거를 아예 없애고 `push`에만 맡기는 것이었다.
+
+손댄 김에 `frontend` 린트/테스트 잡도 백엔드 CI에서 완전히 분리했다. 프런트엔드는 Vercel로 배포되고, Vercel이 이미 별도 PR 체크로 자체 빌드/린트 파이프라인을 돌린다. 프런트엔드 오타 하나가 DigitalOcean 백엔드 배포를 막을 이유는 없다. `frontend/**`도 `paths-ignore`에 넣어서, 프런트엔드만 건드린 커밋은 백엔드 재빌드를 아예 트리거하지 않게 했다.
+
+## 5막 — CI는 드디어 초록불, 배포는 여전히 실패
+
+`main` 푸시에서 처음으로 `CI`가 `success`를 찍었다. 그리고 처음으로 `Deploy to DigitalOcean`이 `skipped` 대신 실제로 실행됐다. 12초 만에 실패했다.
+
+```ssh
+ssh.ParsePrivateKey: ssh: no key found
+ssh: handshake failed: ssh: unable to authenticate, attempted methods [none], no supported methods remain
+```
+
+```bash
+gh secret list --repo <org>/<repo>
+```
+
+결과는 0행. `DO_HOST`, `DO_USERNAME`, `DO_SSH_KEY`, `DO_PORT` — 어느 하나 존재하지 않았다. 워크플로는 애초에 만들어진 적 없는 시크릿 네 개를 참조하고 있었다. CI를 통과시킨 건 제 몫을 했다. 그저 그 아래 층을 드러냈을 뿐이다.
+
+## 6막 — SSH에서 걸려 넘어지기 쉬운 두 지점
+
+시크릿을 설정하다가 실수 두 개가 나왔다. 둘 다 저지르기 쉽고 오진하기도 쉬워서 기록해 둘 만하다.
+
+**함정 1 — 드롭릿 안에서 `ssh-copy-id` 실행.** 이미 드롭릿에 SSH로 들어와 있는 상태에서 그 드롭릿에 공개키를 심으려 하면 안 된다. `ssh-copy-id`는 키를 설치하려고 같은 호스트로 *새* 아웃바운드 연결을 여는데, 그 연결에는 아직 인증할 유효한 키가 없다. 전형적인 닭과 달걀이다. 이미 대상 머신 셸에 앉아 있다면 `ssh-copy-id`는 건너뛰고 직접 추가하면 된다.
+
+```bash
+cat ~/.ssh/id_ed25519.pub >> ~/.ssh/authorized_keys
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/authorized_keys
+```
+
+**함정 2 — 뭉개진 시크릿 내용.** 서버가 공개키를 신뢰하게 된 뒤에도 배포는 똑같은 `ssh: no key found`로 실패했다. 개인키를 GitHub 시크릿에 넣을 때 파일 리다이렉트가 아니라 문자열 보간(`--body "..."`)을 썼고, 그 과정에서 멀티라인 PEM 블록이 조용히 뭉개진 것이다. 해법은 포맷에 아무것도 손대지 못하게 하는 것.
+
+```bash
+gh secret set DO_SSH_KEY --repo <org>/<repo> < ~/.ssh/id_ed25519
+```
+
+원본 파일을 그대로 리다이렉트하면 `-----BEGIN/END-----` 줄과 내부 개행까지 바이트 단위로 그대로 전달된다. 셸 문자열은 그걸 먹어 치운다.
+
+## 7막 — 키는 맞았고, 디렉터리가 틀렸다
+
+인증이 풀리자 배포 스크립트가 드디어 드롭릿까지 도달해 실행됐다. 그리고 새 에러를 만났다.
+
+```console
+err: bash: line 1: cd: /home/***/apps/gigglegigs: No such file or directory
+err: fatal: not a git repository (or any of the parent directories): .git
+err: open /home/***/production.yml: no such file or directory
+```
+
+`deploy.yml`은 체크아웃이 `~/apps/gigglegigs`에 있다고 가정했다. 아니었다. 드롭릿에서 `ls ~`를 쳐 보니 실제 클론은 `~/GiggleGigs`에 있었다. 다른 프로젝트의 배포 설정에서 복사해 붙인 경로였고, 검증된 적이 없었다. 워크플로가 여기까지 도달한 적이 한 번도 없었으니 당연했다. 한 줄 수정으로 배포 스크립트가 처음부터 끝까지 완주했다. 빌드, collectstatic, migrate, `up -d`까지 전부 초록불.
+
+## 8막 — 첫 실제 배포가 사이트를 내렸다
+
+완전히 초록불이 된 첫 배포 2분 뒤, 관리자 페이지의 사용자 목록이 `502 Bad Gateway`를 뱉기 시작했다. 첫 자동 배포에 사이트가 죽었으니 당황할 만한 상황이다. 그런데 로그는 훨씬 시시한 이야기를 하고 있었다.
+
+```console
+django-1  | PostgreSQL is available
+django-1  | 186 static files copied to '/app/staticfiles', 538 post-processed.
+django-1  | [2026-09-01 12:48:17 +0000] [1] [INFO] Starting gunicorn 21.2.0
+django-1  | [2026-09-01 12:48:17 +0000] [1] [INFO] Listening at: http://0.0.0.0:5000
+```
+
+Gunicorn이 부팅을 마친 건 `12:48:17`이었다. Postgres 대기, `collectstatic`, 워커 포크를 거친 뒤다. 502가 찍힌 시각은 `12:48:16`. 1초 앞이다. 크래시한 건 아무것도 없었다. `docker compose up -d`가 기존 `django` 컨테이너를 죽였고 새 컨테이너는 아직 리스닝하지 않던 정확히 그 틈에 관리자 페이지를 새로고침한 것뿐이었다.
+
+이건 앱의 버그가 아니라 배포 설정의 구멍이다. 여기서 Traefik은 정적 `file` 프로바이더를 쓰고 있고, 컨테이너 준비 상태와 무관하게 무조건 `http://django:5000`으로 라우팅한다.
+
+```yaml
+services:
+  django:
+    loadBalancer:
+      servers:
+        - url: http://django:5000
+```
+
+배포할 때마다 예외 없이 같은 틈에 걸린다. 제대로 된 해법은 액티브 헬스 체크를 붙여서, 컨테이너가 실제로 응답하기 전까지 Traefik이 트래픽을 보내지 않게 하는 것이다.
+
+```yaml
+services:
+  django:
+    loadBalancer:
+      servers:
+        - url: http://django:5000
+      healthCheck:
+        path: /healthz/
+        hostname: api.example.com
+        interval: '5s'
+        timeout: '3s'
+```
+
+이 설정에서 짚어야 할 게 두 가지 있다. 첫째, `/healthz/`는 존재하지 않던 경로라 새로 만들어야 했다. DB도 건드리지 않고 인증도 없이 그냥 `200 OK`만 돌려주는, 진짜로 사소한 뷰여야 한다. 인프라 헬스 체크를 실제 비즈니스 엔드포인트에 묶으면 권한 설정 변경이나 느린 쿼리 하나가 헬스 체크를 조용히 같이 끌고 내려간다. 둘째, `hostname`은 선택 사항이 아니다. 이걸 빼면 Traefik의 헬스 체크 요청이 `Host: django`(내부 서비스 이름)로 나가고, `ALLOWED_HOSTS`가 — 지극히 정당하게 — 이걸 `DisallowedHost`로 거부해 `400`을 반환한다. 그러면 Traefik은 컨테이너가 영구적으로 비정상이라고 판단한다. `hostname`을 실제 공개 도메인으로 지정하면 Django 입장에서 헬스 체크 요청과 실제 트래픽이 구분되지 않는다.
+
+`production.yml`을 손댄 김에, 장기 실행 서비스 전부에 `restart: unless-stopped`를 추가했다(일회성 백업 컨테이너만 제외). 이게 없으면 DigitalOcean 점검이든 크래시든 드롭릿이 재부팅될 때 모든 컨테이너가 내려간 채로 남고, 누군가 알아채고 SSH로 들어가 직접 올릴 때까지 그대로다. `unless-stopped`는 데몬이 뜨는 순간 Docker가 알아서 컨테이너를 되살린다.
+
+## 전부 모아 보면 뭐가 문제였나
+
+한자리에 늘어놓고 보면 목록이 거의 우습다.
+
+1. gitignore된 파일이 CI의 Python 셋업을 깨뜨렸다
+2. 고정해 둔 Node 버전이 의존성 요구 사항보다 메이저 두 개 뒤처져 있었다
+3. 포맷 드리프트가 언제부터인지 모르게 린트를 조용히 실패시키고 있었다
+4. GHA 캐시 백엔드 레이스가 PR 체크에 가짜 실패를 냈다
+5. 승격 한 번에 CI가 이유 없이 두 번 돌았다
+6. 배포 시크릿이 하나도 없었다
+7. 개인키가 셸 보간에 뭉개졌다
+8. 배포 스크립트의 대상 디렉터리가 그냥 틀려 있었다
+9. Traefik에게는 컨테이너가 아직 준비되지 않았음을 알 방법이 없었다
+10. 재부팅 후 스스로 살아나는 게 아무것도 없었다
+
+하나하나는 찾고 나면 고치기 어렵지 않았다. 이 일이 고역이었던 이유는 **각 버그가 다음 버그를 가리고 있었기** 때문이다. CI가 초록불이 되어야 배포 시크릿이 문제가 되기 시작하고, 시크릿이 동작해야 잘못된 디렉터리 경로가 드러나고, 배포가 실제로 성공해야 Traefik의 타이밍 틈이 비로소 보인다. 열 개의 작은 결함이 직렬로 늘어선 파이프라인은 열 개의 결함처럼 보이지 않는다. 하나의 큰 벽처럼 보인다. 뚫는 방법은 가장 바깥 실패를 고치고, 다시 돌리고, 다음 층에 뭐가 있는지 확인하는 것뿐이다.
+
+## 정리
+
+"자동화된" 배포인데 여전히 누군가 손으로 pull하고 다시 빌드해야 한다면, 배포 잡 자체가 망가졌다고 단정하지 말고 그걸 게이트하는 쪽이 한 번이라도 성공한 적 있는지부터 확인하는 게 낫다. 빨간 CI 뒤에 조용히, 영구히 갇혀 있는 파이프라인은 멀리서 보면 아예 존재하지 않는 파이프라인과 똑같이 생겼다. 해법은 대개 큰 재작성이 아니다. 실패하는 층을 하나씩 벗겨 내서 그 아래 있는 것이 마침내 실행될 기회를 주는 것, 그리고 아무리 무관해 보여도 다음 에러 메시지가 다음 진짜 문제를 가리킨다고 믿는 것이다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

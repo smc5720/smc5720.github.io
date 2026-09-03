@@ -1,0 +1,231 @@
+﻿---
+title: "로그 대신 실행 트리 — AI 에이전트 디버깅 모델을 다시 짜다"
+description: "평평한 로그는 무슨 일이 일어났는지는 알려주지만 무엇이 무엇을 불렀는지는 알려주지 않는다. AgentInspect 메인테이너가 실행 트리를 1순위 디버깅 모델로 택한 이유와, 트리가 드러내는 네 가지 구조를 정리했다."
+date: "2026-09-02"
+published_at: "2026-09-03"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fpnivwjakor95cx96ajqj.png"
+coverAlt: "Execution Trees, Not More Logs: A Better Debugging Model for AI Agents"
+slug: "execution-trees-not-more-logs-agent-debugging"
+source_id: "devto-4540527"
+source_url: "https://dev.to/raju_dandigam/execution-trees-not-more-logs-a-better-debugging-model-for-ai-agents-3d4g"
+source_title: "Execution Trees, Not More Logs: A Better Debugging Model for AI Agents"
+source_author: "Raju Dandigam"
+source_published: "2026-09-02"
+---
+
+<LinkCard url="https://dev.to/raju_dandigam/execution-trees-not-more-logs-a-better-debugging-model-for-ai-agents-3d4g" author="Raju Dandigam" date="2026-09-02" />
+
+## 개요
+
+평평한 로그는 다섯 가지 일이 일어났다는 사실까지만 말해준다. 어떤 작업이 다음 작업을 불렀는지, 어떤 실패가 폴백을 촉발했는지, 세 번의 툴 호출이 하나의 계획 단계에서 갈라져 나온 것인지 아니면 서로 무관한 작업인지는 말해주지 않는다.
+
+AI 에이전트에서는 이 구분이 특히 크게 걸린다. 경로 자체가 곧 동작의 일부이기 때문이다.
+
+오픈소스 TypeScript 툴킷 [AgentInspect](https://github.com/rajudandigam/agent-inspect)를 만든 Raju Dandigam은 에이전트 실행을 로컬에서 들여다보는 이 도구의 1순위 디버깅 모델로 실행 트리(execution tree)를 택했다. 그가 밝힌 이유와 검증 방식은 [`agent-inspect@6.17.4`](https://github.com/rajudandigam/agent-inspect/tree/agent-inspect%406.17.4) 릴리스에서 합성 픽스처로 확인한 결과에 기반한다.
+
+## 타임라인으로 읽은 실행 기록의 한계
+
+고객 지원 에이전트가 아래처럼 동작했다고 하자.
+
+```text
+09:00:00.000 plan started
+09:00:00.020 inventory request started
+09:00:00.060 inventory request failed: 503
+09:00:00.061 inventory request started
+09:00:00.120 inventory request succeeded
+09:00:00.150 answer completed
+```
+
+여기까지는 이야기를 복원할 수 있다. 문제는 그 복원 작업을 개발자 머릿속에서 하고 있다는 점이다. 중첩된 에이전트, 병렬 툴, 재사용된 작업 이름, 중간중간 끼어드는 애플리케이션 로그가 더해지면 타임스탬프는 더 이상 인과관계를 보여주는 그림이 되지 못한다.
+
+실행 트리는 그 관계를 겉으로 드러낸다.
+
+```text
+support-agent
+├── plan
+├── fetch-inventory (failed: 503)
+├── fetch-inventory (success)
+└── draft-answer
+```
+
+트리가 원본 이벤트 데이터를 대체하는 건 아니다. 개발자가 보통 가장 먼저 던지는 질문 — *이 실행은 어떤 경로를 탔나?* — 에 맞춰 데이터를 투영(projection)한 결과물이다.
+
+![두 그루의 나무](https://images.pexels.com/photos/1102917/pexels-photo-1102917.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Johannes Plenio](https://www.pexels.com/@jplenio) on [Pexels](https://www.pexels.com/photo/two-bare-trees-1102917/)*
+
+## 경계를 직접 표시하는 계측
+
+AgentInspect는 실행 전체와 이름 붙인 단계를 감싸는 래퍼를 제공한다. 일부러 작게 잡은 예시다.
+
+```ts
+import { inspectRun, step } from "agent-inspect";
+
+await inspectRun(
+  "travel-planner",
+  async () => {
+    const plan = await step("plan", async () => ({
+      destinations: ["SFO", "SEA"],
+    }));
+
+    const [flights, hotels] = await Promise.all([
+      step.tool("search-flights", async () => [
+        { id: "F-101", price: 220 },
+      ]),
+      step.tool("search-hotels", async () => [
+        { id: "H-202", nightly: 180 },
+      ]),
+    ]);
+
+    return step.llm("rank-options", async () => ({
+      plan,
+      flights,
+      hotels,
+    }));
+  },
+  { traceDir: "./.agent-inspect" },
+);
+```
+
+수동 계측이다. 래퍼가 프레임워크 내부 작업까지 자동으로 전부 찾아낸다고 주장하지 않는다. 목적은 개발자가 신경 쓰는 경계 — 실행 전체, 계획 단계, 형제 관계인 두 개의 툴 호출, 마지막 모델 호출 단계 — 를 기록으로 남기는 것이다.
+
+기록한 실행은 로컬에서 바로 열어본다.
+
+```bash
+npx agent-inspect view travel-planner \
+  --dir .agent-inspect \
+  --summary
+```
+
+## 트리가 드러내는 네 가지 구조
+
+### 중첩 — 누가 그 작업을 소유했나
+
+3단 중첩 합성 픽스처는 이렇게 그려진다.
+
+```text
+Execution Tree:
+✔ outer (120ms)
+  ✔ middle (80ms)
+    ✔ inner (50ms)
+```
+
+들여쓴 두 칸은 장식이 아니다. `inner`가 `middle`에 속하고, `middle`이 `outer`에 속한다는 정보다. `inner`가 실패하면 어느 상위 작업이 그 실패를 떠안았는지 곧바로 안다. 평평한 로그라면 ID를 대조하거나 앞뒤 타임스탬프를 보고 같은 구조를 추론해야 한다.
+
+중첩이 특히 요긴한 경우는 한 에이전트가 다른 에이전트에 위임할 때, 하나의 툴이 여러 하위 작업을 수행할 때, 검색 단계가 쿼리 재작성과 벡터 검색을 함께 거느릴 때다.
+
+### 폴백 — 복구 동작을 보존한다
+
+에러 복구 픽스처는 다음과 같다.
+
+```text
+Execution Tree:
+✖ tool:primary-search (100ms)
+    Error: primary search unavailable
+✔ tool:fallback-search (200ms)
+✔ handle-recovered-result (50ms)
+```
+
+최종 실행 결과는 성공일 수 있다. 답변만 놓고 보면 실패한 1차 검색은 디버깅 서사에서 사라진다. 트리는 두 사실을 모두 남긴다. 1차 경로가 실패했다는 것, 그리고 복구 경로가 끝까지 갔다는 것.
+
+이 구분이 엔지니어링 판단을 바꾸기도 한다. 폴백으로 만들어낸 성공적인 답변은 받아들일 만할 수 있다. 하지만 폴백 사용률이 갑자기 치솟는다면 의존성이 나빠졌거나 비싼 라우팅 변경이 있었다는 신호일 수 있다.
+
+### 반복되는 형제 노드 — 재시도가 보인다
+
+재시도는 눈에 보이는 형태를 따로 가질 만하다.
+
+```text
+Execution Tree:
+✖ tool:fetch-inventory (40ms)
+    Error: synthetic 503 from upstream
+✖ tool:fetch-inventory (45ms)
+    Error: synthetic 503 from upstream
+✔ tool:fetch-inventory (60ms)
+✔ handle-recovered-result (30ms)
+```
+
+최종 상태가 성공이라는 사실 하나만으로는 그 성공에 들어간 비용이 가려진다. 같은 툴 이름이 반복되면 재시도 시퀀스가 그대로 드러난다. 결정론적 검사에 넘길 구체적 재료도 생긴다. 예를 들어 `fetch-inventory` 호출이 허용 횟수를 넘었는지 판정할 수 있다.
+
+트리만으로 재시도 정책이 옳았는지는 알 수 없다. 정책이 실제로 발동했다는 증거를 줄 뿐이다.
+
+### 병렬 형제 노드 — 동시성이 보인다
+
+병렬 픽스처는 형제 작업으로 그려진다.
+
+```text
+Execution Tree:
+✔ tool:search-hotels (300ms)
+✔ tool:search-flights (200ms)
+✔ tool:search-cars (100ms)
+```
+
+이 소요 시간들은 더하라고 있는 숫자가 아니다. 세 단계는 형제이고 서로 겹칠 수 있다. 타임라인을 볼 때 흔히 저지르는 실수 — 타임스탬프가 찍힌 각 작업이 앞 작업을 기다렸다고 가정하는 것 — 를 이 구조가 막아준다.
+
+트리가 동시성 구현이 최적이었음을 증명하지는 않는다. 다만 그걸 조사하는 데 필요한 구조적 관계를 정확히 보존한다.
+
+## 트리는 뷰일 뿐, 증거 전체가 아니다
+
+읽기 좋은 트리를 유일한 저장 산출물로 삼고 싶은 유혹이 있다. Dandigam은 그 길을 피했다. 사람이 읽기 좋은 뷰는 필연적으로 정보를 압축하기 때문이다.
+
+기저 트레이스에는 식별자, 타임스탬프, 상태, 입출력(캡처 정책에 따라), 관측값, 메타데이터가 들어간다. 질문이 달라지면 필요한 투영도 달라진다.
+
+```text
+structured trace
+├── tree      -> what path happened?
+├── check     -> did an invariant hold?
+├── diff      -> what changed between runs?
+├── report    -> what should a reviewer read?
+└── bundle    -> what evidence can be shared?
+```
+
+실행 트리는 가장 빠른 진입점이지, 검사나 분석을 대신하는 물건이 아니다.
+
+## 수상한 모양을 결정론적 검사로 바꾸기
+
+재시도 트리에서 재고 조회 툴이 세 번 실행될 수 있다는 사실을 발견했다고 하자. 의도한 정책이 최대 두 번이라면, 앞으로도 눈으로 확인하겠다는 계획 대신 그 기대치를 코드로 박아두는 편이 낫다.
+
+CLI 수준에서는 궤적(trajectory) 검사로 필수 툴을 요구하고 기록된 관측값에 대해 실패시킬 수 있다.
+
+```bash
+npx agent-inspect check travel-planner \
+  --dir .agent-inspect \
+  --preset trajectory \
+  --required-tool search-flights \
+  --fail-on-observation failed
+```
+
+더 촘촘한 규칙이 필요하면 실험적 `TraceContract` API를 쓴다. 필수 툴, 금지 툴, 최대 호출 횟수, 순서, 실행 상태, 소요 시간, 모델 허용 목록, 토큰 상한을 표현한다. 다만 해당 릴리스에서 이 API는 베타다. CI 게이트로 쓰려면 버전을 고정하고 정확한 동작을 먼저 테스트하라는 것이 저자의 당부다.
+
+정작 중요한 건 특정 API가 아니라 작업 흐름 쪽이다.
+
+1. 트리를 살펴본다.
+2. 안정적인 동작 불변식을 찾아낸다.
+3. 결정론적 검사로 인코딩한다.
+4. 맥락에 따라 달라지는 판단은 사람 몫으로 남긴다.
+
+## 트리가 답해주지 못하는 것
+
+트리가 깔끔하다고 해서 답변이 옳다는 증명은 되지 않는다. 필수 검색 단계가 엉뚱한 문서를 물어올 수 있고, 모델 호출이 근거 없는 주장을 만들어낼 수 있고, 툴이 기술적으로는 성공하면서 낡은 데이터를 반환할 수도 있다.
+
+실행 트리가 강한 영역은 구조에 관한 질문이다.
+
+- 어떤 작업이 실행됐나?
+- 어떤 작업이 그 실패를 소유했나?
+- 폴백이나 재시도가 쓰였나?
+- 어떤 작업이 형제 관계로 돌아갔나?
+- 실행은 어디서 멈췄나?
+
+내용 품질은 의미 평가기, 도메인 테스트, 사람의 리뷰가 맡는다. 가장 믿을 만한 에이전트 디버깅 흐름은 이 층위들을 겹쳐 쓰는 쪽이지, 시각화 하나에 모든 질문을 떠넘기는 쪽이 아니다.
+
+## 답이 아니라 경로를 디버깅한다
+
+사용자가 보는 건 최종 응답이지만, 엔지니어가 개선할 수 있는 건 실행 경로다. 트리는 그 경로를 머릿속에서 추론한 서사에서 손에 잡히는 산출물로 바꿔놓는다.
+
+AgentInspect의 로컬 뷰가 깔고 있는 설계 원칙도 여기에 있다. 인과 구조를 보존하고, 복구가 성공하더라도 실패한 작업을 드러내고, 수상한 패턴을 반복 가능한 검사로 옮기기 쉽게 만든다.
+
+이 글에서 쓴 릴리스는 [GitHub](https://github.com/rajudandigam/agent-inspect/tree/agent-inspect%406.17.4)에서 확인할 수 있다. 저자는 직접 써본다면 실패-폴백 합성 픽스처부터 시작해보라고 권한다. 완벽하게 잘 굴러가는 해피 패스는 디버거를 시험하는 방법으로는 가장 재미없는 축에 든다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

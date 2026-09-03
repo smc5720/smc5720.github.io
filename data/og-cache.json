@@ -87,6 +87,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-23"
   },
+  "https://dev.to/ale3oula/what-do-you-build-when-you-can-build-anything-4eg0": {
+    "ok": true,
+    "title": "What do you build when you can build anything?",
+    "description": "My hot take is: Telling people that they have to build endlessly is very, very, very bad advice. If...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fda5tefc1nhjj65fd8ig4.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-03"
+  },
   "https://dev.to/ale3oula/what-is-a-context-window-actually-13l6": {
     "ok": true,
     "title": "What is a context window, actually?",
@@ -967,6 +975,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/gde/streamline-publishing-with-a-claude-code-skill-1bdn": {
+    "ok": true,
+    "title": "Streamline Publishing with a Claude Code Skill",
+    "description": "A Claude Code skill that turns one markdown file into dev.to, AWS Builder Center, Medium and LinkedIn versions, checks them before they ship, and posts the ones with an API — plus the debugging tools for when a destination mangles something.",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fraw.githubusercontent.com%2Fxbill9%2Fpublishing-kit%2Fmain%2Farticles%2Fpublishing-kit-skill%2Fcover.77acc7c4.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-03"
+  },
   "https://dev.to/gde/teaching-claude-code-to-paint-a-stateful-image-editing-skill-built-on-geminis-interactions-api-17g": {
     "ok": true,
     "title": "Teaching Claude Code to Paint: A Stateful Image-Editing Skill Built on Gemini's Interactions API and MCP",
@@ -1335,6 +1351,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/highcenburg/-the-cicd-pipeline-that-was-lying-to-us-a-deploy-debugging-story-9fi": {
+    "ok": true,
+    "title": "The CI/CD Pipeline That Was Lying to Us: A Deploy Debugging Story",
+    "description": "I had a GitHub Actions workflow called Deploy to DigitalOcean. It had been sitting in the repo for...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F7l0si1p0xc0gvs0ys3jh.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-03"
+  },
   "https://dev.to/highflyer910/i-tried-to-beat-peter-norvig-and-accidentally-became-ryan-gosling-45b8": {
     "ok": true,
     "title": "I Tried to Beat Peter Norvig and Accidentally Became Ryan Gosling",
@@ -1414,6 +1438,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2Fr7aysz0kmk78v0fyh8uw.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/james_anderson_h/building-with-ai-when-you-dont-know-architecture-a-survival-guide-1ma3": {
+    "ok": true,
+    "title": "Building With AI When You Don't Know Architecture: A Survival Guide",
+    "description": "Let me describe a moment you might recognize.  You had an idea for an app. You didn't know how to...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fuc75v5ty3hnp04jrkryj.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-03"
   },
   "https://dev.to/jarvisscript/what-are-your-goals-for-the-week-182-2f0n": {
     "ok": true,
@@ -1918,6 +1950,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fdt196dzugry1anlsqkvf.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-29"
+  },
+  "https://dev.to/raju_dandigam/execution-trees-not-more-logs-a-better-debugging-model-for-ai-agents-3d4g": {
+    "ok": true,
+    "title": "Execution Trees, Not More Logs: A Better Debugging Model for AI Agents",
+    "description": "A flat log can tell you that five things happened. It often cannot tell you which operation caused...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fpnivwjakor95cx96ajqj.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-03"
   },
   "https://dev.to/ramkumar-m-n/github-actions-cicd-explained-like-a-robot-assembly-line-1f7c": {
     "ok": true,
