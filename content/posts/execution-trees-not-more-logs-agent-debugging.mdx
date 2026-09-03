@@ -4,7 +4,7 @@ description: "평평한 로그는 무슨 일이 일어났는지는 알려주지�
 date: "2026-09-02"
 published_at: "2026-09-03"
 category: "news"
-tags: []
+tags: ["ai","typescript","opensource","programming","tech"]
 cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fpnivwjakor95cx96ajqj.png"
 coverAlt: "Execution Trees, Not More Logs: A Better Debugging Model for AI Agents"
 slug: "execution-trees-not-more-logs-agent-debugging"
@@ -21,7 +21,7 @@ source_published: "2026-09-02"
 
 평평한 로그는 다섯 가지 일이 일어났다는 사실까지만 말해준다. 어떤 작업이 다음 작업을 불렀는지, 어떤 실패가 폴백을 촉발했는지, 세 번의 툴 호출이 하나의 계획 단계에서 갈라져 나온 것인지 아니면 서로 무관한 작업인지는 말해주지 않는다.
 
-AI 에이전트에서는 이 구분이 특히 크게 걸린다. 경로 자체가 곧 동작의 일부이기 때문이다.
+AI 에이전트에서는 이 구분에 걸린 게 특히 크다. 경로 자체가 곧 동작의 일부이기 때문이다.
 
 오픈소스 TypeScript 툴킷 [AgentInspect](https://github.com/rajudandigam/agent-inspect)를 만든 Raju Dandigam은 에이전트 실행을 로컬에서 들여다보는 이 도구의 1순위 디버깅 모델로 실행 트리(execution tree)를 택했다. 그가 밝힌 이유와 검증 방식은 [`agent-inspect@6.17.4`](https://github.com/rajudandigam/agent-inspect/tree/agent-inspect%406.17.4) 릴리스에서 합성 픽스처로 확인한 결과에 기반한다.
 
