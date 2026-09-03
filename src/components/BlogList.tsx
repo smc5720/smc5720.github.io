@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { PostCard } from "./PostCard";
 import { BlogIndexList } from "./BlogIndexList";
 import { EmptyResults } from "./EmptyResults";
+import { IndexRailShell } from "@/components/IndexRailShell";
 import type { PostMeta, Category } from "@/types/post";
 import { CATEGORY_LABELS, CATEGORY_ORDER } from "@/lib/constants";
 
@@ -312,81 +313,80 @@ export function BlogList({ posts, years, tags }: Props) {
     </>
   );
 
+  const tabletStrip = (
+    <>
+      <span className="idx-rail-tablet-total">전체 {counts.all}</span>
+      <span className="idx-rail-tablet-sep" aria-hidden="true" />
+      {years.slice(0, 3).map((y) => (
+        <button
+          key={y.year}
+          type="button"
+          className={`idx-rail-tablet-item${activeYear === String(y.year) ? " idx-rail-tablet-accent" : ""}`}
+          onClick={() => pushParams({ year: activeYear === String(y.year) ? "" : String(y.year) })}
+        >
+          {y.year} {y.count}
+        </button>
+      ))}
+      <span className="idx-rail-tablet-sep" aria-hidden="true" />
+      <button
+        type="button"
+        className={`idx-rail-tablet-item${activeCat === ALL ? " idx-rail-tablet-accent" : ""}`}
+        onClick={() => pushParams({ category: ALL })}
+      >
+        전체 {counts.all}
+      </button>
+      {activeCategories.map((c) => (
+        <button
+          key={c}
+          type="button"
+          className={`idx-rail-tablet-item${activeCat === c ? " idx-rail-tablet-accent" : ""}`}
+          onClick={() => pushParams({ category: c })}
+        >
+          {CATEGORY_LABELS[c]} {counts[c]}
+        </button>
+      ))}
+      {inactiveCategories.length > 0 && (
+        <span className="idx-rail-tablet-disabled">
+          {inactiveLabel} {inactiveCount}
+        </span>
+      )}
+      {activeTag && (
+        <>
+          <span className="idx-rail-tablet-sep" aria-hidden="true" />
+          <button
+            type="button"
+            className="idx-rail-tablet-item idx-rail-tablet-accent"
+            onClick={() => pushParams({ tag: "" })}
+          >
+            #{activeTag} ×
+          </button>
+        </>
+      )}
+      <span className="idx-rail-tablet-sep" aria-hidden="true" />
+      <button
+        type="button"
+        className="idx-rail-tablet-item"
+        aria-expanded={tabletSheetOpen}
+        onClick={() => setTabletSheetOpen((v) => !v)}
+      >
+        태그 · 연도 필터 {tabletSheetOpen ? "▴" : "▾"}
+      </button>
+    </>
+  );
+
   return (
     <>
-      {/* ── 필터 레일 — 데스크톱 세로 / 태블릿 수평 스트립 / 모바일 필터 시트 ── */}
+      {/* ── 필터 레일 — 데스크톱 세로 / 태블릿 수평 스트립 / 모바일 필터 시트 ──
+          홈 색인 레일과 동일한 IndexRailShell을 공유한다(이슈 #111). ── */}
       <div className="blog-body">
-        <nav className="idx-rail" aria-label="필터">
-          <div className="idx-rail-desktop">{railBody}</div>
-
-          <div className="idx-rail-tablet">
-            <span className="idx-rail-tablet-total">전체 {counts.all}</span>
-            <span className="idx-rail-tablet-sep" aria-hidden="true" />
-            {years.slice(0, 3).map((y) => (
-              <button
-                key={y.year}
-                type="button"
-                className={`idx-rail-tablet-item${activeYear === String(y.year) ? " idx-rail-tablet-accent" : ""}`}
-                onClick={() => pushParams({ year: activeYear === String(y.year) ? "" : String(y.year) })}
-              >
-                {y.year} {y.count}
-              </button>
-            ))}
-            <span className="idx-rail-tablet-sep" aria-hidden="true" />
-            <button
-              type="button"
-              className={`idx-rail-tablet-item${activeCat === ALL ? " idx-rail-tablet-accent" : ""}`}
-              onClick={() => pushParams({ category: ALL })}
-            >
-              전체 {counts.all}
-            </button>
-            {activeCategories.map((c) => (
-              <button
-                key={c}
-                type="button"
-                className={`idx-rail-tablet-item${activeCat === c ? " idx-rail-tablet-accent" : ""}`}
-                onClick={() => pushParams({ category: c })}
-              >
-                {CATEGORY_LABELS[c]} {counts[c]}
-              </button>
-            ))}
-            {inactiveCategories.length > 0 && (
-              <span className="idx-rail-tablet-disabled">
-                {inactiveLabel} {inactiveCount}
-              </span>
-            )}
-            {activeTag && (
-              <>
-                <span className="idx-rail-tablet-sep" aria-hidden="true" />
-                <button
-                  type="button"
-                  className="idx-rail-tablet-item idx-rail-tablet-accent"
-                  onClick={() => pushParams({ tag: "" })}
-                >
-                  #{activeTag} ×
-                </button>
-              </>
-            )}
-            <span className="idx-rail-tablet-sep" aria-hidden="true" />
-            <button
-              type="button"
-              className="idx-rail-tablet-item"
-              aria-expanded={tabletSheetOpen}
-              onClick={() => setTabletSheetOpen((v) => !v)}
-            >
-              태그 · 연도 필터 {tabletSheetOpen ? "▴" : "▾"}
-            </button>
-          </div>
-          {tabletSheetOpen && <div className="idx-rail-tablet-sheet">{railBody}</div>}
-
-          <details className="idx-rail-mobile">
-            <summary className="idx-rail-summary">
-              <span>{mobileSummaryLabel}</span>
-              <span className="idx-rail-summary-icon" aria-hidden="true">⌄</span>
-            </summary>
-            <div className="idx-rail-mobile-body">{railBody}</div>
-          </details>
-        </nav>
+        <IndexRailShell
+          ariaLabel="필터"
+          desktop={railBody}
+          tabletStrip={tabletStrip}
+          tabletExtra={tabletSheetOpen && <div className="idx-rail-tablet-sheet">{railBody}</div>}
+          mobileSummary={mobileSummaryLabel}
+          mobileBody={railBody}
+        />
 
         <div className="blog-content">
           {/* ── Sticky controls bar ── */}

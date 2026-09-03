@@ -426,6 +426,18 @@ a {
   background: var(--color-bg-sticky);
   border-bottom: 1px solid var(--color-line);
   box-shadow: var(--shadow-overlay);
+  animation: hdr-menu-in var(--dur-slow) var(--ease-out);
+}
+
+@keyframes hdr-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .hdr-menu-item {
@@ -1325,6 +1337,13 @@ a {
   white-space: nowrap;
 }
 
+/* 터치 타깃 최소 44px(이슈 #111 PM 결정) — 소개 페이지 §03 관심사 카드의 태그는 링크다 */
+@media (max-width: 900px) {
+  .badge {
+    min-height: 44px;
+  }
+}
+
 /* ── Empty / no-results state card ── */
 .empty-card {
   padding: 80px 40px;
@@ -1412,6 +1431,17 @@ a {
 
 .detail-back-link:hover {
   color: var(--color-fg);
+}
+
+/* 터치 타깃 최소 44px(이슈 #111 PM 결정) — 글 상세 "← 목록으로"는 태블릿·모바일에서
+   detail-back-link--mobile로 노출되는 버전만 해당(데스크톱 레일 버전은 이 폭에서 숨겨진다) */
+@media (max-width: 900px) {
+  .detail-back-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding-bottom: 0;
+  }
 }
 
 /* 데스크톱에서는 레일 안의 링크만 보인다 */
@@ -1526,6 +1556,15 @@ a {
 .toc-item.active {
   color: var(--color-fg);
   box-shadow: inset 2px 0 0 var(--color-accent);
+}
+
+/* 터치 타깃 최소 44px(이슈 #111 PM 결정) — 데스크톱 toc-desktop은 이 폭에서 숨겨지므로
+   태블릿·모바일 접힌 TOC(toc-collapse-body) 항목만 영향을 받는다 */
+@media (max-width: 900px) {
+  .toc-item {
+    min-height: 44px;
+    align-items: center;
+  }
 }
 
 .toc-item .num {
@@ -2030,7 +2069,8 @@ a {
   overflow: hidden;
 }
 
-/* Tablet ≤900px: nf-grid stays 2-col but tighter gap */
+/* Tablet ≤900px: nf-grid stays 2-col but tighter gap.
+   nf-grid-3(추천 글)도 다른 화면의 3→2→1 규칙을 따른다(이슈 #111 이전에는 3→1로 건너뛰었다). */
 @media (max-width: 900px) {
   .nf-grid {
     gap: 40px;
@@ -2038,7 +2078,7 @@ a {
   }
 
   .nf-grid-3 {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -2240,6 +2280,13 @@ a {
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
+}
+
+/* .badge가 태블릿·모바일에서 44px로 커지는 만큼, 줄바꿈된 행 사이 간격도 함께 넓힌다 */
+@media (max-width: 900px) {
+  .about-interest-refs {
+    gap: 10px;
+  }
 }
 
 @media (max-width: 900px) {
@@ -2813,9 +2860,17 @@ button.idx-rail-row {
   flex-shrink: 0;
 }
 
-/* 모바일 — 필터 시트 버튼 (네이티브 details/summary, JS 불필요) */
+/* 모바일 — 필터 시트 버튼 (네이티브 details/summary, JS 불필요)
+   PM 결정(이슈 #111): 배경 스크롤 잠금 미적용. 인라인 아코디언이라 태그가 30개 넘게
+   쌓이면 시트 내용이 뷰포트보다 길어지는데, 스크롤을 잠그면 그 내용에 손을 댈 수
+   없게 된다. 그림자(아래 [open])만 적용한다 — 다시 왕복하지 말 것. */
 .idx-rail-mobile {
   border-bottom: 1px solid var(--color-line);
+}
+
+/* 시트가 펼쳐지면 카드처럼 떠 보이도록 그림자를 준다(홈·목록 공용, 이슈 #111) */
+.idx-rail-mobile[open] {
+  box-shadow: var(--shadow-overlay);
 }
 
 .idx-rail-summary {
@@ -2862,6 +2917,22 @@ button.idx-rail-row {
 @media (max-width: 600px) {
   .idx-rail-tablet { display: none; }
   .idx-rail-mobile { display: block; }
+}
+
+/* 터치 타깃 최소 44px(이슈 #111 PM 결정) — 기능성 컨트롤만 대상.
+   .idx-rail-tablet-item은 가로 스트립이라 높이만 키우고 세로 중앙 정렬로 맞춘다
+   (스트립 컨테이너 자체의 정렬·가로 스크롤 동작에는 영향 없음). */
+@media (max-width: 900px) {
+  .idx-rail-tablet-item {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .idx-rail-row {
+    min-height: 44px;
+    align-items: center;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -3258,6 +3329,13 @@ button.idx-rail-row {
   .tag-chip { transition: none; }
 }
 
+/* 터치 타깃 최소 44px(이슈 #111) — 태블릿·모바일에서만 높이를 보장한다 */
+@media (max-width: 900px) {
+  .tag-chip {
+    min-height: 44px;
+  }
+}
+
 /* ──────────────────────────────────────────────────────────────
    블로그 목록 (아트보드 2a 목록 Grid · 2b Index 뷰 · 6a 태블릿 · 6b 모바일)
    헤더 스트립 + 264px 필터 레일 + 스티키 컨트롤 바 + Grid/Index 결과 + 페이지네이션
@@ -3472,6 +3550,16 @@ button.idx-rail-row {
 
 @media (prefers-reduced-motion: reduce) {
   .blog-seg button { transition: none; }
+}
+
+/* 터치 타깃 최소 44px(이슈 #111) — 데스크톱의 컴팩트한 높이는 그대로 두고 태블릿·모바일에서만 키운다 */
+@media (max-width: 900px) {
+  .blog-seg button {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 /* ── 결과 카운트 행 ── */
@@ -3915,6 +4003,24 @@ button.idx-rail-row {
 @media (max-width: 600px) {
   .blog-pagination-numbers--wide { display: none; }
   .blog-pagination-numbers--compact { display: flex; }
+}
+
+/* 터치 타깃 최소 44px(이슈 #111) — 데스크톱의 컴팩트한 높이는 그대로 두고 태블릿·모바일에서만 키운다 */
+@media (max-width: 900px) {
+  .blog-pagination-nav {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .blog-pagination-num {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

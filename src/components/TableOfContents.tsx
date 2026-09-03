@@ -104,6 +104,11 @@ export function TableOfContents() {
     return { ...item, num: "" };
   });
 
+  // 접힌 요약 라벨용 절 수 — h2가 하나도 없는 글(h3만 있는 글)에서는 h2Count가 0이
+  // 되어 "0개 절"로 잘못 표시된다. 그럴 때만 전체 항목 수로 대체한다.
+  // h2가 있는 글의 기존 동작(넘버링용 h2Count)은 그대로 둔다.
+  const sectionCount = h2Count > 0 ? h2Count : items.length;
+
   function scrollToHeading(e: MouseEvent, id: string) {
     e.preventDefault();
     document.getElementById(id)?.scrollIntoView({
@@ -151,7 +156,7 @@ export function TableOfContents() {
         <summary className="toc-collapse-summary">
           <span className="toc-collapse-summary-label">
             <span className="toc-title">목차</span>
-            <span>{h2Count}개 절</span>
+            <span>{sectionCount}개 절</span>
           </span>
           <span className="toc-collapse-toggle-closed" aria-hidden="true">
             펼치기 ▾
