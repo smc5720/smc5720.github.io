@@ -4,7 +4,7 @@ description: "한 개발자가 Cursor, GitHub Copilot, Claude Code를 한 달간
 date: "2026-09-02"
 published_at: "2026-09-04"
 category: "news"
-tags: []
+tags: ["ai","programming","productivity","github","tech"]
 cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fpcdsg0wpycm8k4neif52.png"
 coverAlt: "I Tried Pair Programming With Three Different AI Tools For a Month"
 slug: "pair-programming-three-ai-tools-one-month"
@@ -31,9 +31,9 @@ AI 코딩 도구는 함수 하나쯤 몇 초 만에 써낸다. 문제는 그 함
 
 - **Cursor** — AI 중심 에디터 안에서 대화하며 코딩할 때, 그리고 여러 파일을 동시에 손볼 때 가장 강했다.
 - **GitHub Copilot** — 자동완성, 보일러플레이트, 작은 함수 같은 일상 코딩에서 가장 편했다.
-- **Claude Code** — 큰 코드베이스를 파악해야 하거나, 파일을 넘나드는 디버깅, 터미널에서 여러 단계를 이어가는 작업에서 가장 강했다.
+- **Claude Code** — 큰 코드베이스를 파악해야 하거나, 파일을 넘나드는 디버깅, 터미널에서 여러 단계를 이어가는 작업에서 제일 앞섰다.
 
-가장 큰 차이는 코드를 뽑아내는 속도가 아니었다. **코드를 만들기 전에 얼마나 쓸모 있는 맥락을 확보하느냐**였다. 한 달 실험에서 얻은 가장 중요한 교훈이 이거였다.
+한 달을 통틀어 가장 큰 차이는 코드를 뽑아내는 속도가 아니었다. **코드를 만들기 전에 얼마나 쓸모 있는 맥락을 확보하느냐**였다.
 
 ## 무엇을 테스트했나
 
@@ -41,7 +41,7 @@ AI 코딩 도구는 함수 하나쯤 몇 초 만에 써낸다. 문제는 그 함
 
 > "투두 앱 만들어줘."
 
-이런 프롬프트로는 실무에 대해 알 수 있는 게 거의 없다. 그래서 그는 기존 프로젝트 안에서 실제로 벌어지는 일과 닮은 과제를 골랐다.
+이런 프롬프트로는 실무에서 쓸 만한지 알 길이 없다. 그래서 그는 기존 프로젝트 안에서 실제로 벌어지는 일과 닮은 과제를 골랐다.
 
 ### 과제 1 — 빠진 함수 채우기
 
@@ -116,7 +116,7 @@ function calculateTotal(items) {
 - 테스트 커버리지를 지킬 것
 - 프로젝트의 기존 컨벤션을 따를 것
 
-여기서부터 도구별 성향이 갈렸다. Copilot은 작은 범위의 리팩터링 제안에 뛰어났다. Cursor는 영향받는 파일을 훑어가며 넓은 범위를 손볼 때 나았다. Claude Code는 그 함수가 저장소 전반에서 어떻게 쓰이는지 파악해야 하는 리팩터링에서 쓸모가 있었다.
+여기서부터 도구별 성향이 갈렸다. Copilot은 작은 범위의 리팩터링 제안에 뛰어났다. Cursor는 영향받는 파일을 훑어가며 넓은 범위를 손볼 때 나았다. Claude Code는 그 함수가 저장소 전반에서 어떻게 쓰이는지부터 파악해야 하는 리팩터링에서 제 몫을 했다.
 
 ### 핵심은 diff를 읽는 것
 
@@ -164,7 +164,7 @@ function calculateTotal(items) {
 
 **GitHub Copilot**은 여전히 유용했지만, 변경 규모가 커질수록 방향을 더 많이 잡아줘야 했다. 무엇을 해야 할지 이미 아는 상태에서 구현을 거들 때 탁월했다.
 
-**Claude Code**는 구현 전에 저장소 수준의 조사가 필요한 과제에서 특히 유용했다. 첫 단계가 코드를 쓰는 게 아니라 **어디를 고쳐야 하는지 알아내는 것**인 큰 변경에서 값어치를 했다.
+**Claude Code**는 구현에 앞서 저장소 수준의 조사가 필요한 과제에 잘 맞았다. 첫 단계가 코드를 쓰는 게 아니라 **어디를 고쳐야 하는지 알아내는 것**인 큰 변경에서 값어치를 했다.
 
 ## 어느 도구가 손을 가장 덜 타게 했나
 
