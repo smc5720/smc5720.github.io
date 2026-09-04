@@ -751,6 +751,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/elsie-rainee/i-tried-pair-programming-with-three-different-ai-tools-for-a-month-2nnc": {
+    "ok": true,
+    "title": "I Tried Pair Programming With Three Different AI Tools For a Month",
+    "description": "AI coding tools can write a function in seconds. The harder question is whether that function...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fpcdsg0wpycm8k4neif52.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-04"
+  },
   "https://dev.to/embernoglow/after-a-long-journey-ive-reached-a-deep-burnout-1o4b": {
     "ok": true,
     "title": "After a long journey, I've reached a deep burnout",
@@ -1847,6 +1855,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-31"
   },
+  "https://dev.to/nfrankel/ai-assisted-genealogy-9cn": {
+    "ok": true,
+    "title": "AI-assisted genealogy",
+    "description": "My son recently came to me to brag about using AI to find our ancestors. While the results were...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fjeg91ul98zpllf1gmdcg.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-04"
+  },
   "https://dev.to/nyaomaru/learn-valid-parentheses-reverse-linked-list-and-tree-max-depth-with-step-by-step-visualization-in-3o09": {
     "ok": true,
     "title": "Learn Valid Parentheses, Reverse Linked List, and Tree Max Depth with Step-by-Step Visualization in DSA View View 👀👀",
@@ -2094,6 +2110,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fg32incg59t688pdez6il.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-27"
+  },
+  "https://dev.to/sylwia-lask/20-agentic-ai-terms-every-developer-should-know-explained-simply-jii": {
+    "ok": true,
+    "title": "20 Agentic AI Terms Every Developer Should Know (Explained Simply)",
+    "description": "Do you ever feel like the AI world has moved forward a little too quickly?&nbsp;You hear about...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fez62u2w0ldk0fec35ytb.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-04"
   },
   "https://dev.to/sylwia-lask/4-tiny-mistakes-that-secretly-destroy-app-performance-3cgo": {
     "ok": true,

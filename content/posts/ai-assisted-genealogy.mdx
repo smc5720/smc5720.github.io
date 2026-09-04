@@ -1,0 +1,176 @@
+﻿---
+title: "AI로 족보 만들기 — 한 달 만에 600명, 12대까지"
+description: "개발자 Nicolas Fränkel이 AI 어시스턴트와 GEDCOM 포맷, git 워크플로를 조합해 한 달 만에 조상 600여 명과 12대 계보를 복원한 과정을 정리했다."
+date: "2026-09-03"
+published_at: "2026-09-04"
+category: "news"
+tags: []
+slug: "ai-assisted-genealogy"
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fjeg91ul98zpllf1gmdcg.jpg"
+coverAlt: "AI-assisted genealogy"
+source_id: "devto-4534883"
+source_url: "https://dev.to/nfrankel/ai-assisted-genealogy-9cn"
+source_title: "AI-assisted genealogy"
+source_author: "Nicolas Fränkel"
+source_published: "2026-09-03"
+---
+
+<LinkCard url="https://dev.to/nfrankel/ai-assisted-genealogy-9cn" author="Nicolas Fränkel" date="2026-09-03" />
+
+## 개요
+
+시작은 아들의 자랑이었다. AI로 조상을 찾아봤다는 것이다. 결과 자체는 맞았지만 조부모 대에서 멈췄고, 새로 알게 된 사실은 없었다. 자기 가계도에 별 관심이 없던 Nicolas Fränkel은 그 김에 AI가 족보 작업에 쓸 만한 도구인지 직접 확인해보기로 했다.
+
+결론부터 말하면, 쓸 만한 정도가 아니었다. 한 달이 채 안 되는 기간에 600명이 넘는 인물을 모았고, 일부 가지는 12대까지 거슬러 올라갔다. 어떤 사람들은 수년을 들이는 작업이다.
+
+그는 이 과정을 "소프트웨어 프로젝트처럼" 다뤘다. 그래서 이 글은 족보 이야기이면서, 동시에 AI 어시스턴트를 장기 과제에 붙여 쓰는 실전 운영 기록에 가깝다.
+
+## 프로젝트 셋업
+
+구성은 단순하다.
+
+- `git`
+- git 호스팅: Codeberg와 GitHub 양쪽 사용 (이유는 뒤에서)
+- 시각화: Cloudflare Pages
+
+데이터 저장 형식으로는 `GEDCOM`을 골랐다. GEDCOM은 GEnealogical Data COMmunication의 약자로, 예수 그리스도 후기성도 교회가 서로 다른 가계도 소프트웨어끼리 데이터를 주고받게 하려고 만든 규격이다. 최초 명세는 1984년에 나왔고, 5.5 버전이 1996년에 나온 뒤 2019년에 5.5.1로 소폭 갱신됐다.
+
+FamilySearch가 2021년에 명세를 다시 손봐 v7.0을 내놓았고 지금도 관리 중이지만, 실제로 이걸 지원하는 도구가 거의 없다. 그래서 그는 5.5.1로 범위를 좁혔다.
+
+## GEDCOM 기초
+
+GEDCOM은 들여쓰기 구조를 가진 포맷인데, 공백이 아니라 줄 맨 앞의 숫자로 깊이를 표현한다. 읽기 좋게 공백을 넣어보면 이런 모양이다.
+
+```plaintext
+0 @I1@ INDI                                   # 1
+  1 NAME John Martin /Doe/                    # 2
+  1 SEX M
+  1 BIRT
+    2 DATE 1 JAN 1970
+    2 PLAC Paris, 8e, Paris, France
+    2 SOUR @S1@                               # 3
+      3 PAGE Birth certificate EA68410
+```
+
+1. 기본 엔티티는 개인을 뜻하는 `INDI`
+2. 성(last name)은 슬래시 사이에 넣는다
+3. ID로 출처를 참조한다
+
+실제 파일에는 공백을 넣지 않는다. 올바른 형식은 이렇다.
+
+```plaintext
+0 @I1@ INDI
+1 NAME John Martin /Doe/
+1 SEX M
+1 BIRT
+2 DATE 1 JAN 1970
+2 PLAC Paris, 8e, Paris, France
+2 SOUR @S1@
+3 PAGE Birth certificate EA68410
+```
+
+## 반복 루프
+
+작업 방식은 처음부터 끝까지 동일하다.
+
+가계도에서 부모가 아직 비어 있는 사람을 하나 고르고, 어시스턴트에게 검색을 맡긴다. 어시스턴트는 어느 족보 사이트를 뒤져야 하는지, 해당 지역의 민적 기록이 어느 아카이브에 있는지 알고 있다. 문서를 찾으면 내용을 옮겨 적고, 새 인물을 GEDCOM 파일에 추가하고, 자식과 연결하고, 출처를 기록한다. 그리고 커밋한다.
+
+이걸 반복한다. 한 번 돌 때마다 한 가지에 한 세대가 붙고, 더 이상 기록이 나오지 않을 때까지 이어진다.
+
+![오래된 사진들](https://images.pexels.com/photos/4394526/pexels-photo-4394526.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Susanne Jutzeler, suju-foto](https://www.pexels.com/@suju-foto) on [Pexels](https://www.pexels.com/photo/close-up-of-vintage-photographs-4394526/)*
+
+## 어시스턴트 운영에서 통한 것들
+
+여기서 얻은 교훈 대부분은 업무 프로젝트에도 그대로 적용된다.
+
+**작업에 맞춰 모델을 바꾼다.** 토큰당 과금을 쓰는 게 아니라면 할당량은 어차피 제한적이다. 메일 한 통 보내는 데 Fable 5 같은 최상위 모델을 쓰는 건 낭비다. 반대로 여러 단계를 밟아야 하는 복잡한 작업에 약한 모델을 붙이면 결과가 틀어질 확률이 높다.
+
+**스킬을 만든다.** 같은 지시를 반복하고 있거나, 어시스턴트가 매번 같은 결론에 도달하는 게 눈에 띄면 [스킬](https://agentskills.io/home)을 만들 때다. 스킬은 재사용 가능한 지시·스크립트·자산·참조 묶음인데, 가장 큰 장점은 컨텍스트를 기본으로 잡아먹지 않는다는 점이다. 설명이 프롬프트와 맞을 때만 발동한다. 서로 겹치지 않게 쪼개 쓸 수도 있다.
+
+그가 만든 스킬은 이렇다.
+
+- 특정 사이트를 탐색하는 방법을 담은 스킬 여러 개
+- 기록 이미지를 평문으로 옮기는 스킬 하나
+- 자율 세션용 스킬 두 개
+
+**기록은 평문으로 옮겨둔다.** 손에 들어오는 자료는 대부분 PDF 아니면 이미지다. PDF도 파싱이 까다롭고 이미지는 더하다. 한 번 제대로 옮겨두면 이후에는 싸게 재사용할 수 있어서, 길게 보면 남는 장사다.
+
+**어시스턴트도 틀린다.** 조사를 대신하는 만큼, 실수도 조사 실수 형태로 나온다. 스캔본에서 이름을 잘못 읽거나, 같은 마을에 이름과 성이 겹치는 두 사람 중 엉뚱한 쪽을 고르는 식이다. 다만 그의 경험상 Claude Code는 전사(transcription)에 꽤 강했고, 기본적으로 조심스러운 편이었다.
+
+**문법 검사를 걸어둔다.** GEDCOM 파일이 커질수록 어시스턴트가 구조를 망가뜨릴 여지도 커진다. 커밋을 여러 번 쌓은 뒤에야 알아차리면 되돌리기가 고약해진다. 매 커밋마다 GEDCOM 구조를 검사하도록 로컬 pre-commit 훅이나 GitHub·GitLab의 원격 잡을 걸어두는 게 좋다.
+
+**장시간 자율 작업.** 할당량이 리셋되기를 기다리는 데 지친 그는 Claude Max를 결제했다. 토큰이 넉넉해지자 곧 밤사이나 근무 중에 세션을 돌리기 시작했다. 이 경우에는 세션이 다 끝난 뒤에야 방향이 어긋난 걸 발견하지 않도록 구조를 단단히 짜야 한다.
+
+그가 찾은 최적점은 이랬다.
+
+- 메인 에이전트의 컨텍스트를 오염시키지 않도록 서브에이전트를 둔다
+- 서브에이전트는 병렬이 아니라 직렬로 돌린다. 마감이 있는 일도 아니고, 월 중간에 할당량이 바닥나는 상황도 피할 수 있다
+- 서브에이전트가 worktree 브랜치에서 작업하고 커밋하면, 메인 에이전트가 확인한 뒤 머지한다
+
+## 족보 작업에서 배운 것들
+
+전문가에게는 뻔한 이야기일 수 있지만, 입문자라면 도움이 될 만한 항목들이다.
+
+**나라마다 파낼 수 있는 깊이가 다르다.** 같은 방식을 써도 나라에 따라 결과 차이가 크다. 한 나라 안에서도 지역별로 갈린다. 조상이 어디서 왔느냐에 따라 가계도는 한쪽으로 기울기 마련이고, 어떤 가지는 아주 짧게 끝나기도 한다.
+
+**이미 쌓여 있는 데이터가 많다.** 족보 사이트는 널려 있고, 그가 들른 곳은 전부 무료 등급이 있었다. 위쪽 계보를 이미 정리해둔 사람과 공통 조상이 걸린다면 그 작업을 쓰지 않을 이유가 없다.
+
+**다른 사람의 작업이 틀렸을 수도 있다.** 제3자의 자료로 가계도는 빠르게 채워지지만, 그걸 증거로 삼으면 안 된다. 사실은 공식 행정 증명서로 확인해야 한다.
+
+실제로 그는 스위스에서 사망했다고 적힌 방계 친척을 발견했다. 유일한 사례라 사망 증명서를 찾느라 시간을 꽤 썼지만 나오지 않았다. 알고 보니 그 사람은 국경 바로 옆 프랑스에서 사냥 사고로 죽었고, 스위스 지역 신문에 기사가 실리는 바람에 누군가 스위스 사망으로 넘겨짚은 것이었다. 믿되, 검증하라(Trust, but verify).
+
+**사람들은 진심으로 도와준다.** 그가 사이트에서 연락한 사람들은 모두 답을 줬고, 모두 도우려 했다. 최악의 경우라야 쓸 만한 게 없는 정도였고, 가장 좋았던 두 번은 해당 주제로 책을 쓴 역사학자와 연결됐다.
+
+**출생 증명서가 벽을 뚫는다.** 출생 증명서에는 부모와 그 부모의 출생일·출생지가 적힌다. 이걸 몇 번만 돌리면 세대가 금방 쌓인다. 그다음으로 좋은 건 혼인 증명서인데, 신랑·신부 부모의 이름은 나오지만 그들의 출생 정보는 빠져 있을 확률이 높다.
+
+**프랑스 결혼식은 대개 신부 쪽 교구에서 열렸다.** 그는 이 관습을 몰랐지만 Claude Code는 알고 있었다. 과거에 다른 마을 사람끼리 결혼할 때는 신부의 교구에서 식을 올리는 게 관례였다. 규칙이라기보다 휴리스틱으로 다루는 게 맞다. 그의 조상 중에도 이 관례를 따르지 않은 사례가 몇 있었다.
+
+**프랑스 민적 문서는 사건 발생 75년 후 공개된다.** 프랑스에서 민적 문서를 떼려면 본인이거나 직계 후손임을 증명해야 한다. 다만 75년이 지난 문서에는 이 제한이 사라진다. 이 규정 덕분에 드골 장군 같은 공인의 출생 증명서를 열람하고 그 조상을 추적하는 것도 가능하다.
+
+**작은 마을에서는 다들 성이 같았다.** 이름까지 겹치는 경우가 있어서 구분자를 덧붙여야 했다. 다행히 그 구분자가 민적 기록에 적힌 경우도 있었지만, 없을 때는 대단히 헷갈렸다. 사부아(Savoy)가 대표적인데, 이 지역에서는 두 번째 성을 붙였다. 자세한 내용은 [여기](https://www.marmottesdesavoie.fr/index.php?page=patro)(프랑스어)에서 볼 수 있다.
+
+**GEDCOM은 장소 형식을 직접 정의할 수 있다.** 프로젝트를 하면서 GEDCOM을 처음 알게 된 만큼 새로 배운 게 산더미지만, 그중 1등은 이거다. 나라마다 주소 체계가 다른데, GEDCOM은 형식을 먼저 정의하고 값을 넣는 방식이라 유연하면서도 강력하다.
+
+```plaintext
+2 PLAC Lyon, 7e, Rhône, France
+3 FORM Ville, Arrondissement, Département, Pays
+```
+
+## 시각화 — Cloudflare Pages 위의 Topola
+
+사람이 늘어날수록 GEDCOM 모델을 머릿속으로 그리기가 어려워진다. 그는 두 가지 시각화 도구를 검토했다.
+
+- [Gramps](https://gramps-project.org/): 데스크톱 애플리케이션으로, [여러 플랫폼](https://gramps-project.org/wiki/index.php/Download)을 지원한다. 잘 동작하지만 내부 저장소가 SQLite다. GEDCOM을 가져올 수는 있어도 기존 데이터를 덮어쓸 수 없어서, 매번 지운 뒤 넣어야 한다.
+- [Topola Genealogy Viewer](https://github.com/PeWu/topola-viewer): GEDCOM 5.5.1 파일을 띄워주는 [인터랙티브 웹사이트](https://pewu.github.io/topola-viewer/)를 제공한다. 그가 고른 쪽이다.
+
+Topola는 정적 GEDCOM 파일 하나로 가계도를 그려줄 수 있어서, GitHub 워크플로 같은 빌드 과정에 끼워 시각화 사이트를 생성할 수 있다. 다만 가계도에는 생존자 정보가 들어 있어 그는 이걸 비공개로 유지하려 했고, GitHub Pages는 기본이 공개라 다른 길을 찾았다.
+
+그렇게 고른 게 [Cloudflare Pages](https://pages.cloudflare.com/)다. 처음 써봤는데 만족스러웠다고 한다.
+
+- GitHub와 기본 연동된다
+- 인증을 걸 수 있다. 가장 간단한 건 허용 이메일 목록에 <abbr title="One-Time Password">OTP</abbr>를 보내는 방식이다
+- 브랜치마다 서브도메인을 만들어줘서 변경사항을 미리 볼 수 있다
+
+단점은 월 500회 빌드 제한인데, 무료 등급과 취미 프로젝트에는 넉넉하다.
+
+git 호스팅을 둘로 나눈 이유도 여기 있다. 실제 작업은 Codeberg 저장소에서 하고, GitHub에는 미러만 둔다. Cloudflare Pages가 GitHub에서 빌드를 가져가기 때문이다.
+
+## 마무리
+
+그는 족보에 관심을 가져본 적이 없었다. 그런데 해보니 재미있었고, 지금은 푹 빠졌다고 한다. 어떤 사람은 몇 년을 들이는 결과를 어시스턴트가 한 달 만에 가져다줬다.
+
+**더 읽을거리:**
+
+- [GEDCOM The Genealogy Data Standard](https://www.gedcom.org)
+- [최신 GEDCOM 명세](https://gedcom.io/specs/)
+- [Agent Skills](https://agentskills.io/home)
+- [Gramps](https://gramps-project.org/)
+- [Topola Genealogy Viewer](https://github.com/PeWu/topola-viewer)
+- [Cloudflare Pages](https://pages.cloudflare.com/)
+
+원문은 2026년 8월 30일 [A Java Geek](https://blog.frankel.ch/ai-assisted-genealogy/)에 처음 게재됐다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
