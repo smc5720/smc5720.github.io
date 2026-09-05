@@ -7,6 +7,14 @@
     "siteName": "",
     "fetchedAt": "2026-08-18"
   },
+  "https://blog.mlh.com/hey-everyone-im-sanidhya-from-mlh-25an": {
+    "ok": true,
+    "title": "Hey Everyone! I’m Sanidhya from MLH",
+    "description": "MLH AI Roadshow Bengaluru       Hey Everyone! I am Sanidhya Goel, a new MLH Hackathon Community...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fp3llaaqmmnz7oo35ibk6.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-05"
+  },
   "https://dev.to/abbeyperini/state-management-in-front-end-web-development-mutators-24gp": {
     "ok": true,
     "title": "State Management in Front-end Web Development: Mutators",
@@ -702,6 +710,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F4ss9uu4l7dfylfgc1u3l.jpg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-22"
+  },
+  "https://dev.to/devteam/what-was-your-win-this-week-1mo8": {
+    "ok": true,
+    "title": "What was your win this week?",
+    "description": "👋👋👋👋 Looking back on your week -- what was something you're proud of? All wins count -- big or small...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F6qeeaa1xv77jsfu0u0ji.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-05"
   },
   "https://dev.to/devteam/what-was-your-win-this-week-23ob": {
     "ok": true,
@@ -1702,6 +1718,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fycowu2xt3i11rfbe9qfz.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/lovestaco/how-the-internet-actually-works-and-why-nobody-is-in-charge-of-it-3im8": {
+    "ok": true,
+    "title": "How the internet actually works, and why nobody is in charge of it",
+    "description": "Hello, I'm Maneshwar, and I'm building LiveReview — a blast-radius aware AI code review built for...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ffxnd7iq7dc3kzby7m3qz.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-05"
   },
   "https://dev.to/lovestaco/ratatop-the-process-table-and-the-parentheses-that-ruin-everything-13fn": {
     "ok": true,
