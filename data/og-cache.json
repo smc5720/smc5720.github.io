@@ -487,6 +487,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-24"
   },
+  "https://dev.to/devengers/dev-opportunity-radar-15-hackerrank-orchestrate-claude-campus-ambassadors-the-bharat-builds-3oc": {
+    "ok": true,
+    "title": "Dev Opportunity Radar #15: HackerRank Orchestrate, Claude Campus Ambassadors & the Bharat Builds Tour",
+    "description": "TL;DR  Welcome back to Dev Opportunity Radar.  This is a weekly series where I share opportunities,...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fwf6q7p6wa9fpjg96q54n.jpeg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-06"
+  },
   "https://dev.to/devengers/dev-opportunity-radar-3-neo-scholars-a-2m-ai-challenge-and-an-85k-ai-fellowship-cjf": {
     "ok": true,
     "title": "Dev Opportunity Radar #3: Neo Scholars, a $2M AI Challenge, and an $85K AI Fellowship",
@@ -1711,6 +1719,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/lovestaco/designing-a-webhook-delivery-system-for-10-million-events-a-day-2p5d": {
+    "ok": true,
+    "title": "Designing a Webhook Delivery System for 10 Million Events a Day",
+    "description": "Hello, I'm Maneshwar, and I'm building LiveReview — a blast-radius aware AI code review built for...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fgv9d7lu0z0vroyefcstv.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-06"
+  },
   "https://dev.to/lovestaco/how-terminal-sharing-tools-put-your-shell-in-a-browser-328": {
     "ok": true,
     "title": "How terminal-sharing tools put your shell in a browser",
@@ -2286,6 +2302,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fraw.githubusercontent.com%2Ftomsun28%2Fpizza%2Fmain%2Fresources%2Fpizza-desktop-white.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-23"
+  },
+  "https://dev.to/ujja/ai-engineering-is-easy-changing-how-we-work-is-hard-39j4": {
+    "ok": true,
+    "title": "AI Engineering Is Easy. Changing How We Work Is Hard",
+    "description": "AI engineering sounds fancy. New terms are everywhere: agentic development, AI-native engineering,...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fg3w3qarjxhlga0achtsj.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-06"
   },
   "https://dev.to/ujja/how-i-built-a-treasure-run-game-where-australia-saves-the-sun-kck": {
     "ok": true,
