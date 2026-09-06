@@ -4,7 +4,7 @@ description: "웹훅은 POST 요청 하나면 끝날 것 같지만, 하루 1000�
 date: "2026-09-02"
 published_at: "2026-09-06"
 category: "news"
-tags: []
+tags: ["backend","webdev","devops","programming","tech"]
 cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fgv9d7lu0z0vroyefcstv.png"
 coverAlt: "Designing a Webhook Delivery System for 10 Million Events a Day"
 slug: "webhook-delivery-system-10m-events"
@@ -82,7 +82,7 @@ COMMIT;
 
 디스패처는 고객별로 지금 몇 개의 워커가 붙어 있는지 센다. 고객 A는 이미 3개가 돌고 있고 상한이 3이다? 건너뛴다. 다음 고객 이벤트를 집는다. A는 나중에 다시 본다.
 
-테넌트별 동시성 제한(per-tenant concurrency limiting)이며, 글쓴이는 이 설계 전체에서 투자 대비 효과가 가장 큰 한 가지로 꼽는다. [Stripe도](https://stripe.com/blog/rate-limiters) 동시성 제한을 일급 레이트 리미팅 수단으로 쓴다. 요청 수를 세는 데 그치지 않고 피해 범위 자체를 묶어버리기 때문이다.
+테넌트별 동시성 제한(per-tenant concurrency limiting)이다. 글쓴이는 이 설계 전체에서 투자 대비 효과가 가장 큰 한 가지로 이걸 꼽는다. [Stripe도](https://stripe.com/blog/rate-limiters) 동시성 제한을 일급 레이트 리미팅 수단으로 쓴다. 요청 수를 세는 데 그치지 않고 피해 범위 자체를 묶어버리기 때문이다.
 
 효과는 이렇다. 고객 A의 재난은 이제 상한선 안에 갇힌다. 워커 3개는 A에 묶여 있지만 나머지 워커는 다른 고객들을 아무 문제 없이 처리한다. 느린 고객이 자기 자신만 느려지게 만든다. 고통이 있어야 할 자리에 정확히 놓인 셈이다.
 
