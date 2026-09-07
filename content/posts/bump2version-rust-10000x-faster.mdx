@@ -1,0 +1,217 @@
+﻿---
+title: "Rust로 다시 만든 버전 범프 도구, 파이썬 CLI보다 1만 배 빠르다"
+description: "새벽 2시에 버전 숫자 하나 올리는 데 1초를 기다리다 못한 개발자가 bump2version을 Rust로 재작성했다. Python·Node.js 바인딩과 no_std 지원까지 얹은 결과, 기존 Python CLI 대비 약 1만 배 빠른 수치를 기록했다."
+date: "2026-09-06"
+published_at: "2026-09-07"
+category: "news"
+tags: ["rust", "python", "nodejs", "performance"]
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fewzkiuf1u9xpqzvuj71m.webp"
+coverAlt: "I Built a Version Bump Tool in Rust That Is 10,000x Faster Than Its Python Counterparts."
+slug: "bump2version-rust-10000x-faster"
+source_id: "devto-4585846"
+source_url: "https://dev.to/wiseai/i-built-a-version-bump-tool-in-rust-that-is-10000x-faster-than-its-python-counterparts-i6b"
+source_title: "I Built a Version Bump Tool in Rust That Is 10,000x Faster Than Its Python Counterparts."
+source_author: "Mahmoud Harmouch"
+source_published: "2026-09-06"
+---
+
+<LinkCard url="https://dev.to/wiseai/i-built-a-version-bump-tool-in-rust-that-is-10000x-faster-than-its-python-counterparts-i6b" author="Mahmoud Harmouch" date="2026-09-06" />
+
+## 개요
+
+새벽 2시, `0.1.0`을 `0.1.1`로 올리려고 `bump-my-version patch`를 입력했다. 엔터를 누르자 CPU 팬이 돌기 시작했고, 숫자 하나가 바뀌는 데 1초가 걸렸다. 개발자 Mahmoud Harmouch는 그 자리에서 도구를 Rust로 다시 쓰기로 했다.
+
+그렇게 나온 [`bump2version`](https://github.com/wiseaidev/bump2version) 0.2.0은 Rust 크레이트이자 Python 패키지이자 Node.js 애드온이다. 벤치마크 결과 기존 Python CLI 대비 약 **1만 배** 빠른 수치가 나왔다.
+
+## bump2version이 하는 일
+
+버전을 올릴 때 `Cargo.toml`, `package.json`, `pyproject.toml`, `CHANGELOG.md`, README를 일일이 열어 `1.2.3`을 `1.2.4`로 바꾸는 작업이 있다. 11군데를 고치다 한 곳을 빠뜨리고, 푸시하고, CI가 깨지는 흐름도 익숙하다. bump2version은 그 반복을 자동화한다.
+
+- 설정 가능한 정규식으로 버전 문자열을 파싱한다. 기본값은 semver `major.minor.patch`.
+- `major`, `minor`, `patch`는 물론 `alpha → beta → stable` 같은 커스텀 순환 단계도 올릴 수 있다.
+- 여러 파일의 버전 표기를 한 번에 교체한다. `(?ms)` DOTALL + MULTILINE 시맨틱으로 멀티라인 CHANGELOG 패턴도 처리한다.
+- 커밋과 태그는 `gix`로 처리한다. 순수 Rust 구현이라 서브프로세스 호출이 없고, 커밋 히스토리에 유령 작성자가 남지 않는다.
+
+크레이트 루트에 `#![forbid(unsafe_code)]`가 걸려 있다.
+
+```toml
+# .bumpversion.toml
+[bumpversion]
+current_version = "0.2.0"
+commit = true
+tag = true
+
+[bumpversion:file:Cargo.toml]
+search  = 'version = "{current_version}"'
+replace = 'version = "{new_version}"'
+
+[bumpversion:file:CHANGELOG.md]
+search  = "## {current_version}\n    Release notes line 1"
+replace = "## {new_version}\n    Release notes line 1"
+```
+
+설정 파일 하나로 여러 파일을 갱신하고, 커밋 하나와 태그 하나를 남긴다.
+
+## 하나의 코어, 세 개의 생태계
+
+bump2version은 Rust 크레이트로만 쓰이지 않는다. 같은 코어를 세 언어에서 각각 호출할 수 있다.
+
+![AI 멀티모달 모델 개념 이미지](https://images.pexels.com/photos/25626439/pexels-photo-25626439.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Google DeepMind](https://www.pexels.com/@googledeepmind) on [Pexels](https://www.pexels.com/photo/ai-multimodal-model-25626439/)*
+
+### Rust 크레이트
+
+```toml
+[dependencies]
+bump2version = "0.2.0"
+```
+
+```rust
+use bump2version::{config::BumpConfig, version::{parse_version, bump_version, serialize_version}};
+
+fn main() {
+    let cfg = BumpConfig::default();
+    let v   = parse_version("1.2.3", &cfg).unwrap();
+    let v2  = bump_version(&v, "patch", &cfg).unwrap();
+    println!("{}", serialize_version(&v2, &cfg)); // 1.2.4
+}
+```
+
+### Python 패키지
+
+```sh
+pip install bump-rs
+```
+
+```python
+from bump_rs import bump_version, BumpConfig
+
+print(bump_version("1.2.3", "patch"))  # "1.2.4"
+print(bump_version("1.2.3", "minor"))  # "1.3.0"
+print(bump_version("1.2.3", "major"))  # "2.0.0"
+```
+
+### Node.js 애드온
+
+```sh
+npm install bump2version
+```
+
+```javascript
+const { bumpVersion, applyFileChange } = require("bump2version");
+
+console.log(bumpVersion("1.2.3", "patch")); // '1.2.4'
+console.log(bumpVersion("1.2.3", "minor")); // '1.3.0'
+```
+
+## 속도의 핵심은 정규식 캐시
+
+핵심 설계는 스레드 안전한 `Arc<Regex>` 캐시다. 정규식 패턴을 한 번만 컴파일해 스레드 간에 공유하고, 이후 호출에서는 재사용한다. 핫 패스에서 재컴파일 비용이 사라진다.
+
+Python 쪽에서 호출했을 때 버전 범프 한 번에 약 **57 마이크로초**가 걸린다. 밀리초가 아니라 마이크로초다.
+
+## 벤치마크
+
+x86-64 리눅스, CPython 3.12, 3-시그마 필터링을 적용한 `timeit` 측정값이다.
+
+### 버전 범프 전체 왕복 (파싱 + 범프 + 직렬화)
+
+| 라이브러리 | `patch` | `minor` | `major` |
+| --- | --- | --- | --- |
+| **bump-rs** (Rust, `Arc<Regex>` 캐시) | **~57 µs** | **~54 µs** | **~53 µs** |
+| `bump-my-version` (Python 라이브러리) | ~79 µs | ~95 µs | ~72 µs |
+| 순수 Python (`re.compile` + `int()`) | ~3.6 µs | ~2.2 µs | ~2.2 µs |
+| **`bump-my-version` CLI (서브프로세스)** | ~585 ms | ~585 ms | ~585 ms |
+
+CLI 기준으로 비교하면 약 1만 배 차이다.
+
+작성자는 순수 Python이 더 빠른 구간도 솔직하게 인정했다. PyO3 FFI 오버헤드가 약 50 마이크로초라, 워밍업된 인터프리터에서 버전 문자열 하나만 단독으로 올린다면 `re.compile` + `int()` 조합이 앞선다.
+
+문제는 실제 작업이 그렇게 단순하지 않다는 점이다. 설정 파일을 읽고, 여러 파일을 고치고, git 커밋까지 하는 흐름이라면 bump-rs는 그 전부를 한 번에 처리한다. 반대쪽은 매번 서브프로세스를 띄우고 `click`과 `importlib`, 의존성 그래프 전체를 임포트한 뒤 585밀리초를 쓴다.
+
+### 파일 검색/치환
+
+| 라이브러리 | 단일 라인 | 멀티라인 CHANGELOG |
+| --- | --- | --- |
+| **bump-rs** (Rust, 캐시 적용) | **~65 µs** | **~104 µs** |
+| 순수 Python `re.sub` | ~1.7 µs | ~1.3 µs |
+
+파일 I/O, 스레드 안전성, 파이프라인 작업에서는 bump-rs가 앞선다. FFI 오버헤드가 지배적인 작은 단일 호출 연산이라면 배치 모드로 쓰거나 Python을 직접 쓰는 편이 낫다고 작성자는 덧붙였다.
+
+## 빌림 검사기와의 싸움
+
+작성자는 개발 과정에서 겪은 난관도 공개했다. 가장 애를 먹은 곳은 Python 바인딩 계층이었다. PyO3의 GIL 관리, `Arc<Regex>` 공유 상태, Rust 라이프타임 규칙이 겹치는 지점에서 컴파일러가 계속 막아섰다.
+
+해결책은 의외로 단순했다. `Mutex` 뒤에 `HashMap`을 두는 방식을 버리고, `once_cell::sync::Lazy`로 초기화하는 스레드 로컬 `Arc<Regex>`로 바꾸자 빌림 검사기가 통과시켰다.
+
+작성자는 이 과정에서 Claude를 상당히 혹사시켰다고도 적었다. 같은 정규식 캐싱 로직을 여섯 가지 방식으로 다시 쓰게 하고, 새벽 4시에 FFI 경계 시맨틱을 설계하게 하고, 단일 스레드 벤치마크에서 `Arc<Regex>`가 과한지를 두고 논쟁했다는 것이다. 물론 이 대목은 글 전반의 농담조 서술에 해당한다.
+
+## 시작하기
+
+### CLI
+
+```sh
+cargo install bump2version --features rust-binary
+
+bump2version --bump patch   # 0.2.0 → 0.2.1
+bump2version --bump minor   # 0.2.0 → 0.3.0
+bump2version --bump major   # 0.2.0 → 1.0.0
+```
+
+주요 옵션:
+
+| 옵션 | 설명 |
+| --- | --- |
+| `--config-file` | 설정 파일 경로 지정 |
+| `--current-version` | 감지된 현재 버전 덮어쓰기 |
+| `--bump` | 올릴 자리: `major`, `minor`, `patch` |
+| `--dry-run` / `-n` | 파일을 건드리지 않고 시뮬레이션 |
+| `--commit` / `--tag` | 범프 후 자동 커밋 및 태그 |
+
+### Python
+
+```python
+from bump_rs import bump_version, apply_file_change, BumpConfig
+
+# 2-컴포넌트 버전용 커스텀 파싱/직렬화
+cfg = BumpConfig(parse=r"(?P<major>\d+)\.(?P<minor>\d+)", serialize="{major}.{minor}")
+print(bump_version("2.0", "minor", config=cfg))  # "2.1"
+```
+
+### Node.js
+
+```typescript
+import { bumpVersion, applyFileChange } from "bump2version";
+
+const next = bumpVersion("1.2.3", "minor"); // "1.3.0"
+```
+
+### no_std 임베딩
+
+```toml
+bump2version = { version = "0.2.0", default-features = false }
+```
+
+코어 모듈(`config`, `version`, `files`, `error`)은 `no_std + alloc` 환경에서 컴파일된다.
+
+## 안전성
+
+크레이트 루트의 `#![forbid(unsafe_code)]`가 설정 파싱, 정규식 매칭, 버전 범프, git 객체 생성까지 전 구현을 안전한 Rust로 묶는다. 이후 누군가 안전 영역에 `unsafe`를 넣으면 컴파일러가 거부한다.
+
+예외는 Node.js FFI 계층 한 곳이다. `napi-rs`가 네이티브 애드온 연동에 `unsafe`를 요구하기 때문에 우회할 방법이 없었다고 한다.
+
+## 다음 계획
+
+- **워크스페이스 인식 범프**: Cargo 워크스페이스의 모든 크레이트를 한 번에 원자적으로 갱신
+- **프리릴리스 사이클링**: `alpha → beta → rc → stable` 라이프사이클 지원 강화
+- **워치 모드**: 파일 저장 시 자동 버전 범프
+- **WASM 타깃**: 브라우저에서 쓸 수 있도록 코어 로직을 WebAssembly로 컴파일
+- **벤치마크 확대**: 기존 Python 버전 관리 도구 전반과의 비교 분석
+
+저장소는 [GitHub](https://github.com/wiseaidev/bump2version)에, Python 바인딩은 [PyPI](https://pypi.org/project/bump-rs)에, npm 패키지는 [여기](https://www.npmjs.com/package/bump2version)에 있다. 문서는 [docs.rs](https://docs.rs/bump2version)에서 볼 수 있다.
+
+[프로젝트 저장소 보기 →](https://github.com/wiseaidev/bump2version)
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
