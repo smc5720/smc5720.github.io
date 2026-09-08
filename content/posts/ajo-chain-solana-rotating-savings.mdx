@@ -4,7 +4,7 @@ description: "나이지리아 전통 계 모임 '아조(ajo)'의 최대 약점�
 date: "2026-09-06"
 published_at: "2026-09-08"
 category: "news"
-tags: []
+tags: ["tech","programming","backend","opensource","international"]
 cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fpmtwvqdhck44nykc80qe.png"
 coverAlt: "My Grandmother Ran Ajo. I Built the Version Where the Pot Can't Walk Away"
 slug: "ajo-chain-solana-rotating-savings"
@@ -61,7 +61,7 @@ require!(
 
 ### 테스트는 로컬 밸리데이터 대신 litesvm으로
 
-Nwaneri는 로컬 밸리데이터를 띄우는 대신 litesvm으로 테스트했다. 프로세스 안에서 돌아가니 faucet도 네트워크도 필요 없다. 테스트는 세 개다. 정상 회차 전체, 고의 미납 후 늦은 납입으로 회차를 마무리하는 경로, 그리고 비구성원과 중복 납입을 거부하는지.
+Nwaneri는 로컬 밸리데이터를 띄우는 대신 litesvm으로 테스트했다. 프로세스 안에서 돌아가니 faucet도 네트워크도 필요 없다. 테스트는 세 개다. 정상 회차 전체, 고의 미납 후 늦은 납입으로 회차를 마무리하는 경로, 비구성원과 중복 납입을 막아내는지.
 
 ```console
 running 3 tests
@@ -102,7 +102,7 @@ Nwaneri는 이게 할머니 이야기의 반복이라고 봤다. 사람들로 �
 
 보안 점검용 적대적 테스트 브리프를 쓰다가, 자기 `/status` 페이지 코드를 다시 읽던 중 문제를 발견했다. 제미나이가 작성하는 자유 형식 텍스트인 분쟁 메모가 이스케이프 없이 HTML로 바로 들어가고 있었다. `/disputes`에는 인증이 없어서 누구나 쓸 수 있는 페이지였다.
 
-수정한 뒤 검증 방식도 확실했다. 실제 `<script>` 태그를 데이터베이스에 직접 삽입하고, 살아 있는 태그가 아니라 무해한 텍스트로 렌더링되는지 확인했다. 해당 수정은 커밋 `659d6da`에 있다.
+고친 다음 검증도 대충 넘기지 않았다. 실제 `<script>` 태그를 데이터베이스에 직접 넣어보고, 살아 있는 태그가 아니라 무해한 텍스트로 렌더링되는지 확인했다. 해당 수정은 커밋 `659d6da`에 있다.
 
 ## 데모와 코드
 

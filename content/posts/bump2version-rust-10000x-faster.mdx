@@ -196,7 +196,7 @@ bump2version = { version = "0.2.0", default-features = false }
 
 ## 안전성
 
-크레이트 루트의 `#![forbid(unsafe_code)]`가 설정 파싱, 정규식 매칭, 버전 범프, git 객체 생성까지 전 구현을 안전한 Rust로 묶는다. 이후 누군가 안전 영역에 `unsafe`를 넣으면 컴파일러가 거부한다.
+설정 파싱부터 정규식 매칭, 버전 범프, git 객체 생성까지 전부 안전한 Rust로 짜였다. 크레이트 루트의 `#![forbid(unsafe_code)]` 덕분이다. 나중에 누가 안전 영역에 `unsafe`를 끼워 넣으면 컴파일러가 막는다.
 
 예외는 Node.js FFI 계층 한 곳이다. `napi-rs`가 네이티브 애드온 연동에 `unsafe`를 요구하기 때문에 우회할 방법이 없었다고 한다.
 
