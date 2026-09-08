@@ -1,0 +1,123 @@
+﻿---
+title: "할머니의 계는 사람이 돈을 들고 도망갈 수 있었다, 그래서 솔라나로 다시 만들었다"
+description: "나이지리아 전통 계 모임 '아조(ajo)'의 최대 약점은 사기가 아니라 돈을 맡은 한 사람이었다. 개발자 Daniel Nwaneri는 그 역할을 솔라나 온체인 프로그램으로 대체한 Ajo Chain을 만들어 데브넷에 배포했다."
+date: "2026-09-06"
+published_at: "2026-09-08"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fpmtwvqdhck44nykc80qe.png"
+coverAlt: "My Grandmother Ran Ajo. I Built the Version Where the Pot Can't Walk Away"
+slug: "ajo-chain-solana-rotating-savings"
+source_id: "devto-4588681"
+source_url: "https://dev.to/dannwaneri/my-grandmother-ran-ajo-i-built-the-version-where-the-pot-cant-walk-away-5gkn"
+source_title: "My Grandmother Ran Ajo. I Built the Version Where the Pot Can't Walk Away"
+source_author: "Daniel Nwaneri"
+source_published: "2026-09-06"
+---
+
+<LinkCard url="https://dev.2o/dannwaneri/my-grandmother-ran-ajo-i-built-the-version-where-the-pot-cant-walk-away-5gkn" author="Daniel Nwaneri" date="2026-09-06" />
+
+## 개요
+
+돈을 모아두는 계 모임이 깨지는 이유는 대개 사기가 아니다. 돈을 맡은 사람이 자기 돈이 아닌 돈을 손에 쥔 채 사정이 급해지는 것, 그게 진짜 실패 지점이다.
+
+개발자 Daniel Nwaneri는 세상을 떠난 할머니의 경험에서 이 문제를 다시 봤다. 나이지리아 시장 상인이었던 할머니는 오랫동안 '아조(ajo)'를 운영했다. 돌아온 목돈으로 가게 물건을 채우고, 물건이 늘면 매출이 늘고, 매출이 늘면 다음 회차에 넣을 돈이 늘었다. 그렇게 굴러가던 어느 회차, 돈을 보관하던 사람이 집안 문제를 해결하려고 그 돈에 손을 댔다. 악의로 사라진 게 아니었다. 기한 안에 채워 넣지 못했을 뿐이고, 손실은 모임 전체가 나눠 안았다.
+
+Nwaneri가 만든 **Ajo Chain**은 이 한 사람을 없앤다. 사라질 수 없는 솔라나 프로그램이 그 자리를 대신한다. 데브넷 배포까지만 진행했고, 실제 자금은 보관하지 않는다.
+
+## 아조는 기부가 아니다
+
+아조(에수수esusu라고도 부른다)는 순번제 저축 모임이다. 다섯 명이 매 회차 같은 금액을 넣고, 목돈은 회차마다 다른 사람에게 넘어간다. 누구도 돈을 내주고 끝나지 않는다. 모든 구성원이 결국 자기 돈을 되돌려 받되, 순서가 빠른 사람은 한 회차 먼저 받는 셈이다.
+
+Nwaneri는 이걸 은행이 상대해주지 않던 사람들의 원조 금융 포용 장치라고 설명한다. 시장 상인, 대부분 여성인 그들이 다른 방법이 없어서 서로 신용과 유동성을 만들어냈다. 그의 할머니에게는 이 돈을 넣어둘 계좌가 없었다. 대신 모임이 있었다.
+
+![할머니와 손주가 함께 앉아 있는 모습](https://images.pexels.com/photos/6870889/pexels-photo-6870889.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Quang Nguyen Vinh](https://www.pexels.com/@quang-nguyen-vinh-222549) on [Pexels](https://www.pexels.com/photo/an-elderly-woman-sewing-with-her-grandchild-6870889/)*
+
+## 기술 하나를 지웠을 때 뭐가 부서지는가
+
+Nwaneri는 코드를 쓰기 전에 규칙을 하나 정했다. 어떤 기술을 지웠을 때 실제로 무언가 부서지는가, 아니면 그냥 덜 그럴듯해 보일 뿐인가. 이 시험을 통과하지 못한 건 다 잘라냈다. 실제로 기술 하나가 통째로 빠졌다.
+
+### 솔라나 — 강제력을 담당하는 층
+
+그가 조건 없이 "없으면 안 된다"고 말하는 유일한 부분이다. 모임마다 에스크로 PDA가 생기고, 순번 순서는 생성 시점에 한 번 정해진 뒤 고정된다. 명령은 네 개다. `create_group`, `contribute`, `mark_default`, `release_payout`.
+
+`release_payout`은 다섯 명 전원이 납입하기 전까지 램포트 하나도 움직이지 않는다. 지급 대상도 단 하나의 주소, 배열상 다음 차례인 사람으로 고정된다. 그것도 계정 제약조건에만 맡기지 않고 핸들러에서 직접 확인한다.
+
+```rust
+require!(
+    group.has_contributed.iter().all(|&c| c),
+    AjoError::NotAllContributed
+);
+require!(
+    ctx.accounts.recipient.key() == group.members[group.round_number as usize],
+    AjoError::InvalidRecipient
+);
+```
+
+두 검사 모두 전송 뒤가 아니라 전송 전에 실행된다. 호출자가 조작할 수 있는 `recipient` 필드는 애초에 없다. 주소는 모임 자신의 온체인 상태에서 읽어온다. 이 층을 지우면 다시 한 사람에게 목돈을 맡기는 구조로 돌아간다. 프로젝트가 존재하는 이유 자체다.
+
+납입이 늦으면 기록이 영구적으로 남는다. 나중에 운영자가 조용히 지울 수 있는 종류의 기록이 아니다.
+
+### 테스트는 로컬 밸리데이터 대신 litesvm으로
+
+Nwaneri는 로컬 밸리데이터를 띄우는 대신 litesvm으로 테스트했다. 프로세스 안에서 돌아가니 faucet도 네트워크도 필요 없다. 테스트는 세 개다. 정상 회차 전체, 고의 미납 후 늦은 납입으로 회차를 마무리하는 경로, 그리고 비구성원과 중복 납입을 거부하는지.
+
+```console
+running 3 tests
+test deliberate_default_is_flagged_and_blocks_payout ... ok
+test full_round_cycle_pays_correct_rotation_member ... ok
+test rejects_non_members_and_double_contribution ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.05s
+```
+
+전체 소스는 [`programs/ajo_chain/tests/ajo_chain_test.rs`](https://github.com/dannwaneri/ajo-chain/blob/main/programs/ajo_chain/tests/ajo_chain_test.rs)에 있고, `cargo test --manifest-path programs/ajo_chain/Cargo.toml`로 직접 돌려볼 수 있다.
+
+이후 데브넷에 배포해 같은 시나리오를 실제로 돌렸다. 납입 다섯 건, 지급 한 건, 실제 서명과 Explorer 링크까지. 그 과정에서 `api.devnet.solana.com`이 Cloudflare IP 대역을 아예 차단한다는 사실도 알게 됐다. 어디에도 문서화돼 있지 않아서 직접 부딪혀야 알 수 있는 부분이다. QuickNode의 무료 데브넷 엔드포인트에는 이 문제가 없었다.
+
+### 제미나이 — 왜 안 냈는지는 계약이 답하지 못한다
+
+작업하면서 예상하지 못했던 지점이 있었다. 스마트 컨트랙트는 납입이 도착하지 않았다는 사실은 알려주지만, *왜* 안 왔는지는 알려주지 못한다.
+
+그래서 좁은 역할의 제미나이 에이전트를 하나 붙였다. 분쟁이 걸린 미납 건 주변의 온체인 증거를 읽고, 사람 운영자가 볼 수 있는 평이한 언어의 메모를 작성하는 것이 전부다. 모임의 회차 상태와 해당 구성원의 최근 트랜잭션 이력을 보고 판단하는 건 딱 하나다. 시도했는데 실패한 흔적이 있는가, 아니면 시도한 흔적조차 없는가.
+
+Nwaneri는 이게 할머니 이야기의 반복이라고 봤다. 사람들로 이뤄진 모임이 같은 종류의 사람에 대해 물었던 바로 그 질문이고, 다만 기억과 평판 대신 트랜잭션 서명으로 답한다는 점이 다르다.
+
+그는 이 부분을 일부러 낮춰 말한다. "없으면 안 되는가"라는 질문에 두 개의 답이 나오기 때문이다. 프로젝트 전체로 보면 아니다. 제미나이를 지워도 솔라나 프로그램은 그대로고, 돈을 잃는 사람도 없고, 쫓겨나는 사람도 없다. 그러나 분쟁 조정 기능 자체로 보면 그렇다. 제미나이를 지우면 실제 아조 운영자는 원본 트랜잭션 서명과 `err` 필드를 들여다보며 누가 시도했다 실패한 건지 그냥 나타나지 않은 건지 추측해야 한다. 비개발자가 그걸 근거로 판단할 수는 없다. 기능은 못 버티고, 제품은 버틴다.
+
+중요한 제약이 하나 있다. 이 에이전트는 아무것도 최종 확정하지 않는다. 초안을 쓰고, 결정은 사람이 한다.
+
+### Cloudflare Worker + D1 — 사람이 읽을 수 있게
+
+`POST /sync`가 모임의 온체인 상태와 전체 트랜잭션 로그를 D1에 색인한다. `POST /disputes`는 제미나이 트리거를 실행하고 결과를 저장한다. `GET /status/:group`이 공개 페이지다. 순번 순서, 회차별 상태, 영구적으로 남는 미납 표시, Explorer로 연결되는 모든 트랜잭션, 그 옆에 나란히 붙은 분쟁 메모까지 한 화면에 있다. Nwaneri는 개별 명령보다 이 페이지가 진짜 제출물이라고 말한다.
+
+## 잘라낸 것: ElevenLabs
+
+원래 설계에는 텍스트 대체 수단이 전혀 없는 다섯 번째 구성원이 있었다. 음성 메모가 모임과 소통하는 유일한 창구인 사람이다. API 키를 받고 음성 ID를 정하고 TTS 호출까지 성공시킨 뒤, ElevenLabs 무료 등급이 프리메이드·라이브러리 음성에 대한 API 접근을 막는다는 걸 알게 됐다. 직접 클론한 음성이나 유료 플랜만 통과된다. Instant Voice Cloning을 시도해 업로드 흐름 대부분을 통과했지만 클론이 끝까지 저장되지 않았다.
+
+여기서 선택이 남았다. 이 연동에 몇 시간을 더 쏟느냐, 아니면 잘하는 것만 정직하게 담은 제출물을 내느냐. 그는 잘라냈다. 저장소의 스펙 파일에는 원래 설계가 타임스탬프와 함께 남아 있다.
+
+## 하마터면 그대로 배포할 뻔한 버그
+
+보안 점검용 적대적 테스트 브리프를 쓰다가, 자기 `/status` 페이지 코드를 다시 읽던 중 문제를 발견했다. 제미나이가 작성하는 자유 형식 텍스트인 분쟁 메모가 이스케이프 없이 HTML로 바로 들어가고 있었다. `/disputes`에는 인증이 없어서 누구나 쓸 수 있는 페이지였다.
+
+수정한 뒤 검증 방식도 확실했다. 실제 `<script>` 태그를 데이터베이스에 직접 삽입하고, 살아 있는 태그가 아니라 무해한 텍스트로 렌더링되는지 확인했다. 해당 수정은 커밋 `659d6da`에 있다.
+
+## 데모와 코드
+
+데브넷에서 완료된 실제 회차를 따라가는 공개 투명성 페이지다. 네 명 정시 납입, 한 명 고의 미납, 제미나이의 메모, 늦은 납입, 그리고 지급까지.
+
+https://ajo-chain-worker.fpl-test.workers.dev/status/3XrTDiMxhznfBZLMxDrEVndP8YKwR1kCaN9HpeUxGRne
+
+[YouTube 영상 보기 →](https://www.youtube.com/watch?v=fzJFBgV5Uh4)
+
+저장소: https://github.com/dannwaneri/ajo-chain
+
+Program ID: `9RGBLQCcQnsiCdu9RcmEzG4SvihkfTvi1KMz98KCWPoT`
+
+이 프로젝트는 DEV의 [Weekend Challenge: Generosity Edition](https://dev.to/challenges/weekend-2026-09-03) 제출작으로, Best Use of Solana와 Best Use of Google AI 두 부문에 출품됐다. ElevenLabs 부문에는 내지 않았다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

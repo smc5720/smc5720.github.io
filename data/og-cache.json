@@ -15,6 +15,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-05"
   },
+  "https://dev.2o/dannwaneri/my-grandmother-ran-ajo-i-built-the-version-where-the-pot-cant-walk-away-5gkn": {
+    "ok": false,
+    "title": "",
+    "description": "",
+    "image": "",
+    "siteName": "",
+    "fetchedAt": "2026-09-08"
+  },
   "https://dev.to/abbeyperini/state-management-in-front-end-web-development-mutators-24gp": {
     "ok": true,
     "title": "State Management in Front-end Web Development: Mutators",
@@ -1942,6 +1950,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fp9tme4hziwkug5tsf3ir.jpg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/pascal_cescato_692b7a8a20/from-ai-solutions-to-shared-knowledge-building-an-mcp-for-the-community-6bk": {
+    "ok": true,
+    "title": "From AI Solutions to Shared Knowledge: Building an MCP for the Community",
+    "description": "This is a submission for the Weekend Challenge: Generosity Edition      Don't Just Ask AI. Give the...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fpzvor5cgo6za59r43ubf.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-08"
   },
   "https://dev.to/pascal_cescato_692b7a8a20/the-ai-badge-doesnt-measure-what-you-think-it-does-3ne9": {
     "ok": true,
