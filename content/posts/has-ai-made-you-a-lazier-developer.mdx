@@ -1,0 +1,79 @@
+﻿---
+title: "AI가 당신을 게으른 개발자로 만들었나요? 솔직하게 답해보세요"
+description: "Perl 창시자 래리 월은 게으름을 프로그래머의 첫 번째 미덕으로 꼽았습니다. 개발자 Nazar Boyko는 AI 시대의 게으름을 두 종류로 나누고, 그중 하나만이 진짜 문제라고 말합니다."
+date: "2026-09-08"
+published_at: "2026-09-10"
+category: "news"
+tags: []
+slug: "has-ai-made-you-a-lazier-developer"
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ft3ocii2a780fpxfkofd0.png"
+coverAlt: "Has AI Made You A Lazier Developer? Be Honest."
+source_id: "devto-4596945"
+source_url: "https://dev.to/nazar-boyko/has-ai-made-you-a-lazier-developer-be-honest-5ack"
+source_title: "Has AI Made You A Lazier Developer? Be Honest."
+source_author: "Nazar Boyko"
+source_published: "2026-09-08"
+---
+
+<LinkCard url="https://dev.to/nazar-boyko/has-ai-made-you-a-lazier-developer-be-honest-5ack" author="Nazar Boyko" date="2026-09-08" />
+
+## 개요
+
+요즘 LeetCode 문제를 마지막으로 푼 게 언제인가요. 개발자 Nazar Boyko가 Dev.to에 올린 글은 이 질문으로 시작합니다. 그는 AI가 개발자를 게으르게 만들었다는 걱정 자체는 맞지만, 겨냥하는 지점이 틀렸다고 말합니다.
+
+핵심 주장은 간단합니다. 게으름에는 두 종류가 있고, 그중 하나만 문제라는 것. 그리고 두 게으름은 커밋 diff에서 똑같이 생겼습니다. 리뷰어도 CI도 구분하지 못합니다. 차이는 오직 코드를 넣은 사람의 머릿속에만 있습니다.
+
+Boyko는 이 결론을 자신이 처음 떠올린 게 아니라고 밝힙니다. 출발점은 30년 전으로 거슬러 올라갑니다.
+
+## 컴파일러가 존재하는 이유가 바로 게으름
+
+Perl을 만든 래리 월(Larry Wall)은 [프로그래머의 세 가지 미덕](https://thethreevirtues.com/) 중 첫 번째로 게으름을 꼽았습니다. 그가 붙인 정의가 논지 전부입니다. "전체 에너지 소비를 줄이기 위해 대단한 노력을 기울이게 만드는 자질(the quality that makes you go to great effort to reduce overall energy expenditure)."
+
+대단한 노력. 좋은 게으름은 일이 없는 상태가 아니라 일을 더 나은 곳으로 옮긴 상태입니다. 컴파일러가 존재하는 이유도 대체로 이겁니다. 누군가 똑같은 어셈블리를 손으로 쓰는 데 지쳤고, 그 부분은 기계가 해도 되겠다고 판단했죠. 합리적인 결론이었습니다. 우리가 하루 종일 기대는 모든 추상화는 결국 누군가의 게으름이 제대로 작동한 결과입니다.
+
+![CNC 레이저 커터가 정밀하게 작업하는 모습](https://images.pexels.com/photos/7254428/pexels-photo-7254428.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Opt Lasers from Poland](https://www.pexels.com/@opt-lasers-from-poland) on [Pexels](https://www.pexels.com/photo/close-up-shot-of-cnc-lasers-7254428/)*
+
+이런 종류의 잡일을 모델에 넘기는 건 새로울 게 없습니다. 백 번은 써본 설정 파일, 쓸 줄은 알지만 쓰기 싫은 정규식, 외울 정도가 된 Dockerfile, 새 프로젝트마다 똑같이 나오는 테스트 스캐폴딩. Boyko는 이 전부를 이해하고 있고 단지 다시 타이핑하기를 거부할 뿐이라고 말합니다. 죄책감은 전혀 없다고요.
+
+오히려 그는 2026년에도 원칙을 이유로 이 모든 걸 한 글자씩 손으로 치겠다고 고집하는 개발자 쪽이 더 걱정된다고 덧붙입니다. 팀원들이 모두 퇴근한 뒤에 말이죠. 생각을 건너뛴 게 아니라, 생각이 이미 끝난 뒤의 타이핑을 건너뛴 겁니다.
+
+## 문제는 이해를 건너뛰는 쪽
+
+두 번째 게으름은 이해 자체를 떠넘깁니다. 모델이 코드를 쓰고, 돌아가고, 테스트가 초록불이고, PR이 머지됩니다. 그리고 그 과정 어딘가에 팀의 누구도 설명하거나 고칠 수 없는 코드가 남습니다.
+
+이 비용은 오늘 청구되지 않습니다. 그 코드가 터지는 날, 새벽 2시에 온콜 담당자가 파일을 열었을 때 청구됩니다. 아무도 보증할 수 없는 함수를 마주하면서요.
+
+Boyko가 든 예시는 일부러 아주 작습니다. 가입 화면에서 이메일 주소를 검증하는 정규식을 모델이 썼다고 해봅시다.
+
+- 내가 쓸 수 있었지만 쓰지 않기로 선택했다 → 첫 번째 게으름
+- 내가 쓸 수 없었고, 그게 지금 누가 계정을 가질지 결정하고 있다 → 두 번째 게으름
+
+같은 diff, 같은 줄, 같은 정규식입니다. 리뷰어는 둘을 구분할 수 없고 CI도 마찬가지입니다.
+
+## Stack Overflow 복붙과 뭐가 다른가
+
+당연히 나올 만한 반박입니다. 이건 그냥 클립보드가 빨라진 옛날 Stack Overflow 복붙 문제 아니냐고요. Boyko는 대체로 맞다고 인정합니다. 다만 그렇기 때문에 더 나빠졌다고 봅니다.
+
+Stack Overflow는 최소한 답을 찾으러 가게 만들었습니다. 모르는 사람들이 서로 싸우는 스레드를 읽어야 했고, 채택된 답변이 틀렸는데 더 나은 답이 세 칸 아래에 10분의 1 득표로 묻혀 있는 경우도 있었습니다. 그리고 그걸 내 코드에 맞게 고쳐야 했죠.
+
+그 마찰이 조용히 일을 하고 있었던 겁니다. 지금은 제안이 이미 들여쓰기까지 맞춰진 채로 파일에 나타납니다. 이해해달라고 요구하는 구석이 하나도 없습니다.
+
+![구두장이가 가죽을 손으로 재단하는 모습](https://images.pexels.com/photos/3084342/pexels-photo-3084342.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Gül Işık](https://www.pexels.com/@gul-isik-32478) on [Pexels](https://www.pexels.com/photo/shoemaker-cutting-leather-3084342/)*
+
+## 사라지면 다시 만들 수 있습니까
+
+Boyko는 이 문제에 대한 규칙집은 없다고 말합니다. 규칙집을 가진 사람이 있다면 오히려 의심스럽다고요. 대신 질문 하나를 제시합니다.
+
+모델이 가장 최근에 써준 코드를 떠올리고, 그 파일이 사라졌다고 상상해보세요. 글자 하나까지 똑같이 말고요, 그건 아무도 기억 못 합니다. 자리에 앉아서 같은 일을 하는 무언가를 만들어낼 수 있습니까. 그리고 그게 왜 작동하는지 설명할 수 있습니까.
+
+가능하다면 좋은 게으름이었고, 유지할 가치가 있습니다. 불가능하다면 얼마나 빨리 배포했든 의미가 없습니다.
+
+Boyko 본인의 답은 "주에 따라 다르다"입니다. 어떤 주는 모든 수락이 이해하고 있는 잡일이고, 어떤 주는 확신이 없습니다. 확신이 없다는 건 정중하게 말해서 "아니오"라는 뜻이라고 그는 덧붙입니다.
+
+이 표류는 스스로를 알리지 않습니다. 그저 매번 탭 키를 누르기가 조금씩 더 쉬워질 뿐입니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

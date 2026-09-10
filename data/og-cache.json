@@ -911,6 +911,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/francistrdev/networking-is-hard-but-easy-to-think-about-dc1": {
+    "ok": true,
+    "title": "Networking is Hard but easy to think about.",
+    "description": "The video cover is what we are all feeling in this Job Market. I don't have a good cover image this...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fo5h497633xavwfx4o8q8.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-10"
+  },
   "https://dev.to/gamya_m/ichiraku-ramen-a-cozy-japanese-restaurant-landing-page-3pb8": {
     "ok": true,
     "title": "Ichiraku Ramen — A Cozy Japanese Restaurant Landing Page 🍜🌸",
@@ -1878,6 +1886,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fikndj4ba7fudnjd9xi2e.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-31"
+  },
+  "https://dev.to/nazar-boyko/has-ai-made-you-a-lazier-developer-be-honest-5ack": {
+    "ok": true,
+    "title": "Has AI Made You A Lazier Developer? Be Honest.",
+    "description": "Haven't you ever wondered if this AI vibe coding has made us lazy? Who's been solving problems on...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ft3ocii2a780fpxfkofd0.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-10"
   },
   "https://dev.to/nazar-boyko/slopsquatting-the-supply-chain-attack-that-weaponizes-ai-hallucinations-2m2": {
     "ok": true,
