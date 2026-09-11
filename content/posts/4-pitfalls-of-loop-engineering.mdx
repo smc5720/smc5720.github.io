@@ -1,0 +1,61 @@
+﻿---
+title: "루프 엔지니어링의 4가지 함정, 그리고 해결법"
+description: "에이전트가 목표에 도달할 때까지 스스로 반복하게 만드는 '루프 엔지니어링'이 실패하는 네 가지 지점을 정리했다. 무한 루프, 검증 없는 자율성, 모호한 목표, 복잡도 초과가 그것이다."
+date: "2026-09-09"
+published_at: "2026-09-11"
+category: "news"
+tags: []
+slug: "4-pitfalls-of-loop-engineering"
+cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F0x42aq3mpc7cvx43zb18.png"
+coverAlt: "4 pitfalls of loop engineering (and how to fix them)"
+source_id: "devto-4496581"
+source_url: "https://dev.to/googleai/4-pitfalls-of-loop-engineering-and-how-to-fix-them-1ji2"
+source_title: "4 pitfalls of loop engineering (and how to fix them)"
+source_author: "Tilde A. Thurium"
+source_published: "2026-09-09"
+---
+
+<LinkCard url="https://dev.to/googleai/4-pitfalls-of-loop-engineering-and-how-to-fix-them-1ji2" author="Tilde A. Thurium" date="2026-09-09" />
+
+## 개요
+
+문제를 손으로 직접 푸는 대신, 시스템을 만들고 측정 가능한 목표를 세운 뒤 에이전트가 그 목표에 닿을 때까지 계속 반복하게 둔다. 요즘 **루프 엔지니어링(Loop Engineering)** 이라 부르는 방식이다.
+
+말로만 들으면 근사하다. 문제가 생기기 전까지는.
+
+Google AI의 Tilde A. Thurium이 [Annie Wang](https://www.linkedin.com/in/anniewangtech/)과 마주 앉아 루프 엔지니어링이 무너지는 가장 흔한 네 가지 경우와 각각의 대처법을 짚었다.
+
+[영상 보기 →](https://www.youtube.com/watch?v=ruNekO9De8E)
+
+## 네 가지 실패 지점
+
+![롤러코스터](https://images.pexels.com/photos/1186905/pexels-photo-1186905.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Stas Knop](https://www.pexels.com/@stasknop) on [Pexels](https://www.pexels.com/photo/gray-roller-coaster-taken-under-white-clouds-1186905/)*
+
+### 1. 멈추지 않는 루프
+
+루프가 스스로 종료되지 않으면 토큰이 계속 타들어 간다. 그리고 토큰은 실제 돈이다. 하드 스톱 규칙을 반드시 걸어둬야 하는 이유다.
+
+### 2. 검증 없는 자율성
+
+에이전트가 자기 결과물을 스스로 채점하게 두는 건 유치원생에게 자기 숙제를 채점하라고 맡기는 것과 같다. 영상에서는 에이전트 A가 에이전트 B의 작업을 검사하는 구조를 대안으로 든다.
+
+### 3. 모호하거나 검증 불가능한 목표
+
+"이걸 더 좋게 만들어"라는 지시는 LLM을 무너뜨린다. 타협 불가능한 기준을 어떻게 써야 하는지가 관건이다.
+
+### 4. 복잡도 초과
+
+하나의 루프가 감당하기엔 과제가 너무 클 때가 온다. 바로 그 시점이 루프 엔지니어링에서 **그래프 엔지니어링(Graph Engineering)** 으로 넘어갈 때라고 두 사람은 말한다.
+
+## 영상에서 다루는 것
+
+- 루프 엔지니어링의 실제 정의 — 정의 가능한 목표를 향해 재시도하는 에이전트 시스템을 만드는 일
+- 네 가지 실패 모드 각각의 증상과 대응책
+- 루프에서 그래프로 넘어가야 하는 전환점
+
+원문 글쓴이는 마지막에 독자에게 묻는다. 이 중 어떤 실패 모드를 직접 겪어봤느냐고.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

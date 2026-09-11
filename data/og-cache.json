@@ -591,6 +591,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/devteam/congrats-to-the-frontend-challenge-comfort-food-edition-winners-1l8": {
+    "ok": true,
+    "title": "Congrats to the Frontend Challenge: Comfort Food Edition Winners!",
+    "description": "We are so excited to announce the winners of our Frontend Challenge: Comfort Food Edition!  This...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Finwx7wfuwbbgzfyasw6j.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-11"
+  },
   "https://dev.to/devteam/congrats-to-the-gemma-4-challenge-winners-4fgc": {
     "ok": true,
     "title": "Congrats to the Gemma 4 Challenge Winners!",
@@ -919,6 +927,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-10"
   },
+  "https://dev.to/francistrdev/paradox-between-sharing-your-accomplishments-and-ego-3p9k": {
+    "ok": true,
+    "title": "Paradox between Sharing your Accomplishments and Ego",
+    "description": "You might already know based on the title, but it never hurts to give an explanation...right?  I have...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fky453p3oy2wylonwx85b.gif",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-11"
+  },
   "https://dev.to/gamya_m/ichiraku-ramen-a-cozy-japanese-restaurant-landing-page-3pb8": {
     "ok": true,
     "title": "Ichiraku Ramen — A Cozy Japanese Restaurant Landing Page 🍜🌸",
@@ -1070,6 +1086,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fo4ngi6w3hcz3pgxb5wrm.jpg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/googleai/4-pitfalls-of-loop-engineering-and-how-to-fix-them-1ji2": {
+    "ok": true,
+    "title": "4 pitfalls of loop engineering (and how to fix them)",
+    "description": "Perhaps you've heard the term Loop Engineering: instead of solving a problem by hand, you build a...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F0x42aq3mpc7cvx43zb18.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-11"
   },
   "https://dev.to/googleai/building-sweets-vault-a-multimodal-gemini-agent-with-physical-hardware-integration-1nmh": {
     "ok": true,
@@ -1430,6 +1454,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2F6yrct7zvf28c7c1vv4dg.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/infoinlet1/i-let-ai-write-100-of-my-code-for-30-days-heres-what-broke-1aa0": {
+    "ok": true,
+    "title": "I let AI write 100% of my code for 30 days. Here's what broke.",
+    "description": "Not \"AI-assisted.\" Not \"copilot suggestions I edited.\" I mean I made a rule: for 30 days, I don't...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ffgol7n5wmkalew8m0ekc.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-11"
   },
   "https://dev.to/ingosteinke/css-only-a-nerdy-hobby-17hf": {
     "ok": true,
@@ -2230,6 +2262,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F4nsrigsudhso114zqomr.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/sylwia-lask/ai-is-already-better-at-coding-than-most-software-developers-4hno": {
+    "ok": true,
+    "title": "AI Is Already Better at Coding Than Most Software Developers",
+    "description": "...but let me say this right away: coding was never the most valuable part of software...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ft7ukzmu9bsqznsk6w54g.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-11"
   },
   "https://dev.to/sylwia-lask/it-was-just-a-patch-update-what-could-possibly-go-wrong-3be3": {
     "ok": true,
