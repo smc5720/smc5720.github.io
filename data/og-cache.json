@@ -207,6 +207,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-21"
   },
+  "https://dev.to/annavi11arrea1/ever-fluorescent-live-again-132b": {
+    "ok": true,
+    "title": "🟣 Ever Fluorescent: Live Again!",
+    "description": "⭐Excitement!   I've had had stores on Shopify, and a successful Etsy store. But after years...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F7oi0che6ev1w6wzs8g31.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-13"
+  },
   "https://dev.to/annavi11arrea1/server-access-logs-with-goaccess-333d": {
     "ok": true,
     "title": "👾 Server Access Logs with GoAccess",
@@ -334,6 +342,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F1ul7vy1xjken0oglqez4.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/copyleftdev/someone-spammed-my-dev-post-i-traced-it-to-a-wombat-176a": {
+    "ok": true,
+    "title": "Someone Spammed My DEV Post. I Traced It to a Wombat.",
+    "description": "Illustration generated for this article. Every prop is a finding: the sack of blank name badges is...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F256jjz11ofnca1if8h83.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-13"
   },
   "https://dev.to/cseeman/return-on-attention-why-ai-code-reviews-are-wearing-us-out-2hh0": {
     "ok": true,
@@ -1110,6 +1126,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fo4ngi6w3hcz3pgxb5wrm.jpg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/georgekobaidze/show-me-the-article-youre-most-proud-of-and-ill-read-every-single-one-of-them-1l53": {
+    "ok": true,
+    "title": "Show Me the Article You're Most Proud Of And I'll Read Every Single One of Them",
+    "description": "I Write More Than I Read   I used to read a lot on DEV. Then I started writing my own...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fdsv5hebtelo3566mro9i.jpeg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-13"
   },
   "https://dev.to/googleai/4-pitfalls-of-loop-engineering-and-how-to-fix-them-1ji2": {
     "ok": true,
@@ -1910,6 +1934,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F8g2ou80or7pl9r07qktj.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/missamarakay/admit-it-you-have-a-favorite-ai-just-like-you-have-a-favorite-coworker-1fa0": {
+    "ok": true,
+    "title": "Admit it, you have a favorite AI (just like you have a favorite coworker)",
+    "description": "A short rant on the Claude, Gemini, and Microsoft Copilot experience",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fb0jwab42tw80ysx1l3qx.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-13"
   },
   "https://dev.to/mk023/i-wrote-a-test-for-prompt-injection-it-passed-while-the-attack-worked-kc9": {
     "ok": true,

@@ -1,0 +1,476 @@
+﻿---
+title: "내 DEV 글에 달린 스팸 댓글을 추적했더니 웜뱃이 나왔다"
+description: "DEV.to 글에 달린 구직 자동화 스팸 댓글 하나를 끝까지 따라가 본 기록. 단축 URL 뒤에는 악성코드가 아니라 어필리에이트 링크와 Faker로 만든 가짜 계정, 그리고 19세기 웜뱃 판화가 있었다."
+date: "2026-09-10"
+published_at: "2026-09-13"
+category: "news"
+tags: ["security", "spam", "osint", "affiliate"]
+slug: "traced-dev-spam-comment-to-a-wombat"
+cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F256jjz11ofnca1if8h83.png"
+coverAlt: "Someone Spammed My DEV Post. I Traced It to a Wombat."
+source_id: "devto-4618620"
+source_url: "https://dev.to/copyleftdev/someone-spammed-my-dev-post-i-traced-it-to-a-wombat-176a"
+source_title: "Someone Spammed My DEV Post. I Traced It to a Wombat."
+source_author: "Don Johnson"
+source_published: "2026-09-10"
+---
+
+<LinkCard url="https://dev.to/copyleftdev/someone-spammed-my-dev-post-i-traced-it-to-a-wombat-176a" author="Don Johnson" date="2026-09-10" />
+
+## 개요
+
+개발자 Don Johnson이 자신의 DEV.to 글에 달린 스팸 댓글 하나를 끝까지 추적했다. 단축 URL을 열어보니 `.store` 도메인을 거쳐 LoopCV라는 실제 구직 자동화 SaaS로 이어졌고, 주소 끝에는 어필리에이트 코드가 붙어 있었다. 악성코드도, 피싱도, 클로킹도 없었다.
+
+댓글을 단 계정의 이름은 `faker.js`가 뽑아낸 조합이었고, 프로필 사진은 19세기 웜뱃 동판화였다. 그리고 운영 비용을 계산해 보니 **1년에 세 명만 가입시켜도 본전이었다.** 이 스팸이 사라지지 않는 이유가 거기 있다.
+
+![A weary wombat running a spam operation from a basement server desk](https://raw.githubusercontent.com/copyleftdev/dev-to-comment-hustle/main/assets/hero.jpg)
+
+증거 원본과 재현 스크립트는 [github.com/copyleftdev/dev-to-comment-hustle](https://github.com/copyleftdev/dev-to-comment-hustle)에 전부 공개돼 있다.
+
+## 1막 — 댓글 한 줄
+
+9월 1일 올린 [Migrating Legacy LLM Infrastructure to an AI Gateway](https://dev.to/copyleftdev/migrating-legacy-llm-infrastructure-to-an-ai-gateway-27hl) 글 아래, 공유 키 blast radius와 프로바이더 페일오버를 짚은 진지한 댓글 두 개 사이에 8일 뒤 이런 게 붙었다.
+
+> **Stop wasting time applying manually**
+> **Let AI handle your job applications every single day**
+> **Increase your chances of getting interviews fast**
+>
+> `tinyurl.com/36nsecn5`
+
+마침표도 없고, 글 내용과 아무 상관도 없고, 단축 URL 하나가 전부다. 저열한 스팸이 다 그렇듯 웃기다. 노력조차 안 했으니까. 다만 단축 URL은 닫힌 문이고, 글쓴이에게는 셸이 있었다.
+
+## 2막 — 링크는 어디로 가는가
+
+클릭은 금물이다. 헤더만 요청하고 리다이렉트는 거부한다.
+
+```bash
+curl -sS -I 'https://tinyurl.com/36nsecn5'
+```
+
+```http
+HTTP/2 301
+location: https://zenviapro.store/massapply?whose=yahoo
+x-robots-tag: noindex
+```
+
+`zenviapro.store`, `/massapply` 경로, 그리고 캠페인 분류처럼 보이는 `whose=yahoo` 파라미터. 끝까지 따라가면 이렇게 된다.
+
+```http
+HTTP/1.1 302 Found
+Location: https://loopcv.pro/?via=md
+HTTP/2 301
+location: https://www.loopcv.pro/?via=md
+HTTP/2 200
+```
+
+종착지는 **LoopCV**였다. 신용카드로 결제할 수 있는 멀쩡한 구직 자동화 SaaS다. 피싱 키트도 아니고 크리덴셜 수집기도 아니다. 다만 주소 끝에 `?via=md`가 달려 있었다.
+
+`?via=`는 [Rewardful](https://www.rewardful.com/)의 추천인 파라미터고, LoopCV 어필리에이트 페이지도 가입 트래픽을 `loopcv.getrewardful.com`으로 보낸다. `md`는 누군가의 어필리에이트 토큰이다. 그 댓글을 클릭하고 나중에 구독하는 사람이 생길 때마다 낯선 이의 주머니에 돈이 들어간다.
+
+악성 캠페인이 아니다. 예의만 걷어낸 어필리에이트 마케팅이다.
+
+## 3막 — 인프라는 테이프로 붙여놨다
+
+허술함 자체가 단서였다.
+
+### 포장도 안 뜯은 Express
+
+```http
+HTTP/1.1 302 Found
+X-Powered-By: Express
+Content-Type: text/plain; charset=utf-8
+Content-Length: 48
+```
+
+```plaintext
+Found. Redirecting to https://loopcv.pro/?via=md
+```
+
+`Found. Redirecting to`는 Express `res.redirect()`의 기본 응답 본문 그대로다. `X-Powered-By: Express`는 어떤 하드닝 가이드를 봐도 맨 앞에서 지우라고 하는 헤더인데 손도 안 댔다. 다른 경로를 요청하면 기본 404가 튀어나온다.
+
+```bash
+curl -sS 'https://zenviapro.store/'
+# <html><head><title>Error</title></head><body><pre>Cannot GET /</pre></body></html>
+```
+
+웹사이트라고 할 게 없다. 랜딩 페이지도, 위장 콘텐츠도, 가짜 블로그도 없다. 도메인 하나에 라우트 하나, 자바스크립트로 90초쯤 걸릴 분량이 전부다.
+
+### 트래킹 파라미터는 소품이었다
+
+`whose=yahoo`는 세그먼트 구분처럼 보인다. 어느 리스트인지, 어느 메일 서비스인지. 직접 물어봤다.
+
+```bash
+for w in yahoo gmail outlook devto reddit '' XXtest; do
+  printf '%-8s -> ' "${w:-<empty>}"
+  curl -sS -o /dev/null -w '%{http_code} %{redirect_url}\n' \
+    "https://zenviapro.store/massapply?whose=$w"
+done
+```
+
+```conf
+yahoo    -> 302 https://loopcv.pro/?via=md
+gmail    -> 302 https://loopcv.pro/?via=md
+outlook  -> 302 https://loopcv.pro/?via=md
+devto    -> 302 https://loopcv.pro/?via=md
+reddit   -> 302 https://loopcv.pro/?via=md
+<empty>  -> 302 https://loopcv.pro/?via=md
+XXtest   -> 302 https://loopcv.pro/?via=md
+```
+
+전부 똑같은 곳으로 간다. 트래픽을 나누지도, 하위 태그를 붙이지도 않는다. URL에서 유일하게 전문가처럼 보이던 부분이 장식이었던 셈이다.
+
+### 클로킹이 아예 없다
+
+진짜 악성 리다이렉터는 방문자를 감별한다. 연구자에게는 멀쩡한 페이지를, 피해자에게는 페이로드를 준다. 이 서버는 Googlebot에게도, `curl`에게도, 아이폰에게도, User-Agent가 아예 없는 요청에게도 같은 302를 돌려준다.
+
+클로킹이 없다는 사실 자체가 발견이다. 운영자에게 위협 모델이 없다는 뜻이고, 체인 어디에도 불법인 구간이 없기 때문이다. 트렌치코트 입은 이용약관 위반에 가깝다.
+
+### 진짜 실마리는 메일 서버였다
+
+```bash
+dig +short zenviapro.store MX
+# 10 mail.beeservices.shop.
+```
+
+메일 교환기가 **다른 도메인**에 있는데, 그 도메인이 같은 서버로 돌아온다.
+
+```conf
+zenviapro.store        A   50.114.206.36
+mail.beeservices.shop  A   50.114.206.36
+beeservices.shop       A   (없음)
+```
+
+`beeservices.shop`에는 A 레코드도 없고, Certificate Transparency 기록도 지금까지 한 건도 없다. 메일 전용 도메인이다. 서버 한 대, 도메인 둘, 역할 둘 — 일회성이 아니라 포트폴리오다.
+
+서버는 살아 있다. 80번은 닫혀 있고 443과 25가 열려 있다.
+
+```plaintext
+220 mail.zenviapro.store ESMTP
+250-PIPELINING
+250-8BITMIME
+250 SMTPUTF8
+```
+
+`STARTTLS`도 없고 `AUTH`도 없다. 평문으로 메일만 밀어내는 최소 구성 MTA다.
+
+### 낡은 HELO 배너라는 지문
+
+글쓴이가 가장 마음에 들어한 대목이다. 배너는 자기 이름을 `mail.zenviapro.store`라고 밝힌다.
+
+```bash
+dig +short mail.zenviapro.store A
+# (없음)
+```
+
+**그 호스트명은 해석되지 않는다.** MX를 `beeservices.shop`으로 바꾸기 전 설정이 그대로 남아 있는 것이다. 도메인은 새로 만들면서 서버는 새로 만들지 않는다. DNS와 어긋나는 배너는 운영자의 자산 전체를 추적할 때 오래 쓸 수 있는 피벗이 된다.
+
+## 4막 — 누가 달았나
+
+DEV에는 공개 API가 있어서 댓글 작성자를 숨길 수가 없다.
+
+```bash
+curl -s 'https://dev.to/api/comments?a_id=4547359' | jq -r '.[].user.username'
+```
+
+```plaintext
+max_quimby
+mudassirworks
+jaylonstiedemannterry78-993
+```
+
+`jaylonstiedemannterry78-993`, 표시 이름 `Jaylon_Stiedemann-Terry78`, 사용자 ID 3748129, 가입일 2026년 2월 2일.
+
+프로필은 텅 비어 있다.
+
+```json
+{
+  "username": "jaylonstiedemannterry78-993",
+  "name": "Jaylon_Stiedemann-Terry78",
+  "joined_at": "Feb  2, 2026",
+  "summary": null, "location": null, "website_url": null,
+  "twitter_username": null, "github_username": null
+}
+```
+
+발행한 글 0건. 자기소개도, 지역도, 링크도, SNS도 없다. 가입 7개월 동안 남긴 흔적이 댓글 하나다.
+
+글쓴이는 여기에 단서를 하나 덧붙인다. DEV가 이 계정을 지우면 위 프로필 조회는 404를 반환하고 계정 페이지도 죽는다. 그래도 주장이 철회되는 건 아니다. 원본 캡처는 [증거 저장소](https://github.com/copyleftdev/dev-to-comment-hustle/tree/main/evidence/raw)에 체크섬과 날짜와 함께 커밋돼 있다. 인프라 쪽 발견은 계정과 무관하게 성립하고, Faker 템플릿 이름·빈 프로필·묵혀둔 계정이라는 패턴은 사용자명 하나보다 오래 남는다.
+
+### 이름이 기계로 만들어졌다는 증거
+
+`Jaylon_Stiedemann-Terry78`을 소리 내 읽어보면 뭔가 어긋난다. `Stiedemann-Terry`는 가문처럼 들리는 복성이 아니라 뽑기처럼 들린다.
+
+실제로 뽑기가 맞았다. 세 토큰 모두 개발자라면 다 쓰는 테스트 데이터 생성 라이브러리 [Faker](https://github.com/faker-js/faker)의 사전에 있다.
+
+```bash
+curl -sO https://raw.githubusercontent.com/faker-js/faker/next/src/locales/en/person/last_name.ts
+curl -sO https://raw.githubusercontent.com/faker-js/faker/next/src/locales/en/person/first_name.ts
+
+grep -n "'Stiedemann'" last_name.ts   # 408:    'Stiedemann',
+grep -n "'Terry'"       last_name.ts  # 417:    'Terry',
+grep -n "'Jaylon'"      first_name.ts # 2514:    'Jaylon',
+```
+
+결정적인 건 다음 한 줄이다.
+
+```bash
+grep -c -- '-' last_name.ts   # 0
+```
+
+Faker의 영어 성씨 466개 중 하이픈이 들어간 항목은 하나도 없다. 그러니 `Stiedemann-Terry`는 사전에 있는 성씨 하나가 아니라, 운영자가 두 번 뽑아서 하이픈으로 이어 붙인 결과다. Faker 기본 함수 `faker.internet.username()`이 아니라 직접 만든 템플릿이라는 뜻이다.
+
+```plaintext
+{firstName}_{lastName}-{lastName}{2 digits}
+```
+
+공급량을 계산할 수 있다.
+
+```plaintext
+3,185 × 466 × 466 × 100
+= 69,164,186,000
+```
+
+**691억 개의 서로 다른 페르소나.** 지구상 모든 사람에게 여덟 개씩 돌아간다. 이름이 바닥날 일은 없고, 사용자명 블록리스트로는 절대 따라잡지 못한다.
+
+글쓴이는 과장을 피하려고 한 가지를 더 확인했다. 접미사 없는 `jaylonstiedemannterry78`은 404였다. 아무도 쓰지 않는다는 뜻이고, `-993`은 DEV의 사용자명 정규화 결과지 중복 충돌의 흔적이 아니다.
+
+### 아바타는 웜뱃이었다
+
+프로필 이미지는 400×400 PNG, 8비트 그레이스케일+알파, 메타데이터는 전부 제거돼 있었다. GAN이 만든 얼굴이나 기본 이니셜 이미지를 예상하고 내려받았다고 한다.
+
+**빅토리아 시대 웜뱃 해부 판화였다.** 사람 스톡 사진도 아니고 AI 생성 프로필 사진도 아닌, 퍼블릭 도메인 19세기 박물학 선화. 오스트레일리아산 땅딸막한 유대류가 가짜 구직 스팸 계정의 얼굴 노릇을 하고 있었다. 파이프라인을 짠 사람이 아바타 슬롯을 어느 퍼블릭 도메인 클립아트 소스에 연결해 놓고 결과물을 한 번도 안 본 것이다.
+
+여기서 짚어둘 게 있다. **지목할 실존 인물이 없다.** 이름은 합성이라는 게 증명됐고, 얼굴은 퍼블릭 도메인 동물 삽화고, 프로필은 비어 있다. 누군가의 사생활을 보호하느라 이름을 감추는 게 아니라, 그게 발견 내용 자체다.
+
+### 타임라인이 말해주는 것
+
+날짜를 나란히 놓으면 이렇다.
+
+| 날짜 | 사건 | Δ |
+|---|---|---|
+| 2026-01-27 | `zenviapro.store` 등록 (Namecheap) | — |
+| 2026-02-02 | DEV 계정 생성 | +6일 |
+| 2026-07-30 | 첫 TLS 인증서 발급 | +184일 |
+| 2026-09-09 | 스팸 댓글 작성 | +41일 |
+
+도메인과 계정은 6일 간격으로 마련됐다. 같은 조달 작업이었다는 뜻이다. 그러고는 둘 다 6개월을 완전히 잠들어 있다가 인증서가 발급되면서 가동에 들어갔다.
+
+자산을 묵히는 전형적인 수법이다. 새 도메인과 새 계정은 평판 휴리스틱에 걸리지만 7개월 된 것들은 안 걸린다. 그리고 이 대목은 3막 내용과 정면으로 어긋난다. 애플리케이션 계층은 엉망인데 계정 숙성 단계는 규율이 잡혀 있다.
+
+운영자가 어떤 사람인지 생각해 보면 앞뒤가 맞는다. 자산을 묵히는 데는 기술이 필요 없다. 인내심과 달력이면 된다. `X-Powered-By`를 지우려면 그게 뭔지 알아야 한다.
+
+### 무차별 살포는 아니었다
+
+글쓴이는 발행한 글 30개의 댓글을 전부 훑었다.
+
+```bash
+for id in $(jq -r '.[]|select(.comments_count>0)|.id' mine.json); do
+  curl -s "https://dev.to/api/comments?a_id=$id" \
+  | jq -r '.. | objects | select(has("id_code"))
+      | ((.body_html // "") | gsub("<[^>]*>";"")) as $t
+      | select($t | test("tinyurl|applying manually|job application";"i"))
+      | "HIT \(.id_code) @\(.user.username)"'
+done
+```
+
+**딱 한 건.** 전체 글에 흩뿌린 게 아니라 글 하나에, 게시 8일 뒤에 댓글 하나였다. 표적이었는지 천천히 도는 순번이었는지는 표본 하나로 알 수 없다. 다만 물량 공세는 아니다.
+
+## 5막 — GitHub에서 찾지 못한 것이 발견이었다
+
+어필리에이트 스패머는 GitHub에 흔적을 남기는 경우가 생각보다 많다. 저장소가 검색에 잘 잡히니 추천 링크로 채운 리포는 공짜 SEO가 되기 때문이다. 그래서 `gh`로 뒤졌다.
+
+![Man wearing brown suit jacket mocking on white telephone](https://images.pexels.com/photos/1587014/pexels-photo-1587014.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Moose Photos](https://www.pexels.com/@moose-photos-170195) on [Pexels](https://www.pexels.com/photo/man-wearing-brown-suit-jacket-mocking-on-white-telephone-1587014/)*
+
+### 직접 지표부터
+
+```bash
+for q in '36nsecn5' '50.114.206.36' 'zenviapro.store' 'beeservices.shop'; do
+  gh search code "$q" --limit 5
+done
+```
+
+**네 개 모두 0건.** TinyURL 슬러그, 오리진 IP, 리다이렉터 도메인, 메일 도메인 어느 것도 GitHub 색인에 없다. 운영자는 아무것도 공개하지 않았다.
+
+### 다른 누군가가 신고했는지도 확인했다
+
+PhishDestroy가 관리하는 [`destroylist`](https://github.com/phishdestroy/destroylist)는 피싱·사기 도메인을 정리한 블록리스트다. 통째로 받아서 대조했다.
+
+```bash
+curl -sL .../destroylist/HEAD/list.txt -o dl.txt
+wc -l dl.txt        # 202659
+grep -ixc 'zenviapro.store'  dl.txt   # 0
+grep -ixc 'beeservices.shop' dl.txt   # 0
+```
+
+악성 도메인 20만 2,659개 중에 이번 도메인은 없었다. 평판 조회의 `NOT_OBSERVED` 판정과 합치면 서로 다른 두 출처가 같은 말을 하는 셈이다. 아무도 추적하지 않는다. 기술적 정의상 추적할 게 없기 때문이다.
+
+### 그럴듯했지만 틀린 단서
+
+글쓴이가 스스로 속을 뻔했다고 밝힌 대목이다.
+
+`zenviapro`로 검색하니 [`phishdestroy/namesilo-evidence`](https://github.com/phishdestroy/namesilo-evidence)에서 하나가 걸렸다. ICANN에 제출된 등록대행사 남용 조사 자료였고, 신고된 NameSilo 도메인 목록에 이런 게 있었다.
+
+```plaintext
+zenviaetc.info
+zenviahub.info
+zenviapro.info     ← 우리 것과 같은 2단계 라벨
+zenvias.info
+zenviatime.info
+zenviazone.info
+```
+
+같은 생성 패턴을 쓰는 여섯 도메인, 그중 하나는 라벨까지 똑같았다. 여섯 개 모두 동일한 Cloudflare 네임서버 쌍을 쓰는 걸로 봐서 실제로 한 운영자가 맞다.
+
+```plaintext
+zenviapro.info    asa.ns.cloudflare.com  harley.ns.cloudflare.com
+zenviahub.info    asa.ns.cloudflare.com  harley.ns.cloudflare.com
+zenviaetc.info    asa.ns.cloudflare.com  harley.ns.cloudflare.com
+... 여섯 개 전부 동일
+```
+
+그런데 이번 건의 운영자는 아니었다. 대조표가 그 가설을 죽인다.
+
+| | `zenvia*.info` 군집 | `zenviapro.store` (이번 건) |
+|---|---|---|
+| 등록대행사 | NameSilo | Namecheap |
+| DNS | Cloudflare (`asa`/`harley`) | `registrar-servers.com` |
+| 호스팅 | Cloudflare 프록시 | Linveo 직접, 프록시 없음 |
+| TLD | `.info` × 6 | `.store` |
+
+겹치는 건 여섯 글자뿐이다. 양쪽 다 브라질의 실존 CPaaS 기업 **Zenvia**의 이름에 얹어 간 것으로 보이고, 라벨이 겹친 이유도 거기 있다. 브랜드로 쓸 만한 문자열을 서로 무관한 두 운영자가 집어 든 것뿐이다.
+
+이름이 같다고 운영자가 같은 건 아니다. grep 결과에서 멈췄다면 아무 상관도 없는 피싱 군집에 확신에 찬 오귀속을 발행했을 거라고 글쓴이는 적었다.
+
+### GitHub가 알려준 것
+
+대신 어필리에이트 생태계가 훤히 드러났다. LoopCV 추천 링크는 예상한 그대로 SEO 백링크 장르로 GitHub 곳곳에 흩어져 있었다.
+
+| 저장소 | 토큰 |
+|---|---|
+| `Ramas68/LoopCV-Promo-Codes` — *"LoopCV Promo Codes \| 50% Off Discount"* | `?via=abdul` |
+| `diaodiaozhuye/awesome-ai-startups` | `?via=toolify` |
+| `heukshow/aicity-os` | `?via=sang-kwon` |
+
+토큰을 보자. `abdul`, `toolify`, `sang-kwon`. 이름, 회사명, 핸들 전체. 공개적으로 LoopCV를 홍보하는 어필리에이트들은 자기 작업에 서명을 남긴다.
+
+이번 건은 `md`다. 두 글자, 이름 없음, 검색할 거리도 없다. 이 캠페인 전체에서 유일하게 의도적인 보안 조치가 그거였다. 서버도 도메인도 계정도 아니고, 사람에게 되짚어 갈 수 있는 단 하나의 문자열.
+
+그래서 귀속은 실패했다. 그리고 실패의 모양이 이야기의 핵심이다. `X-Powered-By: Express`를 그대로 두고, 가짜 트래킹 파라미터를 넣고, 아바타로 웜뱃을 고른 사람이 정산 토큰만은 익명으로 만들 줄 알았다. 운영을 지킨 게 아니라 돈 받는 부분만 지킨 것이다.
+
+## 6막 — 진짜 취약점은 경제성이다
+
+방어자 말고 운영자 입장에서 계산해 보자.
+
+LoopCV 어필리에이트 프로그램은 **25% 커미션**을 준다. 공개된 수치로 구독료는 **월 50~200달러**, 고객 유지 기간은 **6~12개월**이다. 구간 산술로 추천 고객 1명당 총매출은 이렇게 된다.
+
+```plaintext
+[$50, $200] × [6, 12] = [$300, $2,400]
+```
+
+25%를 적용하면,
+
+```plaintext
+[$300, $2,400] ÷ 4 = [$75, $600]     ← 전환 1건당 커미션
+```
+
+비용 쪽은 `.store` 도메인 하나에 저가 호스팅 1년치, 다 합쳐 **38~180달러**다. 손익분기점은 이렇다.
+
+```plaintext
+[$38, $180] ÷ [$75, $600] = [19/300, 12/5] = [0.06, 2.4]
+```
+
+**1년에 0.06명에서 3명 사이만 가입시키면 운영 전체가 커버된다.**
+
+이게 전부다. 여기서 뭐 하나 잘 돌아갈 필요가 없다. 문구가 형편없어도 되고, 트래킹 파라미터가 가짜여도 되고, 404가 프레임워크를 흘려도 되고, HELO 배너가 낡아도 되고, 마스코트가 웜뱃이어도 된다. 전환 세 건이면 1년치가 끝나고, 그 뒤로는 점심값보다 싼 인프라 위에서 남는 장사다.
+
+이 계산은 모더레이션으로 이길 수 없다.
+
+## 평판 피드에는 아무것도 없다, 그리고 그게 맞다
+
+오리진 IP를 오프라인 평판 렌즈에 돌려봤다.
+
+```json
+{
+  "target": { "type": "ip", "value": "50.114.206.36" },
+  "verdict": { "disposition": "unknown", "confidence": 0.0,
+               "reason_codes": ["NOT_OBSERVED"] },
+  "observations": []
+}
+```
+
+관측된 적 없음. 어느 피드에도 없고, 그게 정확한 판정이다. 악성코드도, C2도, 피싱도 호스팅하지 않는다. 위협 인텔리전스는 기술적 피해를 잡도록 맞춰져 있는데 이 캠페인의 피해는 경제적·평판적이다. 우리가 가진 모든 임계값 아래로 영원히 깔려 있을 것이다.
+
+## 진짜 피해자는 따로 있다
+
+글쓴이 본인은 아니다. 그냥 스크롤해 지나쳤다.
+
+**피해자는 LoopCV다.** 실제 제품을 파는 실제 회사가, 한 번도 이야기해 본 적 없을 어필리에이트 때문에 브랜드를 댓글 스팸에 용접당하고 있다. 평판 손실을 떠안고, 전환에 대한 커미션까지 지급한다. 반면 운영자가 감수하는 건 12달러짜리 도메인과 웜뱃 한 마리다.
+
+분명히 해둘 부분도 있다. **LoopCV가 이 캠페인을 운영하거나 인지하고 있다는 증거는 나오지 않았다.** 개방형 어필리에이트 프로그램은 남용당하기 마련이고, 그게 이 모델의 리스크다. 해결은 벤더 몫이다.
+
+- 어필리에이트에게 트래픽 출처 신고를 의무화하고 실제로 집행할 것
+- 요청하지 않은 댓글·포럼 게시를 프로그램 약관에 명문으로 금지할 것
+- 리퍼러 없이 단축 URL로만 트래픽이 몰려드는 추천 토큰을 표시할 것
+- 남용 신고가 들어오면 변호사 없이 빠르게 토큰을 정지할 것
+
+`?via=md`는 토큰이고, 토큰은 폐기할 수 있다. 이 캠페인을 영구히 끝내는 한 줄짜리 조치이고, 그걸 실행할 수 있는 당사자는 정확히 한 곳이다.
+
+## IOC 목록
+
+**캠페인 인프라 — 블록리스트에 넣어도 되는 항목:**
+
+| 지표 | 유형 | 비고 |
+|---|---|---|
+| `tinyurl.com/36nsecn5` | URL | 단축 URL 진입점 |
+| `zenviapro.store` | 도메인 | 리다이렉터. Namecheap, 2026-01-27 생성 |
+| `https://zenviapro.store/massapply` | URL | 유일하게 살아 있는 라우트 |
+| `beeservices.shop` | 도메인 | 메일 전용 형제 도메인. A 레코드 없음, CT 기록 없음 |
+| `mail.beeservices.shop` | 호스트명 | `zenviapro.store`의 MX |
+| `50.114.206.36` | IPv4 | 오리진. 443·25 열림, 80 닫힘 |
+| `AS62564` / `oh2.linveo.com` | ASN / rDNS | Linveo, 오하이오 |
+| `jaylonstiedemannterry78-993` | DEV 계정 | user_id 3748129, 2026-02-02 가입, 글 0건 |
+
+**행위 시그니처 — 실제로 일반화되는 부분:**
+
+| 시그니처 | 값 |
+|---|---|
+| 어필리에이트 토큰 | `via=md` (Rewardful 형식) |
+| 무의미한 캠페인 파라미터 | `whose=<아무 값>` — 라우팅에 영향 없음 |
+| 서버 지문 | `X-Powered-By: Express` + 본문 `Found. Redirecting to ` |
+| 루트 응답 | `Cannot GET /` (Express 기본 404) |
+| SMTP 배너 | `220 mail.zenviapro.store ESMTP` — **해석되지 않음** |
+| SMTP 기능 | `STARTTLS` 없음, `AUTH` 없음 |
+| SPF | `v=spf1 mx ip4:50.114.206.36 ~all` |
+| DMARC | 두 도메인 모두 없음 |
+| 페르소나 템플릿 | `{firstName}_{lastName}-{lastName}{2 digits}`, 모든 토큰이 Faker `en` 사전 소속 |
+| 아바타 유형 | 퍼블릭 도메인 판화, 그레이스케일+알파 PNG, 메타데이터 제거 |
+| 조달 패턴 | 도메인·계정 7일 이내 생성 후 약 6개월 휴면 |
+
+> ⚠️ `loopcv.pro`는 침해 지표가 아니다. 제3자 어필리에이트에게 악용당하고 있는 정상 목적지다. 블록리스트에 넣지 말 것. 피해자를 차단하는 게 위협 인텔리전스가 욕먹는 방식이다.
+
+## 그래서 뭘 해야 하나
+
+**댓글 플랫폼을 운영한다면** 가장 신호가 강한 건 글의 내용이 아니라 모양이다. 글도 없고 프로필도 빈 계정이 단축 URL을 담아 남긴, 글과 아무 관련 없는 첫 댓글은 군집화가 쉽다. 제출 시점에 서버 쪽에서 단축 URL을 해석하고 목적지를 점수화하면 된다. 페르소나 템플릿도 선물이다. 모든 토큰이 Faker `en` 사전에 있으면서 Faker 자체는 만들지 않는 구조를 가진 이름은 사실상 공짜 분류 피처다.
+
+**DEV에 글을 쓴다면** 클릭하지 말고, 그냥 지우고 끝내지도 말자. `curl -I` 한 번에 4초면 된다. 그다음 플랫폼에 댓글을 신고하는 대신 벤더에 목적지를 신고하자. 플랫폼은 댓글 하나를 지울 수 있지만, 벤더는 그 뒤에 있는 토큰 전체를 폐기할 수 있다.
+
+**어필리에이트 프로그램을 운영한다면** 관리되지 않는 토큰 하나 차이로 당신 브랜드가 이런 제목의 글에 등장하게 된다. 트래픽 출처를 들여다보자.
+
+## 마무리
+
+드로퍼를 예상하고 들어갔는데 나온 건 Express 코드 네 줄, 가짜 트래킹 파라미터, 테스트 데이터 라이브러리에서 뽑아낸 이름, 그리고 19세기 웜뱃이었다.
+
+불편한 지점이 거기 있다. 인터넷에서 가장 오래 버티는 스팸은 정교한 게 아니라 싸고 합법적인 쪽이다. CVE도 없고, 리버싱할 페이로드도 없고, 싱크홀에 넣을 C2도 없다. 가진 방어 도구를 전부 돌려도 `NOT_OBSERVED`가 나오고, 전부 맞는 판정이다.
+
+취약점은 경제성이다. 1년에 전환 세 건이면 이 전체가 영원히 자기 밥값을 한다.
+
+웜뱃은 덤이다.
+
+---
+
+*원문의 모든 조사는 수동적 정찰로 이뤄졌다. DNS, WHOIS, Certificate Transparency, HTTP 헤더, TCP 배너 수집, 그리고 DEV의 공개 API를 사용했으며, 운영자가 공개 목적으로 게시한 인프라와 계정만을 대상으로 했다. 시스템에 접근하거나 자격 증명을 사용하거나 익스플로잇을 시도한 사실은 없다.*
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
