@@ -855,6 +855,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/florianrappl/my-oss-projects-anglesharp-3b8j": {
+    "ok": true,
+    "title": "My OSS Projects: AngleSharp",
+    "description": "This is the first post in a new series, \"My Open-Source Projects\", where I go through some of the...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F9ngyl1oof40wt34yqdyd.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-14"
+  },
   "https://dev.to/fm/i-won-a-writing-challenge-that-i-almost-didnt-publish-2cn0": {
     "ok": true,
     "title": "I Won a Writing Challenge That I Almost Didn't Publish!",
@@ -1134,6 +1142,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fdsv5hebtelo3566mro9i.jpeg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-13"
+  },
+  "https://dev.to/georgekobaidze/vibe-coding-isnt-the-problem-calling-it-engineering-is-lm1": {
+    "ok": true,
+    "title": "Vibe Coding Isn't the Problem. Calling It Engineering Is",
+    "description": "Let's Address the Elephant in the Room Again   Vibe coding has always been a weird topic to...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fadaw007461om7bsld6j4.jpeg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-14"
   },
   "https://dev.to/googleai/4-pitfalls-of-loop-engineering-and-how-to-fix-them-1ji2": {
     "ok": true,
@@ -1734,6 +1750,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fmpjcvof042qvkiv4cs49.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-22"
+  },
+  "https://dev.to/kenwalger/the-verification-bottleneck-in-ai-generated-software-3p7l": {
+    "ok": true,
+    "title": "The Verification Bottleneck in AI-Generated Software",
+    "description": "AI can generate code faster than ever. That doesn't mean we're shipping correct software...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F4yg0viegdv7k7k6oi7kc.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-14"
   },
   "https://dev.to/kenwalger/your-hiring-process-needs-http-status-codes-png": {
     "ok": true,

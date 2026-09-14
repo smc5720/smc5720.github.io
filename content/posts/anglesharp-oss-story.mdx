@@ -1,0 +1,198 @@
+﻿---
+title: "비행기에서 시작한 HTML 파서, 다운로드 3억 건을 넘기다 — AngleSharp 이야기"
+description: "2013년 MVP 서밋행 비행기에서 HTML5 명세를 인쇄해 들고 탄 개발자가 직접 쓴 C# 파서가 NuGet 다운로드 3억 건을 넘겼다. AngleSharp 제작자 Florian Rappl이 프로젝트의 13년을 직접 정리했다."
+date: "2026-09-09"
+published_at: "2026-09-14"
+category: "news"
+tags: []
+slug: "anglesharp-oss-story"
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F9ngyl1oof40wt34yqdyd.png"
+coverAlt: "My OSS Projects: AngleSharp"
+source_id: "devto-4582832"
+source_url: "https://dev.to/florianrappl/my-oss-projects-anglesharp-3b8j"
+source_title: "My OSS Projects: AngleSharp"
+source_author: "Florian Rappl"
+source_published: "2026-09-09"
+---
+
+<LinkCard url="https://dev.to/florianrappl/my-oss-projects-anglesharp-3b8j" author="Florian Rappl" date="2026-09-09" />
+
+## 개요
+
+Florian Rappl이 자신이 만들고 유지보수해 온 오픈소스 프로젝트들의 뒷이야기를 푸는 연재를 시작했다. 첫 주자는 **AngleSharp**다.
+
+AngleSharp는 HTML, SVG, MathML, CSS, 그리고 XML까지 파싱해 명세에 맞는 DOM을 돌려주는 .NET 라이브러리다. "DOM 비슷한 것"이나 "스크래핑 정도면 충분한 것"이 아니라, 브라우저 콘솔에서 쓰던 `querySelector`, `querySelectorAll`과 엘리먼트 인터페이스가 그대로 있는 진짜 W3C DOM API다. 다만 언어가 C#이고, 헤드리스로 돌고, 브라우저는 어디에도 없다.
+
+정규식으로 HTML을 파싱해 본 적이 있다면 왜 이런 게 필요한지 알 것이다. 아무도 `<div[^>]*>` 같은 걸 다시 쓰지 않아도 되도록 만든 라이브러리다.
+
+## 원래 구상은 GUI 툴킷이었다
+
+시작은 HTML·CSS·C#으로 크로스 플랫폼 GUI 툴킷을 만들자는 생각이었다. Rappl은 자신이 그 아이디어를 처음 떠올린 사람은 아니라고 인정한다. 다만 당시로서는 꽤 신선한 접근이었다.
+
+구상을 파고들수록 한 가지가 분명해졌다. HTML과 CSS에서 "쉬운 80%"만 떼어다 쓰는 식으로는 안 된다는 것. 제대로 돌아가게 하려면 제대로 된 HTML 파서와 제대로 된 CSS 엔진, 그러니까 판을 통째로 깔아야 했다. 그래서 그는 HTML5 파서를 C#으로 처음부터 짜기로 했다.
+
+### 3만 피트 상공에서 쓴 파서
+
+2013년, Microsoft MVP 서밋으로 가는 비행기에 그는 HTML5 명세를 인쇄해서 들고 탔다. 소설도 잡지도 아닌 명세서였다.
+
+기내에서 코딩을 시작했고, 착륙할 무렵에는 파서가 "동작"하고 있었다. 정확히는 해피 패스만 동작했다. 잘 정제된 마크업을 넣으면 얌전히 DOM을 뱉어냈다.
+
+문제는 그다음이었다. HTML5 명세가 방대한 이유는 HTML이 복잡한 언어여서가 아니라 그 주변에 딸린 것들 때문이다. 에러 처리, 엣지 케이스, 그리고 "마크업이 엉망일 때 무슨 일이 일어나야 하는가"에 대해 브라우저들이 수십 년간 조용히 합의해 온 규칙 더미. 해피 패스는 전체 명세의 20% 남짓이고, 나머지 80%는 브라우저가 인간의 실수를 얼마나 너그럽게 받아주는지에 관한 내용이다.
+
+계속 갈아 넣은 끝에 엣지 케이스와 테스트 대부분이 초록색으로 바뀌었다. 그리고 사이드 프로젝트라면 누구나 도달하는 지점이 왔다. 짜증, 중단, 그리고 "내가 왜 이걸 하고 있지"라는 순간. 유지보수자라면 다 아는 구간이다.
+
+## 묻히기 전에 일단 공개했다
+
+다시 손을 댄 계기는 단순했다. 로컬 폴더에서 조용히 죽기 전에 CodeProject에 글이라도 하나 쓰고 GitHub에 올려두자는 생각이었다.
+
+당시 그는 기여자로서의 오픈소스 경험은 어느 정도 있었다. 직접 유지보수하던 프로젝트는 [YAMP](https://github.com/FlorianRappl/YAMP) 하나였고, GitHub 경험이 훨씬 많은 사람들 덕에 "오픈소스를 제대로 하는 법"을 조금씩 익힌 상태였다.
+
+글을 올리고, 저장소를 푸시하고, 잠자리에 들었다. 일어나 보니 저장소에는 별이 120개 넘게 붙어 있었고 글도 상위권에 올라 있었다. 기대하지 않은 숫자를 보고 나면 사이드 프로젝트에 대한 의욕이 갑자기 솟는다.
+
+## 0.10, 모듈화라는 전환점
+
+한동안 작업의 대부분은 내부 구현에 들어갔다. "그럭저럭 맞는" 수준이 아니라 실제로 정확한 파싱을 만드는 일이었다. 그게 안정되자 이번에는 API가 크게 흔들렸다. 사용자들이 늘 반겼던 변경은 아니었다고 그는 솔직히 적는다. 파괴적 변경은 받는 쪽 입장에서 결코 즐겁지 않고, 이 시기의 그는 주는 쪽이었다.
+
+진짜 전환점은 **AngleSharp 0.10**이었다. 이 릴리스가 이후 AngleSharp의 성격을 규정한 모듈화의 토대를 깔았다. 라이브러리를 하나 더 추가하면 문서가 JavaScript를 파싱하고, 또 하나 추가하면 CSS를 처리한다. 가볍지만 의외로 쓸 만한 DI 시스템과 서비스 기반 설정 방식 덕에 확장을 레고 블록처럼 이어 붙일 수 있게 됐다.
+
+그 모듈 구조는 지금의 생태계 모습과 정확히 같다.
+
+![AngleSharp 코어와 위성 라이브러리들: Css, Js, Xml, Io, Diffing, Wasm](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/9em8uhal77hzo22zhlkt.png)
+
+### 1.0까지 걸린 시간
+
+오랫동안 그는 API를 "안정적"이라 선언하고 시맨틱 버저닝을 약속할 자신이 없었다. 불안해서가 아니라, 그게 큰 약속처럼 느껴져서였다. 사실상 안정된 API를 몇 년이나 유지하고 나서야 **1.0**을 냈다.
+
+그 이후의 기준은 단순하다. 2.0이나 3.0을 영원히 피하자는 게 아니다. 메이저 버전을 올리는 것 자체에는 아무 불만이 없다. 규칙은 하나다. 파괴적 변경은 자기 자리를 스스로 증명해야 한다. 하위 사용자에게 안길 고통을 정당화할 만큼 유용하지 않으면 넣지 않는다.
+
+## 혼자 만든 프로젝트가 아니다
+
+Rappl은 여기까지 대부분 1인칭으로 이야기한 것이 좀 불공평하다고 말한다. 혼자였다면 AngleSharp는 "해피 패스 몇 개가 동작하는 것 같다" 근처에서 죽었을 거라는 것이다.
+
+프로젝트의 `CONTRIBUTORS.md`에는 파서 엣지 케이스를 고치러, API 이름 짓기를 두고 그와 싸우러, 혹은 그가 필요한 줄도 몰랐던 기능을 붙이러 나타난 사람들의 이름이 줄줄이 적혀 있다. 첫 기여 순으로 Andreas Augustin, Jerrie Pelser, Liwen Guo, Raphael Ducom, Georgii Dolzhykov, Joel Verhagen, Michael Ganss, Robin Sue, Henry Roeland, Adrian Phinney, Andreas Håkansson, Jeremy Meng, Yehudah Asher, Dennis Daume, Jakub Świętek, Dennis Gorelik, Georgios Diamantopoulos, Brian Ricketts, Laurynas Ruškys, Martin Wakley, Bastian Buchholz, Keith Hall, Nikita Ilinykh, Thomas Bolon, Alexander Ubillus, Max Katz, 그리고 생태계 저장소 곳곳의 더 많은 사람들이다.
+
+그중 **Michael Ganss**는 따로 언급된다. 그는 초기에 AngleSharp에 기여한 뒤, 그 위에 [HtmlSanitizer](https://github.com/mganss/HtmlSanitizer)를 만들었다. HTML에서 XSS 페이로드를 걷어내는 라이브러리다. 그러니까 웹의 HTML 살균 작업 중 상당 부분이, 비행기에서 시작된 사이드 프로젝트 코드를 거쳐 돌아가고 있는 셈이다. 게다가 그 라이브러리를 만든 사람은 원래 그 비행기 프로젝트의 버그를 고치던 사람이었다.
+
+AngleSharp가 [.NET Foundation](https://dotnetfoundation.org/) 프로젝트라는 점도 짚어둘 만하다. "한 사람의 여가 시간과 약간의 수면 부족" 말고도 프로젝트를 받치는 구조가 있다는 뜻이다.
+
+## 다운로드 3억 건, 생태계 전체로는 5억 건
+
+숫자로 보면 규모가 분명해진다. 글을 쓰는 시점에 코어 [AngleSharp NuGet 패키지](https://www.nuget.org/packages/AngleSharp/) 하나만으로 **다운로드 3억 1천만 건**을 넘겼다. 위성 패키지까지 합치면 생태계 전체 설치 수는 5억 건을 훌쩍 넘는다.
+
+![2013년부터 2026년까지 AngleSharp, AngleSharp.Css, AngleSharp.Diffing의 NuGet 다운로드 성장 곡선. 초기 몇 년은 거의 평평하다가 2019년 이후 가파르게 치솟는다](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/urfz6u2hs155ikhzd9s6.png)
+
+재미있는 건 곡선 모양이다. 10년 가까이 조용하다가 2019년 즈음부터 멈추지 않고 올라가는 하키스틱이다. 2025년 초 코어 패키지에 살짝 팬 구간은 NuGet 통계 쪽 문제이지 이탈이 아니라고 그는 덧붙인다.
+
+AngleSharp가 조용히 일하고 있는 곳들은 이렇다.
+
+- **[HtmlSanitizer](https://www.nuget.org/packages/HtmlSanitizer/)** — 자체 다운로드만 1억 2,800만 건 이상. AngleSharp로 HTML을 파싱하고 다시 렌더링하면서 XSS에 쓰일 만한 요소를 제거한다. 인터넷에서 사용자 제출 HTML을 안전하게 받는 .NET 앱이라면 AngleSharp가 문을 지키고 있을 가능성이 꽤 높다.
+- **[bUnit](https://bunit.dev/)** — Blazor 컴포넌트 단위 테스트의 표준으로 통하는 라이브러리. `AngleSharp.Diffing`을 써서 시맨틱 HTML 비교를 한다. 속성 순서나 공백에 신경 쓰지 않고 "이 렌더링 결과는 저 마크업과 같다"를 단언할 수 있는 게 이 부분이다.
+- **[PreMailer.Net](https://www.nuget.org/packages/PreMailer.Net/)** — HTML 이메일에 CSS를 인라인으로 밀어 넣는 라이브러리. 이메일 클라이언트가 아직도 2003년을 살고 있기 때문에 필요하다. 다시 쓸 마크업과 스타일을 실제로 이해하는 데 AngleSharp를 쓴다.
+- **[WebDriverManager](https://www.nuget.org/packages/WebDriverManager/)** — Selenium WebDriver 바이너리를 관리하는 .NET 도구. 역시 AngleSharp에 의존한다.
+
+직접 의존하는 프로젝트 목록에는 이미 써봤을 법한 이름들이 있다. 패스워드 매니저 **Bitwarden**, 토렌트·인덱서 도구인 **Jackett**과 **Prowlarr**, 게임 라이브러리 관리자 **Playnite**, **ArchiSteamFarm**, CMS 겸 앱 프레임워크 **OrchardCore**, .NET용 OAuth2/OpenID Connect 구현인 **OpenIddict**, **YoutubeExplode**, 심지어 Microsoft의 [ASP.NET Core 문서 도구](https://github.com/dotnet/AspNetCore.Docs) 저장소까지.
+
+비행기에서 파서 상태를 끄적일 때 계획한 일은 하나도 없었다. 다만 ".NET을 위한 정말 견고한 표준 준수 HTML 파서"는 한 번 존재하고 나면 온갖 곳에 쓰이게 되는, 화려하지 않은 종류의 기반 부품이었을 뿐이다.
+
+## 써보기
+
+NuGet에서 코어 패키지를 설치한다.
+
+```bash
+dotnet add package AngleSharp
+```
+
+그리고 첫 문서를 파싱한다.
+
+```csharp
+using AngleSharp;
+using AngleSharp.Html.Parser;
+
+var parser = new HtmlParser();
+var document = await parser.ParseDocumentAsync("<h1>Hello!</h1><p>AngleSharp says hi.</p>");
+
+var heading = document.QuerySelector("h1");
+Console.WriteLine(heading.TextContent); // Hello!
+```
+
+여기까지가 hello world 버전이다. 실제 사용은 대부분 `BrowsingContext`를 거친다. 브라우저 탭처럼 동작하는 객체로, 네트워크에서 문서를 불러오고 링크를 따라가고 폼을 제출한다. 정적 파서보다는 좀 더 살아 있는 물건에 가깝다.
+
+```csharp
+using AngleSharp;
+
+var config = Configuration.Default.WithDefaultLoader();
+var context = BrowsingContext.New(config);
+
+var document = await context.OpenAsync("https://example.com");
+
+foreach (var link in document.QuerySelectorAll("a"))
+{
+    Console.WriteLine(link.GetAttribute("href"));
+}
+```
+
+CSS까지 필요하면 플러그인을 추가하고 설정에 등록한다.
+
+```bash
+dotnet add package AngleSharp.Css
+```
+
+```csharp
+var config = Configuration.Default
+    .WithDefaultLoader()
+    .WithCss();
+
+var context = BrowsingContext.New(config);
+var document = await context.OpenAsync("https://example.com");
+
+var body = document.QuerySelector("body");
+var style = body.ComputeCurrentStyle();
+Console.WriteLine(style.GetPropertyValue("background-color"));
+```
+
+스크립팅(`AngleSharp.Js`), XML 검증(`AngleSharp.Xml`), HTML 조각의 시맨틱 비교(`AngleSharp.Diffing`)도 방식은 같다. `With...()` 한 줄이면 새 기능이 붙는다.
+
+## 강점과 한계
+
+강점부터.
+
+- **분위기가 아니라 표준.** 파서는 에러 복구 규칙을 포함해 실제 HTML5 파싱 알고리즘을 따른다. 깨진 마크업을 넣으면 정규식과 기도에 기댄 해법이 아니라 브라우저가 하는 방식으로 복구한다.
+- **래퍼가 아닌 진짜 DOM.** `querySelector`, `querySelectorAll`, LINQ-to-DOM, 폼 제출, `BrowsingContext`를 통한 내비게이션까지. 브라우저만 빠진 채로 브라우저 탭을 C#에서 스크립팅하는 느낌이다.
+- **설계부터 모듈형.** 실제로 쓰는 만큼만 의존성과 기동 비용을 낸다. CSS 캐스케이드 계산이 필요하면 패키지 하나, 인라인 `<script>` 실행이 필요하면 또 하나.
+- **성능.** 브라우저 엔진이 되려 하지 않기 때문에 빠르다. 큰 문서도 밀리초 단위로 파싱하고, 내부적으로 엘리먼트를 재사용해 할당을 줄인다.
+- **테스트 자동화와 잘 맞는다.** 특히 `AngleSharp.Diffing`은 속성 순서나 공백에 구애받지 않고 "이 HTML은 저 HTML과 의미상 같다"를 단언하기에 좋다.
+
+한계도 그는 직접 적어둔다.
+
+- **브라우저가 아니다.** 레이아웃 엔진도, 페인팅도, 실제 시각적 렌더링도 없다(아직은). 픽셀 단위로 정확한 렌더링이 필요하면 Playwright나 헤드리스 Chromium을 써야 한다.
+- **JavaScript 지원은 제한적이다.** `AngleSharp.Js`는 [Jint](https://github.com/sebastienros/jint) 위에서 돈다. 진짜 ECMAScript 엔진이긴 하지만 V8은 아니다. 완전한 브라우저 런타임에 기대는 최신 SPA는 편한 영역이 아니다. 불가능하지는 않다.
+- **생태계가 여러 저장소에 흩어져 있다.** Core, Css, Js, Xml, Io, Diffing, Wasm. 설계상 모듈형이라는 건 강점이지만, 패키지 간 버전 호환에 가끔 신경을 써야 한다는 뜻이기도 하다. 다만 모든 패키지의 공통 의존성은 대체로 코어 하나뿐이다.
+- **과거에 파괴적 변경이 있었다.** 1.0 이전의 AngleSharp는 API가 실제로 많이 흔들렸다. 지금은 안정적이고 시맨틱 버저닝을 지키지만, 10년 전 블로그 글에서 본 API는 지금과 다르게 생겼을 것이다.
+
+## 패키지 구성
+
+필요에 따라 마주치게 될 패키지들이다.
+
+- [**AngleSharp**](https://github.com/AngleSharp/AngleSharp) ([NuGet](https://www.nuget.org/packages/AngleSharp/)) — 코어. HTML5/XML 파싱, DOM, 설정.
+- [**AngleSharp.Css**](https://github.com/AngleSharp/AngleSharp.Css) — CSSOM, 셀렉터, 캐스케이드, 계산된 스타일.
+- [**AngleSharp.Js**](https://github.com/AngleSharp/AngleSharp.Js) — Jint를 통한 JavaScript 실행.
+- [**AngleSharp.Xml**](https://github.com/AngleSharp/AngleSharp.Xml) — XML 파싱과 XSD/DTD 검증.
+- [**AngleSharp.Io**](https://github.com/AngleSharp/AngleSharp.Io) — 리퀘스터, 쿠키, 네트워킹 스택.
+- [**AngleSharp.Diffing**](https://github.com/AngleSharp/AngleSharp.Diffing) — 시맨틱 DOM 디핑. 테스트에 유용하다.
+- [**AngleSharp.Wasm**](https://github.com/AngleSharp/AngleSharp.Wasm) — WebAssembly/Blazor로 브라우저 안에서 AngleSharp 실행.
+
+질문이 있다면 저장소에 이슈를 여는 게 가장 확실하다. [Gitter 채팅방](https://gitter.im/AngleSharp/AngleSharp)과 [Stack Overflow 태그](https://stackoverflow.com/tags/anglesharp)도 있다.
+
+## 다음 목표는 렌더링
+
+처음의 목표, HTML과 CSS로 만든 크로스 플랫폼 GUI는 어떻게 됐을까. "일단 기본기부터 제대로 하자"에 밀려 일찌감치 서랍에 들어갔지만 완전히 사라지지는 않았다.
+
+AngleSharp의 다음 과제는 **렌더링**이다. 포인터를 움직이고 키 입력을 보내는 식으로 대화형으로도 쓸 수 있고, 단순히 스크린샷만 찍을 수도 있는 범용 헤드리스 렌더러가 계획이다. 그 위에 앱에 임베드할 수 있는 크로스 플랫폼 컨트롤을 올리는 것이 목표이고, 기반은 **Avalonia**가 유력하다.
+
+브라우저를 만드는 거냐고 물으면 그는 앞서가지 말자고 답한다. 다만 프로젝트가 지난 10년 중 어느 때보다 원래 비전에 가까워졌다는 말은 해도 된다고 덧붙인다.
+
+비행기 좌석에 쌓아둔 명세 인쇄물에서 시작해, XSD 검증과 WASM 지원을 갖춘 성숙한 파싱 생태계까지 온 이야기다. 코드는 [GitHub](https://github.com/AngleSharp/AngleSharp)에, 패키지는 [NuGet](https://www.nuget.org/packages/AngleSharp/)에 있다. 연재 다음 편은 그의 또 다른 프로젝트다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
