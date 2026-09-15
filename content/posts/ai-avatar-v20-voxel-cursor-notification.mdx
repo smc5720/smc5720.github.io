@@ -1,0 +1,101 @@
+﻿---
+title: "AI Avatar v20 — 복셀 정원부터 커서 아바타까지"
+description: "VRoid(VRM) 아바타가 코딩을 응원해주는 무료 앱 AI Avatar가 20번째 버전을 내놨다. 방치형 복셀 정원, 만화경 배경, 그리고 사이드 패널을 벗어난 데스크톱 스핀오프 두 개가 추가됐다."
+date: "2026-09-13"
+published_at: "2026-09-15"
+category: "news"
+tags: []
+slug: "ai-avatar-v20-voxel-cursor-notification"
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fw03r4jpc38l2bc7fosv1.png"
+coverAlt: "AI Avatar v20, Cursor Avatar, Notification Avatar (Voxel Avatar)"
+source_id: "devto-4555568"
+source_url: "https://dev.to/webdeveloperhyper/ai-avatar-v20-cursor-avatar-notification-avatar-voxel-avatar-4dd2"
+source_title: "AI Avatar v20, Cursor Avatar, Notification Avatar (Voxel Avatar)🧊"
+source_author: "Web Developer Hyper"
+source_published: "2026-09-13"
+---
+
+<LinkCard url="https://dev.to/webdeveloperhyper/ai-avatar-v20-cursor-avatar-notification-avatar-voxel-avatar-4dd2" author="Web Developer Hyper" date="2026-09-13" />
+
+## 개요
+
+VRoid(VRM) 아바타가 옆에서 코딩을 응원해주는 무료 앱 **AI Avatar**가 버전 20을 공개했다. VS Code 사이드바에 띄우면 Claude Code나 GitHub Copilot의 동작에 반응하고, 브라우저 사이드 패널에 띄우면 ChatGPT나 Claude에 반응한다. 애니메이션과 말풍선은 AI 연동 없이도 돌아간다.
+
+이번 업데이트의 축은 네 가지다. 방치형 게임 모드인 **복셀 아바타(Voxel Avatar)**, 배경을 바꾸는 **만화경 모드**, 그리고 확장 프로그램이라는 울타리를 벗어난 데스크톱 스핀오프 **커서 아바타**와 **알림 아바타**다.
+
+## 복셀 아바타 — 자동으로 자라는 꽃밭
+
+[영상 보기 →](https://www.youtube.com/watch?v=8LUaYPmRIYk)
+
+[영상 보기 →](https://www.youtube.com/watch?v=RnIMtYAWeVQ)
+
+방치형 게임 모드는 협업자 Maximum Blue의 요청에서 출발했다. 방치형 게임은 손을 놓아도 알아서 진행되는 장르인데, AI Avatar 자체가 Claude Code 실행이나 클릭으로 반응하는 구조라 개발자는 두 성격이 잘 맞는다고 판단했다. 소재로 꽃 가꾸기를 고른 이유는 DEV 커뮤니티 친구인 @shubhradev가 정원 가꾸기를 좋아하기 때문이다.
+
+결과물은 마인크래프트를 닮은 단순한 복셀 정원이다. Claude Code를 돌리거나 클릭하면 꽃밭이 저절로 자라고, 직접 손으로 키울 수도 있다. 땅을 고르고 꽃을 심고, 나비를 배치하는 것도 가능하다. 가끔 비가 내리는데 그치고 나면 무지개가 뜬다.
+
+정작 가장 어려웠던 건 코딩이 아니라 3D 오브젝트 제작이었다. `Three.js`로 간단한 꽃 하나 만들려던 작업이었는데 AI가 전혀 해내지 못했다. 처음 내놓은 꽃은 원기둥에 구를 하나 얹은 물건이었다고 한다. 결국 "꽃 중심 주위에 얇은 원기둥으로 타원형 꽃잎 5장을 붙여라" 같은 식으로 한 단계씩 직접 설명해야 했다.
+
+## 만화경 모드와 Piper TTS
+
+[영상 보기 →](https://www.youtube.com/watch?v=KBcl5JZrwcQ)
+
+만화경(Kaleidoscope) 모드는 무작위 형태의 배경을 보여준다. 형태는 취향대로 조절할 수 있다.
+
+음성 합성 쪽에도 손을 댔다. 기존에 쓰던 `Kokoro`는 품질은 좋지만 약간의 지연이 있고 설정 과정이 필요했다. 그래서 말풍선을 더 간편하게 들을 수 있는 선택지로 `Piper` TTS를 추가했다.
+
+## 사이드 패널 밖으로 — 스핀오프 두 개
+
+![설정 화면을 들여다보는 모습](https://images.pexels.com/photos/270700/pexels-photo-270700.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Pixabay](https://www.pexels.com/@pixabay) on [Pexels](https://www.pexels.com/photo/settings-android-tab-270700/)*
+
+AI Avatar는 확장 프로그램이라 `VS Code`와 `Chrome` 사이드 패널 안에서만 살 수 있다. 개발자는 이 제약을 풀려고 `Electron` 데스크톱 앱 스핀오프를 만들었다. 이제 아바타가 사이드 패널 바깥 어디에서든 나타난다.
+
+### 1. 커서 아바타
+
+[영상 보기 →](https://www.youtube.com/watch?v=qMxZJqRQXg8)
+
+클릭하는 자리마다 VRM 아바타가 튀어나와 애니메이션과 응원 말풍선을 띄운다.
+
+- 저장소: https://github.com/webdeveloperhyper/cursor-avatar
+
+### 2. 알림 아바타
+
+[영상 보기 →](https://www.youtube.com/watch?v=0SCemZqVo4w)
+
+개발자는 업무에서 `Claude Code`와 `Codex`를 쓰는데, 둘 다 작업이 멈추거나 승인을 기다릴 때 기본 알림이 없다. 멈춘 걸 모르고 지나치는 일이 잦아서 `Hooks`로 알림 아바타를 만들었다.
+
+먼저 간단한 스크립트로 동작을 확인했다.
+
+- 테스트 스크립트: https://github.com/webdeveloperhyper/claude-code-codex-notification
+
+그다음 이걸 아바타에 통합해 알림 아바타를 완성했다.
+
+- 저장소: https://github.com/webdeveloperhyper/notification-avatar
+
+Hooks로 할 수 있는 게 더 있어 보여서 앞으로 더 파볼 생각이라고 밝혔다.
+
+## 설치 방법
+
+VS Code 확장 버전은 설치 300회를 넘겼다. 두 가지 경로로 받을 수 있다.
+
+- **VS Code에서 바로**: 왼쪽 사이드바의 `Extensions` 버튼 > **AI Avatar** 검색 > `Install`
+
+![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/tth8lq5he7amhieh2l9v.png)
+
+- **마켓플레이스에서**: https://marketplace.visualstudio.com/items?itemName=web-developer-hyper.ai-avatar
+
+![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/ntpvooe7n55djawitt9g.png)
+
+크롬 버전은 웹스토어에서 설치한다.
+
+- https://chromewebstore.google.com/detail/ai-avatar/afmcfaeaaojalninahhhjnonhmlmiidi
+
+## 협업자들
+
+개발자는 여러 DEV 커뮤니티 친구들의 도움을 언급했다. 버전 17에서 Catbot과 AI Avatar를 함께 작업한 @annavi11arrea1, 버전 15의 이펙트를 도운 @rutenveil, 버전 2 업데이트를 도운 @gramli, 아바타 협업 프로젝트로 AI Avatar의 출발점이 된 @itsugo, 그리고 버전 6에서 독특한 아바타를 만든 동료 Maximum Blue다.
+
+버전 21도 이미 작업 중이다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

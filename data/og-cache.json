@@ -815,6 +815,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/dj29/5-devto-features-i-wish-existed-3-im-genuinely-relieved-they-dont-3b8n": {
+    "ok": true,
+    "title": "5 DEV.to Features I Wish Existed. 3 I'm Genuinely Relieved They Don't.",
+    "description": "I'm a DEV Trusted Member, which means I spend a pretty unreasonable amount of time in the review...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Frpy1dtrrp60hfzhs2akt.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-15"
+  },
   "https://dev.to/dj29/the-optimization-that-was-too-good-why-our-push-notifications-only-worked-when-you-werent-looking-2f4d": {
     "ok": true,
     "title": "The Optimization That Was Too Good: Why Our Push Notifications Only Worked When You Weren't Looking",
@@ -1478,6 +1486,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2Fwmwjqif6l7aysfm3pw7o.jpg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/hemapriya_kanagala/what-happens-when-ai-outgrows-the-tests-we-use-to-measure-it-30al": {
+    "ok": true,
+    "title": "What Happens When AI Outgrows the Tests We Use to Measure It?",
+    "description": "TL;DR  GPT-6 Astra has started another familiar AI conversation. The model is more capable, Jensen...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fmbizy1bvs5mibcqzbtyo.jpeg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-15"
   },
   "https://dev.to/hemapriya_kanagala/what-would-you-tell-someone-early-in-their-career-1k76": {
     "ok": true,
@@ -2526,6 +2542,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2Fcslacllcxnjb0e9qe6nr.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/webdeveloperhyper/ai-avatar-v20-cursor-avatar-notification-avatar-voxel-avatar-4dd2": {
+    "ok": true,
+    "title": "AI Avatar v20, Cursor Avatar, Notification Avatar (Voxel Avatar)🧊",
+    "description": "Intro   AI Avatar is a free app where your VRoid (VRM) avatar cheers you with all its...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fw03r4jpc38l2bc7fosv1.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-15"
   },
   "https://dev.to/wiseai/i-built-a-version-bump-tool-in-rust-that-is-10000x-faster-than-its-python-counterparts-i6b": {
     "ok": true,
