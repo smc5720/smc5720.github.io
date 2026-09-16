@@ -335,6 +335,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/codingwithjiro/the-slow-and-quiet-cognitive-atrophy-of-a-modern-software-engineer-3lbh": {
+    "ok": true,
+    "title": "The Slow and Quiet Cognitive Atrophy of a Modern Software Engineer",
+    "description": "Over the past couple of months, I've read a lot of articles about the consequences of AI dependency...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fullwog99birf3pzk4teh.webp",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-16"
+  },
   "https://dev.to/copyleftdev/i-had-a-lot-of-fun-building-a-linux-packet-flight-recorder-k44": {
     "ok": true,
     "title": "I Had a Lot of Fun Building a Linux Packet Flight Recorder",
@@ -838,6 +846,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fqslnmj930ej0o6fe73x3.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/earlgreyhot1701d/my-agents-never-get-tired-i-do-on-satisficing-1mb": {
+    "ok": true,
+    "title": "My Agents Never Get Tired. I Do: On Satisficing",
+    "description": "I approved a prompt on a Tuesday morning and went to make a cup of Irish Afternoon tea. By the time I...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fzsweg9vst1vzhw8jmfb0.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-16"
   },
   "https://dev.to/elsie-rainee/i-tried-pair-programming-with-three-different-ai-tools-for-a-month-2nnc": {
     "ok": true,
@@ -2078,6 +2094,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fwkg82y5x1irq337p6yc5.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-30"
+  },
+  "https://dev.to/p0rt/ai-generated-tests-can-make-coding-agents-worse-heres-how-to-check-yours-3jc9": {
+    "ok": true,
+    "title": "AI-Generated Tests Can Make Coding Agents Worse. Here's How to Check Yours",
+    "description": "ExecCritic found that weak generated tests reduced repair success. A runnable Python example shows how to catch a test that approves the wrong fix.",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fsergei-parfenov.com%2Fassets%2Fai-generated-tests-can-make-coding-agents-worse.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-16"
   },
   "https://dev.to/p0rt/the-model-scored-30-the-harness-scored-100-which-one-did-you-benchmark-3mp4": {
     "ok": true,

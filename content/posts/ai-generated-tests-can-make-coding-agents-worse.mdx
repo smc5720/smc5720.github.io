@@ -1,0 +1,157 @@
+﻿---
+title: "AI가 만든 테스트가 코딩 에이전트를 망칠 때 — 내 테스트를 점검하는 법"
+description: "ExecCritic 연구는 품질이 낮은 생성 테스트가 자동 수정 성공률을 3.9%p 떨어뜨린다고 보고했다. 파이썬 예제 하나로 잘못된 패치를 통과시키는 테스트를 직접 잡아낸다."
+date: "2026-09-11"
+published_at: "2026-09-16"
+slug: "ai-generated-tests-can-make-coding-agents-worse"
+category: "news"
+tags: ["ai", "testing", "python", "agents"]
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fsergei-parfenov.com%2Fassets%2Fai-generated-tests-can-make-coding-agents-worse.png"
+coverAlt: "AI-Generated Tests Can Make Coding Agents Worse. Here's How to Check Yours"
+source_id: "devto-4632045"
+source_url: "https://dev.to/p0rt/ai-generated-tests-can-make-coding-agents-worse-heres-how-to-check-yours-3jc9"
+source_title: "AI-Generated Tests Can Make Coding Agents Worse. Here's How to Check Yours"
+source_author: "Sergei Parfenov"
+source_published: "2026-09-11"
+---
+
+<LinkCard url="https://dev.to/p0rt/ai-generated-tests-can-make-coding-agents-worse-heres-how-to-check-yours-3jc9" author="Sergei Parfenov" date="2026-09-11" />
+
+## 개요
+
+테스트가 전부 초록불인데 버그가 늘어나는 상황. 개발자 Sergei Parfenov는 이 익숙한 광경이 AI 코딩 에이전트와 만나면 단순한 실수를 넘어선다고 지적한다. 에이전트는 테스트 결과를 다음 수정의 근거로 삼기 때문에, 틀린 테스트 하나가 멀쩡한 코드를 망가뜨리는 방향으로 수정 루프를 끌고 간다.
+
+근거도 있다. 9월 8일 Leitian Tao 연구팀이 공개한 ExecCritic 사전 논문은 생성된 테스트의 품질에 따라 자동 수정 성공률이 오르내린다는 실측치를 담았다. 약한 테스트를 피드백으로 넣었더니 아예 피드백을 주지 않은 경우보다 성적이 떨어졌다.
+
+Parfenov는 LLM도 네트워크도 쓰지 않고 파이썬 표준 라이브러리만으로 돌아가는 예제를 만들어, 이 문제가 어떻게 생기는지 손으로 재현해 보였다.
+
+## 초록불 두 개가 숨긴 버그
+
+주문 필터 함수의 요구사항은 세 가지다.
+
+- 필터를 생략하거나 `None`을 넘기면 전체 주문을 반환한다.
+- 빈 리스트를 넘기면 아무것도 반환하지 않는다.
+- 상태 목록을 넘기면 해당하는 주문만 반환한다.
+
+보고된 버그는 필터를 생략했을 때 아무것도 안 나온다는 것. 제안된 수정안은 이렇다.
+
+```python
+ORDERS = [
+    {"id": 1, "status": "paid"},
+    {"id": 2, "status": "pending"},
+]
+
+def filter_orders(orders, statuses=None):
+    if not statuses:
+        return list(orders)
+    return [order for order in orders if order["status"] in statuses]
+
+assert filter_orders(ORDERS) == ORDERS
+assert filter_orders(ORDERS, ["paid"]) == [ORDERS[0]]
+print("2 checks passed")
+```
+
+두 검사 모두 통과한다. `if` 문의 양쪽 분기도 전부 실행됐다. 보고된 증상도 사라졌다.
+
+그런데 두 번째 요구사항을 검사하는 줄을 하나 더 붙이면,
+
+```python
+assert filter_orders(ORDERS, []) == []
+```
+
+실패한다. 함수가 주문을 전부 돌려준다.
+
+파이썬은 `None`과 `[]`를 똑같이 거짓으로 취급한다. 요구사항은 둘에 서로 다른 의미를 부여했는데, 패치가 그 구분을 지워버린 것이다.
+
+## 나쁜 테스트는 결함을 놓치는 데서 그치지 않는다
+
+여기서부터가 에이전트 이야기다. 테스트 결과가 다음 편집의 목표를 정한다면, 틀린 테스트는 단순히 결함을 못 잡는 수준을 넘어선다.
+
+앞의 예제에 이런 단언문이 추가됐다고 해보자.
+
+```python
+# 이 기댓값은 빈 리스트 요구사항과 정면으로 충돌한다.
+assert filter_orders(ORDERS, []) == ORDERS
+```
+
+망가진 패치는 이걸 통과한다. 반대로 올바른 구현은 실패한다. 이 실패를 자동 수정 루프에 넣으면, 루프는 이제 멀쩡한 동작을 부술 이유를 손에 쥔다. 단언문을 늘렸는데 틀린 해석만 더 단단해진 셈이다.
+
+![AI 보조 코드 디버깅 화면](https://images.pexels.com/photos/34804018/pexels-photo-34804018.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Daniil Komov](https://www.pexels.com/@daniil-komov) on [Pexels](https://www.pexels.com/photo/ai-assisted-code-debugging-on-screen-display-34804018/)*
+
+## "고치기 전엔 실패, 고친 뒤엔 통과"도 부족하다
+
+테스트 품질을 판단할 때 흔히 쓰는 기준이 있다. 수정 전에는 실패하고 수정 후에는 통과하는가. 이 기준마저 여기서는 충분하지 않다. 원래 구현은 이랬다.
+
+```python
+def filter_orders(orders, statuses=None):
+    statuses = statuses or []
+    return [order for order in orders if order["status"] in statuses]
+```
+
+기본 필터 단언문은 이 버전에서 실패하고 제안된 패치에서는 통과한다. 원래 버그는 제대로 잡아낸다. 다만 새로 생긴 버그는 잡지 못할 뿐이다.
+
+제대로 된 수정은 `None`을 명시적으로 처리한다.
+
+```python
+def filter_orders(orders, statuses=None):
+    if statuses is None:
+        return list(orders)
+    return [order for order in orders if order["status"] in statuses]
+```
+
+세 구현에 같은 검사를 돌리면 이런 표가 나온다.
+
+| 구현 | 기본 + paid 필터 검사 | 여기에 빈 리스트 검사 추가 |
+|---|---|---|
+| 원래 구현 | 1 통과, 1 실패 | 2 통과, 1 실패 |
+| 그럴듯한 패치 | 2 통과 | 2 통과, 1 실패 |
+| 올바른 패치 | 2 통과 | 3 통과 |
+
+빈 리스트 검사가 값어치를 하는 이유는 분명하다. 앞선 검사들이 똑같이 합격 처리했던 두 구현을 갈라놓기 때문이다. 세 구현과 검사, 실행 결과는 [실행 가능한 예제 파일](https://sergei-parfenov.com/assets/downloads/ai-test-demo.zip)로 공개돼 있다.
+
+## ExecCritic이 측정한 숫자
+
+Tao 연구팀은 Qwen-3.5-35B-A3B Repair 에이전트를 고정한 채, 피드백으로 넣는 테스트의 출처만 바꿔가며 SWE-bench Verified 결과를 측정했다.
+
+| 피드백 출처 | 해결한 과제 비율 |
+|---|---:|
+| 생성 테스트 피드백 이전, 최초 수정 | 61.2% |
+| 기본 Qwen Test 에이전트가 만든 테스트 | 57.3% |
+| GPT-5.6-sol이 만든 테스트 | 65.3% |
+
+약한 테스트는 해결률을 **3.9%p** 떨어뜨렸고, 좋은 테스트는 끌어올렸다.
+
+조건은 따져볼 필요가 있다. 수치는 수정 실행 3회의 평균이며 생성된 테스트를 재사용한다. 테스트 자격 검증에 실패한 경우 전체 과제 점수에는 최초 패치를 그대로 반영한다. 기준선에서 저장소 기존 테스트를 금지하지는 않았다. 해결 여부는 별도의 공식 평가기가 판정한다. 피드백 방식은 테스트 생성과 수정 작업이 추가로 들어가므로 연산 예산은 맞춰져 있지 않다. 원문 저자도 밝혔듯 이 숫자는 논문 저자들의 결과이지 별도로 재현한 벤치마크가 아니다. [방법과 결과](https://arxiv.org/html/2609.09133v1#S5)에서 상세 내용을 확인할 수 있다.
+
+## 리뷰할 때 던져야 할 질문 하나
+
+Parfenov가 AI 생성 테스트를 검토할 때 가장 먼저 묻는 질문은 이것이다. **이 테스트는 어떤 그럴듯한 오답 구현을 걸러내는가?**
+
+필터 예제라면 후보 실수를 바로 꼽을 수 있다. 필터를 아예 무시하거나, 필터가 없는 경우를 전부 빈 값으로 취급하거나, 빈 필터를 전부 없는 값으로 취급하거나. 셋은 계약을 각기 다르게 오해한 결과다. 이 경우들을 갈라놓는 테스트가 paid 주문 예시를 몇 개 더 늘리는 것보다 훨씬 많은 걸 알려준다.
+
+[뮤테이션 테스팅](https://mutmut.readthedocs.io/en/latest/)이 도움이 되는 지점도 여기다. 구현을 조금씩 바꿔보고 테스트 묶음이 그 변화를 잡아내는지 확인하는 방식이다. 살아남은 뮤테이션은 무엇을 바꿨는지 직접 들여다봐야 한다. 지원하는 입력 범위 안에서는 동등한 경우도 있기 때문이다. 이 예제에서 `statuses is None`을 `not statuses`로 바꾸는 건 요구된 동작에 관측 가능한 영향을 주므로 수동 뮤테이션으로 유용하다.
+
+## 에이전트 워크플로에 적용할 네 가지
+
+원문이 제안하는 절차는 네 단계다.
+
+**1. 패치를 검토하기 전에 기대 동작부터 적어둔다.** 평범한 경우, 보고된 실패, 그리고 그 실패와 가장 헷갈리기 쉬운 이웃 경우를 모두 포함한다. 이 예제라면 `None`과 `[]`는 서로 다른 줄에 적어야 한다. 이슈에 그 구분이 명시돼 있지 않다면, 어느 쪽 해석이든 테스트로 굳히기 전에 제품 결정을 먼저 받는다.
+
+**2. 기댓값을 프로덕션 코드만큼 꼼꼼히 리뷰한다.** 단언문은 제품에 대한 주장이다. 그 주장이 요구사항, 확립된 호환성 약속, 혹은 독립적으로 검증한 예시 중 무엇에 근거하는지 추적한다. 현재 출력값을 그대로 복사해 기댓값에 넣으면, 의심하려던 바로 그 동작을 그대로 보존하게 된다.
+
+**3. 수정 중에는 승인된 회귀 검사를 고정한다.** 에이전트가 구현을 바꾸는 동안, 검토를 마친 테스트로 별도 러너가 평가하게 한다. 테스트 명령과 설정도 함께 보호해야 한다. 패치가 실행 자체를 건너뛸 수 있다면 테스트 파일을 그대로 둔 것만으로는 소용이 없다. 테스트가 틀렸다면 명시적으로 수정하고 다시 검토한 뒤, 후보 패치를 다시 평가한다.
+
+**4. 에이전트에게 고치라고 하기 전에 실패를 직접 들여다본다.** 반환된 주문 목록이 틀렸다고 알려주는 단언문은 행동 증거로서 쓸모가 있다. 반면 의존성 누락, 임포트 실패, 테스트를 하나도 선택하지 못한 명령은 전혀 다른 대응이 필요하다. 무엇이 실행됐고 왜 실패했는지 기록해둔다.
+
+## 남는 한계
+
+ExecCritic은 테스트 생성과 수정을 분리하고, 원본 저장소에서 테스트 자격을 검증하며, 수정 과정 동안 테스트를 바꾸지 않는다. 수정 에이전트가 자기 목표를 임의로 옮기지 못하게 막는 설계다. 그래도 컨텍스트와 권한을 분리하는 것만으로 두 에이전트가 이슈를 똑바로 이해했다는 보장은 나오지 않는다. [논문](https://arxiv.org/html/2609.09133v1#S2)과 [공개된 구현](https://github.com/MSR-Orchard/execcritic)이 함께 공개돼 있다.
+
+위 네 단계는 모델을 새로 학습시킬 필요 없이 기존 프로젝트에 바로 시도해볼 수 있는 리뷰 절차다. 가치는 그 절차가 실제로 드러낸 버그와 잘못된 기댓값으로 판단하면 된다.
+
+다음에 AI로 코드를 고칠 일이 생기면, 원래 코드와 제안된 패치, 새 테스트를 함께 남겨두자. 요구사항을 위반하는 그럴듯한 대안 구현을 하나 떠올리고, 그 구현에 테스트를 돌려본다. 두 구현이 똑같이 초록불이 뜬다면, 이 테스트 묶음이 아직 답하지 못하는 질문을 하나 찾아낸 것이다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
