@@ -1,0 +1,131 @@
+﻿---
+title: "Gemma 4와 라즈베리 파이로 만든 책상 위 AI 로봇, DinoDesk AI"
+description: "카메라 없이 프라이버시를 지키면서도 복잡한 질문은 클라우드로 넘기는 하이브리드 LLM 구조. 레고로 몸체를 만든 공룡 로봇 DinoDesk AI의 제작기다."
+date: "2026-09-16"
+published_at: "2026-09-17"
+category: "news"
+slug: "dinodesk-ai-gemma4-raspberry-pi-companion-robot"
+tags: ["RaspberryPi", "Gemma", "Gemini", "Robotics"]
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fbebechien.github.io%2Fcozy-corner-future%2Fimages%2Fhow-we-built-a-desktop-companion-robot.png"
+coverAlt: "How we built a desktop companion robot with Gemma 4 and Raspberry Pi"
+source_id: "devto-4667014"
+source_url: "https://dev.to/googleai/how-we-built-a-desktop-companion-robot-with-gemma-4-and-raspberry-pi-2oke"
+source_title: "How we built a desktop companion robot with Gemma 4 and Raspberry Pi"
+source_author: "bebechien"
+source_published: "2026-09-16"
+---
+
+<LinkCard url="https://dev.to/googleai/how-we-built-a-desktop-companion-robot-with-gemma-4-and-raspberry-pi-2oke" author="bebechien" date="2026-09-16" />
+
+## 개요
+
+구글 AI 팀의 bebechien과 동료 Shama가 레고로 만든 공룡 모양 데스크 로봇 **DinoDesk AI**의 제작 과정을 공개했다. 핵심은 카메라를 아예 달지 않아 시각적 프라이버시를 100% 확보하면서도, 가벼운 대화는 로컬에서 즉시 처리하고 무거운 질문만 클라우드로 넘기는 **하이브리드 LLM 전환 구조**다.
+
+책상 위 라즈베리 파이가 본체 역할을 하고, 사용자의 메인 PC가 게이트웨이가 되어 로컬 **Gemma 4**와 클라우드 **Gemini Flash** 사이를 오간다. 몸체는 3D 프린팅한 플라스틱 껍데기 대신 레고 브릭과 테크닉 레버로 조립했다.
+
+[YouTube 영상 보기 →](https://www.youtube.com/watch?v=pXOTjxcNzdQ)
+
+![dinodesk](https://bebechien.github.io/cozy-corner-future/images/dinodesk-mk1.png)
+
+## 두 개의 뇌를 오가는 하이브리드 구조
+
+AI 하드웨어를 만들 때 가장 골치 아픈 선택은 "뇌를 어디에 둘 것인가"다. 전부 클라우드에 맡기면 *"지금 몇 시야?"* 같은 사소한 질문 하나하나가 API 토큰을 소모하고, 네트워크 지연이 붙고, 음성 데이터가 인터넷을 타고 나간다. 반대로 온디바이스 소형 모델만 고집하면 거대한 코드베이스에 새 기능을 붙여달라거나 복잡한 개념을 설명해달라는 순간 바로 한계에 부딪힌다.
+
+제작진이 내놓은 답은 사용자 메인 PC에 **통합 LLM 게이트웨이(라우터)** 를 올리는 방식이었다. 책상 위 라즈베리 파이는 어느 엔진이 활성화됐든 상관없이 동일한 OpenAI 호환 요청을 Wi-Fi로 쏘기만 한다.
+
+```text
+ ┌─────────────────────────────────────────────────┐
+ │           [ Main PC / Local Gateway ]           │
+ │                                                 │
+ │   ┌─────────────────────────────────────────┐   │
+ │   │      Dynamic Model Router / Switch      │   │
+ │   └────────────────────┬────────────────────┘   │
+ │                        │                        │
+ │     ┌──────────────────┴──────────────────┐     │
+ │     v                                     v     │
+ │  [ LOCAL ENGINE ]              [ CLOUD ENGINE ] │
+ │  LM Studio / Gemma 4           Gemini Flash /   │
+ │  (Zero Latency, Private)       Gemini Live      │
+ └────────────────────────┬────────────────────────┘
+                          │
+                          │ Wi-Fi (Unified OpenAI-Compatible Stream)
+                          v
+ ┌─────────────────────────────────────────────────┐
+ │           [ DinoDesk AI (RPi) ]                 │
+ │  - Pirate Audio LCD & I2S Beep Speaker          │
+ │  - Push Button & Optional Sensors               │
+ └─────────────────────────────────────────────────┘
+```
+
+### 세 가지 동작 모드
+
+| 모드 | 활성 모델 | 특징과 주 용도 | 전환 방법 |
+| :--- | :--- | :--- | :--- |
+| **🟢 로컬 모드** *(기본값)* | **Gemma 4** (LM Studio) | 비용 0원, 오프라인 동작, 완전한 프라이버시. 잡담이나 타이머 설정, 상태 확인에서 첫 토큰까지 약 200ms. | Pirate Audio **버튼 X** 더블클릭, 정전식 터치 센서 3초 길게 누르기, 음성 명령(*"Switch to Cloud Mode"*) |
+| **🟡 클라우드 모드** | **Gemini Flash / Gemini Live** | 높은 추론력. 코딩 지원, 복잡한 수학, 깊이 있는 설명, 어학 학습에 적합. 첫 토큰까지 약 800ms. | 위와 동일 |
+| **⚡ 오토 하이브리드 모드** | **자동 라우팅** | 평소에는 로컬 **Gemma 4**로 돌다가, 복잡도 분류기가 다단계 추론 키워드(*"explain"*, *"compare"*, *"write code"*)를 감지하면 프롬프트를 **Gemini Flash**로 자동 승격한다. | 시스템 자동 라우팅 |
+
+오토 하이브리드 모드가 질문을 클라우드로 넘기면, 응답이 끝날 때까지 로봇의 표시등이 **🟢 초록색 유지**에서 **🟡 금색 유지**로 바뀌었다가 다시 초록으로 돌아온다. 지금 어느 쪽 뇌가 답하는지 눈으로 바로 알 수 있게 한 장치다.
+
+## 하드웨어: 레고 브릭과 Pirate Audio의 조합
+
+제작진은 DinoDesk AI가 차가운 스마트 스피커가 아니라 손에 잡히는 장난감처럼 느껴지길 원했다. 그래서 밀폐된 플라스틱 케이스를 3D 프린팅하는 대신 **기본 레고 브릭과 테크닉 레버 기구**로 몸체를 짰다. 누구나 원하는 대로 바꾸거나 고칠 수 있게 하려는 의도다.
+
+![책상 위 전자 기기](https://images.pexels.com/photos/2225618/pexels-photo-2225618.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Martin Lopez](https://www.pexels.com/@martinpechy) on [Pexels](https://www.pexels.com/photo/electronic-device-2225618/)*
+
+### 부품 목록
+
+1. **메인 컨트롤러:** 라즈베리 파이 + 32GB 마이크로SD
+2. **디스플레이 및 오디오 실드:** [Pimoroni Pirate Audio Speaker](https://shop.pimoroni.com/products/pirate-audio-mini-speaker?variant=31189753692243) — 1.3인치 240×240 ST7789 IPS LCD, I2S 1W 스피커, 촉각 버튼 4개
+3. **빨간 버튼:** 음성 캡처를 시작하고 멈추는 미니 푸시 버튼 스위치
+4. **오디오 입력:** 소형 USB 미니 마이크
+5. **구동계:** 목 움직임과 꼬리 흔들기를 담당하는 모터
+
+본체를 완성하기 전에는 라즈베리 파이와 단순한 레고 세트만으로 로직을 먼저 프로토타이핑했다.
+
+<img src="https://bebechien.github.io/cozy-corner-future/images/dinodesk-prototype1.gif" width="480" />
+<img src="https://bebechien.github.io/cozy-corner-future/images/dinodesk-prototype2.gif" width="480" />
+
+### 물리 버튼 조작
+
+음성과 센서로도 깨울 수 있지만, 전용 하드웨어 버튼이 주는 즉각적인 조작감은 따로 있다.
+
+* **버튼 A (GPIO 5) — 취소 / 음소거:** 진행 중인 응답 스트림을 즉시 끊고 소리를 죽인 뒤 `Idle` 상태로 복귀
+* **버튼 B (GPIO 6) — 홈 재정렬:** 현재 상태를 건드리지 않고 모든 서보를 중립 위치로 리셋
+* **버튼 X (GPIO 16) — 표정 및 엔진 전환:** 한 번 누르면 얼굴 표정 순환, 더블클릭하면 **로컬 ↔ 클라우드 모드** 전환
+* **버튼 Y (GPIO 24) — 꼬리 테스트 및 볼륨:** 한 번 누르면 꼬리 흔들기 시퀀스로 기구 정렬 확인, 2초 길게 누르면 비프음 볼륨 순환(`낮음 → 중간 → 높음 → 음소거`)
+
+## 살아 있는 느낌을 만드는 5단계 상태 머신
+
+눈과 목소리와 몸이 따로 놀면 로봇은 살아 있는 것처럼 보이지 않는다. 제작진은 240×240 LCD의 눈 표정, 8비트 비프음, 모터 움직임을 한데 묶는 **5단계 유한 상태 머신(FSM)** 을 설계했다.
+
+```text
+┌──────────┐  button     ┌───────────┐   release   ┌──────────┐   stream   ┌──────────┐
+│ Sleeping │──────────>  │   Idle    │────────────>│Listening │─────────>  │ Thinking │
+└──────────┘  (wake)     └───────────┘   (trigger) └──────────┘  (send)    └──────────┘
+                             ^                                                  │
+                             │              ┌──────────┐                        │
+                             └──────────────│ Speaking │<───────────────────────┘
+                               (done)       └──────────┘       (tokens arrive)
+```
+
+| 상태 | 진입 조건 | LCD 표정 | 8비트 사운드 | 모터 동작 (목 / 꼬리) |
+| :--- | :--- | :--- | :--- | :--- |
+| **1. Sleeping** | 3분간 미사용 또는 방이 어두울 때 | (`- _ -`)<br>감은 눈 + `zzz` | 무음 (옵션으로 부드러운 코골이) | 모터 이완, 고개 약간 숙임 |
+| **2. Idle** | 기본 대기 | (`•  •`)<br>자율 깜빡임 | 간헐적인 기상/깜빡임 차임 | 고개 중앙 정렬, 목을 천천히 흔듦 |
+| **3. Listening** | 버튼 클릭 또는 센서 감지 | (`O  O`)<br>눈이 밝게 커짐 | *"Beep-Boop!"* 상승음 | **사용자 쪽으로 고개 15° 기울임** |
+| **4. Thinking** | 음성 전송 후 라우터 추론 중 | (`º  º`)<br>회전하는 동공 + 모드 배지 | 불규칙한 처리음 (`tick-teek-poh`) | **목을 좌우로 천천히 흔듦** |
+| **5. Speaking** | SSE 토큰 스트림 수신 | 표정 있는 깜빡임 + 흐르는 자막 | **토큰마다 8비트 타자기 비프음** | **텍스트 길이에 맞춰 꼬리 흔들기** |
+
+## 마무리
+
+제작진은 AI가 브라우저 탭이나 클라우드 데이터센터 안에만 갇혀 있을 이유가 없다는 점을 이번 작업에서 다시 확인했다고 밝혔다. **Gemma 4** 같은 오픈 모델에 픽셀 눈과 8비트 목소리, 흔들리는 레고 꼬리를 달아주고, 무거운 작업이 필요할 때 **Gemini**를 불러올 수 있게 하면 책상 풍경이 꽤 달라진다는 것이다.
+
+아직 완성 단계는 아니며, 음성 채팅 기능을 온전히 구현한 뒤 다시 소식을 전하겠다고 덧붙였다. 소스는 깃허브에 공개돼 있다.
+
+[google-gemma/dinodesk-ai-companion 저장소 →](https://github.com/google-gemma/dinodesk-ai-companion/)
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

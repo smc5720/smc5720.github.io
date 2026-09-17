@@ -23,6 +23,14 @@
     "siteName": "",
     "fetchedAt": "2026-09-08"
   },
+  "https://dev.2o/dj29/ai-didnt-remove-the-engineering-work-it-just-made-it-easier-to-pretend-you-did-42m9": {
+    "ok": false,
+    "title": "",
+    "description": "",
+    "image": "",
+    "siteName": "",
+    "fetchedAt": "2026-09-17"
+  },
   "https://dev.to/abbeyperini/state-management-in-front-end-web-development-mutators-24gp": {
     "ok": true,
     "title": "State Management in Front-end Web Development: Mutators",
@@ -1183,6 +1191,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-11"
   },
+  "https://dev.to/googleai/build-real-time-voice-applications-with-gemini-38-live-and-35-transcribe-4nb5": {
+    "ok": true,
+    "title": "Build real-time voice applications with Gemini 3.8 Live and 3.5 Transcribe",
+    "description": "Yesterday, we released new Gemini Live models in the Gemini API and Google AI Studio, expanding our...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fow0e126ujeat6lp7vwkj.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-17"
+  },
   "https://dev.to/googleai/building-sweets-vault-a-multimodal-gemini-agent-with-physical-hardware-integration-1nmh": {
     "ok": true,
     "title": "Building \"Sweets Vault\" - a multimodal Gemini Agent with physical hardware integration",
@@ -1214,6 +1230,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F2ya5hqnsnkh2tl5jp2vy.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-02"
+  },
+  "https://dev.to/googleai/how-we-built-a-desktop-companion-robot-with-gemma-4-and-raspberry-pi-2oke": {
+    "ok": true,
+    "title": "How we built a desktop companion robot with Gemma 4 and Raspberry Pi",
+    "description": "The behind-the-scenes story of how we built DinoDesk AI—a privacy-first, LEGO dino companion robot powered by a hybrid Local Gemma 4 and Cloud Gemini architecture.",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fbebechien.github.io%2Fcozy-corner-future%2Fimages%2Fhow-we-built-a-desktop-companion-robot.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-17"
   },
   "https://dev.to/googleai/how-we-built-aiventure-an-ai-powered-retro-dungeon-2f54": {
     "ok": true,
@@ -1630,6 +1654,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F57fhizude83fc6h1lt42.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-09"
+  },
+  "https://dev.to/james_anderson_h/the-quiet-weight-of-working-in-tech-in-the-ai-era-551g": {
+    "ok": true,
+    "title": "The Quiet Weight of Working in Tech in the AI Era",
+    "description": "I've started noticing a look on people's faces.  It's in standups, in the half-second-too-fast \"yeah,...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F50zj4lwkbfsm336pv2ar.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-17"
   },
   "https://dev.to/jarvisscript/what-are-your-goals-for-the-week-182-2f0n": {
     "ok": true,
@@ -2470,6 +2502,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2F5lj9c3nv65ocm2ry954v.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/tanay_dwivedi9098/dont-make-tech-your-entire-personality-45dc": {
+    "ok": true,
+    "title": "🧩 Don't make Tech your entire personality.",
+    "description": "This is one of those articles that I wanted to write for many days, but I kept delaying it until, a...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fxet3n6gavmvob5dfz772.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-17"
   },
   "https://dev.to/thepracticaldev/general-challenge-updates-moving-forward-5h39": {
     "ok": true,
