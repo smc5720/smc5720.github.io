@@ -271,6 +271,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/aws/how-ai-actually-calls-an-api-tool-calling-explained-from-scratch-4lf8": {
+    "ok": true,
+    "title": "How AI Actually Calls an API? Tool Calling Explained from Scratch",
+    "description": "In the previous post, we taught a model to read our documents. It could search a pile of files and...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fmhtvo6zedugelnfp6o2v.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-18"
+  },
   "https://dev.to/aws/lambda-just-got-a-file-system-i-put-ai-agents-on-it-1ej8": {
     "ok": true,
     "title": "Lambda Just Got a File System. I Put AI Agents on It.",
@@ -326,6 +334,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fjtecye21uhduxpzyoj1s.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/cathylai/how-i-finally-learnt-to-solve-coding-interview-questions-2cop": {
+    "ok": true,
+    "title": "How I Finally Learnt to Solve Coding Interview Questions",
+    "description": "So you have an algorithmic coding interview coming up... You know the standard advice: think out...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fz8vlb6y81suy7evnqhy2.jpeg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-18"
   },
   "https://dev.to/cathylai/tailwind-css4-why-those-inline-styles-are-actually-more-scalable-a-senior-css-developers-guide-hdj": {
     "ok": true,
@@ -630,6 +646,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fkw8juyuab89jyfc851wf.webp",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/devteam/congrats-to-the-dev-weekend-challenge-dog-days-edition-winners-300g": {
+    "ok": true,
+    "title": "Congrats to the DEV Weekend Challenge: Dog Days Edition Winners!",
+    "description": "The results are in for our DEV Weekend Challenge: Dog Days Edition! Thank you for your patience while...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fkrehvaum6dypvyi3mixf.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-18"
   },
   "https://dev.to/devteam/congrats-to-the-dev-weekend-challenge-passion-edition-winners-30ne": {
     "ok": true,
@@ -1150,6 +1174,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fsllui7qdxqeu572u4xu0.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/gde/why-ai-keeps-making-the-same-coding-mistakes-and-how-teaching-it-pain-gives-it-wisdom-4a9m": {
+    "ok": true,
+    "title": "Why AI Keeps Making the Same Coding Mistakes—And How Teaching It Pain Gives It Wisdom",
+    "description": "Frontier LLMs excel at textbook code but fail in production. Here is how Synthetic Scars and biological pain give autonomous coding agents real wisdom.",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fouu91m3sesvpnwuivkge.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-18"
   },
   "https://dev.to/gde/why-did-my-benchmark-stop-at-n22-a-debugging-story-in-nine-bugs-3m2l": {
     "ok": true,
@@ -2070,6 +2102,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ft3ocii2a780fpxfkofd0.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-10"
+  },
+  "https://dev.to/nazar-boyko/i-added-one-key-to-a-php-array-it-cost-25-mb-of-memory-4b80": {
+    "ok": true,
+    "title": "I Added One Key to a PHP Array. It Cost 25 MB of Memory",
+    "description": "I was recently refactoring some legacy PHP code and noticed that the same data array was being used...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fxph73ufk57y1a7c7b8jg.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-18"
   },
   "https://dev.to/nazar-boyko/slopsquatting-the-supply-chain-attack-that-weaponizes-ai-hallucinations-2m2": {
     "ok": true,
