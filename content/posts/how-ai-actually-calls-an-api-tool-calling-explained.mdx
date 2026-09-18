@@ -4,7 +4,7 @@ description: "모델이 직접 코드를 실행하는 게 아니라 '호출 요�
 date: "2026-09-16"
 published_at: "2026-09-18"
 category: "news"
-tags: []
+tags: ["ai","llm","tutorial","backend","programming"]
 cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fmhtvo6zedugelnfp6o2v.png"
 coverAlt: "How AI Actually Calls an API? Tool Calling Explained from Scratch"
 slug: "how-ai-actually-calls-an-api-tool-calling-explained"
@@ -192,7 +192,7 @@ messages.append({
 final = bedrock.converse(modelId=MODEL, messages=messages, toolConfig={"tools": [WEATHER_TOOL]})
 ```
 
-왕복 한 번이면 끝이니 무슨 일이 벌어질지 미리 알 수 있고, 그래서 코드로 그냥 써버릴 수 있다. 실제 데이터를 손에 넣은 모델은 이렇게 답한다. *"토론토의 현재 날씨로 보면 지금 당장 우산은 필요 없을 겁니다."*
+왕복이 한 번뿐이라 무슨 일이 벌어질지 뻔하고, 그러니 코드에 그냥 박아넣어도 된다. 실제 데이터를 손에 넣은 모델은 이렇게 답한다. *"토론토의 현재 날씨로 보면 지금 당장 우산은 필요 없을 겁니다."*
 
 이 답은 모델 안에 존재하지 않던 문장이다. 도구 호출 한 번으로 얼어붙은 지식이 현재 시점으로 옮겨왔다.
 
@@ -204,7 +204,7 @@ final = bedrock.converse(modelId=MODEL, messages=messages, toolConfig={"tools": 
 
 ![Model does not know date](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/lx7644ivrggt5bubdgqz.png)
 
-도구 호출이 돌아오지 않는다. 모델은 현재 날짜에 접근할 수 없다고 솔직하게 말한다. 가진 도구가 날씨뿐이니 날짜에 닿을 방법이 없다. 저자가 인상적으로 본 지점은 모델이 모른다고 인정한다는 것, 즉 아는 척하지 않는다는 데 있다.
+도구 호출이 돌아오지 않는다. 모델은 현재 날짜에 접근할 수 없다고 솔직하게 말한다. 가진 도구가 날씨뿐이니 날짜에 닿을 방법이 없다. 저자는 모델이 모른다고 인정하는 대목, 아는 척하지 않는 태도를 인상적으로 봤다.
 
 도구가 없어서 못 답하는 문제라면 해법은 뻔하다. 날짜 도구를 하나 더 준다.
 
@@ -239,7 +239,7 @@ def get_current_datetime() -> dict:
 
 ## 도구가 둘이 되면 루프가 필요해진다
 
-앞서의 깔끔한 직선에는 문제가 생긴다. 도구가 하나일 때는 왕복이 정확히 한 번이라는 걸 알았다. 둘이 되면 모델이 어느 도구를 고를지, 몇 개를 고를지, 첫 결과를 본 뒤 또 요청할지 알 수 없다. 그래서 네 단계가 루프 안으로 들어간다. 모델이 도구를 계속 요청하는 동안 돌리고, 답을 쓰기 시작하면 멈춘다.
+그 깔끔한 직선은 여기서 무너진다. 도구가 하나일 때는 왕복이 정확히 한 번이라는 걸 알았다. 둘이 되면 모델이 어느 도구를 고를지, 몇 개를 고를지, 첫 결과를 본 뒤 또 요청할지 알 수 없다. 그래서 네 단계가 루프 안으로 들어간다. 모델이 도구를 계속 요청하는 동안 돌리고, 답을 쓰기 시작하면 멈춘다.
 
 ```python
 # name → the real function to run when the model asks for it.
@@ -290,7 +290,7 @@ while True:
 
 순수한 모델이 오늘 날짜를 모른다면, ChatGPT나 Claude 같은 어시스턴트는 어떻게 즉시 답하는 걸까. 매번 날짜 도구를 호출하는 걸까. 저자의 답은 아니다.
 
-Anthropic은 Claude에 쓰는 시스템 프롬프트를 [릴리스 노트](https://docs.anthropic.com/en/release-notes/system-prompts)로 공개하고 있다. 여기에 따라오는 설명은, Claude의 웹 인터페이스와 모바일 앱이 시스템 프롬프트로 현재 날짜 같은 최신 정보를 모든 대화 시작 시점에 제공한다는 것이다.
+Anthropic은 Claude에 쓰는 시스템 프롬프트를 [릴리스 노트](https://docs.anthropic.com/en/release-notes/system-prompts)로 공개하고 있다. 거기 붙은 설명에 따르면, Claude의 웹 인터페이스와 모바일 앱은 대화가 시작될 때마다 현재 날짜 같은 최신 정보를 시스템 프롬프트에 넣어준다.
 
 도구는 돌지 않는다. 사용자 메시지가 도착하기 전에 지시문에 끼워 넣은 텍스트일 뿐이다. 모델은 날짜를 컨텍스트로 받은 것이다. 같은 걸 스크립트에서도 할 수 있다. 날짜 도구를 없애고 오늘 날짜를 시스템 프롬프트에 평문으로 붙이면 된다.
 
