@@ -1,0 +1,108 @@
+﻿---
+title: "고친 실수를 AI 코딩 도구가 또 반복하는 이유"
+description: "메모리 시스템 6종의 공개 문서를 뒤져, 잘못된 회상에 '틀렸다'고 알릴 입력이 있는지, 그 입력이 무엇에 붙어 있고 다음 검색을 어떻게 바꾸는지 정리했다."
+date: "2026-09-15"
+published_at: "2026-09-19"
+category: "news"
+tags: ["ai", "memory", "devtools", "llm"]
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fxldx0wn2brk18u8jwe2z.png"
+coverAlt: "How can I prevent my AI coding assistant from repeating fixed mistakes across sessions?"
+slug: "devto-prevent-ai-assistant-repeating-fixed-mistakes"
+source_id: "devto-4640240"
+source_url: "https://dev.to/izgorodin/how-can-i-prevent-my-ai-coding-assistant-from-repeating-fixed-mistakes-across-sessions-2kf7"
+source_title: "How can I prevent my AI coding assistant from repeating fixed mistakes across sessions?"
+source_author: "Edward Izgorodin"
+source_published: "2026-09-15"
+---
+
+<LinkCard url="https://dev.to/izgorodin/how-can-i-prevent-my-ai-coding-assistant-from-repeating-fixed-mistakes-across-sessions-2kf7" author="Edward Izgorodin" date="2026-09-15" />
+
+## 개요
+
+화요일에 마이그레이션 스크립트가 스테이징 DB를 건드리면 안 된다고 알려줬다. 도구는 수긍했고, 스크립트를 다시 썼고, 세션이 끝났다. 목요일에 새 세션을 열자 같은 스크립트가 다시 스테이징을 향했다. 이유를 적어둔 메모는 메모리 안에 그대로 있었다. 다만 예전 방식과 나란히 불려 나왔을 뿐, 둘 중 어느 쪽이 실패했는지 가릴 표식이 없었다.
+
+Mnemoverse에서 일하는 Edward Izgorodin은 이 흔한 불평 뒤에 숨은 기계적인 질문을 끄집어냈다. 회상 결과가 나빴을 때, 메모리 계층에서 무언가가 바뀌는가. 새로 뭔가를 쓸 때가 아니라, 실패했을 때 말이다. 그는 자기가 만드는 시스템을 포함해 메모리 시스템 6종에 같은 질문을 던지고 각 벤더의 공개 문서에서 답을 찾았다.
+
+## 기록과 학습은 다른 동작이다
+
+교정 내용을 적어두는 것으로는 해결되지 않는다. 이유는 분명하다. 실수를 실어 나른 그 메모리가 저장소에 그대로 남아 있고, 여전히 검색 대상이다. 다음 세션이 시작되면 그 메모리는 당신의 교정문 옆에 나란히 모델 앞에 도착한다. 둘을 가르는 것은 아무것도 없다.
+
+저자는 두 동작을 구분한다. 저장은 실수를 다시 읽을 수 있다는 뜻이다. 학습은 그 결과가 나빴기 때문에 시스템의 다음 행동이 달라진다는 뜻이다. 글 전체를 관통하는 한 문장도 여기서 나온다. 나쁜 회상을 신고해도 다음 읽기가 달라지지 않는다면, 그건 학습이 아니라 일기다.
+
+![사람이 컴퓨터로 작업하는 모습](https://images.pexels.com/photos/5380594/pexels-photo-5380594.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Tima Miroshnichenko](https://www.pexels.com/@tima-miroshnichenko) on [Pexels](https://www.pexels.com/photo/person-using-a-computer-5380594/)*
+
+## 다섯 중 넷은 입력을 공개하고 있었다
+
+저자는 첫 조사에서 각 벤더 문서 트리의 첫 페이지만 읽고 "결과 피드백 입력을 공개하는 곳이 거의 없다"고 결론 냈다가 스스로 틀렸다고 밝혔다. 해당 입력을 설명한 페이지들이 루트에서 몇 단계 아래에 묻혀 있었던 탓이다. 벤더 문서 호스트에서 다시 훑자, 자사를 뺀 다섯 중 넷이 부정 판정을 받는 입력을 공개하고 있었다.
+
+갈리는 지점은 입력의 존재 여부가 아니었다. 그 입력이 **무엇에 붙어 있는지**, 그리고 다음 읽기에서 뭐가 달라지는지를 벤더가 밝히는지였다.
+
+| 시스템 | 부정 판정을 받는 공개 입력 | 붙는 대상 | 벤더가 밝힌 효과 |
+| :--- | :--- | :--- | :--- |
+| Cognee | `cognee.session.add_feedback` — 피드백 텍스트 + 1~5점 | 세션 안 회상 답변(식별자 기준) | "To make feedback influence future retrieval, run improve() with the relevant session_ids." |
+| Mem0 | `POST /v1/feedback/` — POSITIVE, NEGATIVE, VERY_NEGATIVE | 메모리 결과(memory id 기준) | "Submit positive or negative feedback on memory results" — 랭킹 언급은 없음 |
+| Letta | `PATCH /v1/steps/{step_id}/feedback` — positive/negative | 실행 스텝 | 스텝의 피드백을 수정한다는 설명뿐, 검색 순서와 연결 없음 |
+| Supermemory | review 엔드포인트 — approve, decline, undo | 엔진이 **추론한** 메모리(사용자가 진술한 것이 아님) | 미검토 추론 메모리는 "is down-weighted in search", 거절된 것은 "Removed from search entirely" |
+| Zep | 조사한 표면에서 발견 못 함 | | |
+| Mnemoverse | `memory_feedback(atom_ids, outcome)` — -1.0~+1.0 실수값 | 회상이 반환한 메모리들 | "This tunes future recall", "unhelpful memories are out-ranked rather than erased" |
+
+인용문은 모두 열어볼 수 있는 페이지의 연속된 문자열이며, 2026-09-12에 재확인했다고 저자는 밝혔다.
+
+## 어디에 붙어 있느냐가 전부를 가른다
+
+Cognee가 가장 선명한 사례다. 피드백 가이드는 상호작용을 기록하고, 평가하려는 답변의 식별자를 찾고, 거기에 `add_feedback`을 호출한다. 그리고 중요한 문장이 이어진다. 피드백이 향후 검색에 영향을 주게 하려면 해당 `session_ids`로 `improve()`를 돌리라는 것. 검색 답변에 붙은 입력이면서, 거기서 다음 검색 동작으로 이어지는 경로까지 공개돼 있다.
+
+Mem0도 입력을 공개한다. 다만 정직하게 봐야 할 경계는 그 페이지가 **말하지 않는** 쪽이다. 엔드포인트는 메모리 식별자와 세 값 중 하나를 받는다. 무엇을 받는지는 적혀 있어도, 그 뒤 랭킹이 어떻게 되는지는 적혀 있지 않다. 한편 Mem0는 판정을 전혀 받지 않으면서 결과 순서를 움직이는 검색 시점 바이어스를 따로 공개한다. 최근 접근한 메모리를 끌어올리는 프로젝트 단위 감쇠(decay)로, 기본값은 꺼져 있고, 벤더 표현으로는 "Decay can reorder candidates but never removes them"이다. 빈도와 최근성은 랭킹을 움직인다. 답이 맞았는지는 움직이지 않는다.
+
+Letta의 입력은 존재하지만 다른 것에 붙어 있다. 스텝은 실행 객체이고, 여기에 긍정/부정을 다는 건 관측성과 평가에는 쓸모 있다. 하지만 검색된 메모리가 틀렸다는 신고는 아니고, 그 페이지 어디에도 나중 읽기의 순서를 바꾼다는 말은 없다.
+
+Supermemory의 review 엔드포인트는 회상이 어떻게 됐는지가 아니라, 엔진이 사실에 대해 내린 추측에 판정을 내린다. 파생된 사실이 참인가와, 돌아온 결과가 쓸모 있었나는 서로 다른 질문이다.
+
+Zep은 유일한 부재 주장이다. 저자는 범위를 같은 문장에 붙여뒀다. 조사한 날의 기계 판독 색인과 사이트맵에 올라온 페이지들에서는 회상에 대한 판정을 받는 입력을 설명하는 내용이 없었다는 것. 제품의 비공개 영역은 바깥에서 읽을 수 없으니 그쪽에 대해서는 아무 말도 하지 않는다.
+
+![코드가 띄워진 모니터 화면](https://images.pexels.com/photos/270632/pexels-photo-270632.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Pixabay](https://www.pexels.com/@pixabay) on [Pexels](https://www.pexels.com/photo/computer-coding-270632/)*
+
+## 맥락에서 배우는 것과 결과에서 배우는 것
+
+다섯 중 둘은 학습 방식에 대한 입장을 공개했는데, 양쪽 다 학습의 자리를 맥락에 둔다. Supermemory는 자사 모델이 "extracts and dreams on the context of every user, task, and tenant"라고 말한다. Letta의 연구 글은 학습이 토큰 공간에 속한다며 "updates to learned context, not weights"라고 주장한다. 둘 다 실체 있는 입장이고, 둘 다 같은 이야기다. 일어난 일을 더 많이 집어넣으면 모델이 더 나은 브리핑을 받는다는 것. 어느 문장도 직전 답이 쓸 만했는지에 대한 판정은 받지 않는다.
+
+같은 Letta 페이지가 사용자 피드백에서 대규모로 학습하는 실제 출시 메커니즘 하나를 지목하면서, 벤더 자신의 표현으로 두 가지 한계를 단다. Cursor의 탭 자동완성 모델은 당신의 프로젝트가 아니라 모두를 위해 개선되고, 추론과 행동이 아니라 자동완성을 다룬다는 것이다. 이 분야에 결과로부터 학습하는 곳이 하나도 없다는 글을 읽었다면, 이게 반례다.
+
+## 어휘가 기울어 있다
+
+이 메커니즘의 부정 방향을 가리키는 단어가 있다. 저자가 다섯 벤더 조직 전체를 대상으로 그 단어의 붙여쓴 철자를 코드 검색했더니 결과가 0건이었다. 대조군 용어는 모든 조직에서 파일이 나왔다. 다만 0이라는 숫자가 보이는 것만큼 많은 걸 말하지는 않는다. 다섯 중 둘은 라이브 문서 페이지에서 하이픈을 넣어 그 단어를 쓴다. Supermemory는 review 문서에서, Cognee는 자사 검색이 닫힌 노드를 down-weight 하지 **않는다**고 적은 가이드에서다.
+
+어휘가 한쪽으로 쏠려 있다. rerank는 어디에나 있는데, 나쁜 결과를 근거로 아래로 내리는 방향은 딱 두 번 적혀 있고, 그중 한 번은 그런 일이 일어나지 않는다는 문장이다.
+
+## 자사 시스템과 그 한계
+
+저자는 자신이 Mnemoverse에서 일한다는 점을 감안해 읽으라고 먼저 밝힌다. 이 시스템은 -1.0에서 +1.0 사이 값을 받는 결과 입력을 공개하고, 이 글이 다루는 사례가 바로 -1이다. 입력은 회상이 반환한 메모리들에 붙으므로 판정이 실제로 모델 앞에 놓였던 항목에 떨어지고, 움직이는 것은 메모리의 텍스트가 아니라 다음 읽기의 순서다.
+
+한계는 여섯 중 넷에 똑같이 적용된다. 엔진이 닫혀 있다. 값의 범위와 설명은 읽을 수 있어도 랭킹이 움직이는 걸 지켜볼 수는 없다. 게다가 자사가 낸 글에도, 측정한 프로덕션 트래픽에서 명시적 결과 피드백이 거의 완전히 부재했다고 적혀 있다. 결과를 신고하는 일은 답이 이미 쓰인 뒤에, 아무도 보지 않을 때, 에이전트가 스스로 선택해야 하는 동작이기 때문이다.
+
+입력이 있다고 실수가 안 돌아오는 건 아니다. 아무도 호출하지 않는 채널과 존재하지 않는 채널은 같은 반복 실수를 만들어낸다. 저자는 이게 자사를 포함한 이 카테고리의 현주소를 가장 공정하게 요약한 말이라고 적었다.
+
+## 지금 쓰는 도구로 1분 만에 해보는 테스트
+
+1. 도구가 들고 있는 메모리 중 틀린 걸 하나 찾는다.
+2. 그 메모리가 답할 만한 질문을 던져 틀린 항목이 돌아오는지 본다.
+3. **신고하기 전에** 새 세션에서 같은 질문을 두세 번 더 하고 순서가 저절로 움직이는지 기록한다. 이게 대조군이다.
+4. 도구가 허용하는 방식으로 틀렸다고 알린다. 엔드포인트든, review 액션이든, 슬래시 커맨드든, 채팅 메시지든 상관없다.
+5. 새 세션에서 같은 질문을 한 번 더 던진다. 컨텍스트 윈도우에 남은 것이 일을 대신하지 않도록.
+
+결과는 양방향으로 조심해서 읽어야 한다. 틀린 항목이 여전히 1위로 돌아왔다고 해서 신고가 허공으로 갔다는 증거는 아니다. 처음부터 다른 항목들보다 한참 앞서 있었다면 가중치가 내려가도 순위는 그대로일 수 있다. 반대로 신고 후에 순서가 움직였고 대조군에서는 한 번도 움직이지 않았다면, 이 글이 말하는 메커니즘의 후보를 찾은 것이다. 그다음 읽을 것은 벤더 자신의 설명이다.
+
+## 벤더에게 던질 네 가지 질문
+
+저자가 제시한 순서 그대로다.
+
+1. **결과를 받는 입력이 있는가.** 메모를 적는 자리가 아니라, 당신이 돌려준 게 틀렸다는 신고 말이다.
+2. **무엇에 붙는가.** 답변인가, 메모리인가, 스텝인가, 저장된 추측인가. 회상에 대한 것은 앞의 둘뿐이다.
+3. **무엇을 움직이고, 그게 어디에 적혀 있는가.** 텍스트인가, 가중치인가, 다음 읽기의 순서인가.
+4. **누가 그걸 보내야 하는가.** 마지막 질문의 답이 "작업이 끝난 뒤, 아무도 안 볼 때, 에이전트가"라면 나머지 전부를 그 사실을 염두에 두고 읽으라고 저자는 말한다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

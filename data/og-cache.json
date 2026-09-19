@@ -823,6 +823,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/devteam/what-was-your-win-this-week-2hcb": {
+    "ok": true,
+    "title": "What was your win this week?!",
+    "description": "👋👋👋👋 Looking back on your week -- what was something you're proud of? All wins count -- big or small...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fdgoho0zggcr56ntvbpvp.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-19"
+  },
   "https://dev.to/devteam/what-was-your-win-this-week-4na1": {
     "ok": true,
     "title": "What was your win this week!?",
@@ -1327,6 +1335,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/gramli/api-performance-testing-how-to-design-realistic-tests-59gn": {
+    "ok": true,
+    "title": "API Performance Testing: How to Design Realistic Tests",
+    "description": "Most of us have heard the term performance testing, whether before releasing a big new feature,...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fjn7c345u4x5xwstkdkfn.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-19"
+  },
   "https://dev.to/gramli/how-i-smashed-a-bug-in-a-shared-authentication-library-33fm": {
     "ok": true,
     "title": "How I Smashed a Bug in a Shared Authentication Library",
@@ -1670,6 +1686,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2Fr7aysz0kmk78v0fyh8uw.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/izgorodin/how-can-i-prevent-my-ai-coding-assistant-from-repeating-fixed-mistakes-across-sessions-2kf7": {
+    "ok": true,
+    "title": "How can I prevent my AI coding assistant from repeating fixed mistakes across sessions?",
+    "description": "On Tuesday you told the assistant that the migration script must never touch the staging database. It...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fxldx0wn2brk18u8jwe2z.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-19"
   },
   "https://dev.to/james_anderson_h/building-with-ai-when-you-dont-know-architecture-a-survival-guide-1ma3": {
     "ok": true,
@@ -2063,6 +2087,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-13"
   },
+  "https://dev.to/missamarakay/building-pocs-with-codex-and-github-copilot-while-they-try-to-adjust-my-poc-requirements-along-the-1fc9": {
+    "ok": true,
+    "title": "Building PoCs with Codex and GitHub Copilot while they try to adjust my PoC requirements along the way",
+    "description": "But Amara, you didn't include MY favorite AI!",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fcv88122n3hnl6zqsigcn.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-19"
+  },
   "https://dev.to/mk023/i-wrote-a-test-for-prompt-injection-it-passed-while-the-attack-worked-kc9": {
     "ok": true,
     "title": "I wrote a test for prompt injection. It passed while the attack worked.",
@@ -2310,6 +2342,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fl1eal2un0eek6dc8vg5i.gif",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/reporails/progressive-disclosure-what-where-when-and-why-36m3": {
+    "ok": true,
+    "title": "Progressive Disclosure: What, Where, When, and Why",
+    "description": "Do you remember when we first started using AGENTS.md files?   You would have a project root file...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F7x9oaexydefrqmsnmjka.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-19"
   },
   "https://dev.to/robertobutti/does-it-still-make-sense-to-learn-how-to-code-3g7g": {
     "ok": true,

@@ -1,0 +1,117 @@
+﻿---
+title: "Codex와 GitHub Copilot으로 PoC 만들기 — AI가 내 요구사항을 마음대로 바꾸려 할 때"
+description: "Apryse WebViewer 기반 PoC를 만들며 ChatGPT Codex와 GitHub Copilot을 비교한 기록. Copilot이 패키지 버전 문제를 해결하는 대신 요구사항 자체를 바꾸려 든 과정과, 웹 검색 권한 설정 하나로 결과가 뒤집힌 이야기."
+date: "2026-09-16"
+published_at: "2026-09-19"
+category: "news"
+slug: "devto-building-pocs-codex-github-copilot"
+tags: ["ai", "productivity"]
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fcv88122n3hnl6zqsigcn.png"
+coverAlt: "Building PoCs with Codex and GitHub Copilot while they try to adjust my PoC requirements along the way"
+source_id: "devto-4651817"
+source_url: "https://dev.to/missamarakay/building-pocs-with-codex-and-github-copilot-while-they-try-to-adjust-my-poc-requirements-along-the-1fc9"
+source_title: "Building PoCs with Codex and GitHub Copilot while they try to adjust my PoC requirements along the way"
+source_author: "Amara Graham"
+source_published: "2026-09-16"
+---
+
+<LinkCard url="https://dev.to/missamarakay/building-pocs-with-codex-and-github-copilot-while-they-try-to-adjust-my-poc-requirements-along-the-1fc9" author="Amara Graham" date="2026-09-16" />
+
+## 개요
+
+AI 코딩 도구 비교 글을 올린 지 10분 만에 "그 도구는 왜 안 넣었냐"는 질문이 날아왔다. Amara Graham은 그래서 ChatGPT Codex와 GitHub Copilot 두 개를 추가로 돌려봤다. 과제는 동일하다. PDF 뷰어를 띄우고 문서에서 데이터를 추출하는 PoC를 만드는 것.
+
+결과는 갈렸다. Codex는 다소 우회했지만 결국 요구사항대로 도착했고, GitHub Copilot은 요구사항을 바꾸자고 제안했다. 그리고 그 제안의 근거가 무엇이었는지 물었을 때, Copilot은 스스로를 고발했다.
+
+## Codex: 매끄러웠지만 핵심을 비워둔 채 시작했다
+
+새로 받은 ChatGPT에서 Codex는 5.6 Terra Medium으로 붙었다. 저자의 표현으로는 "주황색 로고만 없는 Claude" 같은 느낌.
+
+React PoC는 꽤 빨리 떴다. 다만 PDF 뷰어가 제대로 동작하기까지 몇 번, 추출 기능이 데이터 누락이나 마스킹 상황에서도 버티도록 만들기까지 또 몇 번 주고받아야 했다. 마스킹 처리된 필드를 빈 값으로 남기지 않고 바로 옆 라벨을 긁어오는 문제가 있었는데, 살짝 밀어붙이니 고쳐졌다.
+
+인상적이었던 건 테스트용 PDF였다. 다른 도구들보다 흥미로운 데이터와 포맷을 가진 유효한 PDF를 잘 찾아냈다(찾았다고 주장했다). 디렉터리 안의 코드를 직접 수정했고, 설정대로 승인을 요청했다. 저자는 `npm run dev`를 껐다 켜며 변경 결과를 확인하는 식으로 작업했다. 전체적으로 가장 매끄러운 경험이었다.
+
+문제는 시작 지점이었다. Codex는 초기 프로젝트에서 WebViewer를 스텁으로 만들어버렸다. Apryse WebViewer를 쓰자고 30초 만에 추천해놓고, 정작 그 부분을 비워둔 것이다.
+
+> 이건 의도적으로 프론트엔드 프로토타입입니다. 다음 구현 단계는 목(mock) 문서 뷰어를 Apryse WebViewer로 교체하고 추출/감사 동작을 백엔드 API에 연결하는 것입니다.
+
+당연히 이런 대답이 나올 수밖에 없다.
+
+> 좋네요, 그럼 실제로 추출을 해볼 수 있게 목 뷰어를 Apryse WebViewer로 바꿔줄래요?
+
+교체 자체는 빨랐다. 그래도 PoC로 검증하려던 바로 그 부분을 스텁으로 남긴 채 프론트엔드를 완성하는 선택은 이상하다. 커튼 뒤의 사람은 보지 말라는 식이다.
+
+![코드 작업 환경](https://images.pexels.com/photos/20580802/pexels-photo-20580802.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Art by Andia](https://www.pexels.com/@art-by-andia) on [Pexels](https://www.pexels.com/photo/minimal-photography-20580802/)*
+
+## GitHub Copilot: 속도는 압도적, 그다음이 문제였다
+
+이번 실험은 한 개를 빼고 전부 무료 티어로 진행했다. 그래서 금요일에 후속 작업을 하려다 바로 막혔다. 무료 티어 사용자에게는 GitHub Copilot 데스크톱 앱이 제공되지 않는다는 걸 실행하려는 순간에야 알았다.
+
+![Image description](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/rpvmgwzhh2995fxhnxpf.png)
+
+VS Code에서 띄웠더니 이번엔 Claude 데스크톱 앱 같은 화면을 기대하다가 한참 헤맸다. 설치가 잘못된 줄 알았는데 아니었다. 설치는 멀쩡했고, 대신 다른 조건이 필요했다. 새 프로젝트에서, 열려 있는 파일 없이 시작해야 한다. 열린 파일이 있으면 무조건 컨텍스트로 끌어다 쓴다.
+
+> 저는 GitHub Copilot이고, Claude Haiku 4.5를 사용하고 있습니다.
+
+Claude가 여기서 또 나온다. 참고로 저자는 Claude 데스크톱 앱에서는 Sonnet 5를 쓰고 있었다.
+
+속도는 정말 빨랐다. 5초 만에 PoC 프로젝트 구조를 내놨고, 워크스페이스 생성 버튼까지 붙여줬다. 부모 디렉터리를 고르자 1분도 안 걸려 프로젝트를 만들었다. 소모 크레딧은 0.2, 화면에 바로 표시된다.
+
+## 요구사항을 바꾸자고 제안하기 시작했다
+
+프로젝트 구조를 받고 의존성을 설치하면서 문제가 터졌다. Copilot에게 계속 해결을 요청했더니 제안이 이렇게 흘러갔다. WebViewer를 `9.something`에서 `10.0.0`으로 올려보자. 아니면 어차피 PoC니까 `latest`로 하자. 그러다 아예 `pdf.js`로 갈아타자고 했다.
+
+> Apryse 패키지가 제대로 설치되지 않았습니다. 이 패키지로 계속 고생했으니 대신 PDF.js를 씁시다. 더 간단하고 이미 동작합니다.
+
+고생한 쪽은 저자가 아니었다. 저자는 Copilot이 버전을 잡느라 헤매는 걸 지켜보고 있었을 뿐이다. 그래서 물었다.
+
+> Apryse에 대해 어떤 소스를 쓰고 있나요? 저는 Claude로는 PoC를 쉽게 만들 수 있었는데요.
+
+AI를 적대적으로 써보는 걸 좋아한다는 저자가 일부러 다른 도구 이름을 흘려본 것이다. 돌아온 답은 이랬다.
+
+> 맞습니다, 죄송합니다. Apryse에서 일하시니 제가 볼 수 없는 내부 패키지 접근 권한을 갖고 계실 겁니다.
+
+Microsoft Copilot이 디렉터리 트리에 있는 Apryse 이메일을 보고 똑같은 추론을 했던 적이 있다. 내부 저장소 접근 권한이 있는 게 아니라고 정정하자, 이번엔 PDF 뷰어와 Apryse를 따로 평가해보라는 쪽으로 말을 돌렸다.
+
+> Apryse 기반 코드를 생성할 때 어떤 소스를 쓰고 있나요? 패키지 버전이 오래된 것 같은데요. 이 대화에서 사용한 소스 목록을 줄 수 있나요?
+
+그러자 스스로 털어놨다.
+
+> 지적하신 게 맞습니다. 저는 특정 소스에 접근할 수 없습니다. 실시간 문서나 현재 패키지 버전이 아니라, 학습한 일반적인 패턴을 바탕으로 코드를 생성하고 있습니다.
+
+> Apryse에 대해서는 다음을 추측으로 만들어냈습니다.
+> * 패키지 이름 (`@pdftron/pdfjs-express`)
+> * API 구조 (`WebViewer()` 함수)
+> * 설정 옵션 (`path: '/lib'`)
+
+> 이게 문제인 이유는:
+> 1. npm에서 현재 버전을 확인할 수 없습니다
+> 2. 공식 Apryse 문서에 접근해 교차 확인할 수 없습니다
+> 3. 생성한 코드는 오래됐거나 틀렸을 가능성이 높습니다
+
+Apryse 문서는 공개되어 있다. 접근이 막혀 있던 건 문서가 아니라 Copilot의 실시간 웹 탐색 기능이었다.
+
+## 설정 하나를 켜자 결과가 뒤집혔다
+
+저자는 30분 남짓 쓰고도 상당히 화가 났다고 적었다. 이유는 시간 낭비 그 자체가 아니다.
+
+> AI가 확신에 차서 말하면 꽤 설득력이 있다. 의심할 이유가 없으니 그냥 받아들이게 된다. 이런 일이 터지기 전까지는.
+
+가장 문제인 지점은 대화 내내 단 한 번도 공개 인터넷에 접근할 수 없다는 사실을 먼저 말하지 않았다는 것이다. 다른 AI들은 인터넷 접근이 기본값이다.
+
+결국 GitHub 설정에서 웹 검색 허용 토글을 찾아 켰다. 그리고 새 채팅에서 똑같은 프롬프트를 다시 돌려 새 프로젝트를 만들게 했다.
+
+결과는 완전히 달랐다. 프로젝트 구조부터 판이했고, 패키지 버전 문제는 단 하나도 없었다. 10분 만에 동작하는 Apryse 기반 PoC가 나왔다. 범용 React 프로젝트가 아니라 프론트엔드와 백엔드를 갖춘 Apryse 기반 결과물이었다.
+
+## 남은 이야기
+
+저자는 업무에서 이 도구들을 쓰는 만큼 Microsoft Copilot도 계속 시도해볼 생각이고, Claude를 쓸 수 있는 프로그램에도 참여하려 한다.
+
+GitHub Copilot에 대한 아쉬움은 명확하다. 인터넷 접근 범위를 먼저 밝히지 않았고, 필요한 설정으로 안내하지도 못했다. 서드파티 기술이나 API 없이 평범한 프로그래밍만 하는 사람들에게는 그 제한이 오히려 안전장치이자 더 나은 경험일 수도 있다. 그렇다면 그렇다고 말해주면 된다는 게 저자의 요청이다.
+
+이런 전방위 도구 비교는 사실상 일회성이다. 손에 넣을 수 있는 도구를 전부 상시로 쓰지는 않을 테고, 개인화된 컨텍스트가 쌓이면 각 세팅의 순수한 비교도 어려워진다. 저자는 이 도구들에 시크릿 모드 같은 개념이 있는지 궁금해했다. DevEx 감사를 또 해보고 싶지만, 정작 이 도구들을 일상 업무에 쓰고 있다는 사실이 제약이 될 것 같다고 덧붙였다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
