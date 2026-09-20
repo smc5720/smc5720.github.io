@@ -1063,6 +1063,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/gde/a-4-gb-laptop-gpu-beats-a-12-core-cpu-by-43x-on-gemma-4-4150": {
+    "ok": true,
+    "title": "A 4 GB Laptop GPU Beats a 12-Core CPU by 4.3x on Gemma 4",
+    "description": "Serving Gemma 4 E2B q4_0 through llama.cpp on one laptop, twice: CPU-only and on a 2021-era 4 GB GTX 1650 Ti. Same GGUF, same binary, same prompts, one flag apart. The card takes decode by 4.3x, and needs only 1598 MiB to do it.",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fraw.githubusercontent.com%2Fxbill9%2Fgemma4-dev%2Fmain%2Fdocs%2Fcpu-vs-1650ti%2Fdevto-cover.274ec661.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-20"
+  },
   "https://dev.to/gde/breaking-the-multimodal-barrier-exploring-gemini-omni-and-my-time-with-gdg-calabar-569o": {
     "ok": true,
     "title": "Breaking the Multimodal Barrier: Exploring Gemini Omni and My Time with GDG Calabar",
