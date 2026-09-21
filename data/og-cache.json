@@ -2079,6 +2079,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/mikachu/i-built-a-green-blob-that-lives-on-my-desktop-and-now-it-has-feelings-4pjd": {
+    "ok": true,
+    "title": "i built a green blob that lives on my desktop. now it has feelings.",
+    "description": "A quick disclaimer before we dive in: when I say \"feelings,\" I mean state machines, bond...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fvroccpz0dnmvpyi2tgfm.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-21"
+  },
   "https://dev.to/minhlong2605/mam-com-landing-page-i-built-a-vietnamese-dinner-tray-on-a-3000-year-old-bronze-drum-3e6h": {
     "ok": true,
     "title": "🥁 Mâm Cơm Landing Page: I built a Vietnamese dinner tray on a 3,000-year-old bronze drum",
@@ -2294,6 +2302,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2F6va5qwq53mi9oq33ixg4.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/peter/gmail-please-let-me-hide-delegated-accounts-on-my-iphone-30e": {
+    "ok": true,
+    "title": "GMail, please let me hide delegated accounts on my iPhone",
+    "description": "Gmail's delegated accounts have started showing up in the app on my iPhone, and I find this...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fg4m416qr7wllaruop3ii.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-21"
   },
   "https://dev.to/playfulprogramming/functional-languages-are-heavily-imperative-4c1": {
     "ok": true,
