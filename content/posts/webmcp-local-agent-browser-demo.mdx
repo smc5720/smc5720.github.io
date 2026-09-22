@@ -1,0 +1,138 @@
+﻿---
+title: "AI 에이전트가 브라우저를 떠나지 않아도 된다면? WebMCP 로컬 에이전트 데모"
+description: "웹사이트가 AI 에이전트에게 직접 도구를 노출하는 실험적 브라우저 API, WebMCP. 개발자 Sylwia Laskowska가 컨퍼런스 발표를 위해 만든 로컬 모델 기반 크롬 확장 프로그램과 AI CEO 시뮬레이터 데모를 소개한다."
+date: "2026-09-21"
+published_at: "2026-09-22"
+category: "news"
+tags: []
+slug: "webmcp-local-agent-browser-demo"
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fyv8119jpkpgyckuk1v1c.png"
+coverAlt: "What If Your AI Agent Never Had to Leave the Browser? (Demo 🚀)"
+source_id: "devto-4702045"
+source_url: "https://dev.to/sylwia-lask/what-if-your-ai-agent-never-had-to-leave-the-browser-demo--5g"
+source_title: "What If Your AI Agent Never Had to Leave the Browser? (Demo 🚀)"
+source_author: "Sylwia Laskowska"
+source_published: "2026-09-21"
+---
+
+<LinkCard url="https://dev.to/sylwia-lask/what-if-your-ai-agent-never-had-to-leave-the-browser-demo--5g" author="Sylwia Laskowska" date="2026-09-21" />
+
+## 개요
+
+웹사이트가 AI 에이전트에게 쓸 수 있는 도구 목록을 직접 건네준다면 어떨까. WebMCP는 정확히 그 발상을 구현한 실험적 브라우저 API다. 페이지가 "여기 이런 기능들이 있다"고 선언하면, 에이전트가 그중 필요한 것을 골라 호출한다.
+
+개발자 Sylwia Laskowska는 참가자 2,000명 규모의 AGNTCon + MCPCon Europe에서 WebMCP를 주제로 발표했다. 발표를 준비하면서 데모를 안정적으로 돌리기 위해 직접 크롬 확장 프로그램까지 만들었고, 그 과정과 결과물을 정리해 공개했다.
+
+흥미로운 지점은 청중 구성이었다. 정교한 멀티 에이전트 아키텍처를 파고드는 사람들 옆에, 이미 잘 돌아가는 자기 제품에 AI 기능 하나만 얹고 싶어 하는 사람들이 꽤 많았다. 후자 그룹 상당수가 WebMCP 세션으로 몰렸다고 한다.
+
+## WebMCP는 무엇이고, MCP와 어떻게 다른가
+
+WebMCP는 웹사이트가 AI 에이전트에게 호출 가능한 도구를 명시적으로 노출하는 브라우저 API다. 아직 어린 기술이라 문법이 자주 바뀐다. 저자는 석 달 전 쓴 자기 글의 문법이 이미 낡았다고 털어놓는다. 에이전틱 AI 판에서 석 달은 그만큼 긴 시간이다.
+
+핵심 차이는 실행 맥락에 있다. 이른바 '클래식' MCP와 달리 WebMCP는 브라우저 안에서 동작한다. 해당 웹사이트가 열려 있어야 하고, 인증이 필요한 서비스라면 사용자가 로그인한 상태여야 한다. 그래야 비로소 에이전트가 그 페이지의 도구를 호출할 수 있다. 결국 에이전틱 브라우저나 크롬 확장 프로그램 같은 경로가 필요하다는 뜻이다. 최근 ChatGPT도 내장 브라우저에서 WebMCP 기반 사이트 도구를 지원하기 시작했다.
+
+![사람들이 서로를 바라보는 모습](https://images.pexels.com/photos/7266272/pexels-photo-7266272.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [cottonbro studio](https://www.pexels.com/@cottonbro) on [Pexels](https://www.pexels.com/photo/photo-of-people-looking-at-each-other-7266272/)*
+
+그래서 저자는 WebMCP의 가장 흥미로운 쓰임새가 멀티 에이전트 시스템의 웹 스크래핑이 아니라고 본다. 오히려 평범한 사용자가 매일 쓰는 제품과 더 쉽게 상호작용하도록 돕는 쪽에 무게를 둔다.
+
+일정은 어떨까. 저자는 컨퍼런스에서 WebMCP 작업자 중 한 명을 만났는데, 적어도 크로미움에서는 1월이나 2월쯤 어느 정도 안정화될 거라는 이야기를 들었다고 한다.
+
+## AI CEO 시뮬레이터: 지루한 장바구니 데모는 그만
+
+저자의 데모는 흔한 `addToCart()` 예제가 아니다. **AI CEO Simulator** — AI에게 회사 경영을 맡기면 무슨 일이 벌어지는지 보여주는 웹앱이다.
+
+![AI CEO Simulator 스크린샷](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/q4yqy9e69cqagrex3mp8.png)
+
+화면에는 스타트업 지표가 빠짐없이 들어 있다. 현금, 월 매출, 직원 수, 운영 장애 건수, 직원 행복도, 그리고 당연히 하이프 레벨까지. 이사회 결정 버튼도 준비돼 있다. **Adopt AI**, **Pivot to Agents**, **Rewrite in Rust**, **Fire Employees**, **Hire Employees** 같은, 어디서 많이 본 선택지들이다. 활동 로그도 물론 남는다.
+
+중요한 건 이게 여전히 지극히 평범한 웹사이트라는 점이다. 사람이 직접 클릭해서 다 쓸 수 있다. 저자가 WebMCP를 좋아하는 이유도 거기 있다. 제품을 AI 중심으로 갈아엎지 않아도 된다. 기존 웹사이트에 능력 하나를 더 얹는 방식이다.
+
+- GitHub: https://github.com/sylwia-lask/ai-ceo-webMCP
+- 데모: https://sylwia-lask.github.io/ai-ceo-webMCP/
+
+## 컨퍼런스 무대에서 도구를 호출하는 문제
+
+도구를 노출하는 것까지는 좋다. 그런데 실제로 누가 호출하나. 발표 무대에서 라이브로 돌려야 한다면 문제는 더 까다로워진다.
+
+ChatGPT나 공개된 확장 프로그램을 써도 되지만, 클라우드 기반 솔루션은 인터넷이 필요하다. 인터페이스도 발표용으로 적합하지 않다. 큰 화면으로 데모를 지켜보는 사람들에게는 모든 요소가 크고 명확해야 한다. 로컬 모델로 대체할 수단도 있어야 했다.
+
+그래서 저자는 **WebMCP Local Agent**라는 크롬 확장 프로그램을 직접 만들었다. 아직 크롬 웹스토어에는 올리지 않았다. 개발자 등록비 5달러를 언젠가는 내겠다는 농담과 함께, 지금은 소스를 내려받아 로컬에서 실행하라고 안내한다.
+
+- GitHub: https://github.com/sylwia-lask/webmcp-local-agent
+
+## 챗봇이 아니라 에이전트인 이유
+
+이 확장 프로그램이 하는 일은 단순하다. 사용자의 의도를 받고, 현재 페이지에서 쓸 수 있는 WebMCP 도구를 확인한 다음, 적절하다고 판단한 것을 호출한다.
+
+에이전트의 실체는 결국 루프다. 이 확장 프로그램도 똑같이 동작한다. 모델이 사용자 의도와 사용 가능한 도구를 받아 무엇을 호출할지 정하고, 결과를 받아본 뒤 다음 행동을 다시 판단한다. 기본값으로 최대 10번까지 이 루프를 돈다. 설정에서 바꿀 수 있다. 이름만 그럴싸한 챗봇이 아니라, 작지만 제대로 된 에이전트인 셈이다.
+
+![남성이 메모를 적는 모습](https://images.pexels.com/photos/7299455/pexels-photo-7299455.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [cottonbro studio](https://www.pexels.com/@cottonbro) on [Pexels](https://www.pexels.com/photo/close-up-photo-of-man-taking-down-notes-7299455/)*
+
+## 세 가지 프로바이더, 하나의 에이전트
+
+확장 프로그램은 현재 세 가지 모드를 지원한다.
+
+첫 번째는 구글의 **Prompt API**다. 크로미움이 관리하는 Gemini Nano를 쓴다. 모델을 한 번 내려받고 나면 추론이 로컬에서 일어난다. 프롬프트를 구글이나 제3자에게 보내지 않고, API 키도 필요 없다.
+
+두 번째는 **Ollama**다. 역시 로컬 실행이다. 저자는 Llama 3.1을 쓰고 있지만 다른 모델로 바꿔도 된다. 다만 도구 호출을 얌전히 처리하는 모델을 고르는 게 좋다.
+
+마지막은 클라우드 프로바이더다. 저자의 경우 구형 Gemini Flash 모델을 쓰며 API 키가 필요하다. 솔직히 말해 지금으로서는 클라우드 모델이 성능과 속도 면에서 가장 쉬운 선택지다. 문제는 항상 쓸 수 있는 게 아니라는 점이다. 다른 모델이나 프로바이더를 추가하는 건 소스 코드 몇 줄이면 된다.
+
+## 사소한 동기에서 나온 뜻밖의 이점
+
+시작은 발표 준비라는 개인적인 필요였다. 그런데 결과물은 그보다 넓은 쓸모를 갖게 됐다.
+
+로컬 프로바이더를 쓰면 프롬프트와 모델 추론이 사용자 기기 안에 머문다. 모든 상호작용을 클라우드 모델로 보내는 방식과 비교하면 프라이버시 측면에서 분명한 이점이다.
+
+다른 문제도 건드린다. AI 모델 접근성은 지역에 따라 균등하지 않다. 유럽에서 클라우드 AI 서비스를 무난하게 쓸 수 있다고 해서 세계 어디서나 사정이 같지는 않다. 로컬 모델은 그런 환경에 또 하나의 선택지를 준다.
+
+## 로컬 모델, 생각보다 잘 돈다
+
+실제 결과는 어떨까. 구글 Prompt API에 "let's earn some SERIOUS money"라고 입력한 화면이다.
+
+![Chrome Prompt API에 "let's earn some SERIOUS money" 프롬프트를 입력한 화면](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/r12zjqriq9fc7pewkdwx.png)
+
+Llama 3.1로 "Make this company GOAT"를 요청한 결과다.
+
+![Ollama에 "Make this company GOAT" 프롬프트를 입력한 화면](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/f6oeyw1f83g54efbjgao.png)
+
+다만 경고도 있다. Llama 3.1은 드물게 JSON 대신 마크다운이나 "친절한" 부연 설명을 내놓기도 한다. LLM을 다루는 일의 즐거움이라고 저자는 넘긴다.
+
+에이전트 루프의 최대 반복 횟수는 설정에서 조정한다.
+
+![확장 프로그램에서 최대 스텝 수를 변경하는 화면](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/htc78pufftofeipbb39t.png)
+
+## 위험하지 않나: 결과가 큰 작업에는 확인 절차
+
+WebMCP를 두고 자주 나오는 우려가 있다. 상호작용 모델이 바뀐다는 점이다. 사용자가 원하는 동작을 하나하나 클릭하지 않고 의도만 표현한다. 그러면 모델이 계획을 세우고 도구를 호출하며, 그 결과는 사용자가 감당해야 한다. 여기서 멈추면 재앙의 레시피다.
+
+`listEmployees()` 정도라면 별 탈 없다. 그런데 `fireEmployees()`는 이야기가 다르다. AI CEO가 런웨이를 늘리겠다고 직원 절반을 말없이 해고했다는 사실을 나중에 알게 되는 건 곤란하다.
+
+![사람들이 서로를 바라보는 모습](https://images.pexels.com/photos/7299466/pexels-photo-7299466.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [cottonbro studio](https://www.pexels.com/@cottonbro) on [Pexels](https://www.pexels.com/photo/photo-of-people-looking-at-each-other-7299466/)*
+
+다행히 WebMCP 개발진은 커뮤니티 의견을 반영하고 있다. API에는 `consequentialHint` 같은 도구 어노테이션이 들어갔고, 저자의 확장 프로그램도 이를 지원한다. 다만 이런 최신 기능의 지원 범위는 크로미움 버전과 실험적 WebMCP 활성화 여부에 달려 있다. API가 아직 바뀌는 중이니 테스트하려면 충분히 최신 크롬/크로미움에서 필요한 WebMCP 지원을 켜야 한다.
+
+![WebMCP 플러그인이 확인을 요구하는 화면](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/cxgiymdi6lg9z96pwudj.png)
+
+실제로 직원 해고를 시도하자 에이전트가 해당 도구 호출이 consequential로 표시됐음을 인지하고 확인 프롬프트를 띄웠다. 사용자는 승인하거나 거부할 수 있다.
+
+## 개발 도구는 Kiro
+
+저자는 AWS Community Builder답게 이 모든 걸 Kiro로 만들었다. 처음 설치한 이유는 Claude Code 비용을 아끼려는 것이었다고 솔직히 밝힌다. 지금은 사비를 내고라도 쓰겠다는 쪽으로 바뀌었다.
+
+고를 수 있는 모델이 많다는 점, 그리고 스펙 주도 개발(spec-driven development)을 지원한다는 점을 장점으로 꼽는다. 계속 바뀌는 WebMCP API에도 잘 대응했다. 발표 두 시간 전에 닥친 마지막 API 변경까지 처리했다고 한다.
+
+## 혁명 대신 더 빠른 말
+
+정리하면 이렇다. 기존 프로젝트를 사용자 친화적이면서 에이전트 친화적으로 만들기 위해 거대한 아키텍처 변경이나 전면적인 혁명이 필요하지는 않다.
+
+웹사이트는 여전히 웹사이트로 남는다. 사람들은 예전처럼 버튼을 누르고 폼을 채우며 UI를 쓴다. WebMCP는 거기에 에이전트를 위한 구조화된 상호작용 경로를 하나 더 얹을 뿐이다.
+
+컨퍼런스에서 누군가는 이게 말을 자동차로 바꾼 수준의 혁명은 아니라고 말했다. 그저 **더 빠른 말**이라는 것이다. 그런데 지금 우리에게 필요한 게 정확히 더 빠른 말이라면, 그것으로 충분하지 않을까.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

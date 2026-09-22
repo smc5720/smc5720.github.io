@@ -159,6 +159,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/amandamayfield/the-beauty-and-terror-of-negative-feedback-2g4d": {
+    "ok": true,
+    "title": "The beauty and terror of negative feedback",
+    "description": "Giving my first conference talk recently was an absolute thrill. I was excited, not overly nervous,...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F98wp4vjoxj6iys0psepl.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-22"
+  },
   "https://dev.to/anchildress1/i-asked-for-a-portfolio-but-got-a-filing-cabinet-4ef8": {
     "ok": true,
     "title": "I Asked for a Portfolio but Got a Filing Cabinet",
@@ -1070,6 +1078,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fraw.githubusercontent.com%2Fxbill9%2Fgemma4-dev%2Fmain%2Fdocs%2Fcpu-vs-1650ti%2Fdevto-cover.274ec661.jpg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-20"
+  },
+  "https://dev.to/gde/architecting-a-resilient-devsecops-pipeline-for-enterprise-ai-agents-on4": {
+    "ok": true,
+    "title": "Architecting a Resilient DevSecOps Pipeline for Enterprise AI Agents",
+    "description": "A four-stage DevSecOps CI/CD architecture for securing enterprise AI agents with GitHub Actions, secret scanning, AI-assisted review, Veracode SCA, and Pipeline SAST.",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fmiro.medium.com%2Fv2%2Fresize%3Afit%3A1400%2F1%2AzWubiPyAk5YCdtX9j1_mUA.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-22"
   },
   "https://dev.to/gde/breaking-the-multimodal-barrier-exploring-gemini-omni-and-my-time-with-gdg-calabar-569o": {
     "ok": true,
@@ -2574,6 +2590,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fu6u8k29samaiiw35red7.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/sylwia-lask/what-if-your-ai-agent-never-had-to-leave-the-browser-demo--5g": {
+    "ok": true,
+    "title": "What If Your AI Agent Never Had to Leave the Browser? (Demo 🚀)",
+    "description": "I haven't written anything lately because, honestly, I just didn't have the headspace for it. There...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fyv8119jpkpgyckuk1v1c.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-22"
   },
   "https://dev.to/sylwia-lask/whats-next-for-ai-219i": {
     "ok": true,
