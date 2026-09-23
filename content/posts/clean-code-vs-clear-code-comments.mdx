@@ -4,7 +4,7 @@ description: "코드가 깔끔하면 주석은 필요 없다는 통념을 조목
 date: "2026-09-21"
 published_at: "2026-09-23"
 category: "news"
-tags: []
+tags: ["programming","webdev","discuss","productivity"]
 cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ft5n5mb93970styfkp236.jpeg"
 coverAlt: "Clean Code Is Not the Same as Clear Code: Comments Were Never the Problem"
 slug: "clean-code-vs-clear-code-comments"
@@ -27,7 +27,7 @@ source_published: "2026-09-21"
 
 ## 스스로를 설명할 수 없는 코드
 
-저자는 세 종류의 코드가 항상 존재한다고 정리한다. 애초에 구조를 고려하지 않고 작성돼 아무도 이해하지 못하는 코드, 아름답게 짜였지만 문제 자체가 복잡해 함수 하나를 다섯 시간 들여다봐야 하는 코드, 그리고 단순하고 읽기 좋지만 그렇게 만든 이유가 코드 어디에도 남아 있지 않은 코드다.
+그는 현실의 코드베이스에 늘 세 종류가 섞여 있다고 본다. 애초에 구조를 고려하지 않고 작성돼 아무도 이해하지 못하는 코드, 아름답게 짜였지만 문제 자체가 복잡해 함수 하나를 다섯 시간 들여다봐야 하는 코드, 그리고 단순하고 읽기 좋지만 그렇게 만든 이유가 코드 어디에도 남아 있지 않은 코드다.
 
 세 번째 사례를 보여주는 C# 예시가 등장한다.
 
@@ -63,7 +63,7 @@ private static partial Regex FlightNumber();
 
 ## 상수 47이 남긴 교훈
 
-정규식 사례가 번역 문제였다면, 저자가 더 가치 있다고 보는 두 번째 유형은 애초에 코드로 표현할 수 없는 영역을 다룬다.
+정규식 사례가 번역 문제였다면, 두 번째 유형은 아예 코드로 옮길 방법이 없는 영역을 건드린다. 저자가 더 가치 있게 보는 쪽도 이쪽이다.
 
 ```csharp
 private const int MaxConcurrentRequests = 47;
@@ -89,7 +89,7 @@ private const int MaxConcurrentRequests = 47;
 
 ### 좋은 주석이 하는 네 가지 일
 
-저자는 실무에서 쓸모 있는 주석을 네 갈래로 나눈다.
+실무에서 쓸모 있는 주석은 네 갈래로 나뉜다는 게 저자의 정리다.
 
 1. **번역** — 정규식, 비트 연산, 수식처럼 코드가 완벽해도 "무엇을 하는지"가 드러나지 않는 밀도 높은 코드를 풀어 쓴다.
 2. **설명** — 틀린 것처럼, 임의적인 것처럼, 불필요한 것처럼 보이는 선택의 이유를 남긴다.
@@ -100,7 +100,7 @@ private const int MaxConcurrentRequests = 47;
 
 ## "커밋 메시지에 쓰면 되지 않나"
 
-여기서 나오는 반론이 있다. 근거는 git 히스토리에 속하니 커밋 메시지를 잘 쓰고 소스는 깨끗하게 유지하라는 것이다. 저자는 1년 넘은 파일에 `git log`를 실행해 보라고 권한다.
+여기서 흔히 나오는 반론이 있다. 근거는 git 히스토리에 속하니 커밋 메시지를 잘 쓰고 소스는 깨끗하게 유지하라는 것이다. 저자의 대답은 간단하다. 1년 넘은 파일에 `git log`를 한번 돌려 보라는 것이다.
 
 ```plaintext
 ...
@@ -148,7 +148,7 @@ ProcessOrder(order, true, false, null, customer, true, 3, "legacy", false, skipV
 
 ## 이렇게는 쓰지 마라
 
-저자는 나쁜 주석이 실재하며, 그게 주석의 평판을 떨어뜨린 큰 원인이라고 인정한다. 그가 꼽은 유형들이다.
+나쁜 주석이 실재한다는 건 저자도 인정한다. 주석의 평판을 여기까지 끌어내린 주범이라는 것이다. 그가 꼽은 유형들은 이렇다.
 
 **메아리** — 코드를 그대로 되풀이하는 주석.
 
