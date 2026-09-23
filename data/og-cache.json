@@ -463,6 +463,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/danielhe4rt/youre-not-an-impostor-you-just-started-from-a-different-line-2lph": {
+    "ok": true,
+    "title": "You're not an impostor, you just started from a different line",
+    "description": "If you've ever felt like a fraud in an interview in English, this is probably what you need to...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Frumst0xc49qx50hr0zjp.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-23"
+  },
   "https://dev.to/dannwaneri/devtos-dashboard-cant-count-its-own-posts-3fci": {
     "ok": true,
     "title": "dev.to's Dashboard Can't Count Its Own Posts",
@@ -1231,6 +1239,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/georgekobaidze/clean-code-is-not-the-same-as-clear-code-comments-were-never-the-problem-42n": {
+    "ok": true,
+    "title": "Clean Code Is Not the Same as Clear Code: Comments Were Never the Problem",
+    "description": "Table of Contents    A Line That Does Nothing... Except Keep Production Alive Some Code...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ft5n5mb93970styfkp236.jpeg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-23"
+  },
   "https://dev.to/georgekobaidze/show-me-the-article-youre-most-proud-of-and-ill-read-every-single-one-of-them-1l53": {
     "ok": true,
     "title": "Show Me the Article You're Most Proud Of And I'll Read Every Single One of Them",
@@ -1646,6 +1662,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2F6yrct7zvf28c7c1vv4dg.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/infoinlet1/i-got-rejected-for-using-ai-in-an-interview-then-i-watched-the-interviewer-do-it-31d0": {
+    "ok": true,
+    "title": "I got rejected for using AI in an interview. Then I watched the interviewer do it.",
+    "description": "I got the rejection email on a Tuesday. I've been rejected before — everyone has. This one broke...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fmgcw6dq8hs4oxnhkhfjh.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-23"
   },
   "https://dev.to/infoinlet1/i-let-ai-write-100-of-my-code-for-30-days-heres-what-broke-1aa0": {
     "ok": true,
@@ -2375,6 +2399,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/remojansen/why-the-best-software-advice-is-the-hardest-to-follow-4kg8": {
+    "ok": true,
+    "title": "Why the Best Software Advice Is the Hardest to Follow",
+    "description": "Not all software advice is created equal. Some advice is practical. It tells you exactly what to...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F6u76zj8in13hmmrwl63t.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-23"
+  },
   "https://dev.to/reporails/loop-engineering-how-to-stop-your-agent-reward-hacking-its-own-checks-4fpn": {
     "ok": true,
     "title": "Loop Engineering: How to Stop Your Agent Reward-Hacking Its Own Checks",
@@ -2790,6 +2822,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fdn7qpeug3pgwjxowsm4i.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/xulingfeng/two-weeks-in-a-15-year-qa-veteran-back-to-being-the-new-guy-39g3": {
+    "ok": true,
+    "title": "Two Weeks In: A 15-Year QA Veteran, Back to Being the New Guy",
+    "description": "I started last Monday. Today it's been exactly two weeks.  Here's the funny part. I've spent 15...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fvup12usdzyn4mywxxvwv.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-23"
   },
   "https://dev.to/yashksaini/the-test-was-green-every-real-connection-would-have-failed-3e37": {
     "ok": true,
