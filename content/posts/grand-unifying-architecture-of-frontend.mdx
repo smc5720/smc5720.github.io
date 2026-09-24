@@ -1,0 +1,234 @@
+﻿---
+title: "프론트엔드를 하나로 묶는 아키텍처 (The Grand Unifying Architecture of Frontend)"
+description: "SolidJS 창시자 Ryan Carniato가 30년간 반복된 프론트엔드 상태 소유권 논쟁을 내비게이션·콘텐츠·어포던스라는 세 가지 책임으로 정리하고, Solid 2.0으로 HTMX부터 SPA까지 전 영역을 한 프레임워크에서 표현하는 방법을 제시했다."
+date: "2026-09-22"
+published_at: "2026-09-24"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fzz3id3ryb20mdgc9qac4.png"
+coverAlt: "The Grand Unifying Architecture of Frontend"
+slug: "grand-unifying-architecture-of-frontend"
+source_id: "devto-4710679"
+source_url: "https://dev.to/playfulprogramming/the-grand-unifying-architecture-of-frontend-bhk"
+source_title: "The Grand Unifying Architecture of Frontend"
+source_author: "Ryan Carniato"
+source_published: "2026-09-22"
+---
+
+<LinkCard url="https://dev.to/playfulprogramming/the-grand-unifying-architecture-of-frontend-bhk" author="Ryan Carniato" date="2026-09-22" />
+
+## 개요
+
+"상태는 누가 소유하는가." SolidJS를 만든 Ryan Carniato는 프론트엔드 30년사를 이 한 줄의 말싸움으로 요약한다. 문서 웹 시절 상태는 서버에 있었고, JavaScript와 애플릿이 등장하며 클라이언트로 넘어왔다. 그 어느 쪽도 마음에 들지 않았던 개발자들은 양쪽을 서버 언어로 엮으려 했고 ASP.NET 같은 물건이 나왔다.
+
+30년이 지난 지금도 같은 싸움이 계속된다. React 앱을 HTMX로 갈아치울까? 그렇게 간단한 문제가 아니다. 그런데 Carniato는 이 무한 반복이 풀리지 않는 문제라고 보지 않는다. 답은 이미 눈앞에 있다는 것이다.
+
+핵심은 책임의 분담이다. 웹 그 자체만큼이나 오래된 개념이다. 책임을 잘못 배치할 때마다 복잡도가 폭발했고, 퍼즐의 한 조각을 무시할 때마다 그 대가를 치렀다. 지금까지 나온 해법들은 저마다 이 공간의 일부만 덮었을 뿐, 전 범위를 커버한 적이 없다.
+
+## 세 가지 책임
+
+Carniato가 관찰한 바로는, 모든 프론트엔드 아키텍처는 세 가지 책임을 어떻게 쌓아 올리느냐로 환원된다. 비중의 차이는 있어도 어떤 형태로든 셋 다 존재한다.
+
+**1. 내비게이션 (클라이언트)** — URL은 웹 경험의 토대이며 브라우저의 것이다. 오케스트레이션은 클라이언트의 책임이고, SPA부터 HTML 파셜까지 모든 해법이 여기엔 동의한다. 브라우저의 JavaScript가 애플리케이션의 뿌리다.
+
+**2. 콘텐츠 (서버)** — 반대로 콘텐츠는 마크업이든 JSON이든 서버의 것이다. 서버가 권위 있는 출처이고, 내비게이션에 매달려 따라온다.
+
+**3. 어포던스 (클라이언트)** — 어포던스는 다시 브라우저로 돌아온다. 로컬 UI 상태, 진행 중인 작업, 낙관적 업데이트. 서버 왕복보다 빠르게 사용자에게 피드백을 줘야 한다.
+
+## 모든 아키텍처는 같은 모양을 따른다
+
+웹 애플리케이션 아키텍처는 전부 클라이언트 → 서버 → 클라이언트 순으로 흐른다. 사용자가 이동하거나 동작을 취하면 서버에서 콘텐츠가 돌아오고 클라이언트가 이를 정착시킨다. 로드 이후의 SPA가 그렇고, HTMX도 그렇다. 서버에서 클라이언트로 가는 프로토콜이 충분히 강력하다면 LiveView도 마찬가지다.
+
+너무 뻔한 얘기처럼 들릴 수 있다. 하지만 여기서 중요한 건 웹이 쓰기(write)를 내비게이션에 매핑하고, 서버는 읽기만 밀어낸다는 점이다. 뮤테이션은 폼, 액션, 무효화, 콘텐츠 요청이라는 형태로 1계층을 타고 흐른다. 2계층인 콘텐츠는 절대 쓰지 않고 발행만 한다.
+
+이 비대칭이 조합 가능성을 만든다. 비대칭을 깨면 상태를 가진 두 시스템이 서로 싸우기 시작한다. 낙관적 업데이트 같은 3계층 어포던스가 위에 깔끔하게 얹히는 이유도 이것을 오버레이로 봤을 때다. 클라이언트는 서버 콘텐츠를 직접 쓰지 않는다. 소유자가 아니기 때문이다.
+
+![프랑스 파리의 라 그랑드 아르슈](https://images.pexels.com/photos/32558715/pexels-photo-32558715.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Antonio Miralles Andorra](https://www.pexels.com/@antonio-miralles-andorra) on [Pexels](https://www.pexels.com/photo/la-grande-arche-de-la-defense-in-paris-france-32558715/)*
+
+## 스펙트럼을 4분면에 올려보면
+
+![Unified Quadrants](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/7cd7y4d4a89lh5t9xmgo.png)
+
+Carniato는 해법 공간을 4분면 격자에 그려보려는 시도를 여러 번 했지만 적절한 축을 찾지 못했다고 한다. 이제는 모든 해법이 같은 그림 안에 앉는 방식이 보인다는 것이다.
+
+배치는 대략적이다. 해법은 점이 아니라 영역을 차지하고, React 같은 것은 Zero 같은 싱크 엔진의 프론트엔드로 쓸 수도 있다. 여기서 React는 고전적인 SPA + JSON API를 대표한다. 다만 대부분의 프레임워크는 전송 방식과 어포던스 비중을 둘 다 고정해두기 때문에 크게 움직이지 못한다.
+
+책임이라는 렌즈로 보면 이렇게 배치된다.
+
+- **HTMX**: 1계층 최소, HTML이 2계층에서 대부분의 일을 짊어지고, 3계층은 거의 없다.
+- **LiveView**: 2계층이 능력을 확장하는 대신 3계층은 여전히 거의 없다. 읽기 윈도가 세션 길이만큼 늘어난 같은 춤이다.
+- **DataStar**: 2계층에 서버가 채우는 시그널이 추가돼 기계 장치가 더 들어가고, 클라이언트와 조금 더 가깝게 상호작용한다.
+- **Astro (+ View Transitions)**: 내비게이션(뷰 트랜지션) → 서버(마크업) → 클라이언트(아일랜드). 세 조각이 전부 명시적으로 드러난다.
+- **서버 컴포넌트 (Next.js)**: Astro와 같되 공유 클라이언트 상태가 보존된다.
+- **SPA + JSON (React)**: 3계층이 커지다가 1계층과 합쳐지고, 2계층은 JSON API에 위임된다.
+- **싱크 엔진 (Zero)**: 2계층이 복제된 저장소를 지속적으로 읽는 형태가 되고, 3계층은 그 전체 로컬 사본을 담을 만큼 커진다. 데이터셋 전체에 낙관적 업데이트가 걸린다.
+
+조금만 구슬리면 어떤 해법이든 이 모두를 표현할 수 있다. 차이는 전송 방식, 윈도 길이, 그리고 어포던스 코드를 얼마나 내려보내느냐다. 결국 효율과 작성 경험의 문제라는 뜻이고, 각 책임을 조절할 수만 있다면 프레임워크 하나로 전부 덮을 수 있다는 뜻이기도 하다.
+
+## Solid 2.0으로 그려본 그림
+
+플랫폼이 원래 동작하던 방식과 다른 얘기는 하나도 없다. 그렇다면 지난 30년의 전 스펙트럼을 감싸는 형태로 이걸 그대로 옮길 수 있을까. Carniato는 Solid 2.0을 예로 들어 세 책임을 하나씩 설명한다.
+
+### 내비게이션: 위임과 점진적 향상
+
+Solid의 라우터는 렌더 트리에서 아무것도 소유하지 않는다. `<Link>`도 `<A>` 컴포넌트도 없다. 대신 JSX 컴파일러가 생성하는 모든 `a[href]`와 `form[action]` 요소에 클레임(claim)을 등록한다. 서버에서 스트리밍된 콘텐츠에도 런타임이 렌더하는 서브트리 전체에 같은 클레임이 훑고 지나간다.
+
+```ts
+// lib/users.ts
+export const renameUser = action(
+  async (id: string, formData: FormData) => {
+    "use server";
+    updateUser(id, { name: String(formData.get("name")) });
+  }
+);
+
+// routes/users/[id].tsx — 평범한 HTML이다. 컴파일러가 앵커와
+// 폼에 클레임을 건다. 라우터가 둘 다 가로챈다. 하이드레이션
+// 전에도, 후에도 동작한다.
+<a href={`/users/${id}`}>{user().name}</a>
+<form action={renameUser.with(id)} method="post">
+  <input name="name" value={user().name} />
+  <button>Rename</button>
+</form>
+```
+
+> *참고: 이 마크업에는 컴포넌트가 하나도 없다.*
+
+SolidJS 라우터는 이 클레임을 소비해 `aria-current`, 활성 클래스, 가로채기를 관리한다. 클라이언트 컴포넌트가 하나도 없는 서버 렌더링 마크업이 클라이언트 사이드 내비게이션에 온전히 참여한다는 뜻이다. "JS 없음" 환경뿐 아니라, JavaScript는 있지만 인터랙티브 컴포넌트가 없는 환경에서도 동작한다.
+
+폼과 버튼도 같은 방식으로 서버 함수 액션에 위임한다. 프리로드와 무효화를 제대로 끌어올려 두면 단일 왕복(single-flight) 뮤테이션으로 한 번의 라운드트립이 무효화된 모든 UI를 정리한다. 그 UI가 JSON을 먹는 클라이언트 컴포넌트든, 서버가 소유한 마크업이든 상관없다.
+
+### 콘텐츠: 와이어를 넘어가는 반응형 읽기
+
+2계층을 담당하는 Solid의 프로토콜은 `"use server"` 함수 위에 서 있다. Solid는 Seroval로 경계를 넘어 직렬화하는데, 평범한 데이터뿐 아니라 Promise나 async iterator 같은 비동기 구조까지 다룬다. 서버와 클라이언트가 주고받는 것은 데이터이며, 여기엔 아직 정착하지 않은 데이터까지 포함된다.
+
+```ts
+export async function report(id: string) {
+  "use server";
+  return {
+    title: await getTitle(id),
+    // AsyncIterable<string> — 있는 그대로 와이어를 건넌다
+    progress: watchProgress(id), 
+  };
+}
+
+// 클라이언트: iterable의 최신 yield가 그냥 반응형 읽기가 된다
+const r = createMemo(() => report(props.id));
+const progress = createMemo(() => r().progress);
+<h1>{r().title}</h1>
+<p>{progress()}</p>
+```
+
+여기서 더 나아가 반응형 그래프 자체가 와이어를 타고 전파된다. 서버에서는 클라이언트로 흘러가는 모든 표현식이 응답이 살아 있는 동안 열린 바인딩으로 남는다. Promise가 정착하거나 iterator가 값을 내놓으면 서버가 표현식을 다시 실행하고, 새 값을 클라이언트로 보내 교체하거나 모핑한다.
+
+지금까지 이 기능은 최초 응답, 즉 하이드레이션 시점 예제로 소개돼 왔다. 콘텐츠 청크가 준비되는 대로 스트리밍되더라도, 요청이 열려 있는 한 그 스트림을 제자리에서 계속 갱신할 수 있다.
+
+사후의 서버 함수 요청에도 같은 얘기가 성립한다. 정적이었을 마크업, 즉 "서버 컴포넌트"를 돌려보내면서 반응형 그래프는 클라이언트로 전혀 보내지 않고도 이런 핀포인트 스트리밍 업데이트를 할 수 있다. Solid 팀은 서버 컴포넌트 기능의 프리뷰를 곧 발표할 예정이며, 저장소에는 이미 [동작하는](https://github.com/solidjs/solid/tree/next/examples/hackernews) [예제들이](https://github.com/solidjs/solid/tree/next/examples/notes) [올라와 있다](https://github.com/solidjs/solid/tree/next/examples/chat).
+
+```ts
+export async function countdown(n: number) {
+  "use server";
+  const ticks = tick(n); // AsyncIterable<number>, 초당 하나
+
+  // 함수를 반환하면 서버 컴포넌트가 된다
+  return () => {
+    const count = createMemo(() => ticks);
+    return <p>Counted to {count()} of {n}</p>;
+  };
+}
+
+// 클라이언트 — 이 부분의 컴포넌트 코드는 전혀 내려가지 않는다
+const Counter = dynamic(() => countdown(10));
+<Counter />
+```
+
+통신이 단방향이고 작성 모델이 하나이기 때문에 전송 계층은 갈아 끼울 수 있다. 지금은 Request/Response를 쓰므로 요청이 열려 있는 동안만 살아 있고 필요할 때 재연결한다. SSE나 소켓처럼 지속적인 것으로 바꾸면 똑같은 서버 컴포넌트가 끝나지 않는 라이브 컴포넌트가 된다.
+
+```ts
+// request/response — 격자의 왼쪽
+export const getAuction = GET(async () => {
+  "use server";
+  return read();
+});
+
+// persistent — 격자의 오른쪽
+export const liveAuction = live(async function* () {
+  "use server";
+  while (true) { yield read(); await changed(); }
+});
+
+// 소비하는 쪽은 둘 중 뭘 받았는지 신경 쓰지 않는다
+const [auction] = createOptimisticStore(() => liveAuction(), {});
+```
+
+이 구조를 안전하게 만드는 건 LiveView의 실패 모드가 가르쳐준 교훈이다. **서버의 라이브 그래프는 영속 상태로부터 다시 유도할 수 있는 투영이어야 한다.** 절대 진실의 출처가 아니다. 재연결이 세션이나 이벤트 리플레이처럼 프로세스와 함께 죽는 것에 의존하지 않는다.
+
+### 어포던스: 한 번만 하이드레이션하는 비동기 인지 그래프
+
+SolidJS가 원래 강했던 영역이다. 2.0에서는 비동기가 그래프의 네이티브 시민이 됐다. 서버 콘텐츠 채널로 도착한 값과 로컬에서 계산한 값이 소비하는 쪽에서는 구분되지 않는다.
+
+낙관적 업데이트는 일급 프리미티브다. 서버 함수나 쿼리 캐싱 라이브러리에 딸려 오는 부속품이 아니다. 낙관적 상태란 비동기 위에서 예측된, 아직 커밋되지 않은 모든 상태를 뜻한다. 비동기의 출처가 무엇이든 상관없는 일반 개념이다. 흔히 말하는 "사용자에게 거짓말하기"에 국한되지 않고, 보이지 않는 성공인 척할 필요도 없다. 예측적이고 일시적인 어포던스 전부를 가리킨다. 결국 진실로 정착하거나 되돌려질 뿐, 자기 트랜잭션보다 오래 살아남지 않는다. 그래서 동기화가 어긋나지 않는다.
+
+```ts
+const [auction, setAuction] = createOptimisticStore(() => liveAuction(), {});
+
+const placeBid = action(function* (amount: number) {
+  // 오버레이 — 정착 시 되돌아간다
+  setAuction(a => { a.highBid = amount });
+  // 뮤테이션 - 쓰기가 위로 올라간다
+  yield bid(amount);
+  // 진실이 내려올 때까지 대기
+  yield until(() => auction.highBid >= amount);
+});
+```
+
+이 전부가 성립하는 이유는 **하이드레이션을 두 번 하지 않기** 때문이다. 시작 이후 서버는 클라이언트 컴포넌트를 렌더해서는 안 된다. 클라이언트 상태는 이미 서버가 알 수 없는 방향으로 갈라졌기 때문이다. 클라이언트 상태를 공유하는 HTML 파셜·아일랜드 해법들이 순진하게 부딪히는 지점이 여기다. 상태가 갱신된 뒤에 하이드레이션하면 불일치가 나기 딱 좋다. 최초 스트리밍 진행 중에는 방어할 수 있어도, 애플리케이션 수명 전체에 걸쳐 그러기는 현실적이지 않다.
+
+이런 규칙은 시스템이 강제해야만 지켜진다. 모든 서버 콘텐츠는 그것을 만들어낸 호출, 즉 함수와 인자로 키가 매겨진다. 쿼리 캐시가 쓰는 것과 같은 키다. 어떤 전송 계층으로 도착한 콘텐츠든 그 주소의 스토어에만 쓰고, 마운트된 UI는 자신이 묶인 주소에서만 읽는다. 네트워크에서 DOM으로 가는 직통 경로가 없다. 그래서 호버 프리로드가 지금 보고 있는 페이지를 덮어쓸 수 없고, 리페치는 클라이언트가 소유한 범위를 살려둔 채 제자리에서 모핑되며, 철 지난 응답은 버전 검사를 통과하지 못한다.
+
+이 통합 모델에서는 최초 로드도 직렬화 비용을 두 번 내지 않고 같은 대우를 받는다. 클라이언트 컴포넌트는 서버가 렌더한 노드를 클레임하고, 부팅 과정에서 요청을 하나도 보내지 않는다. 직렬화되는 레코드는 클라이언트가 실제로 필요로 하는 값뿐이다. 서버 전용 콘텐츠는 HTML로 가거나 데이터로 가거나 둘 중 하나이지, 양쪽으로 가지 않는다. 페이지 마크업이 곧 페이로드다. 서버 컴포넌트라면 언제나 사본은 하나다. 소스 보기에서 어떤 콘텐츠를 검색해도 정확히 한 번만 나온다.
+
+![serialized once](https://media2.dev.to/dynamic/image/width=800%2Cheight=%2Cfit=scale-down%2Cgravity=auto%2Cformat=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fbikbryus3ums1re3uern.png)
+
+Carniato는 한때 이 문제를 "프론트엔드의 실존적 위기"라고 불렀지만, 지금은 해결된 문제라고 말한다.
+
+[YouTube 영상 보기 →](https://youtu.be/nzbV0YgSBuo?si=9xD2U4spvoi1bzEo)
+
+## 스펙트럼을 가로지르기
+
+![Unified Quadrants](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/7cd7y4d4a89lh5t9xmgo.png)
+
+위 조각들이 갖춰지면 해법 공간 전체와 그 사이의 모든 지점을 자유롭게 오갈 수 있다는 것이 이 그림의 핵심이다.
+
+왼쪽 아래 구석에서 시작해보자. 클라이언트 컴포넌트가 전혀 없는 SolidJS 앱이 `<form action>`에 묶인 서버 `"use server"` 액션으로 서버 컴포넌트 청크만 교체하는 형태다. 서버 마크업이 스트리밍되고 모핑되며, 내비게이션은 클라이언트 컴포넌트 없이 처리된다.
+
+왼쪽 위는 3계층이 지배할 때까지 늘어난 경우다. SPA가 되고 서버 컴포넌트도 서버 렌더링도 없다. JSON API뿐이다.
+
+위쪽을 따라 오른편으로 계속 가면 지속적인 `"use server"` 함수와 세밀한 낙관적 계층이 있는 영역이다. Solid의 `live`와 `until` 연산자가 클라이언트 상태를 준비되는 대로 스트리밍할 때 생기는 간극을 메운다. Carniato는 이 영역에서는 여전히 전용 싱크 엔진을 쓰겠다고 하면서도, 기본 프리미티브만으로도 꽤 흉내를 낸다고 덧붙였다.
+
+마지막 오른쪽 아래 구석은 출발점에 가깝다. 다만 이번엔 서버 컴포넌트가 반응형 바인딩을 갖고 연결이 지속된다. 클라이언트 컴포넌트는 없고, 쓰기는 동일한 `"use server"` 액션 프로토콜로 돌려보내며, 읽기는 세밀한 마크업 파셜로 와이어를 타고 스트리밍된다. 이 세계에서는 액션을 어떻게 쓰느냐에 따라 서버 컴포넌트마저 낙관적일 수 있고, `until`이 완료 확인 메커니즘이 돼준다.
+
+놀라운 건 이 모든 것이 Solid 2.0 사용자에게 이미 익숙한 것들만으로 가능하다는 점이다. 비동기 시그널과 `use server`. 이 둘이면 앞서 말한 모든 경험을 사실상 같은 패턴으로, 같은 프레임워크에서, 심지어 같은 애플리케이션 안에서 작성할 수 있다.
+
+## 마무리
+
+![뫼비우스의 띠: 두 면처럼 보이는 하나의 면](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/no2nyvw82wy7ropq2pxp.png)
+
+결국 출발점으로 돌아온다. 내내 눈앞에 놓여 있던 몇 조각이다.
+
+브라우저가 내비게이션과 어포던스를 소유한다. 서버가 콘텐츠를 소유한다. 통신은 루프이며, 쓰기는 내비게이션으로 올라가고 콘텐츠는 단방향 읽기로 내려온다. 전송 방식과 응답 윈도는 작성 방식을 바꾸지 않고도 설정할 수 있어야 한다.
+
+HTMX부터 LiveView, 아일랜드, SPA까지 전부 이 격자 위의 좌표다. 이들의 차이는 표현력이 아니라 효율과 개발 경험이다.
+
+이것이 단순한 분류 놀이를 넘어서는 이유는 어려운 조각이 이미 다 만들어져 있기 때문이라고 Carniato는 말한다. 직렬화와 하이드레이션은 한 번만 일어난다. 반응형 그래프가 자기 업데이트를 직접 직렬화한다. 콘텐츠는 주소 단위로 저장되므로 철 지난 하이드레이션이라는 상태 자체가 표현될 수 없다.
+
+시그널이 양쪽 모두의 공통 표현이 될 수 있다는 점은 그에게 별로 놀랍지 않은 일이다. 동기와 비동기, 서버와 클라이언트, 상태가 있는 것과 없는 것 전부에 걸쳐서 말이다.
+
+Carniato 본인도 이 목표가 "터무니없이 야심 차다"고 인정한다. RSC는 격자의 왼쪽 절반만 노렸는데도 많은 이들이 부족하다고 느꼈다. HTML-over-the-wire 진영은 아래쪽 절반을 노렸지만, 클라이언트를 무시하는 건 책임 하나를 통째로 무시하는 일이다.
+
+그럼에도 그는 이것이 자신이 살고 싶은 미래라고 말한다. 프레임워크를 고르는 일이 종교를 고르는 일이 되지 않는 미래, 그리고 자신이 보기엔 이미 도착한 미래다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

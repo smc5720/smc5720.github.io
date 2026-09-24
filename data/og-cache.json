@@ -759,6 +759,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/devteam/join-the-kaggle-benchmarking-challenge-2500-in-prizes-for-five-winners-18ml": {
+    "ok": true,
+    "title": "Join the Kaggle Benchmarking Challenge: $2,500 in Prizes for FIVE Winners!",
+    "description": "We're excited to team up with Kaggle for a brand new challenge!  Running through October 11, the...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fup4xs7874b4zni49rie5.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-24"
+  },
   "https://dev.to/devteam/need-a-break-play-todays-game-from-the-daily-context-1fli": {
     "ok": true,
     "title": "Need a break? Play today's game from The Daily Context.",
@@ -798,6 +806,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2Fnkw2hxpxd5q32mqo8ctz.jpg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/devteam/top-7-featured-dev-posts-of-the-week-2agl": {
+    "ok": true,
+    "title": "Top 7 Featured DEV Posts of the Week",
+    "description": "Welcome to this week's Top 7, where the DEV editorial team handpicks their favorite posts from the...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Futadyyuprqovv7imkzo7.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-24"
   },
   "https://dev.to/devteam/top-7-featured-dev-posts-of-the-week-4pk2": {
     "ok": true,
@@ -2063,6 +2079,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/maame-codes/disappeared-since-march-taking-a-long-break-was-my-best-decision-yet-1n45": {
+    "ok": true,
+    "title": "Disappeared Since March: Taking a Long Break Was My Best Decision Yet",
+    "description": "If you checked my profile recently, you probably noticed my page has been completely quiet since...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fjkefqnwarmqoxiv5dy8n.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-24"
+  },
   "https://dev.to/malusev998/why-i-built-an-ssh-config-and-tunnel-manager-for-macos-58n8": {
     "ok": true,
     "title": "Why I Built an SSH Config and Tunnel Manager for macOS",
@@ -2126,6 +2150,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fvroccpz0dnmvpyi2tgfm.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-21"
+  },
+  "https://dev.to/mikachu/i-turned-devto-into-a-walkable-3d-library-debugging-it-has-been-a-nightmare-4lkd": {
+    "ok": true,
+    "title": "I Turned DEV.to Into a Walkable 3D Library — Debugging It Has Been a Nightmare",
+    "description": "DEV Library is my idea of first-person 3D reimagining of DEV.to. Not a themed scene with some...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fs4n0kxkyv15gwcnc1xnm.jpeg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-24"
   },
   "https://dev.to/minhlong2605/mam-com-landing-page-i-built-a-vietnamese-dinner-tray-on-a-3000-year-old-bronze-drum-3e6h": {
     "ok": true,
@@ -2374,6 +2406,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fdt196dzugry1anlsqkvf.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-29"
+  },
+  "https://dev.to/playfulprogramming/the-grand-unifying-architecture-of-frontend-bhk": {
+    "ok": true,
+    "title": "The Grand Unifying Architecture of Frontend",
+    "description": "I used to joke that the history of frontend development could be retraced by following the argument...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fzz3id3ryb20mdgc9qac4.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-24"
   },
   "https://dev.to/raju_dandigam/execution-trees-not-more-logs-a-better-debugging-model-for-ai-agents-3d4g": {
     "ok": true,
