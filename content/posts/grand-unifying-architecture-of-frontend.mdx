@@ -4,7 +4,7 @@ description: "SolidJS 창시자 Ryan Carniato가 30년간 반복된 프론트엔
 date: "2026-09-22"
 published_at: "2026-09-24"
 category: "news"
-tags: []
+tags: ["frontend","webdev","javascript","react","programming"]
 cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fzz3id3ryb20mdgc9qac4.png"
 coverAlt: "The Grand Unifying Architecture of Frontend"
 slug: "grand-unifying-architecture-of-frontend"
@@ -72,7 +72,7 @@ Carniato는 해법 공간을 4분면 격자에 그려보려는 시도를 여러 
 
 ### 내비게이션: 위임과 점진적 향상
 
-Solid의 라우터는 렌더 트리에서 아무것도 소유하지 않는다. `<Link>`도 `<A>` 컴포넌트도 없다. 대신 JSX 컴파일러가 생성하는 모든 `a[href]`와 `form[action]` 요소에 클레임(claim)을 등록한다. 서버에서 스트리밍된 콘텐츠에도 런타임이 렌더하는 서브트리 전체에 같은 클레임이 훑고 지나간다.
+Solid의 라우터는 렌더 트리에서 아무것도 소유하지 않는다. `<Link>`도 `<A>` 컴포넌트도 없다. 대신 JSX 컴파일러가 생성하는 모든 `a[href]`와 `form[action]` 요소에 클레임(claim)을 등록한다. 서버에서 스트리밍된 콘텐츠든 런타임이 렌더하는 서브트리 전체든, 같은 클레임이 훑고 지나간다.
 
 ```ts
 // lib/users.ts
@@ -101,7 +101,7 @@ SolidJS 라우터는 이 클레임을 소비해 `aria-current`, 활성 클래스
 
 ### 콘텐츠: 와이어를 넘어가는 반응형 읽기
 
-2계층을 담당하는 Solid의 프로토콜은 `"use server"` 함수 위에 서 있다. Solid는 Seroval로 경계를 넘어 직렬화하는데, 평범한 데이터뿐 아니라 Promise나 async iterator 같은 비동기 구조까지 다룬다. 서버와 클라이언트가 주고받는 것은 데이터이며, 여기엔 아직 정착하지 않은 데이터까지 포함된다.
+2계층을 담당하는 Solid의 프로토콜은 `"use server"` 함수 위에 서 있다. Solid는 Seroval로 경계를 넘어 직렬화하는데, 평범한 데이터뿐 아니라 Promise나 async iterator 같은 비동기 구조까지 다룬다. 서버와 클라이언트가 주고받는 건 결국 데이터인데, 아직 정착하지 않은 데이터까지 여기 들어간다.
 
 ```ts
 export async function report(id: string) {
@@ -162,7 +162,7 @@ export const liveAuction = live(async function* () {
 const [auction] = createOptimisticStore(() => liveAuction(), {});
 ```
 
-이 구조를 안전하게 만드는 건 LiveView의 실패 모드가 가르쳐준 교훈이다. **서버의 라이브 그래프는 영속 상태로부터 다시 유도할 수 있는 투영이어야 한다.** 절대 진실의 출처가 아니다. 재연결이 세션이나 이벤트 리플레이처럼 프로세스와 함께 죽는 것에 의존하지 않는다.
+이 구조를 안전하게 만드는 건 LiveView의 실패 모드가 가르쳐준 교훈이다. **서버의 라이브 그래프는 영속 상태로부터 다시 유도할 수 있는 투영이어야 한다.** 절대 진실의 출처가 아니다. 재연결이 세션이나 이벤트 리플레이처럼 프로세스와 함께 사라지는 것들에 기대지 않는다는 뜻이다.
 
 ### 어포던스: 한 번만 하이드레이션하는 비동기 인지 그래프
 
@@ -199,7 +199,7 @@ Carniato는 한때 이 문제를 "프론트엔드의 실존적 위기"라고 불
 
 ![Unified Quadrants](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/7cd7y4d4a89lh5t9xmgo.png)
 
-위 조각들이 갖춰지면 해법 공간 전체와 그 사이의 모든 지점을 자유롭게 오갈 수 있다는 것이 이 그림의 핵심이다.
+위 조각들이 갖춰지면 해법 공간 전체는 물론 그 사이의 모든 지점까지 자유롭게 오갈 수 있다. 이 그림의 핵심이 거기에 있다.
 
 왼쪽 아래 구석에서 시작해보자. 클라이언트 컴포넌트가 전혀 없는 SolidJS 앱이 `<form action>`에 묶인 서버 `"use server"` 액션으로 서버 컴포넌트 청크만 교체하는 형태다. 서버 마크업이 스트리밍되고 모핑되며, 내비게이션은 클라이언트 컴포넌트 없이 처리된다.
 
