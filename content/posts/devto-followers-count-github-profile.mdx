@@ -4,7 +4,7 @@ description: "1년 동안 실패 알림만 쌓이던 GitHub Actions를 고쳐 DE
 date: "2026-09-23"
 published_at: "2026-09-25"
 category: "news"
-tags: []
+tags: ["github","devops","javascript","node","tutorial","webdev"]
 cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fzt86aenv4fee8rngprcq.jpeg"
 coverAlt: "Sharing DEV Followers Count on Github Profile"
 slug: "devto-followers-count-github-profile"
@@ -208,9 +208,9 @@ updateReadme().catch((error) => {
 
 DEV.to API는 팔로워 총합을 한 번에 알려주지 않는다. `/api/followers/users` 엔드포인트를 페이지 단위로 훑으면서 배열 길이를 누적하는 구조다. 한 페이지에 1000명씩 받아오다가, 돌려받은 배열이 1000개 미만이면 마지막 페이지로 판단하고 누적값을 반환한다. 팔로워가 3만 5천 명에 가까운 계정이라면 하루 한 번 실행에 35번가량 요청이 나가는 셈이다.
 
-타임아웃은 15초로 잡았고, 200이 아닌 응답이 오면 상태 코드와 응답 본문 앞 500자를 함께 담아 에러를 던진다. 실패했을 때 원인을 추적하기 쉽게 만든 처리다.
+타임아웃은 15초로 잡았고, 200이 아닌 응답이 오면 상태 코드와 응답 본문 앞 500자를 함께 담아 에러를 던진다. 실패했을 때 원인을 찾기 쉬우라고 넣은 장치다.
 
-## 다른 용도로의 확장
+## 다른 데도 쓸 수 있을까
 
 Villarreal은 글 말미에 "GitHub Actions로 또 어떤 자동 업데이트를 할 수 있을까"라는 질문을 남겼다. 구조 자체는 특정 API에 묶여 있지 않다. 마커 사이 텍스트를 주기적으로 갈아끼우는 틀이므로, 값을 가져오는 부분만 바꾸면 다른 지표에도 그대로 쓸 수 있다.
 
