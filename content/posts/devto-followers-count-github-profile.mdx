@@ -1,0 +1,221 @@
+﻿---
+title: "DEV.to 팔로워 수를 GitHub 프로필에 띄우는 법"
+description: "1년 동안 실패 알림만 쌓이던 GitHub Actions를 고쳐 DEV.to 팔로워 수를 README에 자동 반영한 사례. 전체 워크플로 YAML과 업데이트 스크립트를 공개했다."
+date: "2026-09-23"
+published_at: "2026-09-25"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fzt86aenv4fee8rngprcq.jpeg"
+coverAlt: "Sharing DEV Followers Count on Github Profile"
+slug: "devto-followers-count-github-profile"
+source_id: "devto-4728082"
+source_url: "https://dev.to/annavi11arrea1/sharing-dev-followers-count-on-github-profile-bj3"
+source_title: "🦄 Sharing DEV Followers Count on Github Profile 🦄"
+source_author: "Anna Villarreal"
+source_published: "2026-09-23"
+---
+
+<LinkCard url="https://dev.to/annavi11arrea1/sharing-dev-followers-count-on-github-profile-bj3" author="Anna Villarreal" date="2026-09-23" />
+
+## 개요
+
+DEV.to 사용자 Anna Villarreal이 자신의 DEV.to 팔로워 수를 GitHub 프로필 README에 자동으로 표시하는 워크플로를 완성하고 코드 전체를 공개했다.
+
+시작은 1년 전이었다. 만들다 만 채로 방치했고, 그 사이 매일 아침 "Run failed for Github Actions"라는 메일이 날아왔다. 지울까도 생각했지만 결국 고치는 쪽을 택했다. API 호출 부분을 손보고 주석 처리해 둔 죽은 코드를 걷어내자 문제가 눈에 들어왔다. 343번째 실행에서 처음으로 성공 표시가 떴다.
+
+![DEV 팔로워 수 표시 화면](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/nmxrs48upwfse5qronv6.png)
+
+## 워크플로 구성
+
+전체 동작은 단순하다. 매일 자정(UTC)에 GitHub Actions가 돌면서 DEV.to API로 팔로워 수를 세고, README.md의 지정된 구간을 새 값으로 갈아끼운 뒤 커밋해 푸시한다.
+
+```yaml
+name: Update DEV.to Followers Count
+
+on:
+  schedule:
+    # Runs at midnight UTC daily
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-count:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Run the update script
+        env:
+          DEVTO_API_KEY: ${{ secrets.DEVTO_API_KEY }}
+          DEVTO_USERNAME: annavi11arrea1
+        run: node update_script.js
+
+      - name: Commit updated README
+        run: |
+          if git diff --quiet -- README.md; then
+            echo "Follower count has not changed."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git commit -m "Update DEV.to follower count"
+          git push
+```
+
+### 실패의 원인
+
+1년을 헤맨 지점은 두 군데였다. 하나는 워크플로에 쓰기 권한(`permissions: contents: write`)을 주지 않은 것, 다른 하나는 변경된 README를 자동으로 푸시하지 않은 것. Villarreal은 이 둘을 "실제 업데이트를 가르는 핵심 요소"라고 표현했다.
+
+커밋 단계 맨 앞에 `git diff --quiet` 검사를 둔 것도 눈여겨볼 만하다. 팔로워 수가 그대로라면 커밋 없이 그냥 종료하므로, 값이 바뀌지 않은 날에는 히스토리가 지저분해지지 않는다.
+
+![스마트폰 화면을 들여다보는 모습](https://images.pexels.com/photos/5744248/pexels-photo-5744248.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Solen Feyissa](https://www.pexels.com/@solenfeyissa) on [Pexels](https://www.pexels.com/photo/close-up-of-a-smartphone-screen-with-instagram-app-5744248/)*
+
+### README에 삽입할 마커
+
+스크립트가 값을 갈아끼울 위치는 HTML 주석으로 표시한다. 시작 태그와 종료 태그가 한 줄에 함께 들어간다.
+
+```html
+<!-- DEVTO-FOLLOWERS-COUNT:START -->**34996** DEV.to followers<!-- DEVTO-FOLLOWERS-COUNT:END -->
+```
+
+API 키는 반드시 환경 변수로 넘기라는 당부도 덧붙였다. 코드에 직접 박아 넣으면 DEV API를 무료로 쓸 권한 자체가 위태로워진다는 이유다.
+
+## 업데이트 스크립트 전문
+
+Villarreal은 처음에 YAML만 공개했다가, 스크립트도 내놓으라는 지적을 받고 `update_script.js`까지 함께 올렸다. 외부 의존성 없이 Node 내장 `https`와 `fs`만 쓴다.
+
+```javascript
+const fs = require("fs");
+const https = require("https");
+
+const DEVTO_API_KEY = process.env.DEVTO_API_KEY;
+const DEVTO_USERNAME = process.env.DEVTO_USERNAME || "annavi11arrea1";
+const README_FILE = "README.md";
+const START_MARKER = "<!-- DEVTO-FOLLOWERS-COUNT:START -->";
+const END_MARKER = "<!-- DEVTO-FOLLOWERS-COUNT:END -->";
+const USER_AGENT = "AnnaVi11arrea1-GitHub-Actions";
+
+if (!DEVTO_API_KEY) {
+  throw new Error("Missing required DEVTO_API_KEY environment variable.");
+}
+
+const parseResponsePreview = (data) => {
+  const trimmed = data.trim();
+  return trimmed ? trimmed.slice(0, 500) : "<empty>";
+};
+
+const fetchJson = (path) => {
+  const options = {
+    hostname: "dev.to",
+    port: 443,
+    path,
+    method: "GET",
+    headers: {
+      "api-key": DEVTO_API_KEY,
+      Accept: "application/vnd.forem.api-v1+json",
+      "User-Agent": USER_AGENT,
+    },
+    timeout: 15000,
+  };
+
+  return new Promise((resolve, reject) => {
+    const req = https.request(options, (res) => {
+      let data = "";
+
+      res.on("data", (chunk) => {
+        data += chunk;
+      });
+
+      res.on("end", () => {
+        if (res.statusCode !== 200) {
+          const preview = parseResponsePreview(data);
+          reject(
+            new Error(
+              `DEV.to API request failed (${res.statusCode} ${res.statusMessage || "Unknown"}). Response preview: ${preview}`
+            )
+          );
+          return;
+        }
+
+        try {
+          resolve(JSON.parse(data));
+        } catch (error) {
+          reject(new Error(`Failed to parse API response. Response data: ${data}`));
+        }
+      });
+    });
+
+    req.on("timeout", () => req.destroy(new Error("DEV.to API request timed out.")));
+    req.on("error", reject);
+    req.end();
+  });
+};
+
+const getFollowersCount = async () => {
+  const perPage = 1000;
+  let page = 1;
+  let totalCount = 0;
+
+  while (true) {
+    const followers = await fetchJson(
+      `/api/followers/users?page=${page}&per_page=${perPage}`
+    );
+
+    if (!Array.isArray(followers)) {
+      throw new Error("DEV.to followers endpoint returned an invalid response.");
+    }
+
+    totalCount += followers.length;
+
+    if (followers.length < perPage) {
+      return totalCount;
+    }
+
+    page += 1;
+  }
+};
+
+const updateReadme = async () => {
+  const count = await getFollowersCount();
+  let readmeContent = fs.readFileSync(README_FILE, "utf8");
+  const newContent = `${START_MARKER}**${count}** DEV.to followers${END_MARKER}`;
+
+  const regex = new RegExp(`${START_MARKER}[\\s\\S]*?${END_MARKER}`, "g");
+  readmeContent = readmeContent.replace(regex, newContent);
+
+  fs.writeFileSync(README_FILE, readmeContent);
+  console.log("README updated with new follower count:", count);
+};
+
+updateReadme().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});
+```
+
+### 팔로워 수를 세는 방식
+
+DEV.to API는 팔로워 총합을 한 번에 알려주지 않는다. `/api/followers/users` 엔드포인트를 페이지 단위로 훑으면서 배열 길이를 누적하는 구조다. 한 페이지에 1000명씩 받아오다가, 돌려받은 배열이 1000개 미만이면 마지막 페이지로 판단하고 누적값을 반환한다. 팔로워가 3만 5천 명에 가까운 계정이라면 하루 한 번 실행에 35번가량 요청이 나가는 셈이다.
+
+타임아웃은 15초로 잡았고, 200이 아닌 응답이 오면 상태 코드와 응답 본문 앞 500자를 함께 담아 에러를 던진다. 실패했을 때 원인을 추적하기 쉽게 만든 처리다.
+
+## 다른 용도로의 확장
+
+Villarreal은 글 말미에 "GitHub Actions로 또 어떤 자동 업데이트를 할 수 있을까"라는 질문을 남겼다. 구조 자체는 특정 API에 묶여 있지 않다. 마커 사이 텍스트를 주기적으로 갈아끼우는 틀이므로, 값을 가져오는 부분만 바꾸면 다른 지표에도 그대로 쓸 수 있다.
+
+본인도 팔로워 수 자랑이 목적은 아니라고 선을 그었다. 다만 각자 프로필에서 조용히 뽐낼 거리 하나쯤은 있어도 괜찮지 않겠냐는 것이 글의 마무리다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
