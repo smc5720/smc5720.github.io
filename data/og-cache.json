@@ -919,6 +919,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-25"
   },
+  "https://dev.to/dj29/we-all-have-a-serious-work-ai-and-a-just-vibing-ai-when-did-that-happen-5fl2": {
+    "ok": true,
+    "title": "We All Have a \"Serious Work\" AI and a \"Just Vibing\" AI. When Did That Happen?",
+    "description": "Hi Guys!!! As you know I wasn't good for well, a week and Now.....   Let's Dive In!!!  I never...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fjjz2shn3dk7a87if7yt3.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-26"
+  },
   "https://dev.to/dumebii/has-the-audience-for-technical-articles-dropped-5ceh": {
     "ok": true,
     "title": "Has the audience for technical articles dropped?",
@@ -2527,6 +2535,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/sheships/8-posts-by-women-on-dev-that-deserve-more-than-a-once-a-year-spotlight-27dc": {
+    "ok": true,
+    "title": "8 Posts by Women on DEV That Deserve More Than a Once-a-Year Spotlight",
+    "description": "We went looking for good posts by women on DEV. Not \"inspirational,\" not \"diverse\" but just genuinely...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ftnbc2gdakk3qehpieo3u.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-26"
+  },
   "https://dev.to/shubhradev/i-stopped-debugging-at-my-desk-heres-what-changed-43n3": {
     "ok": true,
     "title": "I Stopped Debugging at My Desk. Here's What Changed",
@@ -2566,6 +2582,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fi.imgflip.com%2Favdl7i.jpg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/smtahosin/pointers-arent-arrows-how-c-and-c-actually-talk-to-hardware-9d6": {
+    "ok": true,
+    "title": "Pointers Aren't Arrows. How C and C++ Actually Talk to Hardware.",
+    "description": "A visual, beginner-friendly guide to memory addresses, pointer arithmetic, and what happens when your code touches physical silicon. Discover why pointers are just numbers, why arrays decay, and what a Segmentation Fault really means.",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fi.imgur.com%2FvG94Gtq.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-26"
   },
   "https://dev.to/ssukhpinder/78-mb-of-keys-i-allocated-just-to-throw-away-50mn": {
     "ok": true,
