@@ -1431,6 +1431,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/gramli/polly-introduces-an-open-source-maintenance-fee-f3e": {
+    "ok": true,
+    "title": "Polly Introduces an Open Source Maintenance Fee",
+    "description": "A few weeks ago, I wrote about open-source projects moving toward paid or dual-licensing models, and...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F14ur5c93ryqgaly00dnk.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-27"
+  },
   "https://dev.to/gramli/tower-before-dusk-i-built-a-puzzle-game-for-humans-and-ai-oao": {
     "ok": true,
     "title": "Tower Before Dusk: I Built a Puzzle Game for Humans and AI",
@@ -1951,6 +1959,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/kenwalger/i-pulled-nine-years-of-my-own-devto-data-the-numbers-were-not-what-i-expected-37ac": {
+    "ok": true,
+    "title": "I Pulled Nine Years of My Own Dev.to Data. The Numbers Were Not What I Expected.",
+    "description": "There is an API. It will tell you things about your writing that the dashboard will not.  I have been...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F7fbmudzx3podwa2jiz2l.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-27"
+  },
   "https://dev.to/kenwalger/the-kitchen-doesnt-care-about-your-excuses-i10": {
     "ok": true,
     "title": "The Kitchen Doesn't Care About Your Excuses",
@@ -2182,6 +2198,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fixivjulj7hpoux1anqqh.jpeg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/mikachu/i-built-a-better-codex-pet-than-openai-did-eib": {
+    "ok": true,
+    "title": "I Built a Better Codex Pet Than OpenAI Did",
+    "description": "Sometimes you just have to let the agent cook.           Mika vs. a multi-billion-dollar...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fw6f927f50lncfh46mbfb.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-27"
   },
   "https://dev.to/mikachu/i-built-a-green-blob-that-lives-on-my-desktop-and-now-it-has-feelings-4pjd": {
     "ok": true,

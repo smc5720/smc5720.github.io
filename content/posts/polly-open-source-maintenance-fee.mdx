@@ -1,0 +1,52 @@
+﻿---
+title: "Polly, 오픈소스 유지보수 수수료(OSMF)를 도입하다"
+description: ".NET 대표 회복성 라이브러리 Polly가 라이선스는 그대로 둔 채 매출 2만 달러 이상 기업에 월 20달러의 유지보수 수수료를 받기로 했다. 오픈소스 지속가능성 문제에 대한 새로운 접근이다."
+date: "2026-09-24"
+published_at: "2026-09-27"
+category: "news"
+tags: []
+slug: "polly-open-source-maintenance-fee"
+cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F14ur5c93ryqgaly00dnk.png"
+coverAlt: "Polly Introduces an Open Source Maintenance Fee"
+source_id: "devto-4676985"
+source_url: "https://dev.to/gramli/polly-introduces-an-open-source-maintenance-fee-f3e"
+source_title: "Polly Introduces an Open Source Maintenance Fee"
+source_author: "Daniel Balcarek"
+source_published: "2026-09-24"
+---
+
+<LinkCard url="https://dev.to/gramli/polly-introduces-an-open-source-maintenance-fee-f3e" author="Daniel Balcarek" date="2026-09-24" />
+
+## 개요
+
+.NET 진영에서 가장 널리 쓰이는 회복성(resilience) 라이브러리 Polly가 **오픈소스 유지보수 수수료(Open Source Maintenance Fee, OSMF)** 를 도입한다. 소스 라이선스는 바뀌지 않는다. Polly는 여전히 오픈소스다. 다만 Polly를 쓴 제품이나 프로젝트로 최소 2만 달러의 매출을 올리는 기업은, 유지보수되는 릴리스를 쓰려면 조직당 **월 20달러**를 내야 한다.
+
+최근 몇 년간 오픈소스 프로젝트들이 유료화나 듀얼 라이선스로 방향을 트는 흐름이 이어졌다. Polly의 선택은 그 흐름과 결이 조금 다르다. 라이선스를 건드리지 않고 돈을 받을 방법을 찾은 쪽에 가깝다.
+
+## OSMF는 무엇이 다른가
+
+기존의 유료화 전환은 대부분 라이선스를 바꾸는 방식이었다. 오픈소스 라이선스를 상용 라이선스로 교체하거나, 소스 코드를 상용 라이선스 뒤에 두는 식이다. OSMF는 그 둘 다 하지 않는다. 소스 코드는 원래의 오픈소스 라이선스 아래 그대로 남아 있고, 대신 매출을 내는 제품에 해당 프로젝트의 유지보수 릴리스를 쓰는 조직에게 소액의 유지보수 비용을 청구한다.
+
+수금은 GitHub Sponsors로 처리할 수 있다. 가격이나 티어는 프로젝트가 직접 정한다. 유지보수자 입장에서는 라이선스 변경이라는 큰 결정을 내리지 않고도 자금줄을 하나 만드는 셈이다.
+
+모델 자체에 대한 설명은 [OSMF 공식 페이지](https://opensourcemaintenancefee.org/)에서 확인할 수 있고, Polly의 결정은 [Polly 공식 발표](https://thepollyproject.org/2026/07/14/polly-osmf-announcement.html)에 정리돼 있다.
+
+### 월 20달러라는 금액
+
+Polly가 정한 월 20달러는 연간 240달러다. Polly를 써서 최소 2만 달러를 버는 회사 기준으로 보면 꽤 작은 금액이다.
+
+원문 작성자는 오히려 행정 절차 쪽이 더 번거로울 수 있다고 짚는다. 기업에서 프로젝트 라이선스를 구매할 때 어떤 과정을 거치는지 겪어본 사람이라면 무슨 말인지 알 것이다. 240달러를 결제하기 위해 거쳐야 하는 승인 단계가 240달러보다 비싸게 느껴지는 상황 말이다.
+
+## 왜 주목할 만한 시도인가
+
+원문 작성자는 몇 주 전 오픈소스 프로젝트의 유료·듀얼 라이선스 전환과 AI가 그 전환을 앞당기고 있는지에 대한 글을 썼다.
+
+[From Open Source to Paid Product: Is AI Accelerating the Shift? →](https://dev.to/gramli/from-open-source-to-paid-product-is-ai-accelerating-the-shift-3d11)
+
+그때 던진 질문은 이랬다. **프로젝트를 상용 제품으로 바꿔버리지 않으면서 장기적인 오픈소스 유지보수 자금을 어떻게 마련할 것인가.** Polly의 OSMF 도입은 그 질문에 대한 또 하나의 답안이다. 라이선스를 지키면서도 돈이 도는 구조를 만들 수 있느냐는 물음에, 일단 하나의 형태가 제시된 셈이다.
+
+이 모델이 얼마나 퍼질지, 실제 수금이 얼마나 이뤄질지는 아직 알 수 없다. 다만 .NET 생태계에서 Polly만큼 존재감 있는 라이브러리가 먼저 나섰다는 점은 다른 유지보수자들의 선택에도 영향을 줄 만하다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
