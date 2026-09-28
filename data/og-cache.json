@@ -1711,6 +1711,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/ikrame-ih/an-introverted-dev-in-an-extroverted-world-4p04": {
+    "ok": true,
+    "title": "An introverted dev in an extroverted world",
+    "description": "\"Explain it to me in dev terms.\"  My social battery has a rate limit.  The world isn't made for...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F0y8khjzd38pojazjkoqd.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-28"
+  },
   "https://dev.to/infoinlet1/i-got-rejected-for-using-ai-in-an-interview-then-i-watched-the-interviewer-do-it-31d0": {
     "ok": true,
     "title": "I got rejected for using AI in an interview. Then I watched the interviewer do it.",
@@ -2142,6 +2150,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fjkefqnwarmqoxiv5dy8n.jpg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-24"
+  },
+  "https://dev.to/maame-codes/someone-already-built-that-is-the-favourite-excuse-of-broke-developers-44o6": {
+    "ok": true,
+    "title": "'Someone Already Built That' is the Favourite Excuse of Broke Developers",
+    "description": "Let me tell you a quick story about a developer named Sam.  Sam is incredibly smart. For a whole...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fn4ju5s43gwve1pzq9xi5.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-28"
   },
   "https://dev.to/malusev998/why-i-built-an-ssh-config-and-tunnel-manager-for-macos-58n8": {
     "ok": true,
