@@ -959,6 +959,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/embernoglow/i-burned-out-now-i-dont-know-how-to-start-again-1h79": {
+    "ok": true,
+    "title": "I burned out. Now I don't know how to start again.",
+    "description": "Hi, devs! I'm back. I wish I could return with a major success, a discovery, or a new achievement,...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fl7ka63rt8svxysavinj7.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-29"
+  },
   "https://dev.to/entire/never-forget-to-enter-the-stern-grove-lottery-again-31i5": {
     "ok": true,
     "title": "Never forget to enter the Stern Grove lottery again!",
@@ -1078,6 +1086,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F1ydkr1d4qmhxyms63lpx.gif",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/francistrdev/monthly-dev-special-report-september-2026-3jd7": {
+    "ok": true,
+    "title": "🗓️ Monthly Dev 💫SPECIAL💫 Report: September 2026",
+    "description": "Hey everyone! I bring you my development journey on what I have discovered, accomplishments for this...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fmw0x462suacv1owsg8p7.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-29"
   },
   "https://dev.to/francistrdev/networking-is-hard-but-easy-to-think-about-dc1": {
     "ok": true,
@@ -1815,6 +1831,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-09"
   },
+  "https://dev.to/james_anderson_h/prompt-injection-is-the-new-sql-injection-and-were-not-ready-4ea4": {
+    "ok": true,
+    "title": "Prompt Injection Is the New SQL Injection (and We're Not Ready)",
+    "description": "In March 2026, a financial services company discovered that their customer-facing AI agent had been...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fs3naos2gu55mg9na6jui.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-29"
+  },
   "https://dev.to/james_anderson_h/the-quiet-weight-of-working-in-tech-in-the-ai-era-551g": {
     "ok": true,
     "title": "The Quiet Weight of Working in Tech in the AI Era",
@@ -2366,6 +2390,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fwkg82y5x1irq337p6yc5.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-30"
+  },
+  "https://dev.to/nyaomaru/your-type-guard-can-silently-drift-from-your-typescript-type-o57": {
+    "ok": true,
+    "title": "Your Type Guard Can Silently Drift from Your TypeScript Type 🔧",
+    "description": "Hoi hoi! 👋  I'm @nyaomaru, a frontend engineer just back from a short vacation on Texel, a small...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F5yvvb4hfohcyypcuieae.gif",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-09-29"
   },
   "https://dev.to/p0rt/ai-generated-tests-can-make-coding-agents-worse-heres-how-to-check-yours-3jc9": {
     "ok": true,

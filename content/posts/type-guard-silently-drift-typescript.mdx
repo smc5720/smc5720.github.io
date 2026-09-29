@@ -1,0 +1,362 @@
+﻿---
+title: "타입 가드는 조용히 타입에서 멀어진다 (Your Type Guard Can Silently Drift from Your TypeScript Type)"
+description: "TypeScript의 타입 프레디킷은 컴파일러가 검증한 증명이 아니라 개발자가 쓴 약속이다. 타입이 바뀌어도 런타임 가드는 경고 없이 낡아버린다는 문제와, is-kit의 typedStruct로 그 어긋남을 컴파일 타임에 드러내는 방법을 정리했다."
+date: "2026-09-23"
+published_at: "2026-09-29"
+category: "news"
+tags: []
+slug: "type-guard-silently-drift-typescript"
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F5yvvb4hfohcyypcuieae.gif"
+coverAlt: "Your Type Guard Can Silently Drift from Your TypeScript Type"
+source_id: "devto-4678373"
+source_url: "https://dev.to/nyaomaru/your-type-guard-can-silently-drift-from-your-typescript-type-o57"
+source_title: "Your Type Guard Can Silently Drift from Your TypeScript Type 🔧"
+source_author: "nyaomaru"
+source_published: "2026-09-23"
+---
+
+<LinkCard url="https://dev.to/nyaomaru/your-type-guard-can-silently-drift-from-your-typescript-type-o57" author="nyaomaru" date="2026-09-23" />
+
+## 개요
+
+프런트엔드 엔지니어 nyaomaru가 TypeScript 타입 가드의 구조적 허점을 짚었다. `value is User` 같은 타입 프레디킷을 붙이면 컴파일러는 그 함수가 `true`를 반환할 때 값이 `User`라고 믿는다. 하지만 함수 본문이 실제로 `User`의 모든 필드를 검사하는지는 증명하지 않는다.
+
+결과적으로 타입에 필드를 추가하고 가드 수정을 잊어도 컴파일은 통과한다. 그는 이 문제를 해결하려고 자신이 만든 오픈소스 라이브러리 `is-kit`에 `typedStruct`를 추가했다고 밝혔다.
+
+![타자기 활자 막대 클로즈업](https://images.pexels.com/photos/31744749/pexels-photo-31744749.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Nancy Zjaba](https://www.pexels.com/@nancy-zjaba) on [Pexels](https://www.pexels.com/photo/close-up-of-vintage-typewriter-type-bars-31744749/)*
+
+## 에러 없이 낡아가는 가드
+
+시작점은 평범하다. 타입과 가드가 정확히 맞물린 상태다.
+
+```ts
+type User = {
+  id: string;
+  name: string;
+};
+```
+
+```ts
+const isUser = (value: unknown): value is User => {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  const candidate = value as Record<string, unknown>;
+
+  return typeof candidate.id === "string" && typeof candidate.name === "string";
+};
+```
+
+시간이 지나 `User`에 `role` 필드가 붙는다.
+
+```ts
+type User = {
+  id: string;
+  name: string;
+  role: "admin" | "member";
+};
+```
+
+가드는 그대로 둔다. `role` 검사는 어디에도 없다. 그런데도 컴파일은 통과한다. 타입과 런타임 검증이 갈라진 순간인데, 도구는 아무 말도 하지 않는다.
+
+## 왜 TypeScript는 이걸 못 잡나
+
+`(value: unknown): value is User`는 사용자 정의 타입 프레디킷이다. 개발자가 컴파일러에게 이렇게 선언하는 셈이다.
+
+> 나를 믿어라. 이 함수가 `true`를 반환하면 그 값은 `User`다.
+
+TypeScript는 선언된 프레디킷 타입 자체가 말이 되는지는 확인한다. 그러나 임의의 런타임 로직이 해당 타입의 모든 부분을 실제로 검증하는지까지 일반적으로 증명하지는 못한다. 그래서 이런 코드도 완벽히 유효한 TypeScript다.
+
+```ts
+const isUser = (_value: unknown): _value is User => true;
+```
+
+끔찍한 가드지만 컴파일러는 통과시킨다. 반환 타입은 함수 본문에서 생성된 증명이 아니라 개발자가 직접 쓴 계약이기 때문이다.
+
+## 진짜 문제는 유지보수다
+
+가드를 한 번 작성하는 건 귀찮은 축에도 못 든다. 골치 아픈 쪽은 두 가지를 계속 동기화된 상태로 유지하는 일이다.
+
+```text
+TypeScript type
+      ↕
+Runtime validation
+```
+
+타입은 바뀐다. 속성이 추가되고, 제거되고, 이름이 바뀌고, optional이 되고, 다른 타입으로 교체된다. 그때마다 어딘가의 런타임 가드도 손봐야 한다는 사실을 기억해야 한다. 잊으면 컴파일러는 알려주지 않을 수도 있다. 저자는 기억력에 의존해 막아야 하는 종류의 버그를 특히 싫어한다고 적었다.
+
+## 타입을 계약으로 삼으면
+
+`typedStruct`를 만든 이유가 여기에 있다. 애플리케이션 타입이 이미 존재한다고 하자.
+
+```ts
+type User = {
+  id: string;
+  name: string;
+  age?: number;
+};
+```
+
+그 타입을 기준으로 가드를 조립한다.
+
+```ts
+import { isNumber, isString, optionalKey, typedStruct } from "is-kit";
+
+const isUser = typedStruct<User>()({
+  id: isString,
+  name: isString,
+  age: optionalKey(isNumber),
+});
+```
+
+필드 맵이 `User`와 타입 레벨 관계를 갖게 된다. 런타임 동작은 여전히 평범한 객체 검증이지만, 컴파일 타임에는 선언한 가드들이 따라야 할 객체 타입과 맞는지 TypeScript가 확인할 수 있다.
+
+## 어긋남이 눈에 보인다
+
+필드를 또 추가해보자.
+
+```ts
+type User = {
+  id: string;
+  name: string;
+  role: "admin" | "member";
+  age?: number;
+};
+```
+
+가드 수정을 잊으면 이번엔 에러가 난다.
+
+```ts
+typedStruct<User>()({
+  id: isString,
+  name: isString,
+  age: optionalKey(isNumber),
+
+  // TypeScript error:
+  // role is missing
+});
+```
+
+필드 타입이 맞지 않을 때도 마찬가지다.
+
+```ts
+import {
+  isNumber,
+  isString,
+  oneOfValues,
+  optionalKey,
+  typedStruct,
+} from "is-kit";
+
+typedStruct<User>()({
+  id: isString,
+
+  name: isNumber,
+  // TypeScript error:
+  // User["name"] is string
+
+  role: oneOfValues("admin", "member"),
+  age: optionalKey(isNumber),
+});
+```
+
+저자가 가장 중요하게 여기는 지점이 이것이다. `typedStruct`는 유지보수를 없애주지 않는다. 잊어버린 유지보수를 눈에 보이게 만든다.
+
+## optional과 nullable은 다른 이야기
+
+객체 가드에서 헷갈리기 쉬운 또 하나가 optional 속성이다.
+
+```ts
+type User = {
+  id: string;
+  nickname?: string | null;
+};
+```
+
+여기엔 별개의 두 개념이 섞여 있다. 하나는 `nickname` 키가 아예 없을 수 있다는 것이고, 다른 하나는 키가 있되 값이 `null`일 수 있다는 것이다. 런타임 계약으로 보면 서로 다른 조건이다.
+
+```ts
+import { isString, nullable, optionalKey, typedStruct } from "is-kit";
+
+const isUser = typedStruct<User>()({
+  id: isString,
+  nickname: optionalKey(nullable(isString)),
+});
+```
+
+동작은 이렇게 갈린다.
+
+```ts
+isUser({ id: "user-1" });
+// true
+
+isUser({
+  id: "user-1",
+  nickname: null,
+});
+// true
+
+isUser({
+  id: "user-1",
+  nickname: "Neko",
+});
+// true
+
+isUser({
+  id: "user-1",
+  nickname: 42,
+});
+// false
+```
+
+`optionalKey(...)`는 속성이 없을 수 있다는 뜻이고, `nullable(...)`은 값이 `null`일 수 있다는 뜻이다. 비슷해 보이지만 다른 걸 기술한다.
+
+## 중첩 타입도 복사할 필요 없다
+
+조금 더 큰 타입을 보자.
+
+```ts
+type Account = {
+  readonly id: string;
+
+  readonly profile: {
+    readonly displayName: string;
+    readonly bio: string | null;
+  } | null;
+
+  readonly tags: readonly string[];
+};
+```
+
+profile 형태를 별도 타입으로 옮겨 적을 수도 있다. 그러면 어긋날 수 있는 대상이 하나 더 늘어난다. 대신 이미 있는 타입을 참조하면 된다.
+
+```ts
+import { arrayOf, isString, nullable, typedStruct } from "is-kit";
+
+const isProfile = typedStruct<NonNullable<Account["profile"]>>()({
+  displayName: isString,
+  bio: nullable(isString),
+});
+
+const isAccount = typedStruct<Account>()({
+  id: isString,
+  profile: nullable(isProfile),
+  tags: arrayOf(isString),
+});
+```
+
+저자가 선호하는 모델은 한 문장으로 요약된다.
+
+> 컴파일 타임에는 이미 있는 타입을 재사용하고, 런타임에는 작은 가드들을 조합한다.
+
+## 런타임에 추가 속성이 들어오면
+
+여기서 구분해야 할 질문이 둘로 갈린다. 첫째, 내 가드 정의가 TypeScript 타입과 맞는가. 둘째, 런타임 객체가 추가 속성을 가져도 되는가.
+
+기본값은 추가 키를 허용한다. 런타임 객체 형태까지 닫고 싶다면 exact 모드를 켠다.
+
+```ts
+import { isString, typedStruct } from "is-kit";
+
+type User = {
+  id: string;
+  name: string;
+};
+
+const isExactUser = typedStruct<User>()(
+  {
+    id: isString,
+    name: isString,
+  },
+  {
+    exact: true,
+  },
+);
+```
+
+```ts
+isExactUser({
+  id: "user-1",
+  name: "Ada",
+});
+// true
+
+isExactUser({
+  id: "user-1",
+  name: "Ada",
+  debug: true,
+});
+// false
+```
+
+추가 속성을 거부할지 말지는 런타임 정책의 문제다. 가드 정의를 타입과 동기화하는 문제와 섞어서 생각하면 안 된다.
+
+## 무엇이 진실의 출처인가
+
+저자는 모든 프로젝트에 맞는 단 하나의 검증 방식은 없다고 본다. 던져야 할 질문은 하나다. **이 데이터의 형태를 이미 소유하고 있는 쪽은 누구인가?**
+
+**수동 프레디킷** — 검증 로직이 특수하거나 구조적 검사가 주가 아닐 때 적합하다.
+
+```ts
+const isSomething = (value: unknown): value is Something => {
+  // custom logic
+};
+```
+
+**가드 우선(Guard-first)** — 가드 자체가 결과 타입을 정의해야 할 때 쓸 만하다.
+
+```ts
+const isUser = struct({
+  id: isString,
+  name: isString,
+});
+```
+
+**타입 우선(Type-first)** — `User`가 이미 있고 런타임 가드가 거기 맞춰 따라가야 할 때 쓴다.
+
+```ts
+const isUser = typedStruct<User>()({
+  id: isString,
+  name: isString,
+});
+```
+
+**스키마 우선(Schema-first)** — 구조화된 검증 에러, 강제 변환(coercion), 변환(transform), 기본값, 생성된 산출물이 필요하다면 스키마 라이브러리나 코드 생성이 더 나은 출처다.
+
+각자 다른 문제를 푸는 도구라는 게 저자의 정리다. 모든 불리언 검증 하나하나가 스키마가 될 필요는 없다는 말도 덧붙였다.
+
+## typedStruct가 하지 않는 일
+
+경계도 분명히 해뒀다. `typedStruct`는 TypeScript 타입에서 런타임 검증을 생성하지 않는다. 타입은 런타임에 지워지므로, 실행할 가드는 여전히 직접 선언해야 한다.
+
+그 밖에 하지 않는 일은 이렇다.
+
+- 모든 커스텀 프레디킷이 정직한지 증명하지 않는다
+- 값을 강제 변환하지 않는다
+- 풍부한 구조화 검증 에러를 반환하지 않는다
+- 스키마 우선 워크플로를 대체하지 않는다
+- 문자열 키 객체 계약이라는 범위상, 숫자나 심볼 속성은 검증하지 않는다
+
+의도적으로 작게 만든 도구다. 목표는 이미 갖고 있는 객체 타입과 실행하기로 선택한 런타임 가드 사이에 타입이 붙은 다리를 놓는 것뿐이다.
+
+## 핵심은 라이브러리가 아니다
+
+저자가 마지막에 강조한 문장은 `typedStruct`에 관한 게 아니다.
+
+> **타입 프레디킷은 증명이 아니라 약속이다.**
+
+`(value): value is User`라고 썼다고 해서 TypeScript가 구현을 들여다보고 모든 `User` 필드가 검증됐음을 증명한 건 아니다. 그 약속을 한 건 개발자다.
+
+그래서 TypeScript 타입이 진실의 출처라면, 앞으로의 모든 변경을 사람이 기억하길 기대하는 대신 런타임 가드가 그 타입에 구조적으로 의존하게 만드는 편이 낫다는 것이다. 가드가 타입을 정의한다면 가드 우선으로, 기존 타입이 계약을 정의해야 한다면 가드를 그 타입에 연결하는 방식으로. 풍부한 파싱과 변환, 강제 변환, 상세한 에러가 필요한 순간이 오면 그때부터 스키마가 값을 한다.
+
+더 자세한 가이드는 is-kit 문서 사이트에 정리돼 있다.
+
+[Keep Type Guards in Sync 가이드 보기 →](https://is-kit.dev/guides/keep-type-guards-in-sync)
+
+[is-kit GitHub 저장소 보기 →](https://github.com/nyaomaru/is-kit)
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
