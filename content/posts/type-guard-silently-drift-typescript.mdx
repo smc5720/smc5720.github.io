@@ -4,7 +4,7 @@ description: "TypeScript의 타입 프레디킷은 컴파일러가 검증한 증
 date: "2026-09-23"
 published_at: "2026-09-29"
 category: "news"
-tags: []
+tags: ["typescript","javascript","programming","webdev","opensource"]
 slug: "type-guard-silently-drift-typescript"
 cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F5yvvb4hfohcyypcuieae.gif"
 coverAlt: "Your Type Guard Can Silently Drift from Your TypeScript Type"
@@ -21,7 +21,7 @@ source_published: "2026-09-23"
 
 프런트엔드 엔지니어 nyaomaru가 TypeScript 타입 가드의 구조적 허점을 짚었다. `value is User` 같은 타입 프레디킷을 붙이면 컴파일러는 그 함수가 `true`를 반환할 때 값이 `User`라고 믿는다. 하지만 함수 본문이 실제로 `User`의 모든 필드를 검사하는지는 증명하지 않는다.
 
-결과적으로 타입에 필드를 추가하고 가드 수정을 잊어도 컴파일은 통과한다. 그는 이 문제를 해결하려고 자신이 만든 오픈소스 라이브러리 `is-kit`에 `typedStruct`를 추가했다고 밝혔다.
+그래서 타입에 필드를 추가하고 가드 고치는 걸 잊어도 컴파일은 그대로 통과한다. 그는 이 문제를 해결하려고 자신이 만든 오픈소스 라이브러리 `is-kit`에 `typedStruct`를 추가했다고 밝혔다.
 
 ![타자기 활자 막대 클로즈업](https://images.pexels.com/photos/31744749/pexels-photo-31744749.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
 *Photo by [Nancy Zjaba](https://www.pexels.com/@nancy-zjaba) on [Pexels](https://www.pexels.com/photo/close-up-of-vintage-typewriter-type-bars-31744749/)*
@@ -67,7 +67,7 @@ type User = {
 
 > 나를 믿어라. 이 함수가 `true`를 반환하면 그 값은 `User`다.
 
-TypeScript는 선언된 프레디킷 타입 자체가 말이 되는지는 확인한다. 그러나 임의의 런타임 로직이 해당 타입의 모든 부분을 실제로 검증하는지까지 일반적으로 증명하지는 못한다. 그래서 이런 코드도 완벽히 유효한 TypeScript다.
+TypeScript는 선언된 프레디킷 타입 자체가 말이 되는지는 확인한다. 하지만 함수 안의 런타임 로직이 그 타입의 구석구석을 실제로 검사하는지까지는 대체로 증명하지 못한다. 그래서 이런 코드도 완벽히 유효한 TypeScript다.
 
 ```ts
 const isUser = (_value: unknown): _value is User => true;
@@ -111,7 +111,7 @@ const isUser = typedStruct<User>()({
 });
 ```
 
-필드 맵이 `User`와 타입 레벨 관계를 갖게 된다. 런타임 동작은 여전히 평범한 객체 검증이지만, 컴파일 타임에는 선언한 가드들이 따라야 할 객체 타입과 맞는지 TypeScript가 확인할 수 있다.
+이렇게 하면 필드 맵이 `User`와 타입 레벨에서 묶인다. 런타임 동작은 여전히 평범한 객체 검증이지만, 컴파일 타임에는 선언한 가드들이 따라야 할 객체 타입과 맞는지 TypeScript가 확인할 수 있다.
 
 ## 어긋남이 눈에 보인다
 
@@ -349,7 +349,7 @@ const isUser = typedStruct<User>()({
 
 `(value): value is User`라고 썼다고 해서 TypeScript가 구현을 들여다보고 모든 `User` 필드가 검증됐음을 증명한 건 아니다. 그 약속을 한 건 개발자다.
 
-그래서 TypeScript 타입이 진실의 출처라면, 앞으로의 모든 변경을 사람이 기억하길 기대하는 대신 런타임 가드가 그 타입에 구조적으로 의존하게 만드는 편이 낫다는 것이다. 가드가 타입을 정의한다면 가드 우선으로, 기존 타입이 계약을 정의해야 한다면 가드를 그 타입에 연결하는 방식으로. 풍부한 파싱과 변환, 강제 변환, 상세한 에러가 필요한 순간이 오면 그때부터 스키마가 값을 한다.
+TypeScript 타입이 진실의 출처라면, 앞으로 생길 변경을 사람이 다 기억해주길 바랄 게 아니라 런타임 가드가 그 타입에 구조적으로 매달리게 만드는 편이 낫다. 가드가 타입을 정의한다면 가드 우선으로, 기존 타입이 계약을 정의해야 한다면 가드를 그 타입에 연결하는 방식으로. 풍부한 파싱과 변환, 강제 변환, 상세한 에러가 필요한 순간이 오면 그때부터 스키마가 값을 한다.
 
 더 자세한 가이드는 is-kit 문서 사이트에 정리돼 있다.
 
