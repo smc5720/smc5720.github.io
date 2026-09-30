@@ -1,0 +1,95 @@
+﻿---
+title: "QA 엔지니어가 Claude와 Obsidian으로 일하는 방법 (Claude e Obsidian - Como uma QA utiliza essas ferramentas no dia-a-dia)"
+description: "브라질의 한 QA 엔지니어가 Obsidian 템플릿, Claude 스킬, 직접 만든 플러그인을 엮어 테스트 계획 작성을 자동화한 과정을 소개합니다. Jira와 Confluence, Zephyr까지 하나의 흐름으로 묶었습니다."
+date: "2026-09-28"
+published_at: "2026-09-30"
+slug: "qa-engineer-claude-obsidian-workflow"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fg4v9ciar0s4sjo21b037.jpg"
+coverAlt: "Claude e Obsidian - Como uma QA utiliza essas ferramentas no dia-a-dia"
+source_id: "devto-4767386"
+source_url: "https://dev.to/he4rt/claude-e-obsidian-como-uma-qa-utiliza-essas-ferramentas-no-dia-a-dia-51jc"
+source_title: "Claude e Obsidian - Como uma QA utiliza essas ferramentas no dia-a-dia"
+source_author: "Alicia Marianne Gonçalves"
+source_published: "2026-09-28"
+---
+
+<LinkCard url="https://dev.to/he4rt/claude-e-obsidian-como-uma-qa-utiliza-essas-ferramentas-no-dia-a-dia-51jc" author="Alicia Marianne Gonçalves" date="2026-09-28" />
+
+## 개요
+
+AI 덕분에 개발 속도가 빨라지면서 QA 쪽 고민도 커졌습니다. 놓친 게 없는지, 정말 필요한 시나리오를 다 챙기고 있는지 매번 확인해야 하기 때문입니다. QA 엔지니어 Alicia Marianne Gonçalves는 이 문제를 Obsidian과 Claude로 풀고 있다며 자신의 작업 방식을 공개했습니다.
+
+뼈대는 세 가지입니다. Obsidian **템플릿**으로 문서 형식을 정해 두고, Claude **스킬**로 반복 작업을 자동화하고, 필요한 **플러그인**은 직접 만들었습니다. Jira 티켓 ID 하나만 넣으면 맥락 수집부터 테스트 계획 문서 작성, 테스트 관리 도구 등록까지 한 번에 이어집니다.
+
+영어판은 [AWS Community Builders](https://builder.aws.com/content/3Jybv1TohV8qpvJ80e1JopCd9pN/claude-and-obsidian-how-a-qa-professional-uses-these-tools-on-a-daily-basis)에서도 읽을 수 있습니다.
+
+## 본문
+
+### Notion 대신 Obsidian을 고른 이유
+
+Obsidian은 마크다운(.md) 파일을 로컬에 저장하는 노트·지식 관리 앱입니다. 클라우드 동기화가 필요하면 유료 버전을 쓰거나 커뮤니티 플러그인을 설치하면 됩니다.
+
+저자는 원래 Notion을 썼습니다. 좋은 도구지만 화면을 꾸밀 수 있는 부분이 너무 많아서, 내용을 채우기보다 템플릿 다듬는 데 시간을 더 쓰게 됐다고 합니다. Obsidian으로 옮긴 이유는 다음과 같습니다.
+
+- **단순함**: 노트 작성에만 집중하는 도구라 딴 데 정신 팔 일이 적습니다.
+- **로컬 저장**: 업무 환경에서는 데이터 보안이 중요한데, 노트가 내 컴퓨터에만 있으니 안심이 됩니다.
+- **플러그인**: 화면을 어지럽히지 않고도 필요한 기능을 붙일 수 있습니다.
+- **AI와 궁합**: 저자가 가장 중요하게 꼽은 이유입니다. 모든 노트가 마크다운이라 AI 도구와 바로 연결됩니다. 저자는 Obsidian을 "두 번째 뇌"라고 부릅니다.
+
+### 템플릿: 문서 형식부터 정해 둔다
+
+Obsidian을 쓰기 시작하고 가장 먼저 한 일은 자주 쓰는 문서의 템플릿을 만드는 것이었습니다. 한 번 만들어 두면 새 노트를 쓸 때마다 같은 형식을 불러올 수 있습니다. 지금 쓰는 템플릿은 세 가지입니다.
+
+- **기술 태스크 템플릿**: DB 마이그레이션, 컨슈머 개발, API 같은 기술 작업의 테스트 계획을 쓸 때 기준으로 씁니다.
+- **비즈니스 태스크 템플릿**: 이보다 앞 단계인 프로덕트 디스커버리에서 PO와 함께 씁니다. 새 기능에 어떤 테스트 레이어를 둘지, 위험 요소는 무엇이고 어떻게 줄일지, 성공을 어떻게 측정할지 정리합니다.
+- **회의록 템플릿**: 회의 기본 정보를 담아 두고, 회의 중 메모를 하거나 본인이 진행할 회의의 진행 순서를 짤 때 씁니다.
+
+### Claude 스킬: 반복 작업 자동화
+
+스킬은 반복 작업 시간을 줄여 주고, AI 결과물의 형식을 일정하게 유지해 줍니다. 저자가 만든 스킬은 세 가지입니다.
+
+- **테스트 계획 생성**: Jira 태스크 ID를 넘기면 해당 태스크의 맥락을 가져오고, `CLAUDE.md`에 지정해 둔 Confluence 참고 문서를 찾아봅니다. 맥락이 모이면 앞서 만든 템플릿에 맞춰 테스트 계획 .md 파일을 만듭니다.
+- **테스트 계획이 없는 태스크 찾기**: Atlassian MCP와 연결된 간단한 스킬입니다. 테스트 계획 작성 플래그가 붙은 본인 담당 태스크를 모두 찾아 **Kanban** 플러그인용 .md 파일에 추가합니다. 할 일과 끝낸 일을 여기서 관리합니다.
+- **Zephyr 테스트 케이스 등록**: 계획한 테스트를 저자가 쓰는 테스트 관리 도구인 Zephyr에 올립니다.
+
+### 플러그인: 없으면 직접 만든다
+
+작업 관리에는 이미 Kanban 플러그인을 쓰고 있었지만, 최근 두 가지 기능이 더 필요해졌습니다.
+
+- Obsidian을 벗어나지 않고 Claude Code를 쓸 수 있는 플러그인
+- 스킬을 쉽게 꺼내 쓸 수 있는 플러그인
+
+커뮤니티 스토어에서 찾지 못해서 둘 다 직접 만들었습니다. 첫 번째는 지금 작업 중인 볼트(vault, 폴더)에서 터미널을 여는 플러그인입니다. Obsidian 안에서 바로 Claude Code를 실행할 수 있습니다.
+
+![Terminal Plugin](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/fa6kxlhbaj5hjesog4b3.png)
+
+두 번째는 사용 가능한 스킬 목록을 보여 주고 Obsidian에서 바로 실행하게 해 주는 간단한 플러그인입니다.
+
+![Claude Skill plugin](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/g4yhv7dhza60mwot1yh1.png)
+
+### 실제로는 이렇게 돌아간다
+
+제품 쪽에서 내려온 에픽이나 프로덕트 디스커버리 태스크 AB-123이 있다고 해 봅시다. 이 태스크의 테스트 계획은 아래 흐름으로 만들어집니다.
+
+![Product task](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/0iourcekz9ktvj1r25ws.png)
+
+기술 태스크도 과정은 거의 같습니다.
+
+![Tech tasks](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/lpq6yra94h2cceqjxko8.png)
+
+### AI 결과물은 여전히 검토가 필요하다
+
+저자는 AI로 업무 정리 방식을 바꿔 보는 일이 즐거웠다고 말합니다. 다만 AI가 만든 결과물을 검토하는 일은 여전히 과제로 남아 있습니다. 그래서 생성된 테스트와 테스트 데이터를 두고 팀에 피드백을 받아, 설명이 명확한지와 빠진 부분은 없는지 확인합니다.
+
+템플릿도 같은 방식으로 관리합니다. 검토 결과를 반영해 필요한 맥락은 더하고 쓸모없는 맥락은 빼면서 계속 고쳐 나갑니다.
+
+직접 만든 플러그인 두 개는 아직 정식 버전이 아니고 커뮤니티 스토어에도 올라가 있지 않습니다. 대신 각 저장소에 로컬 설치 방법을 적어 두었습니다.
+
+- [Claude Skills Plugin](https://github.com/m4rri4nne/claude-skills-obsidian)
+- [Open Terminal Plugin](https://github.com/m4rri4nne/open-terminal-obsidian)
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
