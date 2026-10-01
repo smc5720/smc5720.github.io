@@ -1,0 +1,419 @@
+﻿---
+title: "TypeScript Compiler API에서 재사용 타입 가드가 자식 노드 좁히기까지 유지하게 만들기"
+description: "부모 노드와 자식 프로퍼티를 함께 검사하는 타입 가드를 함수로 추출하면 자식 쪽 좁히기 정보가 사라집니다. is-kit의 refineKey 계열 헬퍼로 이 정보를 유지하는 방법과 TypeScript 7에서 달라진 점을 정리합니다."
+slug: "typescript-compiler-api-reusable-type-guard-child-narrowing"
+date: "2026-09-30"
+published_at: "2026-10-01"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fjq3mvksok7rwzsn7tnih.gif"
+coverAlt: "TypeScript Compiler API: Preserving Child Node Narrowing in Reusable Type Guards"
+source_id: "devto-4743843"
+source_url: "https://dev.to/nyaomaru/typescript-compiler-api-preserving-child-node-narrowing-in-reusable-type-guards-4pgh"
+source_title: "TypeScript Compiler API: Preserving Child Node Narrowing in Reusable Type Guards 🔧"
+source_author: "nyaomaru"
+source_published: "2026-09-30"
+---
+
+<LinkCard url="https://dev.to/nyaomaru/typescript-compiler-api-preserving-child-node-narrowing-in-reusable-type-guards-4pgh" author="nyaomaru" date="2026-09-30" />
+
+## 개요
+
+프런트엔드 엔지니어 nyaomaru가 TypeScript Compiler API를 다루다 생긴 의문 하나를 정리했습니다. 재사용하려고 뽑아낸 타입 가드가 AST 노드 타입뿐 아니라 **좁혀진 자식 프로퍼티 타입**까지 유지할 수 있느냐는 질문입니다.
+
+처음에는 Compiler API만의 문제라고 생각했습니다. 그런데 일반 TypeScript 객체로 같은 패턴을 재현해 보니 핵심은 AST가 아니라 **프로퍼티 정제(property refinement)**였습니다. 저자는 자신이 만든 라이브러리 [is-kit](https://github.com/nyaomaru/is-kit)의 `refineKey`, `refineDefinedKey`, `refineIndex`로 이 문제를 푸는 방법을 소개합니다.
+
+![Image description](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/6iw8w06b7fn4nk241sz2.gif)
+
+## 함수로 빼면 사라지는 타입 정보
+
+### 인라인 검사는 문제없다
+
+넓은 `ts.Node`가 `CallExpression`인지, 그리고 `expression`이 `Identifier`인지 확인하는 코드는 인라인으로 쓰면 간단합니다.
+
+```ts
+import * as ts from "typescript";
+
+declare const node: ts.Node;
+
+if (ts.isCallExpression(node) && ts.isIdentifier(node.expression)) {
+  // node: ts.CallExpression
+  // node.expression: ts.Identifier
+  node.expression.text;
+}
+```
+
+TypeScript가 제어 흐름을 정확히 따라가므로 따로 손볼 게 없습니다. 저자도 이 검사가 한 번만 나온다면 그대로 두겠다고 말합니다.
+
+### 재사용하려는 순간 생기는 일
+
+같은 AST 모양이 visitor, `filter`, `find`, 다른 변환 코드, 다른 린트 규칙 등 여러 곳에서 반복된다면 검사에 이름을 붙이고 싶어집니다.
+
+TypeScript 5.5부터는 단순한 함수의 타입 술어(type predicate)를 자동으로 추론해 줍니다. 하지만 부모와 자식을 함께 보는 복합 검사는 추론되지 않습니다.
+
+```ts
+const isCallWithIdentifierExpression = (node: ts.Node) =>
+  ts.isCallExpression(node) && ts.isIdentifier(node.expression);
+// inferred:
+// (node: ts.Node) => boolean
+```
+
+두 사실을 모두 유지하려면 정제된 타입을 직접 적어야 합니다.
+
+```ts
+const isCallWithIdentifierExpression = (
+  node: ts.Node,
+): node is ts.CallExpression & {
+  expression: ts.Identifier;
+} => ts.isCallExpression(node) && ts.isIdentifier(node.expression);
+```
+
+이렇게 하면 동작하고, `filter`에 넘겨도 결과 타입이 제대로 나옵니다.
+
+```ts
+declare const nodes: readonly ts.Node[];
+
+const calls = nodes.filter(isCallWithIdentifierExpression);
+// calls:
+// Array<
+//   ts.CallExpression & {
+//     expression: ts.Identifier;
+//   }
+// >
+```
+
+런타임 문제는 없습니다. 저자가 불편하게 여긴 부분은 이미 런타임에서 그대로 검사한 내용을 교차 타입으로 한 번 더 손으로 써야 한다는 점입니다. 검사를 조합하면 타입이 알아서 따라오길 바란 것이죠.
+
+## refineKey로 부모와 자식을 함께 정제하기
+
+is-kit을 쓰면 같은 가드를 이렇게 만들 수 있습니다.
+
+```ts
+import * as ts from "typescript";
+import { and, refineKey } from "is-kit";
+
+const isCallWithIdentifierExpression = and(
+  ts.isCallExpression,
+  refineKey("expression", ts.isIdentifier),
+);
+```
+
+```ts
+declare const node: ts.Node;
+
+if (isCallWithIdentifierExpression(node)) {
+  // node:
+  // ts.CallExpression & {
+  //   expression: ts.Identifier;
+  // }
+  node.expression.text;
+}
+```
+
+`ts.isCallExpression`이 먼저 부모를 좁힙니다. 그다음 `refineKey("expression", ts.isIdentifier)`가 이미 좁혀진 부모의 프로퍼티 하나를 검사하고, 그 결과로 얻은 자식 타입을 부모 타입에 다시 얹습니다. 저자는 이 아이디어를 "자식을 런타임에서 한 번 검사하고, 그 사실을 부모 타입으로 다시 가져온다"고 요약합니다.
+
+### 사실 AST만의 문제가 아니다
+
+조사하면서 저자가 가장 놀란 점이 이것입니다. 같은 모양이 일반 객체에서도 나타납니다. 개념적으로는 아래 흐름이 전부입니다.
+
+```ts
+Parent
+  ↓
+check property
+  ↓
+Parent & {
+  property: RefinedChild
+}
+```
+
+Compiler API는 이 패턴이 곳곳에 등장하기 때문에 좋은 스트레스 테스트가 될 뿐입니다.
+
+```text
+CallExpression
+  → expression
+  → Identifier
+```
+
+```text
+VariableDeclaration
+  → initializer?
+  → CallExpression
+```
+
+```text
+CallExpression
+  → arguments[0]
+  → StringLiteral
+```
+
+그래서 저자는 `refineKey`를 Compiler API 전용 헬퍼가 아니라 범용 조합 도구로 봅니다.
+
+![Close-up of programming code on computer screen](https://images.pexels.com/photos/34803988/pexels-photo-34803988.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Daniil Komov](https://www.pexels.com/@daniil-komov) on [Pexels](https://www.pexels.com/photo/close-up-of-programming-code-on-computer-screen-34803988/)*
+
+## 기존 가드는 감싸지 않고 조합만 한다
+
+Compiler API에는 이미 `ts.isStringLiteral`, `ts.isIdentifier`, `ts.isCallExpression`, `ts.isClassDeclaration` 같은 훌륭한 가드가 있습니다. 저자는 이걸 다시 감싸서 `isTsStringLiteral()` 같은 함수를 만드는 건 중복일 뿐이라고 봅니다. 쓸모 있는 건 조합입니다.
+
+```ts
+import * as ts from "typescript";
+import { or } from "is-kit";
+
+const isStringLike = or(ts.isStringLiteral, ts.isNoSubstitutionTemplateLiteral);
+
+declare const nodes: readonly ts.Node[];
+
+const strings = nodes.filter(isStringLike);
+// strings:
+// (
+//   | ts.StringLiteral
+//   | ts.NoSubstitutionTemplateLiteral
+// )[]
+```
+
+### find와 visitor에서 같은 가드 재사용
+
+정제된 모양이 여러 곳에서 쓰일 때 효과가 커집니다.
+
+```ts
+import * as ts from "typescript";
+import { and, refineKey } from "is-kit";
+
+const isIdentifierNamedJsxAttribute = and(
+  ts.isJsxAttribute,
+  refineKey("name", ts.isIdentifier),
+);
+```
+
+`find`에 넘기면 결과 타입이 그대로 유지됩니다.
+
+```ts
+declare const attributes: readonly ts.JsxAttributeLike[];
+
+const attribute = attributes.find(isIdentifierNamedJsxAttribute);
+// attribute:
+// (
+//   ts.JsxAttribute & {
+//     name: ts.Identifier;
+//   }
+// ) | undefined
+```
+
+visitor 안에서도 똑같이 씁니다.
+
+```ts
+function visit(node: ts.Node): void {
+  if (isIdentifierNamedJsxAttribute(node)) {
+    // node:
+    // ts.JsxAttribute & {
+    //   name: ts.Identifier;
+    // }
+    node.name.text;
+  }
+  ts.forEachChild(node, visit);
+}
+```
+
+런타임 규칙과 타입 좁히기가 함께 움직이는 지점에서 가드 추출이 제값을 한다는 게 저자의 설명입니다.
+
+## 선택적 자식, 배열, 중첩 구조
+
+### 선택적 프로퍼티는 refineDefinedKey
+
+AST 노드에는 선택적 프로퍼티가 많습니다. `VariableDeclaration`의 `initializer`는 있을 수도, 없을 수도 있습니다. 여기서 원하는 건 단순히 "정제"가 아니라 "존재를 보장한 뒤 정제"입니다. 이 경우를 위해 `refineDefinedKey`가 따로 있습니다.
+
+```ts
+import * as ts from "typescript";
+import { refineDefinedKey } from "is-kit";
+
+const hasCallInitializer = refineDefinedKey("initializer", ts.isCallExpression);
+```
+
+```ts
+declare const declaration: ts.VariableDeclaration;
+
+if (hasCallInitializer(declaration)) {
+  // declaration.initializer: ts.CallExpression
+  declaration.initializer.expression;
+}
+```
+
+분기 안에서 `initializer`는 존재하면서 동시에 `ts.CallExpression`입니다. 프로퍼티가 아예 없어도, 명시적으로 `undefined`여도 `false`를 반환합니다. 저자가 이를 `refineKey`와 분리한 이유는 "값이 없음"이 타입 주석이 아니라 런타임 동작이기 때문입니다.
+
+### 배열 인덱스는 refineIndex
+
+첫 번째 인자가 문자열 리터럴인 호출을 찾는다고 해 봅시다. `node.arguments[0]`은 간단해 보여도 런타임에서는 배열이 비어 있을 수 있습니다. 인덱스 0이 존재하는지, 그 값이 `StringLiteral`인지 둘 다 증명해야 합니다.
+
+```ts
+import * as ts from "typescript";
+import { and, refineIndex, refineKey } from "is-kit";
+
+const isCallWithStringFirstArgument = and(
+  ts.isCallExpression,
+  refineKey("arguments", refineIndex(0, ts.isStringLiteral)),
+);
+```
+
+```ts
+declare const node: ts.Node;
+
+if (isCallWithStringFirstArgument(node)) {
+  // node: ts.CallExpression
+  // node.arguments[0]: ts.StringLiteral
+  node.arguments[0].text;
+}
+```
+
+### 중첩도 작은 조각으로
+
+함수형 선언의 `body`가 존재하고, 블록이며, 첫 문장이 return 문인지 확인하는 경우도 조각을 따로 만들어 조합합니다.
+
+```ts
+import * as ts from "typescript";
+import { and, refineDefinedKey, refineIndex, refineKey } from "is-kit";
+
+const isBlockStartingWithReturn = and(
+  ts.isBlock,
+  refineKey("statements", refineIndex(0, ts.isReturnStatement)),
+);
+
+const hasBodyStartingWithReturn = refineDefinedKey(
+  "body",
+  isBlockStartingWithReturn,
+);
+```
+
+```ts
+declare const functionLike: ts.FunctionLikeDeclaration;
+
+if (hasBodyStartingWithReturn(functionLike)) {
+  // functionLike.body: ts.Block
+  // functionLike.body.statements[0]: ts.ReturnStatement
+  functionLike.body.statements[0].expression;
+}
+```
+
+`body.statements[0]` 같은 경로 문자열도, AST 전용 DSL도 없습니다. 단계마다 한 가지씩 증명할 뿐입니다.
+
+### 왜 키나 인덱스를 하나만 받을까
+
+조회 한 번이 증명하는 건 구체적인 위치 하나입니다. `refineKey("expression", ...)`로 검사했다면 `parent.expression`에 대해서만 알 수 있고, 더 넓은 키 집합 전체가 같은 검사를 통과했다는 뜻은 아닙니다. 키 유니언처럼 여러 위치를 한 번에 주장하면 결과 타입이 실제 검사보다 과장되기 쉽습니다. 저자는 API가 조금 덜 마법 같더라도 런타임 검사 이상을 주장하지 않는 쪽을 택했다고 밝혔습니다.
+
+## TypeScript 7에서는
+
+TypeScript 7에서 Compiler API 구성이 바뀌면서 이 주제가 더 흥미로워졌다고 합니다. 이 섹션의 예제는 TypeScript 7.0.2 기준으로 검증했습니다. 7.0.2에서는 AST 타입과 술어 함수를 `typescript/unstable/ast`에서 가져옵니다. 조합 방식은 똑같이 쓸 수 있습니다.
+
+```ts
+import * as ast from "typescript/unstable/ast";
+import { and, refineKey } from "is-kit";
+
+const isCallWithIdentifierExpression = and(
+  ast.isCallExpression,
+  refineKey("expression", ast.isIdentifier),
+);
+```
+
+### kind 비교만으로는 좁혀지지 않는다
+
+저자는 TypeScript 7에서 `kind` 비교만으로 좁히기가 되어 `isX` 검사가 필요 없어졌는지도 확인했습니다. 진짜 판별 유니언(discriminated union)이라면 리터럴 판별자로 좁힐 수 있습니다. 하지만 현재 TypeScript 7 AST가 노출하는 넓은 `Node`는 닫힌 판별 유니언이 아닙니다.
+
+```ts
+import * as ast from "typescript/unstable/ast";
+
+declare const node: ast.Node;
+
+if (node.kind === ast.SyntaxKind.CallExpression) {
+  // broad ast.Node does not automatically
+  // expose CallExpression properties here
+}
+```
+
+그래서 넓은 AST 노드를 다룰 때는 여전히 `isX` 술어가 필요합니다. 직접 판별 유니언으로 모델링한 AST 타입이라면 다르게 동작할 수 있지만, 그렇다고 TypeScript 7의 `Node`도 같다는 뜻은 아닙니다.
+
+### 왜 Node를 닫힌 유니언으로 만들지 않았나
+
+저자가 이 내용을 공유하자 TypeScript 팀의 [Jake Bailey](https://bsky.app/profile/jakebailey.dev/post/3mwpa3wwmjs2d)가 짧게 답했습니다. "느려서요(because it's slow) 😞"
+
+[Bluesky 게시물 보기 →](https://bsky.app/profile/jakebailey.dev/post/3mwpa3wwmjs2d)
+
+모든 AST 노드 타입을 담은 닫힌 판별 유니언이라면 `kind`로 더 강하게 좁힐 수 있고, 익숙한 `never` 패턴으로 완전성 검사도 할 수 있습니다.
+
+```ts
+switch (node.kind) {
+  // handle every known kind...
+
+  default: {
+    const exhaustive: never = node;
+  }
+}
+```
+
+새 변형이 추가되면 컴파일 단계에서 처리 누락을 알려 주는 방식입니다. 하지만 거대한 닫힌 유니언은 타입 검사기의 부담을 키웁니다. 결국 컴파일 타임 완전성 검사와 타입 검사 성능 사이의 트레이드오프이고, `ast.isCallExpression()` 같은 명시적 술어가 여전히 중요한 이유도 여기에 있습니다.
+
+경로에 붙은 `unstable`도 눈여겨볼 부분입니다. 저자는 아직 바뀌고 있는 API를 전제로 문서화 약속을 하지 않겠다고 했습니다. 조합 패턴 자체는 범용이고, TypeScript 7과의 구체적인 연동 방식은 TypeScript와 함께 달라질 수 있습니다.
+
+## 모든 검사에 쓸 필요는 없다
+
+저자는 이 도구를 남용하지 말라고 거듭 강조합니다. 한 곳에서만 쓰는 조건이라면 인라인으로 두는 편이 낫습니다.
+
+```ts
+if (ts.isReturnStatement(node) && node.expression) {
+  // node: ts.ReturnStatement
+  // node.expression: ts.Expression
+  visit(node.expression);
+}
+```
+
+할 수 있다는 이유만으로 `isReturnWithExpression` 같은 함수로 빼는 게 코드를 낫게 만들진 않는다는 겁니다. 저자가 제안하는 기준은 다음과 같습니다.
+
+| 상황 | 권장 |
+| --- | --- |
+| 한 곳에서만 쓰는 분기 | 기본 `ts.isX` 검사 |
+| 반복되는 AST 모양 | 이름 붙인 재사용 가드 |
+| 이미 is-kit을 쓰는 프로젝트 | `refineKey`, `refineDefinedKey`, `refineIndex` |
+
+목표는 모든 `ts.isX`를 is-kit으로 바꾸는 게 아니라, 런타임 사실이 재사용할 어휘가 됐을 때 타입 좁히기도 함께 재사용하는 것입니다.
+
+### is-kit이 하지 않는 일
+
+is-kit은 Compiler API 프레임워크가 되려 하지 않습니다. 저자가 밝힌 범위 밖의 일은 다음과 같습니다.
+
+- Compiler API 함수를 하나씩 감싸기
+- AST 노드 모양 전체 검증
+- AST 순회 제어
+- AST 순환 탐지
+- TypeScript 런타임 의존성 추가
+- TypeScript를 peer dependency로 요구
+- 명확한 일회성 인라인 검사 대체
+
+## 정리
+
+저자는 Compiler API에 특별한 처리가 필요할 거라고 생각하며 조사를 시작했지만, 실제로 반복되던 문제는 더 일반적이었습니다.
+
+```text
+narrow parent
+    ↓
+check child
+    ↓
+preserve both facts
+    ↓
+reuse the predicate
+```
+
+저자가 정리한 사고방식은 이렇습니다.
+
+- 실제 런타임 판단은 기본 타입 가드에 맡긴다
+- 일회성 조건은 인라인으로 둔다
+- 같은 모양이 반복되면 이름 붙인 가드를 조합한다
+- 교차 타입을 손으로 다시 쓰지 말고 자식 정제 결과를 부모에 유지한다
+
+작은 런타임 검사와 작은 재사용 조각을 조합하면, TypeScript는 실제로 검사한 사실만큼만 타입에 남겨 둡니다.
+
+필수 자식, 선택적 자식, 배열 인덱스, 중첩 AST, TypeScript 7 예제를 더 자세히 다룬 가이드도 공개되어 있습니다.
+
+- [Advanced Property Refinement with the TypeScript Compiler API →](https://is-kit.dev/guides/typescript-compiler-api)
+- [is-kit GitHub 저장소 →](https://github.com/nyaomaru/is-kit)
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

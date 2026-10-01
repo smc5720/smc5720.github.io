@@ -335,6 +335,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/canro91/dear-coder-open-this-if-youre-feeling-ai-fomo-58d4": {
+    "ok": true,
+    "title": "Dear Coder: Open This If You're Feeling AI FOMO",
+    "description": "It's all over the headlines.  Every so often, someone reveals a model X% faster. A tech CEO makes...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fbcz2rmmn05m2klpu6qdp.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-01"
+  },
   "https://dev.to/canro91/i-ran-an-ama-on-devto-here-are-my-favorite-questions-56o8": {
     "ok": true,
     "title": "I Ran an AMA on Dev.to. Here Are My Favorite Questions",
@@ -975,6 +983,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/erikch/are-frontend-developers-cooked-is-frontend-design-safe-nn8": {
+    "ok": true,
+    "title": "Are Frontend Developers Cooked? Is Frontend design safe?",
+    "description": "I recently put out a video arguing that frontend development is changing. I don't think the work is...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F5ilpmawm42514xaot93e.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-01"
+  },
   "https://dev.to/florianrappl/my-oss-projects-anglesharp-3b8j": {
     "ok": true,
     "title": "My OSS Projects: AngleSharp",
@@ -1166,6 +1182,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fsaujssn9hhcnl6wccuv4.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/gde/gemma-4-on-amazon-sagemaker-the-nvidia-t4-decodes-at-08x-of-the-l4-with-the-same-answers-19m4": {
+    "ok": true,
+    "title": "Gemma 4 on Amazon SageMaker: The NVIDIA T4 Decodes at 0.8x of the L4 With the Same Answers",
+    "description": "Gemma 4's 4-bit builds on SageMaker's smallest GPU, an NVIDIA T4, against the L4: a Turing patch for vLLM, the host image the CUDA 13 container needs, speed, memory, answers and cost per token.",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fraw.githubusercontent.com%2Fxbill9%2Fsagemaker-gemma%2Fmain%2Fdocs%2Farticles%2Fsagemaker-gemma-t4%2Fdevto-cover.0adb9f63.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-01"
   },
   "https://dev.to/gde/gemma4-devops-in-action-10bl": {
     "ok": true,
@@ -2398,6 +2422,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fwkg82y5x1irq337p6yc5.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-30"
+  },
+  "https://dev.to/nyaomaru/typescript-compiler-api-preserving-child-node-narrowing-in-reusable-type-guards-4pgh": {
+    "ok": true,
+    "title": "TypeScript Compiler API: Preserving Child Node Narrowing in Reusable Type Guards 🔧",
+    "description": "Hoi hoi! 👋  I'm @nyaomaru, a frontend engineer exploring new possibilities with Jev 😸 (I'm also...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fjq3mvksok7rwzsn7tnih.gif",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-01"
   },
   "https://dev.to/nyaomaru/your-type-guard-can-silently-drift-from-your-typescript-type-o57": {
     "ok": true,

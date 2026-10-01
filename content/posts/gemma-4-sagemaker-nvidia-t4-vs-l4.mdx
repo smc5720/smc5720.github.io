@@ -1,0 +1,241 @@
+﻿---
+title: "Gemma 4를 SageMaker 최소 GPU T4에 올려보니: L4 대비 디코드 속도 0.8배, 답변은 동일"
+description: "Gemma 4의 4비트 빌드를 Amazon SageMaker에서 가장 작은 GPU인 NVIDIA T4에 배포해 L4와 비교했습니다. Turing용 vLLM 패치와 CUDA 13 호스트 이미지 설정이 필요했고, 단일 요청 속도는 L4의 0.77~0.82배, 답변은 40개 모두 같았습니다."
+date: "2026-09-30"
+published_at: "2026-10-01"
+category: "news"
+tags: ["aws", "sagemaker", "gemma", "vllm"]
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fraw.githubusercontent.com%2Fxbill9%2Fsagemaker-gemma%2Fmain%2Fdocs%2Farticles%2Fsagemaker-gemma-t4%2Fdevto-cover.0adb9f63.jpg"
+coverAlt: "Gemma 4 on Amazon SageMaker: The NVIDIA T4 Decodes at 0.8x of the L4 With the Same Answers"
+slug: "gemma-4-sagemaker-nvidia-t4-vs-l4"
+source_id: "devto-4778647"
+source_url: "https://dev.to/gde/gemma-4-on-amazon-sagemaker-the-nvidia-t4-decodes-at-08x-of-the-l4-with-the-same-answers-19m4"
+source_title: "Gemma 4 on Amazon SageMaker: The NVIDIA T4 Decodes at 0.8x of the L4 With the Same Answers"
+source_author: "xbill"
+source_published: "2026-09-30"
+---
+
+<LinkCard url="https://dev.to/gde/gemma-4-on-amazon-sagemaker-the-nvidia-t4-decodes-at-08x-of-the-l4-with-the-same-answers-19m4" author="xbill" date="2026-09-30" />
+
+## 개요
+
+Gemma 4를 Amazon SageMaker에서 제일 작은 GPU인 NVIDIA T4(`ml.g4dn.xlarge`, 16GB)에 올리면 어떻게 될까요. 작성자 xbill이 연재 중인 SageMaker + Gemma 4 시리즈 4편에서 이 실험을 했습니다. 앞선 편에서 쓴 L4(`ml.g6.xlarge`)와 나란히 놓고 측정했습니다.
+
+결과부터 보면, T4의 단일 요청 디코드 속도는 L4의 **0.77~0.82배**였습니다. 40개 질문에 대한 답변은 바이트 단위까지 L4와 같았습니다. 한 장에 올라가는 가장 큰 모델은 12B였고, 26B A4B는 메모리가 부족해 뜨지 않았습니다.
+
+다만 바로 되지는 않았습니다. Turing 세대 GPU에서 vLLM이 멈추는 문제를 우회하는 패치가 필요했고, CUDA 13 기반 컨테이너에 맞는 호스트 이미지도 따로 지정해야 했습니다.
+
+| 항목 | 내용 |
+|---|---|
+| 모델 | Gemma 4 E2B, E4B, 12B, 26B A4B (4비트 가중치 + 4비트 임베딩) |
+| 하드웨어 | `ml.g4dn.xlarge`(T4 1장, 16GB), 비교 대상 `ml.g6.xlarge`(L4 1장) |
+| 리전 | `us-east-2` |
+| 소프트웨어 | AWS vLLM SageMaker 컨테이너 0.30.0 + Turing 어텐션 패치 |
+
+코드는 [GitHub 저장소](https://github.com/xbill9/sagemaker-gemma)에 있습니다. 배포와 관리는 Python으로 만든 MCP 도구 모음으로 처리합니다.
+
+## 본문
+
+### 왜 T4인가
+
+SageMaker JumpStart의 Gemma 4 항목은 E2B부터 `ml.g6e.xlarge`(NVIDIA L40S)를 요구합니다. 12B는 `ml.g6e.16xlarge`에서만 지원하고, T4는 어느 항목에도 없습니다. vLLM에도 열려 있는 이슈 [#38918](https://github.com/vllm-project/vllm/issues/38918)이 있습니다. 제목은 "Gemma4 on Turing GPUs (SM 7.5): all attention backends hit shared memory limits"이고, 9월에 vLLM 0.29.0에서 같은 문제가 다시 보고됐습니다.
+
+작성자는 MCP 서버의 `check_quotas` 도구로 미국 리전별 엔드포인트 쿼터를 조회했습니다.
+
+```markdown
+| Instance | us-east-1 | us-east-2 | us-west-1 | us-west-2 |
+| `ml.g4dn.xlarge` | 2 | 2 | 2 | 2 |
+| `ml.g5g.xlarge` | - | - | - | - |
+| `ml.g5.xlarge` | 2 | 2 | - | 2 |
+| `ml.g6.xlarge` | 1 | 1 | - | 1 |
+| `ml.inf2.xlarge` | 0 | 2 | - | 0 |
+```
+
+대시(-)는 SageMaker에 해당 타입의 쿼터 항목이 없다는 뜻입니다. 이 목록에서 GPU 중 가장 작은 것은 T4 한 장짜리 `ml.g4dn.xlarge`입니다. Graviton 기반 T4G(`g5g`)는 EC2에만 있습니다. Inferentia2는 목록에 있긴 하지만 Neuron SDK를 쓰기 때문에 컨테이너도 다르고 모델도 컴파일해야 합니다.
+
+이번에 쓴 모델은 작성자가 Google의 QAT 가중치를 4비트 임베딩으로 다시 패킹해 Hugging Face에 올린 빌드입니다. 작성자는 26B A4B 빌드가 Google QAT 가중치를 4비트 격자 위에 그대로 유지한 첫 W4A16 체크포인트라고 설명합니다. 0번 레이어의 query projection 가중치 11,534,336개 중 레벨이 바뀐 것은 하나도 없었습니다. 6월에 공개된 같은 QAT export의 AWQ 빌드는 30.3%가 한 레벨 이상 움직였다고 합니다. 이 비교에는 두 체크포인트에서 해당 텐서만 HTTP로 읽어오는 `grid_check.py`를 썼습니다.
+
+### 1단계: Turing용 컨테이너 패치
+
+Gemma 4의 full-attention 레이어는 폭이 512입니다. vLLM은 이 레이어를 Triton 어텐션 커널로 처리하는데, 커널 타일 하나가 블록당 공유 메모리를 98,304바이트씩 요구합니다. Turing 세대인 T4의 한도는 65,536바이트여서 엔진이 시작하자마자 멈춥니다.
+
+```plaintext
+triton.runtime.errors.OutOfResources: shared memory,
+Required: 98304, Hardware limit: 65536
+```
+
+SageMaker 컨테이너에 들어 있는 vLLM 0.30.0에는 아직 수정이 없습니다. 작성자는 Compute Engine T4에서 이미 쓰던 스크립트를 가져왔습니다. Ampere 이전 GPU에서 타일 크기를 절반으로 줄이는 스크립트입니다. 이를 기본 컨테이너를 `FROM`으로 받는 Dockerfile에 넣었습니다.
+
+```dockerfile
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
+COPY patch_triton_turing.py /opt/turing/patch_triton_turing.py
+RUN set -eu; \
+    target="$(python3 -c 'import importlib.util, os; print(os.path.join(importlib.util.find_spec("vllm").submodule_search_locations[0], "v1/attention/ops/triton_unified_attention.py"))')"; \
+    python3 /opt/turing/patch_triton_turing.py "$target"; \
+    python3 /opt/turing/patch_triton_turing.py --check "$target"; \
+    python3 -c 'import torch, sys; a = torch._C._cuda_getArchFlags(); print("torch arch:", a); sys.exit(0 if "sm_75" in a else 1)'
+```
+
+마지막 줄은 이미지 안의 PyTorch에 Turing 커널(`sm_75`)이 없으면 빌드를 실패시킵니다. 이미지는 CodeBuild가 빌드해 비공개 ECR 저장소로 푸시합니다. 그래서 8GB짜리 베이스 이미지를 로컬 디스크에 내려받을 일이 없습니다.
+
+```plaintext
+#8 1.092 patch_triton_turing: patched /usr/local/lib/python3.12/dist-packages/vllm/v1/attention/ops/triton_unified_attention.py
+#8 1.092   smem budget   : 60000 B of Turing's 65536 hard limit
+#8 5.652 torch arch: sm_75 sm_80 sm_86 sm_90 sm_100 sm_120
+```
+
+L4 이상 GPU에서는 이 패치가 아무 동작도 하지 않습니다. 엔트리포인트도 원래 것을 그대로 쓰기 때문에 `SM_VLLM_*` 설정은 모두 기존처럼 동작합니다. Dockerfile과 `buildspec.yml`은 저장소의 `turing` 디렉터리에 있습니다.
+
+### 2단계: 호스트 이미지 고르기
+
+SageMaker 프로덕션 변형(production variant)은 여러 호스트 이미지 중 하나 위에서 돌아갑니다. 이미지마다 NVIDIA 드라이버 버전이 다르고, `InferenceAmiVersion`으로 고릅니다.
+
+```plaintext
+al2-ami-sagemaker-inference-gpu-2      NVIDIA driver 535, CUDA 12.2
+al2-ami-sagemaker-inference-gpu-3-1    NVIDIA driver 550, CUDA 12.4
+al2023-ami-sagemaker-inference-gpu-4-1 NVIDIA driver 580, CUDA 13.0
+```
+
+vLLM 0.30.0 컨테이너는 CUDA 13 기반입니다.
+
+```shell
+NVIDIA_REQUIRE_CUDA=cuda>=13.0 ...
+CUDA_VERSION=13.0.2
+```
+
+그래서 드라이버 580이 들어간 호스트를 지정해야 합니다. `sm.py`는 `.env`에 적힌 값을 그대로 넘깁니다.
+
+```shell
+INFERENCE_AMI_VERSION=al2023-ami-sagemaker-inference-gpu-4-1
+```
+
+> **팁: 로그 그룹이 없으면 컨테이너가 아예 안 뜬 것**
+>
+> `InferenceAmiVersion` 없이 이 이미지로 `ml.g4dn.xlarge` 엔드포인트를 만들면, `Creating` 상태로 6분쯤 있다가 아래 오류로 끝납니다.
+>
+> `CannotStartContainerError. Please ensure the model container for variant AllTraffic starts correctly when invoked with 'docker run <image> serve'`
+>
+> CloudWatch 로그 그룹도 생기지 않습니다. 로그 그룹이 없다면 이미지 안의 코드가 실행되기도 전에 호스트에서 막혔다는 뜻입니다. 이럴 때는 컨테이너의 `NVIDIA_REQUIRE_CUDA`와 호스트 이미지의 드라이버 버전을 맞춰보면 됩니다. 위 설정을 넣자 같은 인스턴스 타입에서 같은 이미지가 13.2분 만에 `InService`가 됐습니다.
+
+### 3단계: 벤치마크 스윕
+
+스윕은 3편에서 만든 텍스트 전용 4비트 임베딩 빌드를 한 번에 엔드포인트 하나씩 돌립니다. 배포하고, 측정하고, 내리는 순서입니다. Turing은 bf16을 지원하지 않아서 데이터 타입만 float16으로 바꾸고 나머지 설정은 L4 실험과 같게 맞췄습니다.
+
+```shell
+IMAGE_URI=<account>.dkr.ecr.us-east-2.amazonaws.com/sagemaker-gemma-vllm:0.30.0-sagemaker-v1.3-sm75
+INFERENCE_AMI_VERSION=al2023-ami-sagemaker-inference-gpu-4-1
+INSTANCE_POOLS=ml.g4dn.xlarge,ml.g4dn.2xlarge
+MAX_MODEL_LEN=8192
+SM_VLLM_DTYPE=float16
+```
+
+엔드포인트마다 배포 호출부터 `InService`까지 13.3분이 걸렸습니다. 측정은 `compare.py`가 맡았습니다. 2·3편과 같은 방식으로 단일 요청 디코드, 1~16개 병렬 요청, temperature 0에서 40개 질문을 돌렸습니다. 이어서 `compare.py combine`으로 T4 결과를 L4 결과 옆에 붙였습니다(12B 예시).
+
+```plaintext
+decode_tokens_per_second              35.0                28.5  0.81
+load_c16_tokens_per_second           411.8              216.45  0.53
+quality_correct                         40                  40
+identical answers: 40/40
+```
+
+## 결과
+
+### 속도: 혼자 쓰면 0.8배, 몰리면 격차가 커진다
+
+| 모델 | T4 디코드 (tok/s) | L4 디코드 (tok/s) | T4 / L4 | 16병렬 T4 / L4 |
+|---|---:|---:|---:|---:|
+| E2B | 108.5 | 141.7 | 0.77 | 0.63 |
+| E4B | 65.6 | 79.9 | 0.82 | 0.57 |
+| 12B | 28.5 | 35.0 | 0.81 | 0.53 |
+
+요청이 하나씩 들어올 때 T4는 L4의 약 0.8배 속도를 냅니다. 부하가 걸리면 모델이 클수록 차이가 벌어집니다. 병렬 요청 16개에서는 E2B가 L4의 0.63배, 12B는 0.53배였습니다.
+
+같은 E2B 빌드를 같은 패치로 Compute Engine T4에서 돌렸을 때는 109.7 tok/s가 나왔습니다. 이번 결과는 108.5 tok/s입니다. 다만 그쪽은 pip로 설치한 vLLM 0.29.0에 컨텍스트가 16,384토큰이라 조건이 같지 않습니다. 작성자도 통제된 비교가 아니라 교차 확인 정도로 봐야 한다고 적었습니다.
+
+### 정확도: 답변은 바이트 단위로 동일
+
+세 모델 모두 T4에서 낸 40개 답변이 L4와 바이트 단위까지 같았습니다. 정답 수는 E2B와 E4B가 40개 중 36개, 12B가 40개 전부였습니다. T4에서는 fp16으로 계산하고 타일을 줄인 어텐션 커널을 썼는데, 둘 다 답변을 하나도 바꾸지 않았습니다.
+
+### 메모리: KV 캐시가 절반 이하
+
+| 모델 | 가중치 (GiB) | KV 캐시, T4 (토큰) | KV 캐시, L4 (토큰) |
+|---|---:|---:|---:|
+| E2B | 2.86 | 660,033 | 1,209,977 |
+| E4B | 4.52 | 194,336 | 376,156 |
+| 12B | 7.36 | 20,354 | 52,541 |
+
+가중치가 차지하는 메모리는 두 GPU에서 같습니다. 차이는 KV 캐시에 남는 공간입니다. 12B는 T4에서 KV 캐시가 20,354토큰인데, 8,192토큰 컨텍스트를 꽉 채운 요청 2.48개 분량입니다.
+
+### 26B A4B는 올라가지 않는다
+
+26B A4B 빌드는 L4에서 가중치만 14.2GiB를 씁니다. T4에서는 3편의 31B 때처럼 설정을 낮췄습니다. 메모리 사용률 0.97, 컨텍스트 1,024토큰, 시퀀스 4개입니다. 가중치는 올라갔지만 그다음에 메모리가 바닥났습니다.
+
+```plaintext
+memory allocation failed with OOM on device 0 while trying to allocate 253755392 bytes (free: 191627264, total: 15636037632).
+```
+
+T4가 보고하는 전체 메모리는 14.56GiB입니다. 테스트한 빌드 중 T4 한 장에서 돌아가는 가장 큰 모델은 12B였습니다.
+
+### 비용: 시간당은 싸지만 토큰당은 비싸다
+
+AWS Price List API로 2026년 9월 30일 기준 `us-east-2` 온디맨드 호스팅 가격을 조회했습니다. `ml.g4dn.xlarge`는 시간당 $0.736, `ml.g6.xlarge`는 $1.1267입니다. 병렬 요청 16개 기준으로 출력 토큰 100만 개당 비용을 계산하면 다음과 같습니다.
+
+| 모델 | T4 | L4 | T4 / L4 |
+|---|---:|---:|---:|
+| E2B | $0.260 | $0.249 | 1.05 |
+| E4B | $0.419 | $0.369 | 1.14 |
+| 12B | $0.945 | $0.760 | 1.24 |
+
+T4의 시간당 가격은 L4의 0.65배이고, 부하 상태의 처리량은 0.53~0.63배입니다. 그래서 바쁘게 돌리면 토큰당 비용은 T4가 오히려 E2B에서 5%, 12B에서 24% 더 비쌉니다. 반대로 거의 놀고 있는 엔드포인트는 시간 단위로 과금되니 T4가 0.65배로 쌉니다.
+
+> **팁: 프로토타이핑 중에는 헬스체크 타임아웃을 줄이자**
+>
+> `sm.py`는 큰 모델을 내려받고 로드할 시간을 주려고 `ContainerStartupHealthCheckTimeoutInSeconds`를 1800초로 잡습니다. 문제는 시작하다 죽는 컨테이너도 이 시간 내내 엔드포인트를 `Creating`에 붙잡아 둔다는 점입니다. 26B 엔드포인트는 15시 33분에 메모리가 부족해 죽었는데, `Failed`로 바뀐 건 15시 59분이었습니다. `Creating`부터 36.5분이 걸린 셈입니다. 2분 안에 로드되는 작은 모델이라면 수백 초면 충분하고, 실패했을 때도 그만큼 빨리 알 수 있습니다.
+
+### 그래서 어떤 GPU를 쓸까
+
+| 워크로드 | GPU | 이유 |
+|---|---|---|
+| E2B·E4B, 트래픽 적음 | T4 | 시간당 가격 0.65배, 단일 사용자 속도 0.8배 |
+| 모든 크기, 꾸준한 부하 | L4 | 토큰당 비용이 더 낮고 KV 캐시가 1.8~2.6배 |
+| 12B | L4 | T4에 올라가긴 하지만 전체 길이 요청 2.48개 분량뿐 |
+| 26B A4B, 31B | L4 이상 | T4에 올라가지 않음 |
+
+### 과금 정리
+
+측정이 끝난 엔드포인트는 바로 삭제했습니다. 스윕이 끝날 때 워치독이 남은 엔드포인트도 지웠습니다.
+
+```plaintext
+2026-09-30T15:59:45Z gemma-4-e2b-emb4-t4: gone
+2026-09-30T15:59:46Z gemma-4-e4b-emb4-t4: gone
+2026-09-30T15:59:46Z gemma-4-12b-emb4-t4: gone
+2026-09-30T15:59:47Z gemma-4-26b-emb4-t4: gone
+```
+
+`us-east-2`에 남는 빌드 리소스는 ECR 저장소, CodeBuild 프로젝트와 그 역할, 소스 버킷입니다. 쓰지 않을 때는 비용이 들지 않습니다.
+
+### 정리
+
+- E2B, E4B, 12B는 T4 한 장에서 돌아가고 40개 답변이 L4와 같습니다.
+- 단일 요청 디코드는 L4의 **0.77~0.82배**입니다.
+- E2B는 **108.5 tok/s**로, Compute Engine T4의 109.7 tok/s와 비슷합니다.
+- 병렬 요청 16개에서는 L4의 **0.53~0.63배**로 떨어지고, 토큰당 비용은 5~24% 더 듭니다.
+- CUDA 13 컨테이너를 `ml.g4dn`에서 쓰려면 `InferenceAmiVersion`을 드라이버 580 호스트로 지정해야 합니다.
+- 26B A4B는 T4 한 장에 올라가지 않습니다.
+
+측정 범위도 밝혀 둡니다. 계정 하나에서 `us-east-2`의 `ml.g4dn.xlarge`를 썼습니다. 소프트웨어는 AWS 컨테이너의 vLLM 0.30.0에 Turing 패치를 얹은 것이고, fp16으로 2026년 9월 30일에 모델당 한 번씩 배포했습니다. L4 수치는 3편에서 2026년 9월 29일에 기본 컨테이너와 bf16으로 측정한 값입니다. 처리량은 클라이언트 머신 한 대에서 aws CLI로 쟀고, 가격은 온디맨드 정가 기준입니다.
+
+### 시리즈 및 참고 링크
+
+- [1편: aws CLI와 MCP 서버로 Gemma 4를 SageMaker L4에 배포](https://dev.to/aws-builders/gemma-4-on-an-amazon-sagemaker-endpoint-aws-cli-nvidia-l4-and-an-mcp-server-2c9d)
+- [2편: QAT 가중치 vs bf16](https://dev.to/aws-builders/gemma-4-on-amazon-sagemaker-qat-weights-decode-205x-faster-than-bf16-on-one-l4-318m)
+- [3편: 4비트 임베딩](https://dev.to/aws-builders/gemma-4-on-amazon-sagemaker-4-bit-embeddings-decode-up-to-139x-faster-on-one-l4-36mf)
+- 모델: [E2B emb4](https://huggingface.co/xbill9/gemma-4-E2B-it-qat-q4_0-w4a16-ct-text-emb4) · [E4B emb4](https://huggingface.co/xbill9/gemma-4-E4B-it-qat-q4_0-w4a16-ct-text-emb4) · [12B emb4](https://huggingface.co/xbill9/gemma-4-12B-it-qat-q4_0-w4a16-ct-text-emb4) · [26B A4B emb4](https://huggingface.co/xbill9/gemma-4-26B-A4B-it-qat-q4_0-w4a16-ct-text-emb4) · [26B A4B W4A16 repack](https://huggingface.co/xbill9/gemma-4-26B-A4B-it-qat-q4_0-w4a16-ct)
+- [vLLM 이슈 #38918: Gemma 4 on Turing](https://github.com/vllm-project/vllm/issues/38918)
+- [SageMaker ProductionVariant API 문서](https://docs.aws.amazon.com/sagemaker/latest/APIReference/API_ProductionVariant.html)
+- [SageMaker 실시간 추론 문서](https://docs.aws.amazon.com/sagemaker/latest/dg/realtime-endpoints.html)
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
