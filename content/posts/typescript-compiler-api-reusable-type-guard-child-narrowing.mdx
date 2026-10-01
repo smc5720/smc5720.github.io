@@ -5,7 +5,7 @@ slug: "typescript-compiler-api-reusable-type-guard-child-narrowing"
 date: "2026-09-30"
 published_at: "2026-10-01"
 category: "news"
-tags: []
+tags: ["typescript","javascript","programming","opensource","tutorial"]
 cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fjq3mvksok7rwzsn7tnih.gif"
 coverAlt: "TypeScript Compiler API: Preserving Child Node Narrowing in Reusable Type Guards"
 source_id: "devto-4743843"
@@ -372,11 +372,11 @@ if (ts.isReturnStatement(node) && node.expression) {
 | 반복되는 AST 모양 | 이름 붙인 재사용 가드 |
 | 이미 is-kit을 쓰는 프로젝트 | `refineKey`, `refineDefinedKey`, `refineIndex` |
 
-목표는 모든 `ts.isX`를 is-kit으로 바꾸는 게 아니라, 런타임 사실이 재사용할 어휘가 됐을 때 타입 좁히기도 함께 재사용하는 것입니다.
+모든 `ts.isX`를 is-kit으로 바꾸자는 얘기가 아닙니다. 런타임 사실이 여러 곳에서 되풀이되는 어휘가 됐을 때, 타입 좁히기도 같이 재사용하자는 것이죠.
 
 ### is-kit이 하지 않는 일
 
-is-kit은 Compiler API 프레임워크가 되려 하지 않습니다. 저자가 밝힌 범위 밖의 일은 다음과 같습니다.
+is-kit은 Compiler API 프레임워크가 되려 하지 않습니다. 저자가 직접 범위 밖이라고 선을 그은 일들입니다.
 
 - Compiler API 함수를 하나씩 감싸기
 - AST 노드 모양 전체 검증

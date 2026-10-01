@@ -19,7 +19,7 @@ source_published: "2026-09-30"
 
 ## 개요
 
-Gemma 4를 Amazon SageMaker에서 제일 작은 GPU인 NVIDIA T4(`ml.g4dn.xlarge`, 16GB)에 올리면 어떻게 될까요. 작성자 xbill이 연재 중인 SageMaker + Gemma 4 시리즈 4편에서 이 실험을 했습니다. 앞선 편에서 쓴 L4(`ml.g6.xlarge`)와 나란히 놓고 측정했습니다.
+Gemma 4를 Amazon SageMaker에서 제일 작은 GPU인 NVIDIA T4(`ml.g4dn.xlarge`, 16GB)에 올리면 어떻게 될까요. 작성자 xbill이 연재 중인 SageMaker + Gemma 4 시리즈 4편에서 이 실험을 했고, 앞선 편에서 쓴 L4(`ml.g6.xlarge`)와 나란히 놓고 측정했습니다.
 
 결과부터 보면, T4의 단일 요청 디코드 속도는 L4의 **0.77~0.82배**였습니다. 40개 질문에 대한 답변은 바이트 단위까지 L4와 같았습니다. 한 장에 올라가는 가장 큰 모델은 12B였고, 26B A4B는 메모리가 부족해 뜨지 않았습니다.
 
@@ -64,7 +64,7 @@ triton.runtime.errors.OutOfResources: shared memory,
 Required: 98304, Hardware limit: 65536
 ```
 
-SageMaker 컨테이너에 들어 있는 vLLM 0.30.0에는 아직 수정이 없습니다. 작성자는 Compute Engine T4에서 이미 쓰던 스크립트를 가져왔습니다. Ampere 이전 GPU에서 타일 크기를 절반으로 줄이는 스크립트입니다. 이를 기본 컨테이너를 `FROM`으로 받는 Dockerfile에 넣었습니다.
+SageMaker 컨테이너에 들어 있는 vLLM 0.30.0에는 아직 수정이 없습니다. 작성자는 Compute Engine T4에서 이미 쓰던, Ampere 이전 GPU에서 타일 크기를 절반으로 줄이는 스크립트를 가져와 기본 컨테이너를 `FROM`으로 받는 Dockerfile에 넣었습니다.
 
 ```dockerfile
 ARG BASE_IMAGE
