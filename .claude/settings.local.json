@@ -146,7 +146,8 @@
       "Bash(powershell -NoProfile -Command \"Wait-Process -Id 44056 -Timeout 2400; 'BUILD_EXITED'\")",
       "Bash(netstat *)",
       "Bash(printf -- '---\\\\ntitle: t\\\\n---\\\\n\\\\na<br>b\\\\n')",
-      "Bash(echo \"<깨짐 테스트>\")"
+      "Bash(echo \"<깨짐 테스트>\")",
+      "Bash(python -)"
     ],
     "defaultMode": "bypassPermissions"
   }
