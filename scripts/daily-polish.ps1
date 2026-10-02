@@ -62,6 +62,10 @@ DO NOT change:
 - URLs, code blocks, MDX components (anything inside < > or ` ` or ``` ```)
 - Content that already sounds natural
 
+MDX SAFETY — this file is compiled as MDX; a syntax error breaks the whole site deploy:
+- Never introduce raw "<" or "{" in prose. Titles go in 〈 〉 or quotes, not < >
+- HTML void tags must stay self-closing: <br />, <hr />, <img ... />
+
 STEPS:
 1. Use the Read tool to read "$filePath"
 2. Identify and fix AI-generated patterns in the body text only
@@ -131,7 +135,15 @@ STEPS:
     }
 }
 
-# ── 3. Git commit and push ────────────────────────────────────
+# ── 3. MDX validation ─────────────────────────────────────────
+# Revert any edit that breaks MDX compilation so one bad edit can't block deploys.
+if ($modified -gt 0) {
+    Log "validating MDX..."
+    node scripts/validate-mdx.mjs --changed --revert 2>&1 | ForEach-Object { Log "  $_" }
+    if ($LASTEXITCODE -ne 0) { Log "MDX validation crashed, aborting before commit" "ERROR"; exit 1 }
+}
+
+# ── 4. Git commit and push ────────────────────────────────────
 if ($modified -gt 0) {
     Log "committing changes..."
     try {

@@ -179,6 +179,16 @@ try {
     Log "KR news list fetch failed: $_" "ERROR"
 }
 
+# ── MDX validation ────────────────────────────────────────────
+# A single post that fails to compile blocks every deploy (2026-09-17 incident:
+# `<br>` in a table broke main for two weeks). Drop broken posts before commit;
+# their source_id stays unused, so they're retried on the next run.
+if ($created -gt 0) {
+    Log "validating MDX..."
+    node scripts/validate-mdx.mjs --changed --revert 2>&1 | ForEach-Object { Log "  $_" }
+    if ($LASTEXITCODE -ne 0) { Log "MDX validation crashed, aborting before commit" "ERROR"; exit 1 }
+}
+
 # ── OG cache ──────────────────────────────────────────────────
 # New posts add <LinkCard url="..."> entries. Scrape them here and commit the
 # result so `next build` in CI never has to hit the network — an unseeded cache

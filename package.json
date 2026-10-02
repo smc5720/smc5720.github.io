@@ -7,6 +7,7 @@
     "build": "next build && node scripts/fix-icon-extensions.mjs",
     "start": "next start",
     "lint": "eslint",
+    "validate:mdx": "node scripts/validate-mdx.mjs",
     "og:cache": "node scripts/build-og-cache.mjs"
   },
   "dependencies": {
