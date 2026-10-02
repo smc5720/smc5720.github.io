@@ -36,7 +36,7 @@ AWS Community Builder인 Sarvar Nadaf는 영상을 찍다가 이 문제를 겪�
 
 AL2023에서 `sudo dnf install -y docker`를 실행하면 Docker **엔진**만 설치되고 **Compose v2 플러그인**은 설치되지 않습니다. Compose는 몇 년 전에 별도 `docker-compose` 바이너리를 버리고 Docker CLI 아래에서 동작하는 플러그인으로 바뀌었습니다. 그런데 `dnf`의 docker 패키지에는 이 플러그인이 들어 있지 않습니다. 그래서 엔진도 잘 돌고 `docker run`도 되는데, `docker compose`만 `'compose' is not a docker command`를 내뱉습니다.
 
-Ubuntu라면 Docker 공식 apt 저장소에서 `docker.io`와 `docker-compose-plugin`을 함께 설치하니 이 문제를 겪을 일이 없습니다. AL2023에서는 플러그인을 직접 설치해야 합니다. 플러그인까지 포함한 전체 설치 명령은 다음과 같습니다.
+Ubuntu라면 Docker 공식 apt 저장소에서 `docker.io`와 `docker-compose-plugin`을 함께 설치하니 이 문제를 겪을 일이 없습니다. AL2023에서는 플러그인을 직접 넣어 줘야 합니다. 플러그인까지 포함한 전체 설치 명령입니다.
 
 ```bash
 sudo dnf install -y docker
@@ -61,13 +61,13 @@ sudo docker compose version
 
 ### 아키텍처와 버전도 확인할 것
 
-다운로드 URL이 `x86_64`로 끝나는데, 이는 `t3` 같은 Intel 인스턴스용입니다. Graviton/ARM 인스턴스(`t4g` 계열)를 띄웠다면 파일명을 `docker-compose-linux-aarch64`로 바꿔야 합니다. 아키텍처가 맞지 않는 바이너리도 설치 자체는 문제없이 끝납니다. 그러다 실행하는 순간 exec format 에러가 나서 엉뚱한 곳을 뒤지게 됩니다.
+다운로드 URL이 `x86_64`로 끝나는데, 이는 `t3` 같은 Intel 인스턴스용입니다. Graviton/ARM 인스턴스(`t4g` 계열)를 띄웠다면 파일명을 `docker-compose-linux-aarch64`로 바꿔야 합니다. 아키텍처가 맞지 않는 바이너리도 설치 자체는 문제없이 끝납니다. 문제는 실행하는 순간 exec format 에러가 나서 엉뚱한 곳을 뒤지게 됩니다.
 
 `v2.29.7`은 저자가 고정해 둔 버전일 뿐입니다. 최신 버전을 쓰고 싶다면 [Docker Compose 릴리스 페이지](https://github.com/docker/compose/releases)에서 확인하면 됩니다.
 
 ## 인스턴스부터 준비하기
 
-설치에 앞서 인스턴스 설정은 다음과 같이 합니다.
+설치 전에 인스턴스는 이렇게 맞춰 둡니다.
 
 - **AMI:** Amazon Linux 2023
 - **크기:** `t3.small` 이상. n8n과 Postgres를 함께 돌리려면 RAM이 2GB 정도 필요합니다. 1GB인 `t2.micro`, `t3.micro`를 쓰면 실행 도중 컨테이너가 OOM으로 종료될 수 있습니다.
@@ -98,7 +98,7 @@ git clone https://github.com/simplynadaf/self-host-n8n-on-ec2.git
 cd self-host-n8n-on-ec2/compose
 ```
 
-Compose 파일 내용은 다음과 같습니다.
+Compose 파일은 이렇게 생겼습니다.
 
 ```yaml
 services:
