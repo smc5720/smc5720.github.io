@@ -1,0 +1,285 @@
+﻿---
+title: "오프라인에서 새소리를 알아듣고 빈티지 관찰 스케치를 그리는 Arduino UNO Q 사이버덱"
+description: "Jen Looper가 Arduino UNO Q로 만든 오프라인 사이버덱 B.L.O.O.M.을 소개합니다. 기기 안에서 Edge Impulse 모델로 새소리를 구분하고, 동기화할 때 Cloudinary 이미지 생성 API로 빈티지 스타일의 관찰 스케치를 만듭니다."
+date: "2026-09-30"
+published_at: "2026-10-02"
+category: "news"
+tags: []
+slug: "arduino-uno-q-offline-cyberdeck-birdsong-field-notes"
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F9utit2uix6jp8aewof64.jpeg"
+coverAlt: "Building an Offline Arduino UNO Q Cyberdeck That Identifies Birdsong and Draws Vintage Field Notes"
+source_id: "devto-4778910"
+source_url: "https://dev.to/cloudinary/building-an-offline-arduino-uno-q-cyberdeck-that-identifies-birdsong-and-draws-vintage-field-notes-1cjg"
+source_title: "Building an Offline Arduino UNO Q Cyberdeck That Identifies Birdsong and Draws Vintage Field Notes"
+source_author: "Jen Looper"
+source_published: "2026-09-30"
+---
+
+<LinkCard url="https://dev.to/cloudinary/building-an-offline-arduino-uno-q-cyberdeck-that-identifies-birdsong-and-draws-vintage-field-notes-1cjg" author="Jen Looper" date="2026-09-30" />
+
+## 개요
+
+Jen Looper가 **Arduino UNO Q** 위에 오프라인 사이버덱 **B.L.O.O.M.**(Bridging Local Observations, Openly Mapped)을 만들었습니다. 자연을 관찰하는 사람이 숲길에서 관찰 기록을 남기고, **Edge Impulse** 모델로 새소리를 구분하도록 돕는 장치입니다. 기록을 공유하면 **Cloudinary 이미지 생성 API**가 빈티지 스타일의 관찰 스케치도 그려 줍니다.
+
+모든 데이터는 기기 안에 저장됩니다. 사용자가 직접 동기화 버튼을 누를 때만 커뮤니티 사이트로 올라갑니다. 본체는 이베이에서 10달러쯤 주고 산 빈티지 화장품 트레인 케이스에 들어 있고, 결과물은 [그리넬(Grinnell) 방식의 관찰 노트](https://autumn-society.org/writing/codex/field-notes/) 형태로 쌓입니다.
+
+![full deck](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/vno79fgcxfnpdhl9f6js.jpg)
+
+## 본문
+
+### 사이버덱이 다시 유행하는 이유
+
+사이버덱은 80년대 SF가 꿈꾸던 휴대용 개조 컴퓨터입니다. 요즘 다시 인기를 얻고 있는데, 특히 자연을 좋아하는 커뮤니티에서 반응이 좋습니다. 오프라인에서도 돌아가고, 개인정보를 지켜 주고, 보기에도 멋진 기술을 찾는 사람들이 많아서입니다.
+
+작성자는 이번 글에서 **하드웨어에서 클라우드까지 이어지는 흐름**을 정리했고, 그중 Cloudinary가 맡는 부분을 가장 자세히 다뤘습니다. 배선, 케이스 제작 같은 전체 과정은 [Hackster](https://www.hackster.io/agent-hawking-1/b-l-o-o-m-a-community-cyberdeck-for-your-field-notes-8dba4c)에 따로 올려 두었습니다.
+
+### 전체 구조
+
+```plaintext
+┌──────────── In the field (offline) ────────────┐        ┌────────────── Back online ──────────────┐
+│                                                │        │                                          │
+│  Mic ─► Edge Impulse birdsong model            │        │  Netlify Function                        │
+│  Camera ─► photo                               │  POST  │   ├─► Cloudinary image_to_image          │
+│  Keyboard/mouse ─► sketch + notes    ─► SQLite ├───────►│   │     (Nano Banana → field sketch)      │
+│  Gemma LLM ─► AI note                          │        │   └─► Octokit: open PR on GitHub         │
+│                                                │        │          │                               │
+│  Arduino UNO Q (App Lab, Chromium kiosk)       │        │   merge ─► Astro rebuild ─► live site    │
+└────────────────────────────────────────────────┘        └──────────────────────────────────────────┘
+```
+
+Sync to Cloud 버튼을 누르기 전까지는 어떤 데이터도 기기 밖으로 나가지 않습니다. 이건 처음부터 타협하지 않은 조건이었습니다. 이 프로젝트는 작성자가 세운 비영리단체 [Her AI Studio](https://heraistudio.org)와도 연결돼 있는데, 이 단체는 데이터 거버넌스와 보안, 프라이버시를 자주 다루고 주로 기기 안에서 도는 로컬 AI로 작업합니다.
+
+![schematic](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/azh1weoaccac1u3x09tf.png)
+
+클라우드 쪽 핵심은 Cloudinary로 보내는 POST 요청 하나입니다.
+
+```json
+{
+  "prompt": "Create a field sketch illustration in the style of the reference image [1]...",
+  "reference_images": [{ "source_type": "url", "url": "<your reference sketch>" }],
+  "model": { "family": "nano-banana", "tier": "premium" },
+  "target": { "target_type": "managed_asset", "public_id": "field-notes/<slug>-ai" }
+}
+```
+
+### 하드웨어 구성
+
+![Photo of electrical wires](https://images.pexels.com/photos/3615731/pexels-photo-3615731.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [La Miko](https://www.pexels.com/@la-miko) on [Pexels](https://www.pexels.com/photo/photo-of-electrical-wires-3615731/)*
+
+사용한 부품은 다음과 같습니다.
+
+- Arduino UNO Q (4GB)
+- 5인치 HDMI 화면과 6인치 HDMI 케이블
+- USB 5-in-1 허브
+- USB 카메라
+- USB 마이크
+- 보조배터리와 USB-A to Micro-USB 케이블
+- 마우스 패드가 달린 블루투스 키보드
+- 빈티지 트레인 케이스 (마음에 드는 케이스면 무엇이든 됩니다. 가장 재미있는 부분이라고 작성자는 말합니다)
+
+모든 처리는 [Arduino UNO Q](https://docs.arduino.cc/hardware/uno-q/)가 맡습니다. 4GB 모델은 작은 언어 모델과 오디오 분류기를 완전히 오프라인으로 돌릴 수 있습니다. 신호가 잡히지 않는 숲길에서도 쓸 수 있고, 하드웨어 위에서 로컬 AI 모델을 실험해 보기에도 좋습니다.
+
+화면, 마이크, 카메라, 전원은 모두 USB 허브에 꽂고, 허브의 USB-C 단자를 UNO Q에 연결합니다. 키보드와 마우스는 Debian에서 블루투스로 페어링해서 USB 포트를 아꼈습니다. Her AI Studio 학생들도 이 AI 키트를 쓸 수 있게 할 예정입니다.
+
+### App Lab으로 Gemma와 새소리 인식 돌리기
+
+앱은 Arduino App Lab에서 세 개의 "브릭(brick)"을 조합해 만들었습니다. 브릭은 Arduino UNO Q용으로 미리 만들어 둔 모듈형 코드입니다.
+
+- **Web UI 브릭**: 카메라와 스케치 화면을 담은 인터페이스
+- **LLM 브릭**: 보드에 내려받은 Gemma 실행
+- **Audio Classification 브릭**: 새소리 분류
+
+Web UI 브릭은 약간의 JS와 HTML만으로 깔끔한 화면을 만들어 주고, 이 화면은 App Lab을 거쳐 로컬 보드에서 돌아갑니다. 관찰 노트도 여기서 씁니다. LLM 브릭으로는 내장 카메라로 찍은 동식물 사진을 두고 LLM과 대화하며 정보를 더 얻을 수 있습니다.
+
+#### 덤: Debian에서 Chromium 팝업 문제 해결
+
+Debian에서는 기본 Web UI 브릭이 Chromium 팝업을 다른 창 뒤에 띄우는 문제가 있었습니다. 데스크톱에서는 멀쩡했지만 기기에서는 그랬습니다. 작성자는 로컬 서버가 뜰 때까지 기다렸다가 Chromium을 키오스크 모드로 실행하는 작은 커스텀 브릭을 만들어 해결했습니다.
+
+```python
+def build_kiosk_command(url: str):
+    if system == "Linux":
+        return ["chromium-browser", "--kiosk", "--noerrdialogs",
+                "--disable-infobars", f"--app={url}"]
+
+def launch_kiosk(url: str, ready_timeout: float = 15.0):
+    if not wait_for_server(url, timeout=ready_timeout):
+        logger.error(f"Server never became reachable at {url}")
+        return None
+    cmd = build_kiosk_command(url)
+    logger.info(f"Launching: {' '.join(cmd)}")
+    return subprocess.Popen(cmd)
+```
+
+데스크톱 창 테두리 없이 전체 화면으로 뜨기 때문에 화면 전체가 관찰 노트처럼 보입니다.
+
+![Image description](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/1y663mjy5dklfl03uvmw.png)
+
+### 새소리를 듣는 귀 달기
+
+사이버덱에 "귀"를 달기 위해 작성자는 Edge Impulse를 골랐습니다. App Lab에서 직접 학습시킨 로컬 모델을 Arduino에 올리기 좋은 플랫폼입니다.
+
+시작은 Edge Impulse 커뮤니티 갤러리에 있던 새소리 분류기였습니다. 그런데 클래스 불균형이 있었고 샘플도 너무 적었습니다. 그래서 이렇게 손봤습니다.
+
+- 프로젝트를 복제하고 쓸 수 없는 클립을 지웠습니다
+- 새소리 데이터베이스 [xeno-canto](https://xeno-canto.org/)에서 큰어치(Blue Jay), 슬픈비둘기(Mourning Dove), 홍관조(Northern Cardinal) 녹음을 종마다 최소 20개씩 받았습니다
+- 전부 WAV로 바꾸고 라벨을 붙여 업로드했습니다
+- 학습/테스트 비율을 다시 맞추고 재학습했습니다
+- 새 모델을 App Lab 프로젝트에 넣었습니다
+
+![birdsong model](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/goolmeht8omu5pn98t3b.png)
+
+USB 마이크에 새소리가 잡힐 때 버튼을 누르면 모델이 소리를 분류하고, 결과가 관찰 노트에 저장됩니다. 모델은 [공개돼 있어 복제할 수 있으니](https://studio.edgeimpulse.com/public/1062343/live) 우리 동네 새를 추가해 학습시켜도 됩니다.
+
+### SQLite 기록을 풀 리퀘스트로 보내기
+
+관찰 기록은 모두 로컬 SQLite에 저장됩니다. 공개 저장소에 올리고 싶을 때만 기기가 Netlify Function으로 기록을 보냅니다. 사진과 스케치는 base64로 인코딩해서 기록 하나가 JSON 페이로드 하나에 담기게 했습니다.
+
+```python
+def sync_entry(entry_id):
+    with _db_lock:
+        conn = sqlite3.connect(DB_PATH)
+        row = conn.execute(
+            "SELECT id, timestamp, photo, sketch, ai_note, locality, weather, habitat "
+            "FROM entries WHERE id = ?",
+            (entry_id,)
+        ).fetchone()
+        conn.close()
+
+    eid, timestamp, photo, sketch, ai_note, locality, weather, habitat = row
+    payload = {
+        "id": eid,
+        "catalog_no": catalog_number(eid),
+        "timestamp": timestamp,
+        "note": ai_note or "",
+        "locality": locality or "",
+        "weather": weather or "",
+        "habitat": habitat or "",
+        "photo": base64.b64encode(photo).decode("utf-8") if photo else None,
+        "sketch": base64.b64encode(sketch).decode("utf-8") if sketch else None,
+    }
+
+    response = requests.post(CLOUD_SYNC_URL, json=payload, timeout=CLOUD_SYNC_TIMEOUT)
+```
+
+Netlify Function은 데이터베이스에 쓰지 않습니다. 대신 Octokit으로 field-notes 저장소에 풀 리퀘스트를 엽니다.
+
+```js
+const { data: pr } = await octokit.pulls.create({
+  owner: OWNER,
+  repo: REPO,
+  title: `New field note: ${catalog_no}`,
+  head: branchName,
+  base: BASE_BRANCH,
+  body: [
+    "Submitted automatically from a Bloom device.",
+    "",
+    `**Locality:** ${locality || "—"}`,
+    `**Weather:** ${weather || "—"}`,
+    `**Habitat:** ${habitat || "—"}`,
+    aiSketchPath ? "\n_AI-generated sketch included._" : null,
+  ].filter((line) => line !== null).join("\n"),
+  labels: ["device-submission"],
+});
+```
+
+이렇게 하면 사람이 직접 검토하기 쉬워집니다. 관리자가 PR을 보고 머지하면 Netlify가 Astro 사이트를 다시 빌드합니다. 결과는 [community-field-notes.netlify.app](https://community-field-notes.netlify.app)에서 볼 수 있습니다.
+
+![community web](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/o9pz8tsw1wx7jp7cso51.png)
+
+### Cloudinary image_to_image로 관찰 스케치 그리기
+
+그리넬 전통을 따르는 자연 관찰자들은 글과 그림을 함께 남겼습니다. 작성자는 그림을 못 그리는 사람이 쓴 노트에도 그 시절 느낌의 삽화가 붙기를 바랐습니다.
+
+![AI Field Note](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/waja5ckgzpw58kllxgdv.jpg)
+
+Netlify Function은 PR을 열기 전에 노트 내용을 Cloudinary 이미지 생성 API의 `image_to_image` 엔드포인트로 보내고, 모델은 Nano Banana를 씁니다. 이때 Cloudinary 계정에 미리 올려 둔 옛날식 관찰 스케치를 참조 이미지로 함께 넘기기 때문에 결과물의 화풍이 매번 같습니다.
+
+```js
+async function generateAiSketch(noteText, slug) {
+  const prompt = [
+    "Create a field sketch illustration in the style of the reference image [1].",
+    "The sketch should depict:",
+    noteText || "A natural world observation",
+    "Use a vintage field journal aesthetic with earthy tones, hand-drawn quality, and scientific illustration style.",
+  ].join(" ");
+
+  const auth = Buffer.from(
+    `${CLOUDINARY_API_KEY}:${CLOUDINARY_API_SECRET}`
+  ).toString("base64");
+
+  const response = await fetch(
+    `https://api.cloudinary.com/v2/generate/${CLOUDINARY_CLOUD_NAME}/image_to_image`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Basic ${auth}`,
+      },
+      body: JSON.stringify({
+        prompt,
+        reference_images: [
+          { source_type: "url", url: REFERENCE_IMAGE_URL },
+        ],
+        model: { family: "nano-banana", tier: "premium" },
+        target: {
+          target_type: "managed_asset",
+          public_id: `field-notes/${slug}-ai`,
+        },
+      }),
+    }
+  );
+
+  // ...handle response, return the asset path for the PR
+}
+```
+
+작성자가 꼽은 이 구성의 장점은 다음과 같습니다.
+
+- 참조 이미지 덕분에 화풍이 일정합니다. 모델은 직접 고를 수도 있고, `auto`로 두면 용도에 맞게 알아서 골라 줍니다.
+- 프롬프트는 "무엇을 그릴지", 참조 이미지는 "어떻게 보일지"를 정합니다. 참조 이미지만 바꾸면 앞으로 생성될 노트 전체의 분위기가 바뀝니다.
+- `target_type: "managed_asset"`으로 지정하면 결과물이 Cloudinary 미디어 라이브러리에 `field-notes/`(slug)`-ai`처럼 예측 가능한 `public_id`로 바로 저장됩니다. 내려받아 다시 올릴 필요 없이 커뮤니티 앱에서 바로 쓸 수 있습니다.
+- 저장된 뒤에는 평범한 Cloudinary 에셋이라 `f_auto,q_auto`, 카드·썸네일용 리사이즈 같은 변환을 그대로 적용할 수 있습니다.
+- fetch 한 번이면 끝납니다. SDK도 추가 인프라도 필요 없어서 서버리스 함수와 잘 맞습니다.
+
+설정할 때 참고할 점도 정리했습니다.
+
+- `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`은 Netlify 환경 변수에만 두고, 기기에는 절대 넣지 않습니다.
+- 참조 스케치를 먼저 Cloudinary에 올리고, 그 전송 URL을 `REFERENCE_IMAGE_URL`로 씁니다.
+- 이미지 생성 API에는 매달 무료 사용량이 있어서 이 정도 커뮤니티 프로젝트는 충분히 감당합니다.
+
+### 3D 프린터 없이 케이스 만들기
+
+케이스는 출력하지 않고 기존 물건을 재활용했습니다. 작성자는 사이버덱에는 이 방식이 더 낫다고 봅니다. 이베이에서 10달러쯤 주고 산 빈티지 랑콤 화장품 트레인 케이스에 부품을 이렇게 넣었습니다.
+
+- 카메라 렌즈용으로 옆면에 작은 구멍을 냈습니다
+- 재활용 폼과 천으로 선반을 만들었습니다
+- USB 허브는 케이블 타이로 고정했습니다
+- 화면 뒤에는 케이블 공간을 남긴 골판지 받침을 댔습니다
+- UNO Q는 공기가 통하도록 따로 자리를 잡아 줬습니다. 폼과 천은 열을 가두기 때문에 온도를 지켜보거나 라탄처럼 성긴 소재를 쓰는 게 좋습니다. 작성자는 김발로 선반을 만든 적도 있다고 합니다.
+
+케이스가 높아서 돋보기, 압화, 작은 수채화 세트, 잎 도감을 넣을 공간도 남습니다.
+
+![in the field](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/4g21oid5feqyht5arj1p.jpeg)
+*가을날 관찰 노트를 쓰는 작성자*
+
+### 밖으로 나가 보기
+
+전원을 켜고 밖으로 나가 새소리, 사진, 스케치, LLM에게 던질 질문, 장소, 날씨, 서식지를 기록하면 됩니다. 와이파이가 되는 곳으로 돌아와 동기화를 누르면 노트가 GitHub로 올라가고, Cloudinary가 그린 스케치가 붙어 모두가 함께 쌓는 자연사 기록에 더해집니다.
+
+![cat](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/srwecp3o87nx3bl6ke8y.jpeg)
+*새로운 동물을 만나는 순간*
+
+### 참고 자료
+
+- 전체 제작 과정 (Hackster): [B.L.O.O.M.: A Community Cyberdeck for your Field Notes](https://www.hackster.io/agent-hawking-1/b-l-o-o-m-a-community-cyberdeck-for-your-field-notes-8dba4c)
+- 기기 코드: [her-ai-studio/BLOOM-code →](https://github.com/her-ai-studio/BLOOM-code)
+- 커뮤니티 웹앱 (Astro + Netlify): [community-field-notes.netlify.app](https://community-field-notes.netlify.app)
+- 웹앱 코드: [her-ai-studio/field-notes →](https://github.com/her-ai-studio/field-notes)
+- [Edge Impulse 새소리 모델](https://studio.edgeimpulse.com/public/1062343/live)
+
+작성자는 비슷한 사이버덱을 만들었거나, 웹사이트에 노트를 올렸거나, 자기 동네 새로 모델을 다시 학습시켰다면 원문 댓글로 공유해 달라고 했습니다. 다른 지역 사람들이 어떤 노트를 쓰고 무엇을 관찰하는지 궁금하다고 합니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

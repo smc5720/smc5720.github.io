@@ -263,6 +263,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/aws-builders/i-followed-the-n8n-aws-docs-and-it-broke-at-the-first-command-4e1k": {
+    "ok": true,
+    "title": "I Followed the n8n AWS Docs and It Broke at the First Command",
+    "description": "The one command that breaks n8n self-hosting on Amazon Linux 2023, why it happens, and the full paste-ready Docker Compose setup that gets you from a bare EC2 box to your first login.",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fac0qo6qp75mieoh01ntk.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-02"
+  },
   "https://dev.to/aws-heroes/you-dont-3d-print-a-house-you-print-your-tools-2h00": {
     "ok": true,
     "title": "You don't 3D print a house. You print your tools.",
@@ -382,6 +390,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2Fkw11mmfes38z6xs087z4.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/cloudinary/building-an-offline-arduino-uno-q-cyberdeck-that-identifies-birdsong-and-draws-vintage-field-notes-1cjg": {
+    "ok": true,
+    "title": "Building an Offline Arduino UNO Q Cyberdeck That Identifies Birdsong and Draws Vintage Field Notes",
+    "description": "In this post, I walk through B.L.O.O.M. (Bridging Local Observations, Openly Mapped), an offline...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F9utit2uix6jp8aewof64.jpeg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-02"
   },
   "https://dev.to/codingwithjiro/the-slow-and-quiet-cognitive-atrophy-of-a-modern-software-engineer-3lbh": {
     "ok": true,
@@ -686,6 +702,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fkrehvaum6dypvyi3mixf.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-18"
+  },
+  "https://dev.to/devteam/congrats-to-the-dev-weekend-challenge-generosity-edition-winners-2mmg": {
+    "ok": true,
+    "title": "Congrats to the DEV Weekend Challenge: Generosity Edition Winners!",
+    "description": "We are excited to announce the winners of our DEV Weekend Challenge: Generosity Edition!  We asked...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F5pxd8a8ssleg4by8vd59.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-02"
   },
   "https://dev.to/devteam/congrats-to-the-dev-weekend-challenge-passion-edition-winners-30ne": {
     "ok": true,
