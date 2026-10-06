@@ -1,0 +1,416 @@
+﻿---
+title: "GitHub 프로필을 사이버펑크 콘솔로 바꾸고, 기여 기록으로 도시를 지은 개발자"
+description: "Giorgi Kobaidze가 JavaScript와 CSS를 쓸 수 없는 GitHub README에서 SVG 이미지 23장으로 사이버펑크 콘솔을 만들고, 1년치 기여 그래프를 아이소메트릭 도시로 바꿨습니다. 프로필은 GitHub Actions로 매일 저절로 갱신됩니다."
+date: "2026-10-01"
+published_at: "2026-10-06"
+category: "news"
+tags: []
+slug: "github-profile-cyberpunk-console-contribution-city"
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fglxvqocyi6xnscs80y44.png"
+coverAlt: "I Turned My GitHub Profile Into a Cyberpunk Console With a City Built From My Contributions"
+source_id: "devto-4781665"
+source_url: "https://dev.to/georgekobaidze/i-turned-my-github-profile-into-a-cyberpunk-console-with-a-city-built-from-my-contributions-h4c"
+source_title: "I Turned My GitHub Profile Into a Cyberpunk Console With a City Built From My Contributions"
+source_author: "Giorgi Kobaidze"
+source_published: "2026-10-01"
+---
+
+<LinkCard url="https://dev.to/georgekobaidze/i-turned-my-github-profile-into-a-cyberpunk-console-with-a-city-built-from-my-contributions-h4c" author="Giorgi Kobaidze" date="2026-10-01" />
+
+## 개요
+
+개발자 Giorgi Kobaidze가 자신의 GitHub 프로필을 네온 불빛이 번쩍이는 사이버펑크 콘솔로 꾸몄습니다. 프로필 한가운데에는 지난 1년간의 기여 그래프를 입체로 세운 '기여 도시(Contribution City)'가 있습니다. 하루가 건물 한 채이고, 커밋이 많은 날일수록 건물이 높게 올라갑니다.
+
+GitHub README에서는 JavaScript도 CSS도 쓸 수 없습니다. 그는 이 제약을 SVG 이미지 23장으로 돌파했습니다. 통계와 도시는 GitHub Actions 워크플로가 매일 정해진 시각에 자동으로 갱신합니다. 시작은 "프로필을 좀 꾸며볼까" 하는 가벼운 생각이었지만, 본인 표현대로 "완전히 오버쿡(overcooked)"한 결과물이 나왔습니다.
+
+[GitHub 프로필 보기 →](https://github.com/georgekobaidze)
+
+## 밤 11시에 떠오른 아이디어
+
+시작은 밤 11시였습니다. 16시간 가까이 깨어 있던 그는 노트북 앞에 앉아 멍하니 화면만 보고 있었습니다. 그런데 바로 그런 순간에 좋은 아이디어가 떠오르는 편이라고 합니다. 머리가 애쓰기를 멈추면 생각이 이리저리 섞이기 시작한다는 겁니다.
+
+![Workspace](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/akp4o4yzdge867c90vhf.png)
+
+그날도 "이제 자야지"와 "진짜 자야 하는데" 사이에서 떠오른 생각 하나에 피로가 싹 가셨습니다. 그는 노트북을 덮는 대신 VS Code를 열었습니다.
+
+### 팩맨도 테트리스도 아닌, 나를 닮은 것
+
+그는 오래전부터 기여 그래프를 초록 네모 격자 이상의 무언가로 바꾸고 싶었습니다. 다만 팩맨, 스네이크, 테트리스 같은 게임으로 만드는 건 이미 너무 흔하다고 봤습니다. 원한 건 자기 자신을 드러내는 무언가였습니다.
+
+그는 게임 〈사이버펑크 2077〉의 분위기를 좋아합니다. 고층 빌딩이 빽빽한 대도시, 그리고 네온사인도요.
+
+![Night City](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/1sp95y56deu97nll0awt.png)
+
+그러다 그림 하나가 머릿속에 떠올랐습니다. 기여 그래프를 3D로 세우는 겁니다. 하루가 건물 한 채이고, 조용했던 날은 빈터로, 바빴던 날은 마천루로 남깁니다.
+
+![Contribution City](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/lvgjdbg7vbzstmcnc4qx.png)
+
+이런 도시를 배지 목록 옆 흰 README에 그냥 둘 수는 없었습니다. 그래서 프로필 전체를 사이버펑크 콘솔로 바꾸기로 했습니다. 네온 광채와 스캔라인을 넣고, 터미널이 이름을 타이핑하게 만들고, 이 모든 걸 프레임 하나로 감쌌습니다.
+
+![Cyberpunk Style Console](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/61ibqha1gsz8jzc155wq.png)
+
+## README라는 샌드박스를 뚫는 법
+
+### 스크립트도 스타일도 막혀 있다
+
+처음 마주친 벽은 GitHub README의 제약이었습니다. README에서는 아무것도 실행되지 않습니다. `<script>` 태그는 지워지고, `<style>` 태그도 지워집니다. 인라인 `style=""` 속성마저 사라집니다. 남는 건 마크다운과 몇 가지 HTML 태그뿐입니다.
+
+### 빈틈: SVG는 그냥 이미지다
+
+그가 찾은 빈틈은 이렇습니다. `<img>`로 넣은 SVG를 GitHub는 그저 이미지로 취급합니다. 그런데 SVG 내부에서는 CSS를, 애니메이션까지 포함해 쓸 수 있습니다.
+
+```xml
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="60">
+  <style>
+    @keyframes blink { 50% { opacity: 0 } }
+    .cursor { animation: blink 1s step-end infinite }
+  </style>
+  <text x="10" y="38" fill="#3fb950">$ whoami</text>
+  <rect class="cursor" x="110" y="24" width="10" height="18" fill="#00d9ff"/>
+</svg>
+```
+
+```html
+<img src="./assets/header.svg" width="100%">
+```
+
+타이핑 애니메이션, 글리치 효과가 들어간 이름, 깜빡이는 커서가 모두 이 방식으로 만들어졌습니다. 프로필 속 'UI'는 전부 사실 그림입니다.
+
+### 그래도 규칙은 있다
+
+이미지는 잠긴 모드로 로드되기 때문에 몇 가지 제약이 따릅니다.
+
+- **외부 리소스 금지.** Google Fonts조차 불러올 수 없습니다. 그래서 각 SVG 안에 폰트를 직접 넣되, 그 이미지에 실제로 나오는 글자만 남기고 잘라냈습니다.
+- **호버·클릭 불가.** 링크는 이미지 전체에만 걸 수 있습니다. 그래서 프로젝트 카드와 링크 버튼을 하나하나 별도 파일로 만들었습니다.
+- **캐싱.** GitHub는 이미지를 몇 분간 캐시합니다. 그는 버그를 고치고 새로고침했는데도 버그가 그대로 보여서 다시 고쳤습니다. 알고 보니 처음에 이미 고쳐져 있었습니다.
+
+## 이미지 23장으로 만든 콘솔 하나
+
+### 따로 노는 패널들
+
+첫 버전에서는 헤더, 소개, 통계를 각각 깔끔한 패널로 만들었습니다. 하나씩 보면 보기 좋았지만, 모아 놓으니 바닥에 떨어져 산산조각 난 터미널 같았습니다. 조각 사이사이에 틈도 벌어졌습니다. 그가 원한 건 위에서 아래까지 스크롤하는 하나로 이어진 창이었습니다.
+
+### 큰 프레임을 가로로 자르기
+
+해결책은 큰 프레임 하나를 그린 뒤 가로로 잘라내는 것이었습니다.
+
+- 위쪽 테두리와 타이틀 바는 **헤더**만 그립니다.
+- 아래쪽 테두리는 **푸터**만 그립니다.
+- 그 사이 조각들은 좌우 레일만 그립니다.
+
+이 조각들을 쌓으면 레일이 이어져 긴 창 하나가 됩니다.
+
+```html
+<p align="center">
+<img src="./assets/header.svg" width="100%" align="top">
+<img src="./assets/stats.svg" width="100%" align="top">
+<img src="./assets/contribution-city.svg" width="100%" align="top">
+<!-- ...more slices... -->
+<img src="./assets/footer.svg" width="100%" align="top">
+</p>
+```
+
+프로젝트 카드와 링크 버튼도 조각입니다. 폭이 절반이나 5분의 1인 이미지로, 바깥쪽 레일만 그립니다. 다 세어 보면 이미지 23장이 터미널 하나인 척하고 있는 셈입니다.
+
+### 이음매를 지우는 요령
+
+이미지를 쌓는 것까지는 쉬웠습니다. 이음매를 감추는 데에는 요령이 몇 가지 필요했습니다.
+
+- **40px 격자.** 모든 조각의 높이를 40px의 배수로 맞췄습니다. 그래서 배경의 옅은 격자가 잘린 곳에서 어긋나지 않고 이어집니다.
+- **넘치는 광채.** 레일의 네온 광채를 각 조각의 위아래 경계 너머까지 그렸습니다. 그래야 고장 난 형광등처럼 가장자리에서 빛이 끊기지 않습니다.
+- **`align="top"`.** 브라우저는 기본적으로 이미지 아래에 작은 틈을 남깁니다. *g*나 *y*처럼 줄 아래로 내려가는 글자를 위한 공간입니다. 위쪽 정렬로 이 틈을 없앴습니다.
+
+## 기여 그래프를 도시로 세우기
+
+### 격자에서 스카이라인으로
+
+도시의 뼈대는 익숙한 기여 그래프 그대로입니다. 주 단위 53열에 요일 7행입니다. 이 그래프를 아이소메트릭 시점으로 기울이고 칸마다 높이를 줬습니다.
+
+건물은 지붕 하나와 벽 두 면, 도형 세 개로만 이뤄져 있습니다. 핵심은 그리는 순서입니다. 뒤쪽 건물부터 앞쪽으로 칠하면, 가까운 건물이 뒤의 건물을 자연스럽게 가립니다. 3D 엔진 없이 화가 알고리즘(painter's algorithm)과 정렬된 리스트만으로 충분했습니다.
+
+### 하루의 높이는 얼마일까
+
+처음에는 기여 수를 그대로 높이로 썼습니다. 그러자 가장 바빴던 날에 거대한 탑 하나가 솟고, 나머지는 납작한 판이 됐습니다. 도시라기보다는 한가운데 엠파이어 스테이트 빌딩이 서 있는 거대한 주차장 같았습니다.
+
+그래서 제곱근을 쓰기로 했습니다.
+
+```plaintext
+h = 8 + 110 × √(c / c_max)
+```
+
+파이썬으로는 이렇게 씁니다.
+
+```python
+height = 8 + 110 * math.sqrt(count / busiest_day)
+```
+
+이렇게 하면 기여가 적은 날의 건물도 어느 정도 올라오고, 바쁜 날은 여전히 가장 높게 남습니다.
+
+| 기여 수 | 선형 | 제곱근 |
+| --- | --- | --- |
+| 1 | 11 px | 25 px |
+| 10 | 34 px | 61 px |
+| 43 (최고 기록) | 118 px | 118 px |
+
+기여가 0인 날에는 건물을 세우지 않고 빈터로 둡니다. 그래서 몇몇 달은 버려진 구역처럼 보이는데, 그는 그게 정확한 묘사라고 말합니다.
+
+기여 도시와 실제 GitHub 기여 그래프를 나란히 놓으면 이렇습니다.
+
+![The Contribution City](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/styouk7pko280yu14p3f.png)
+
+![Default GH Graph](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/r81ytce3jwvc33dlzonq.png)
+
+### 불을 켜다
+
+밤의 스카이라인에는 불빛이 필요합니다. 건물마다 창문을 달았습니다. 불이 켜진 창, 꺼진 창, 깜빡이는 창이 섞여 있습니다. 반짝이는 별과 달, 점멸등을 켜고 하늘을 가로지르는 비행기까지 더하자 도시에 생기가 돌았습니다.
+
+창문 배치는 무작위지만 **시드(seed)를 고정한** 난수 생성기를 씁니다. 데이터와 시드가 같으면 창문 하나까지 똑같은 도시가 나옵니다. 이렇게 하지 않으면 새 기여가 없어도 이미지가 매일 바뀌고, 저장소에는 아무 의미 없는 커밋이 매일 아침 쌓이게 됩니다.
+
+### 초록이냐 파랑이냐
+
+GitHub 기여 그래프가 초록색이라 첫 도시의 지붕도 초록이었습니다. 초록은 누구나 '활동'으로 바로 읽는다는 장점이 있습니다. 하지만 프로필의 나머지 부분은 네온 블루였고, 초록 도시만 다른 웹사이트에서 오려 붙인 것처럼 보였습니다. 두 버전을 나란히 렌더링해 3초쯤 보고 나서 파랑으로 정했다고 합니다.
+
+![Green vs. Blue](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/bes9egaeku02nrf3elb1.png)
+
+## 매일 저절로 갱신되는 프로필
+
+![Shot of computer screen with multicoloured code](https://images.pexels.com/photos/4816921/pexels-photo-4816921.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Myburgh Roux](https://www.pexels.com/@myburgh-roux) on [Pexels](https://www.pexels.com/photo/shot-of-computer-screen-with-multicoloured-code-4816921/)*
+
+### 매일 출근하는 로봇
+
+숫자가 바뀌지 않는 프로필은 손이 더 가는 스크린샷일 뿐입니다. 그래서 그는 전체를 스케줄에 걸었습니다. 노트북이 꺼져 있어도 GitHub 서버에서 돌아갑니다. 파이프라인은 네 단계이고, 그중 셋은 작은 파이썬 스크립트입니다.
+
+```plaintext
+fetch.py   → GitHub와 DEV에서 최신 숫자를 받아 JSON으로 저장
+render.py  → JSON을 읽어 모든 SVG를 다시 그림
+readme.py  → README.md에서 바뀌는 부분만 갱신
+git commit → 실제로 바뀐 게 있을 때만
+```
+
+이 단계들을 묶는 워크플로는 다음과 같습니다.
+
+```yaml
+name: Update profile
+
+on:
+  schedule:
+    - cron: "17 12 * * *"
+      timezone: "America/New_York"
+  workflow_dispatch:          # a "Run workflow" button for impatient people (me)
+
+permissions:
+  contents: write             # needed to push the refreshed files
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: pip install fonttools==4.62.1 brotli==1.2.0
+      - run: python tools/profile/fetch.py
+        env:
+          PROFILE_TOKEN: ${{ secrets.PROFILE_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
+          DEV_API_KEY: ${{ secrets.DEV_API_KEY }}
+      - run: python tools/profile/render.py
+      - run: python tools/profile/readme.py
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tools/profile/data assets README.md
+          git diff --cached --quiet || (git commit -m "Refresh profile stats" && git push)
+```
+
+마지막 줄의 `git diff --cached --quiet`는 바뀐 게 없으면 성공 코드로 끝납니다. 그래서 새 내용이 있을 때만 커밋이 생기고, 히스토리에 빈 'update' 커밋이 쌓이지 않습니다.
+
+### GitHub에는 요청 한 번만
+
+REST API로 같은 정보를 모으려면 팔로워, PR, 저장소마다, 또 저장소별 언어마다 따로 요청해야 합니다. 그는 "다음 주 화요일까지 페이지네이션만 하고 있을 것"이라고 표현했습니다. 대신 GraphQL API로 필요한 것만 골라 **한 번에** 요청합니다.
+
+```graphql
+query($login: String!) {
+  user(login: $login) {
+    createdAt
+    followers { totalCount }
+    pullRequests { totalCount }
+    merged: pullRequests(states: MERGED) { totalCount }
+    contributionsCollection { contributionYears }
+    repositories(ownerAffiliations: OWNER, isFork: false, privacy: PUBLIC, first: 100) {
+      nodes {
+        name
+        stargazerCount
+        forkCount
+        languages(first: 20) { edges { size node { name } } }
+      }
+    }
+  }
+}
+```
+
+응답 하나로 팔로워 수, PR 수, 가입일, 저장소 전체의 스타·포크 합계, 카드에 들어갈 프로젝트별 스타 수, 언어별 코드 바이트 합계로 만든 언어 막대까지 모두 얻습니다. 요청은 SDK 없이 순수 파이썬으로 보냅니다.
+
+```python
+def graphql(token, query, variables=None):
+    res = http_json("https://api.github.com/graphql",
+                    headers={"Authorization": f"bearer {token}"},
+                    body={"query": query, "variables": variables or {}})
+    if res.get("errors"):
+        raise RuntimeError("GraphQL error: " + "; ".join(e["message"] for e in res["errors"]))
+    return res["data"]
+```
+
+### 1년 제한 우회하기
+
+GitHub의 `contributionsCollection`은 요청 한 번에 **최대 1년치**만 돌려줍니다. 전체 기간의 기여 수를 구하고, 1월 1일에 끊기지 않는 연속 기록(streak)을 계산하려면 방법이 필요했습니다.
+
+첫 쿼리가 돌려주는 `contributionYears`에는 활동한 연도 목록이 들어 있습니다. 이 목록으로 연도마다 별칭(alias) 필드를 하나씩 붙인 두 번째 쿼리를 즉석에서 만듭니다.
+
+```python
+def years_query(years):
+    parts = []
+    for y in years:
+        parts.append(f"""
+    y{y}: contributionsCollection(from: "{y}-01-01T00:00:00Z", to: "{y}-12-31T23:59:59Z") {{
+      totalCommitContributions
+      contributionCalendar {{ totalContributions weeks {{ contributionDays {{ date contributionCount }} }} }}
+    }}""")
+    return "query($login: String!) {\n  user(login: $login) {" + "".join(parts) + "\n  }\n}"
+```
+
+`y2016`부터 `y2026`까지, 10년치 달력을 요청 한 번으로 받습니다. 그는 GraphQL 별칭이 "범죄적으로 과소평가됐다"고 평했습니다.
+
+이렇게 2016년 이후의 모든 날짜를 날짜별 기여 수로 얻으면 나머지는 간단합니다.
+
+- **올해 기여 수와 전체 기여 수**는 `totalContributions`를 더하면 됩니다.
+- **도시**에는 GitHub 그래프와 똑같이 일요일에서 시작하는 최근 53주를 씁니다.
+- **연속 기록**은 날짜를 순서대로 훑어 계산합니다.
+
+```python
+def streaks(days, today):
+    longest = run = 0
+    for d in sorted(d for d in days if d <= today):
+        run = run + 1 if days[d] > 0 else 0
+        longest = max(longest, run)
+
+    current, d = 0, today
+    if days.get(d, 0) == 0:          # no contributions yet today?
+        d -= datetime.timedelta(days=1)   # then the streak can still end yesterday
+    while days.get(d, 0) > 0:
+        current += 1
+        d -= datetime.timedelta(days=1)
+    return current, longest
+```
+
+중간의 `if` 한 줄이 보기보다 중요합니다. 워크플로는 한낮에 돌아갑니다. 이 조건이 없으면 그날 첫 커밋을 하기 전까지 연속 기록이 매일 0으로 떨어집니다.
+
+### DEV 통계 가져오기
+
+DEV 숫자는 [Forem API](https://developers.forem.com/api)에서 가져옵니다. 글 수, 반응 수, 댓글 수는 공개 정보입니다.
+
+```python
+arts = dev_paged(f"https://dev.to/api/articles?username={USER}")
+dev = {
+    "articles":  len(arts),
+    "reactions": sum(a["public_reactions_count"] for a in arts),
+    "comments":  sum(a["comments_count"] for a in arts),
+}
+```
+
+조회수와 팔로워 수는 비공개라서 `api-key` 헤더에 API 키를 넣어야 합니다.
+
+```python
+h = {"api-key": api_key, "Accept": "application/vnd.forem.api-v1+json"}
+mine = dev_paged("https://dev.to/api/articles/me/published", h)
+dev["views"] = sum(a["page_views_count"] for a in mine)
+dev["followers"] = len(dev_paged("https://dev.to/api/followers/users", h))
+```
+
+`dev_paged`는 빈 리스트가 나올 때까지 `page=1, 2, 3...`을 계속 요청하는 함수입니다. 같은 응답에서 글 목록 섹션에 쓸 최신 글 다섯 편도 뽑습니다.
+
+### API가 말썽을 부리는 날
+
+API는 언제든 실패할 수 있습니다. 레이트 리밋, 타임아웃, 하필 그때 터지는 502 같은 것들입니다. GitHub가 한 번 삐끗했다고 프로필에 '스타 0개, 기여 0회'가 뜨는 건 통계가 아예 없는 것보다 나쁩니다.
+
+그래서 `fetch.py`는 백지에서 시작하지 않습니다. 전날 JSON을 먼저 불러온 뒤, 받아오는 데 성공한 값만 덮어씁니다.
+
+```python
+stats = load("stats.json", {})          # yesterday's numbers
+
+try:
+    stats.update(fetch_github(token, today))
+except Exception as ex:
+    warn(f"GitHub fetch failed, keeping previous stats: {ex}")
+
+try:
+    dev, latest = fetch_dev(api_key)
+    ...
+except Exception as ex:
+    warn(f"DEV fetch failed, keeping previous values: {ex}")
+```
+
+GitHub가 다운돼도 DEV 숫자는 갱신되고, 그 반대도 마찬가지입니다. 둘 다 실패하면 스크립트는 아무것도 건드리지 않고 에러로 끝납니다. 최악의 경우에도 프로필이 하루 늦을 뿐, 텅 비지는 않습니다.
+
+덤으로 JSON 파일이 이미지와 함께 커밋되기 때문에 `git log -p tools/profile/data/stats.json`만 실행하면 통계 이력을 볼 수 있습니다. 계획한 건 아니지만 얻은 수확이라고 합니다.
+
+### README는 표시된 구역만 고친다
+
+README는 대부분 그대로지만 글 링크와 스크린 리더용 통계 대체 텍스트는 매일 바뀝니다. 템플릿으로 파일 전체를 다시 쓰면 직접 손본 내용이 날아가기 때문에, `readme.py`는 표시해 둔 구역만 고칩니다.
+
+```html
+<!-- writing:start -->
+<a href="https://dev.to/..."><img src="./assets/writing/post-1.svg" ...></a>
+...
+<!-- writing:end -->
+```
+
+```python
+s, n = re.subn(r"<!-- writing:start -->.*?<!-- writing:end -->",
+               lambda _: writing_block(articles), s, flags=re.S)
+if n != 1:
+    sys.exit("error: README needs exactly one writing block")
+```
+
+HTML 주석은 GitHub 화면에 보이지 않으니 표시를 달아도 손해가 없습니다. 실수로 표시를 지우면 스크립트가 README를 조용히 망가뜨리지 않고 요란하게 실패합니다.
+
+### 시크릿 관리
+
+워크플로에는 시크릿 두 개가 필요합니다. 비공개 기여까지 집계하기 위한 GitHub 토큰과 DEV API 키입니다. 둘 다 저장소에는 적지 않고 이름으로만 참조합니다.
+
+```yaml
+PROFILE_TOKEN: ${{ secrets.PROFILE_TOKEN }}
+```
+
+실제 값은 **Settings → Secrets and variables → Actions**에 암호화돼 저장됩니다. GitHub는 실행할 때 값을 주입하고, 로그에 찍히면 `***`로 가립니다.
+
+토큰은 클래식 토큰 대신 **fine-grained** 개인 액세스 토큰을 썼습니다. Metadata와 Contents만 **읽기 전용**으로 허용할 수 있기 때문입니다. 혹시 유출돼도 코드를 읽을 수 있을 뿐 푸시는 못 합니다. 두 시크릿 모두 선택 사항이라, 없으면 기본 `GITHUB_TOKEN`과 공개 데이터만으로 동작합니다.
+
+### 왜 하필 12시 17분인가
+
+정각 대신 **17분**을 고른 이유가 있습니다. 다들 작업을 정각에 예약하기 때문에 GitHub 러너는 정각마다 붐비고, 정각 예약 작업은 늦게 시작되는 일이 잦습니다. 애매해 보이는 분을 골라 그 혼잡을 피했습니다.
+
+## 그만한 가치가 있었을까
+
+그가 정리한 '간단한 커스텀 프로필'의 최종 결과물은 이렇습니다.
+
+- 터미널 하나인 척하는 SVG 이미지 23장
+- 지난 1년의 하루하루가 건물 한 채씩인 기여 도시
+- 파이썬 스크립트 세 개와 GitHub Actions 워크플로 하나
+- API 두 개, 시크릿 두 개, 그리고 매일 일하는 로봇 하나
+
+사람들이 8초쯤 보고 지나갈 페이지에 네온으로 이름을 띄우려고 이 모든 걸 만든 셈입니다. 그래도 그는 "당연히 그럴 가치가 있었다"고 답합니다. 그에게 중요한 건 프로필 자체보다 밤 11시에 엉뚱한 아이디어가 떠올라 피로가 사라지던 그 감각이었습니다. 아무도 시키지 않았고, 마감도 이해관계자도 없는, 재미로 만드는 프로젝트였습니다.
+
+덕분에 평소라면 손대지 않았을 것들도 익혔다고 합니다. SVG 애니메이션, 아이소메트릭 드로잉, 폰트 서브세팅, GraphQL 별칭, 그리고 "고쳤다"와 "고친 게 보인다" 사이에 캐시가 몇 겹이나 끼어 있는지까지요.
+
+이제 프로필은 알아서 굴러갑니다. 매일 뉴욕 시간 12시 17분이면 로봇이 깨어나 그날 활동을 확인하고 도시에 새 건물을 세웁니다.
+
+코드는 같은 저장소의 `tools/profile` 폴더에 모두 공개돼 있습니다. 그는 누구든 포크해서 자기만의 스카이라인을 만들어 보라고 권합니다. 다만 사용자 이름부터 바꾸라고 덧붙였습니다. 그대로 두면 그의 통계가 여러분의 프로필에 뜹니다.
+
+[GitHub 프로필 보기 →](https://github.com/georgekobaidze)
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
