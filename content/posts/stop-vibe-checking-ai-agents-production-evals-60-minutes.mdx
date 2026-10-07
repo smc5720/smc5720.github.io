@@ -1,0 +1,91 @@
+﻿---
+title: "AI 에이전트, 이제 '감'으로 테스트하지 말자 — 60분 만에 프로덕션 평가 파이프라인 만들기"
+description: "Google Cloud의 'AI Agent Clinic' 에피소드에서 LangGraph 에이전트 DocsHound를 대상으로 프레임워크에 묶이지 않는 평가 파이프라인을 60분 안에 만들었습니다. 수동 점검으로는 놓쳤던 문서 품질 0.33점 문제도 자동 스코어카드가 찾아냈습니다."
+date: "2026-09-30"
+published_at: "2026-10-07"
+slug: "stop-vibe-checking-ai-agents-production-evals-60-minutes"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F6ilchqkxg66lm2aznxlz.png"
+coverAlt: "Stop \"Vibe Checking\" Your AI Agents: How to Build Production Evals in 60 Minutes"
+source_id: "devto-4778630"
+source_url: "https://dev.to/googleai/stop-vibe-checking-your-ai-agents-how-to-build-production-evals-in-60-minutes-2df4"
+source_title: "Stop \"Vibe Checking\" Your AI Agents: How to Build Production Evals in 60 Minutes"
+source_author: "Frank Guan"
+source_published: "2026-09-30"
+---
+
+<LinkCard url="https://dev.to/googleai/stop-vibe-checking-your-ai-agents-how-to-build-production-evals-in-60-minutes-2df4" author="Frank Guan" date="2026-09-30" />
+
+## 개요
+
+AI 에이전트를 만드는 개발자는 대부분 비슷하게 테스트합니다. 프롬프트를 조금 고치고, 질의를 몇 번 직접 던져 보고, 결과가 그럴듯하면 괜찮다고 넘어갑니다. 원문은 이런 방식을 '바이브 체크(vibe check)'라고 부르고, 프로덕션에서는 금방 한계가 드러난다고 지적합니다.
+
+Google Cloud의 영상 시리즈 'AI Agent Clinic' 이번 에피소드에서는 Google Cloud 엔지니어 Dani Zamora와 Merge의 Matthew Feroz가 이 문제를 라이브로 다뤘습니다. 목표는 특정 프레임워크에 묶이지 않는(framework-agnostic) 엔드투엔드 평가 파이프라인을 60분 안에 만드는 것이었습니다.
+
+[YouTube 영상 보기 →](https://www.youtube.com/watch?v=wPdoZRbvaF4)
+
+## 바이브 체크가 무너지는 지점
+
+![정지 표지판](https://images.pexels.com/photos/9696272/pexels-photo-9696272.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Francesco Ungaro](https://www.pexels.com/@francesco-ungaro) on [Pexels](https://www.pexels.com/photo/photo-of-a-stop-sign-9696272/)*
+
+원문은 수동 점검이 놓치는 문제를 세 가지로 정리합니다.
+
+- **조용한 성능 저하(Silent Regressions)**: 동료가 PR을 올리거나 도구 정의를 살짝 바꿔도, 성능이 좋아졌는지 나빠졌는지 알 길이 없습니다.
+- **비용·지연 급증**: 에이전트가 여러 턴에 걸친 재시도 루프에 빠지면 아무도 모르는 사이에 토큰을 수천 개씩 써 버립니다.
+- **'그럴듯해 보이는' 함정**: 문장은 깔끔한데 꼭 필요한 파라미터가 빠져 있거나, 핵심 지시를 지어낸(hallucination) 결과가 나올 수 있습니다.
+
+## 영상에서 다룬 내용
+
+### 테스트 대상: DocsHound
+
+실습 대상은 Matthew Feroz가 가져온 오픈소스 LangGraph 에이전트 DocsHound입니다. GitHub 이슈와 PR을 훑어 문서가 비어 있는 부분을 찾고, 이를 보완하는 PR을 자동으로 엽니다.
+
+### OpenTelemetry와 OpenInference로 트레이스 통일
+
+멀티턴 트레이스를 표준 형식으로 맞추는 데는 OpenTelemetry와 OpenInference를 썼습니다. 이렇게 하면 LangGraph, CrewAI, AutoGen, ADK 등 어떤 에이전트 프레임워크든 같은 방식으로 다룰 수 있고, 특정 벤더에 종속되지도 않는다고 설명합니다.
+
+### 지표는 3단계로
+
+처음부터 지표를 50개씩 만들 필요는 없다는 게 영상의 입장입니다. 대신 아래 세 층을 섞어 씁니다.
+
+1. **관리형 핵심 지표**: 실행 경로(trajectory) 품질, 도구 호출 정확도, 근거 충실도(groundedness)
+2. **커스텀 LLM 심사관(LLM judge)**: 출력 형식, 코드 블록 사용 여부, 실행 가능성(actionability)처럼 이 에이전트에 맞춘 루브릭
+3. **결정론적 검증과 운영 지표**: 문법 검사, 지연 시간, 토큰 사용량, API 비용
+
+### 0.33점짜리 사각지대
+
+자동 스코어카드를 돌리자 문서 품질 항목에서 0.33점, 즉 33% 수준의 실패가 나왔습니다. 앞서 사람이 직접 몇 건을 확인할 때는 전혀 드러나지 않았던 문제입니다.
+
+## 타임라인
+
+필요한 부분만 골라 보고 싶다면 아래 구간을 참고하면 됩니다.
+
+| 시간 | 내용 |
+| --- | --- |
+| 00:00 | 바이브 체크가 프로덕션에서 실패하는 이유 |
+| 02:11 | DocsHound 소개 (LangGraph 에이전트 데모) |
+| 03:40 | OpenTelemetry·OpenInference로 트레이스 표준화 |
+| 05:51 | 60분 평가 챌린지 시작 |
+| 06:47 | 1단계: Antigravity로 에이전트 실행 흐름 파악 |
+| 11:18 | 2단계: 오픈소스 Agent-Eval 툴킷 뼈대 세우기 |
+| 17:14 | 품질·지연 시간·토큰 비용 사이의 균형 |
+| 18:34 | 3단계: 품질 기준을 커스텀 지표로 옮기기 |
+| 21:40 | 4단계: 스코어카드 확인, 0.33 실패 발견 |
+| 24:08 | 자동 평가가 에이전트 개발 방식을 바꾸는 이유 |
+
+## 관련 저장소와 자료
+
+영상에서 쓴 도구는 모두 공개되어 있습니다.
+
+- **전체 영상(25분)**: [YouTube에서 보기](https://youtu.be/wPdoZRbvaF4)
+- **Agent-Eval 툴킷**: [github.com/google-cloud-tech/agent-eval](https://g.dev/cloud/agent-eval)
+- **DocsHound 에이전트 코드**: [github.com/google-cloud-tech/docshound](https://g.dev/cloud/docshound)
+- **Enterprise Agent Platform 문서**: [g.dev/cloud/agent-evaluation](https://g.dev/cloud/agent-evaluation)
+
+평가 파이프라인을 처음부터 끝까지 어떻게 세우는지는 영상에서 단계별로 볼 수 있습니다. 원문 작성자는 자기 에이전트 프레임워크에 계측을 붙이거나 커스텀 지표를 만드는 방법이 궁금하면 원문에 댓글로 질문해 달라고 덧붙였습니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

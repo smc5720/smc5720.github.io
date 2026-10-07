@@ -959,6 +959,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-15"
   },
+  "https://dev.to/dj29/hacktoberfest-is-coming-to-nadiad-gujarat-official-mlh-meetup-at-ddu-15-oct-1dc4": {
+    "ok": true,
+    "title": "Hacktoberfest Is Coming to Nadiad, Gujarat 🚀 Official MLH Meetup at DDU, 15 Oct",
+    "description": "Most students hear about hackathons, open source and developer communities in their third or fourth...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ffwndv77xybwe8by3ln0m.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-07"
+  },
   "https://dev.to/dj29/the-optimization-that-was-too-good-why-our-push-notifications-only-worked-when-you-werent-looking-2f4d": {
     "ok": true,
     "title": "The Optimization That Was Too Good: Why Our Push Notifications Only Worked When You Weren't Looking",
@@ -1479,6 +1487,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/googleai/stop-vibe-checking-your-ai-agents-how-to-build-production-evals-in-60-minutes-2df4": {
+    "ok": true,
+    "title": "Stop \"Vibe Checking\" Your AI Agents: How to Build Production Evals in 60 Minutes",
+    "description": "How do you currently test your AI agents?  If you're like most developers building agentic...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F6ilchqkxg66lm2aznxlz.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-07"
+  },
   "https://dev.to/googleai/turning-gemma-4-into-an-old-korean-translator-hop": {
     "ok": true,
     "title": "Turning Gemma 4 into an Old Korean Translator",
@@ -1782,6 +1798,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fq9wlxh67z9gebb2drssb.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/heraistudio/build-a-tiny-virtual-pet-on-arduino-in-60-minutes-2cf": {
+    "ok": true,
+    "title": "Build a Tiny Virtual Pet on Arduino in 60 Minutes 🐾",
+    "description": "Turn an Arduino Uno Q into Kiku, a Tamagotchi-style virtual pet with an animated LED face, moods, and keyboard controls.",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fdvrnvtfr1l854y335hld.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-07"
   },
   "https://dev.to/highcenburg/-the-cicd-pipeline-that-was-lying-to-us-a-deploy-debugging-story-9fi": {
     "ok": true,

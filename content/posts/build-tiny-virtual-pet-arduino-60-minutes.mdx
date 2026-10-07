@@ -1,0 +1,275 @@
+﻿---
+title: "아두이노로 60분 만에 만드는 작은 가상 펫 (Build a Tiny Virtual Pet on Arduino in 60 Minutes)"
+description: "Her AI Studio가 아두이노 Uno Q로 다마고치 같은 가상 펫 'Kiku'를 만드는 60분짜리 미니 워크숍을 공개했습니다. LED 매트릭스 표정, 시간에 따라 바뀌는 상태, 키보드 조작을 차례로 구현합니다."
+slug: "build-tiny-virtual-pet-arduino-60-minutes"
+date: "2026-10-06"
+published_at: "2026-10-07"
+category: "news"
+tags: ["arduino", "beginners", "programming", "hacktoberfest"]
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fdvrnvtfr1l854y335hld.png"
+coverAlt: "Build a Tiny Virtual Pet on Arduino in 60 Minutes"
+source_id: "devto-4803571"
+source_url: "https://dev.to/heraistudio/build-a-tiny-virtual-pet-on-arduino-in-60-minutes-2cf"
+source_title: "Build a Tiny Virtual Pet on Arduino in 60 Minutes 🐾"
+source_author: "Jen Looper"
+source_published: "2026-10-06"
+---
+
+<LinkCard url="https://dev.to/heraistudio/build-a-tiny-virtual-pet-on-arduino-in-60-minutes-2cf" author="Jen Looper" date="2026-10-06" />
+
+## 개요
+
+하드웨어 입문 프로젝트라고 하면 보통 LED 깜빡이기부터 떠올립니다. Her AI Studio는 그보다 한 걸음 더 나간 예제를 내놨습니다. 배고파하고, 같이 놀고, 잠들고, 키보드로 입력한 내용에 반응하는 작은 가상 펫입니다.
+
+펫의 이름은 **Kiku(키쿠)**입니다. Her AI Studio는 차세대 여성 개발자들이 AI를 배우고 직접 만들어 보도록 돕는 커뮤니티 프로그램이고, Kiku는 이곳의 마스코트입니다. 이번 미니 워크숍에서는 이 Kiku를 **아두이노 Uno Q** 한 장에 들어가도록 줄여서 구현합니다.
+
+완성하면 보드의 LED 매트릭스에 Kiku의 얼굴이 뜨고, 키보드로 밥을 주거나 놀아 주거나 재울 수 있습니다. 작성자는 적은 양의 코드로도 살아 있는 것처럼 보이는 동작을 만들 수 있다는 점을 이 프로젝트의 핵심으로 꼽습니다.
+
+> 전체 튜토리얼은 **[Her AI Studio 커리큘럼](https://her-ai-studio.github.io/curriculum/mini-workshop.html)**에서 볼 수 있습니다.
+
+## 본문
+
+### 준비물과 배우는 내용
+
+준비물은 간단합니다.
+
+- 아두이노 Uno Q
+- USB 케이블
+- 노트북
+- Arduino App Lab
+- 약 60분
+
+Hacktoberfest 2026을 맞아 Major League Hacking(MLH)이 보내는 스웩 팩에 이 아두이노가 함께 들어 있습니다. 작성자는 이 워크숍을 Hack Day에서 하드웨어 해킹 입문용으로 써 보라고 권합니다.
+
+![sleep](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/gu00oiewo41te1hrq21w.jpeg)
+> 쉿, Kiku가 자고 있어요
+
+작은 프로젝트지만 임베디드 프로그래밍의 기본기가 꽤 많이 들어 있습니다.
+
+- 실제 하드웨어에 코드 올리기
+- 시리얼(Serial)로 마이크로컨트롤러와 통신하기
+- LED 매트릭스에 그래픽 그리기
+- 애플리케이션 상태 관리
+- 사용자 입력 처리
+- 간단한 애니메이션
+- 작은 상태 머신(state machine) 만들기
+
+노트북 안에서만 도는 소프트웨어를 주로 짜 왔다면, 내 코드가 실물 보드 위에서 움직이는 모습을 보는 것만으로도 꽤 뿌듯할 거라고 작성자는 말합니다.
+
+### 1단계: 보드가 살아 있는지 확인하기
+
+펫을 만들기 전에 임베디드 버전의 "Hello, world!"인 LED 깜빡이기부터 해 봅니다.
+
+Uno Q를 USB로 노트북에 연결하고, 미리 설치한 Arduino App Lab을 열어 보드에 로그인합니다. 새 앱을 만든 뒤 자동 생성된 코드를 살펴보고, `sketch.ino`에 아래 코드를 작성합니다.
+
+```cpp
+void setup() {
+  pinMode(LED_BUILTIN, OUTPUT);
+}
+
+void loop() {
+  digitalWrite(LED_BUILTIN, LOW);
+  delay(1000);
+
+  digitalWrite(LED_BUILTIN, HIGH);
+  delay(1000);
+}
+```
+
+App Lab에서 `run`을 누르고 내장 LED가 1초마다 켜졌다 꺼지면 성공입니다.
+
+> 보드가 인식되지 않으면 USB 케이블부터 확인하세요. 전원만 공급하고 데이터는 전달하지 않는 케이블도 있습니다.
+
+### 2단계: 아두이노가 말을 알아듣게 하기
+
+이제 Kiku가 우리 말을 들을 수 있어야 합니다. 버튼이나 센서를 달 수도 있지만(정규 워크숍에서는 AI 키트로 이 작업도 합니다), 이미 쓸 수 있는 더 간단한 인터페이스가 있습니다. 바로 **시리얼 통신**입니다.
+
+프로그램을 올릴 때 쓰는 USB 연결로, 프로그램이 실행되는 동안에도 노트북과 아두이노가 메시지를 주고받을 수 있습니다. App Lab에서는 이렇게 보입니다.
+
+![Serial Monitor](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/gfir5kauabbq17r9hy8s.png)
+
+먼저 `setup()`에서 시리얼 통신을 시작합니다.
+
+```cpp
+void setup() {
+  Serial.begin(9600);
+}
+```
+
+그다음 들어오는 문자를 확인합니다.
+
+```cpp
+void loop() {
+  if (Serial.available() > 0) {
+    char typed = Serial.read();
+
+    if (typed == 'f') {
+      // feed Kiku
+    }
+
+    if (typed == 'p') {
+      // play with Kiku
+    }
+
+    if (typed == 's') {
+      // sleep or wake up
+    }
+  }
+}
+```
+
+이것만으로 키보드가 실물 장치의 컨트롤러가 됩니다. Kiku와는 세 가지 키로 소통합니다.
+
+```text
+f → feed
+p → play
+s → sleep / wake
+```
+
+### 3단계: Kiku에게 감정 만들어 주기
+
+명령만으로는 가상 펫이 되지 않습니다. 펫에게는 **상태(state)**가 있어야 합니다. Kiku는 세 가지 수치를 관리합니다.
+
+```cpp
+int hunger = 3;
+int joy = 6;
+int energy = 8;
+
+bool asleep = false;
+```
+
+각 수치는 0부터 10 사이 값으로 다룹니다. 이제 행동을 할 때마다 이 값이 오르내립니다. 예를 들어 밥을 주면 배고픔이 줄어듭니다(너무 많이 주지는 마세요).
+
+```cpp
+hunger = max(0, hunger - 3);
+joy = min(10, joy + 1);
+```
+
+놀아 주면 기분은 좋아지지만 에너지를 쓰고 조금 배고파집니다.
+
+```cpp
+joy = min(10, joy + 3);
+energy = max(0, energy - 2);
+hunger = min(10, hunger + 1);
+```
+
+### 시간이 흐르게 하기
+
+입력할 때만 수치가 바뀐다면 펫이 살아 있다는 느낌이 들지 않습니다. 그래서 시간 개념을 넣습니다. 몇 초마다 `tick()` 함수가 Kiku의 상태를 갱신합니다.
+
+```cpp
+void tick() {
+  if (asleep) {
+    // regain energy
+  } else {
+    // lose energy
+    // gradually lose joy
+  }
+
+  // gradually become hungry
+}
+```
+
+처음에는 변화를 바로 확인할 수 있도록 주기를 짧게 잡습니다. 펫을 좀 느긋하게 만들고 싶으면 나중에 늘리면 됩니다.
+
+```cpp
+const unsigned long TICK_MS = 10000;
+```
+
+10초마다 한 번씩 갱신한다는 뜻입니다. 한동안 자리를 비웠다 돌아오면 Kiku의 상태는 분명히 달라져 있습니다. 혼자 두면 심통을 부리기도 합니다.
+
+### 상태를 얼굴로 보여 주기
+
+Kiku는 내부 상태를 Uno Q의 LED 매트릭스에 표정으로 나타냅니다. 먼저 눈 모양을 정의합니다.
+
+```cpp
+enum Eyes {
+  EYES_OPEN,
+  EYES_CLOSED,
+  EYES_HAPPY,
+  EYES_PEEK
+};
+```
+
+입 모양도 정의합니다.
+
+```cpp
+enum Mouth {
+  MOUTH_FLAT,
+  MOUTH_SMILE,
+  MOUTH_FROWN,
+  MOUTH_OPEN,
+  MOUTH_DOT
+};
+```
+
+이제 상태를 감정으로 바꿔 줍니다.
+
+```cpp
+Mouth moodMouth() {
+  if (hunger >= 7 || joy <= 3)
+    return MOUTH_FROWN;
+
+  if (joy >= 7)
+    return MOUTH_SMILE;
+
+  return MOUTH_FLAT;
+}
+```
+
+물론 Kiku가 실제로 행복이나 배고픔을 느끼는 건 아닙니다. 그래도 변수 몇 개와 조건문 몇 줄만으로 성격이 있는 것처럼 보이기 시작합니다.
+
+### 행동과 반응 연결하기
+
+이제 조각을 합칩니다. 메인 루프가 할 일은 세 가지입니다.
+
+1. 명령을 듣는다.
+2. 시간에 따라 Kiku의 상태를 갱신한다.
+3. 상태에 맞는 표정을 그린다.
+
+간단히 쓰면 다음과 같습니다.
+
+```cpp
+void loop() {
+  if (Serial.available() > 0) {
+    char typed = Serial.read();
+
+    if (typed == 'f') feed();
+    if (typed == 'p') play();
+    if (typed == 's') toggleSleep();
+  }
+
+  // update stats when enough time has passed
+
+  // calculate blinking
+
+  // redraw Kiku
+}
+```
+
+이것이 Kiku의 핵심 구조입니다. App Lab에서 시리얼 모니터를 열고 `f`를 입력하면 Kiku가 밥을 먹고, `p`를 입력하면 놀고, `s`를 입력하면 잠듭니다.
+
+### 더 해 볼 만한 것들
+
+작성자는 Kiku의 성격을 바꿔 보는 과제 세 가지를 제안합니다.
+
+1. **시간 바꾸기**: `TICK_MS` 값을 수정해 봅니다.
+2. **새 표정 만들기**: 윙크하거나, 놀라거나, 슬퍼하는 표정을 추가해 봅니다.
+3. **명령 추가하기**: 예를 들어 `c → clean`처럼 씻기기 명령을 넣어 봅니다.
+
+### 결국 무엇을 만든 걸까
+
+겉으로 보면 귀여운 가상 펫이지만, 그 안에는 훨씬 큰 시스템에서도 쓰는 개념이 들어 있습니다.
+
+- **입력 처리**: 시리얼 명령이 이벤트가 됩니다.
+- **상태 관리**: 변수가 루프가 반복되는 사이에 무슨 일이 있었는지 기억합니다.
+- **상태 전이**: 행동이 상태를 바꿉니다.
+- **시간 기반 동작**: 직접 입력하지 않아도 시스템이 변합니다.
+- **렌더링**: 내부 상태가 LED 매트릭스를 거쳐 눈에 보이게 됩니다.
+- **인간-컴퓨터 상호작용**: 애니메이션과 타이밍 덕분에 단순한 로직도 표정이 풍부해 보입니다.
+
+Her AI Studio는 이 글을 Hacktoberfest 참가자들에게 주는 선물로 공개했습니다. 직접 만든 Kiku에 어떤 성격을 입혔는지 공유해 달라고도 덧붙였습니다. 전체 아두이노 스케치와 실습 과제, 이해도 점검 문제, 추가 자료는 **[Her AI Studio 커리큘럼](https://her-ai-studio.github.io/curriculum/mini-workshop.html)**에서 볼 수 있습니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
