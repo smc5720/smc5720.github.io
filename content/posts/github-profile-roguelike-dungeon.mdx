@@ -1,0 +1,198 @@
+﻿---
+title: "할 일에 짓눌린 날, GitHub 프로필을 로그라이크 던전으로 만들었다"
+description: "한 .NET 게임 개발자가 무기력한 오후에 GitHub 프로필을 레트로 터미널 속 로그라이크 던전으로 바꿨습니다. C# 생성기와 SVG 애니메이션, GitHub Actions로 매일 저절로 갱신되는 프로필을 만든 과정을 정리했습니다."
+date: "2026-10-03"
+published_at: "2026-10-08"
+slug: "github-profile-roguelike-dungeon"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F6kyvcofukgzaqo0lhkbd.png"
+coverAlt: "I Was Overwhelmed, So I Turned My GitHub Profile Into a Roguelike Dungeon"
+source_id: "devto-4791630"
+source_url: "https://dev.to/g00ds0ul/i-was-overwhelmed-so-i-turned-my-github-profile-into-a-roguelike-dungeon-17a8"
+source_title: "I Was Overwhelmed, So I Turned My GitHub Profile Into a Roguelike Dungeon"
+source_author: "Iseoluwa Olowogoke"
+source_published: "2026-10-03"
+---
+
+<LinkCard url="https://dev.to/g00ds0ul/i-was-overwhelmed-so-i-turned-my-github-profile-into-a-roguelike-dungeon-17a8" author="Iseoluwa Olowogoke" date="2026-10-03" />
+
+## 개요
+
+C#/.NET 게임 개발자 Iseoluwa Olowogoke가 자기 GitHub 프로필을 레트로 터미널 속 **로그라이크 던전**으로 바꿨습니다. 지난 1년 치 기여 기록이 던전 타일로 깔리고, 작은 영웅이 현재 연속 기여(streak) 구간을 따라 걷습니다. 매일 GitHub Action이 돌면서 프로필을 새로 그립니다.
+
+계기는 거창하지 않았습니다. 피곤한 오후였고, 할 일 목록과 쌓인 이슈를 보니 어디서부터 손대야 할지 몰랐습니다. 그래서 DEV를 스크롤하다가 George Kobaidze가 쓴 글을 발견했습니다. 자기 기여 기록으로 도시를 지어 GitHub 프로필을 사이버펑크 콘솔로 꾸민 글이었습니다.
+
+[George Kobaidze의 원글 보기 →](https://dev.to/georgekobaidze/i-turned-my-github-profile-into-a-cyberpunk-console-with-a-city-built-from-my-contributions-h4c)
+
+구경만 하고 끝낼 수가 없었다고 합니다. 직접 만들고 싶어졌습니다. 다만 게임 개발자인 자신에게는 도시보다 던전이 어울렸습니다. 이렇게 생긴 의욕이 할 일 목록으로는 안 되던 일을 해냈습니다. 일단 손을 움직이게 만든 것입니다. 그 탄력은 미뤄 두었던 업무까지 이어졌습니다.
+
+작성자는 핵심 아이디어를 George의 글에서 가져왔다고 분명히 밝혔습니다. SVG 조각(slice) 여러 장을 쌓아 하나의 콘솔처럼 보이게 하고, GitHub Action으로 매일 다시 그리는 방식입니다. 로그라이크 테마와 C#/.NET 생성기, 세부 기능은 작성자가 직접 만들었습니다.
+
+![할 일에 지쳐 서류를 든 채 사무실에 앉아 있는 사람](https://images.pexels.com/photos/3808818/pexels-photo-3808818.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Andrea Piacquadio](https://www.pexels.com/photo/tired-adult-woman-with-papers-in-light-modern-office-3808818/) on [Pexels](https://www.pexels.com/photo/tired-adult-woman-with-papers-in-light-modern-office-3808818/)*
+
+## 완성된 프로필 둘러보기
+
+결과물은 [github.com/G00dS0ul](https://github.com/G00dS0ul)에서 볼 수 있습니다. 프로필 전체가 레트로 터미널 하나로 이어지고, 번호 붙은 섹션으로 나뉩니다.
+
+![My full GitHub profile console](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/fnl3diwc10rl0zf92qq0.png)
+
+### 01 · 부팅 화면
+
+콘솔이 켜지면서 `> ./G00dS0ul.exe --boot` 명령이 타이핑되고, 엔진 코어 로딩과 렌더러 마운트를 거쳐 플레이어가 생성됩니다.
+
+![Boot screen](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/d1d6ugsjykae1qd5kviy.png)
+
+### 02 · 던전
+
+최근 365일 기여 기록이 그대로 던전 지도가 됩니다. 돌벽, 빛나는 바닥, 보물상자, 횃불이 깔리고 작은 영웅이 현재 streak을 따라 걷습니다. 위쪽에는 별과 달, 성, 던전 입구가 있는 밤하늘을 올렸습니다. 아래에는 XP, STREAK, BEST DAY, TODAY 네 가지 스탯 박스가 붙습니다.
+
+![Contribution Dugeon](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/yddqfo69d9bqojdhon6o.png)
+
+### 탐험 모드
+
+GitHub README 속 이미지는 마우스에 반응하지 않습니다. 그래서 던전이나 반짝이는 **CLICK TO EXPLORE** 버튼을 누르면 GitHub Pages에 올린 인터랙티브 버전으로 넘어가게 했습니다. 거기서 타일에 마우스를 올리면 그날의 기여 수가 나옵니다.
+
+![Explore mode with hover tooltip](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/bor2j03fqtyo4kak802c.png)
+
+### 03 · 인벤토리
+
+올해 커밋 기준으로 가중치를 매긴 사용 언어를 '배낭'에 담았습니다. 옆에는 스타, 저장소, PR, 이슈, 길드(조직), 팔로워 수를 보여 주는 캐릭터 스탯 패널이 있습니다.
+
+![Inventory and character stats](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/pze33ctacv0g0hdh81bz.png)
+
+### 04 · 퀘스트 로그
+
+고정(pinned)해 둔 저장소가 퀘스트 카드로 바뀝니다. 카드마다 **ACTIVE**, **IN PROGRESS**, **ON HOLD** 중 하나의 상태가 붙습니다. 작성자가 기여하는 오픈소스 프로젝트에는 금색 **CONTRIBUTOR** 배지와 역할, 머지된 PR 수가 표시됩니다. 카드를 누르면 해당 저장소로 이동합니다.
+
+![Quest Log](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/v6it0a7vw6kreuqhxe8k.png)
+
+### 05 · 캐릭터 시트
+
+자기소개를 RPG식으로 풀었습니다. 캐릭터 시트, 지금 배우는 것과 찾는 것을 담은 '활성 효과(active effects)', 장착한 장비와 스킬이 들어갑니다.
+
+![Character Sheet](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/imn1fhxpr0rhkyemteyf.png)
+
+### 06 · 파티
+
+이메일, LinkedIn, X, 던전 페이지로 가는 키캡 모양 연락 버튼입니다.
+
+![Party Buttons](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/z54h2530odu79yia49k2.png)
+
+## 어떻게 만들었나
+
+### README에서는 코드가 안 돌지만, SVG는 움직인다
+
+GitHub은 README에서 JavaScript와 CSS 대부분을 걷어 냅니다. 하지만 `<img>` 태그로 불러온 SVG는 **SVG 파일 안에 넣은 CSS 애니메이션**을 그대로 실행합니다. 깜빡이는 커서, 맥박처럼 뛰는 버튼, 일렁이는 테두리, 걸어 다니는 영웅 모두 평범한 SVG와 CSS keyframes로 만들었습니다.
+
+### 콘솔 하나처럼 보이는 이미지 여러 장
+
+George의 글에서 가져온 핵심 기법입니다. '콘솔'은 사실 **따로따로인 이미지 여러 장을 빈틈없이 쌓은 것**입니다.
+
+```html
+<p align="center">
+  <img src="./assets/header.svg" width="100%" align="top">
+  <a href="https://g00ds0ul.github.io/G00dS0ul/">
+    <img src="./assets/dungeon.svg" width="100%" align="top">
+  </a>
+  <img src="./assets/inventory.svg" width="100%" align="top">
+  <!-- quest cards: 2 per row, 50% width each -->
+  <!-- connect buttons: 4 per row, 25% width each -->
+  <img src="./assets/footer.svg" width="100%" align="top">
+</p>
+```
+
+조각들이 창 하나로 보이도록 몇 가지 규칙을 정했습니다.
+
+- **모든 조각의 너비는 960px**이고, 높이는 모두 **40의 배수**로 맞췄습니다. 그래야 배경 격자가 조각 경계를 넘어 자연스럽게 이어집니다.
+- **모든 조각이 같은 x 좌표에 같은 테두리(side rail)를 그립니다.** 절반 너비인 퀘스트 카드는 바깥쪽 테두리만 그려서, 두 장이 나란히 놓여도 한 프레임처럼 보입니다.
+- **퀘스트 카드와 버튼은 각각 별도 이미지입니다.** README 이미지는 통째로만 링크를 걸 수 있기 때문입니다. 클릭할 수 있는 카드가 여섯 장이면 이미지도 여섯 장이 필요합니다.
+
+### 스크립트 대신 C# 생성기
+
+작성자는 손에 익은 언어로 만들고 싶었습니다. 그래서 생성기를 `tools/DungeonGen` 아래의 작은 **.NET 10 콘솔 앱**으로 짰습니다.
+
+```text
+Program.cs            -> entry point & args
+GitHub.cs             -> GraphQL + contribution calendar
+DungeonRenderer.cs    -> the dungeon map
+NightSky.cs           -> stars, moon, castle, airship
+InventoryRenderer.cs  -> languages + stats
+QuestRenderer.cs      -> pinned repo cards
+AboutRenderer.cs      -> character sheet (from about.json)
+ConnectRenderer.cs    -> link buttons
+ReadmeUpdater.cs      -> rewrites the README blocks + cache-busting
+```
+
+렌더러는 모두 C# 문자열을 이어 붙여 SVG를 만들어 낼 뿐입니다. 라이브러리도, 특별한 마법도 쓰지 않았습니다.
+
+### 기여 기록을 던전 타일로
+
+하루가 14px 타일 한 칸입니다.
+
+- **기여 0회:** 돌벽
+- **기여가 많을수록:** 더 밝은 바닥 타일
+- **가장 바빴던 날들:** 보물상자
+- **최고 기록을 세운 날:** 금색으로 빛나는 테두리
+- **영웅:** 현재 streak을 따라 걷다가 오늘 날짜에서 멈춤
+
+위에는 별, 초승달, 별똥별, 성, 던전 입구가 있는 밤하늘 띠를 덧붙여 실제 장소 같은 느낌을 살렸습니다.
+
+### 매일 저절로 갱신
+
+GitHub Action이 매일 생성기를 돌리고, 바뀐 내용이 있을 때만 커밋합니다.
+
+```yaml
+on:
+  schedule:
+    - cron: "17 6 * * *"   # daily
+  workflow_dispatch:         # manual "Run workflow" button
+  push:
+    paths: ["tools/DungeonGen/**"]
+
+# ...
+- run: >
+    dotnet run --project tools/DungeonGen -c Release --
+    ${{ github.repository_owner }}
+    --assets assets --html docs/index.html --readme README.md
+  env:
+    PROFILE_TOKEN: ${{ secrets.PROFILE_TOKEN || github.token }}
+```
+
+![GitHub Action run](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/h2frf59xbzft1wt07jlc.png)
+
+## 만든 순서
+
+1. **부팅 화면.** 작게 시작했습니다. `clipPath`의 너비를 한 글자씩 늘려 타이핑 애니메이션을 만들었습니다. 화면에 자기 이름이 타이핑되는 걸 본 순간 끝까지 만들겠다는 확신이 들었다고 합니다.
+2. **던전.** 기여 캘린더를 타일로 옮긴 뒤 횃불, 보물상자, 영웅, 스탯 박스를 차례로 얹었습니다.
+3. **탐험 페이지.** README에서는 hover가 안 되니 인터랙티브 버전을 `docs/index.html`로 따로 생성해 GitHub Pages로 띄우고, 던전 이미지에서 링크를 걸었습니다.
+4. **인벤토리와 퀘스트.** 언어, 스탯, 고정 저장소 카드를 붙였습니다.
+5. **캐릭터 시트와 파티 버튼.** 텍스트는 전부 `about.json`에 모아서, 코드를 건드리지 않고도 소개글이나 링크를 고칠 수 있게 했습니다.
+6. **밤하늘과 마무리.** 하늘을 그려 넣고 섹션마다 번호 구분선과 여백을 줬습니다. 처음에는 모든 게 빽빽하게 붙어 있어 답답해 보였기 때문입니다.
+
+## 삽질하며 배운 것들
+
+**숫자가 프로필과 달랐다.** GraphQL API는 토큰에 비공개 기여를 볼 권한이 있어야만 그 기여를 셉니다. 반면 GitHub 프로필 그래프는 '비공개 기여 표시'를 켜 두면 이미 이를 포함합니다. 그래서 생성기가 프로필 페이지와 같은 캘린더를 먼저 읽고, API는 예비 수단으로만 쓰도록 바꿨습니다.
+
+**언어 순위가 이상했다.** 코드 바이트 수로 언어를 줄 세우니 덩치 큰 저장소 하나가 결과를 다 차지했습니다. `commitContributionsByRepository`를 이용해 **올해 커밋 기준으로 가중치를 준 언어 순위**로 바꾸자, 실제로 많이 쓰는 언어가 제대로 드러났습니다.
+
+**오픈소스 기여가 보이지 않았다.** 작성자는 **GS-SystemAnalyzer/core**의 핵심 기여자이고 **metacall/core**에서는 C# 로더를 맡고 있지만, 두 저장소 모두 본인 소유가 아닙니다. 그래서 본인 소유가 아닌 고정 저장소에 대해서는 alias를 붙인 GraphQL `search` 쿼리를 한 번 날려 **자기가 올린 PR 수와 머지된 수**를 세고, CONTRIBUTOR 배지와 함께 카드에 보여 줍니다.
+
+**조직 하나가 토큰을 막자 실행 전체가 죽었다.** GraphQL은 `errors` 배열과 함께 일부 데이터만 돌려줄 때가 있습니다. 이제 생성기는 이런 오류를 경고로 남기고, 받은 데이터만으로 계속 진행합니다.
+
+**옆 테두리가 사라졌다.** 테두리를 glow 필터를 건 `<line>` 요소로 그렸는데, 완벽한 수직선은 **바운딩 박스 너비가 0**입니다. 필터 영역이 비어 버려 선이 아예 보이지 않았습니다. 3px짜리 `<rect>`로 바꿔 그리자 해결됐습니다.
+
+**"업데이트가 안 돼요!"** 사실은 업데이트가 되고 있었습니다. GitHub이 README 이미지를 공격적으로 캐시했을 뿐입니다. 이제 생성기는 SVG마다 해시를 URL에 붙입니다(`dungeon.svg?v=1a2b3c4d`). 이미지가 바뀌면 URL도 바뀌는 방식입니다. 확인할 때는 Ctrl+Shift+R 강력 새로고침도 쓸 만합니다.
+
+## 작성자가 얻은 것
+
+작성자는 그날 오후를 무기력하게 시작했지만, 끝날 무렵에는 돌아가는 프로젝트 하나와 무엇보다 **추진력(momentum)** 을 얻었습니다. 첫 조각을 완성하고 나니 그렇게 미루던 일들도 한결 가볍게 느껴졌다고 합니다.
+
+막혔을 때는 그냥 신나는 걸 하나 만들어 보는 게 가장 좋은 탈출구일 수 있다는 것이 작성자의 결론입니다. 작성자는 영감을 준 [George Kobaidze](https://dev.to/georgekobaidze)에게 감사를 전하면서, 이 글을 보고 직접 만든 사람이 있으면 댓글로 링크를 남겨 달라고 했습니다.
+
+생성기 소스는 [github.com/G00dS0ul/G00dS0ul](https://github.com/G00dS0ul/G00dS0ul)의 `tools/DungeonGen`에 있습니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

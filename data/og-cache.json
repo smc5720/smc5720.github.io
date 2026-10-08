@@ -831,6 +831,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/devteam/top-7-featured-dev-posts-of-the-week-1682": {
+    "ok": true,
+    "title": "Top 7 Featured DEV Posts of the Week",
+    "description": "Welcome to this week's Top 7, where the DEV editorial team handpicks their favorite posts from the...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F9x79okaevr3h8vgsnd8k.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-08"
+  },
   "https://dev.to/devteam/top-7-featured-dev-posts-of-the-week-18mk": {
     "ok": true,
     "title": "Top 7 Featured DEV Posts of the Week",
@@ -1182,6 +1190,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F79tl6zqq4x0zaplgo6t2.jpg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-10-06"
+  },
+  "https://dev.to/g00ds0ul/i-was-overwhelmed-so-i-turned-my-github-profile-into-a-roguelike-dungeon-17a8": {
+    "ok": true,
+    "title": "I Was Overwhelmed, So I Turned My GitHub Profile Into a Roguelike Dungeon",
+    "description": "It was a late afternoon. I came in tired and a bit down, with a long list of tasks and a pile of...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F6kyvcofukgzaqo0lhkbd.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-08"
   },
   "https://dev.to/gamya_m/ichiraku-ramen-a-cozy-japanese-restaurant-landing-page-3pb8": {
     "ok": true,
@@ -1934,6 +1950,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fuc75v5ty3hnp04jrkryj.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-03"
+  },
+  "https://dev.to/james_anderson_h/i-think-were-forgetting-how-to-be-bored-3pe5": {
+    "ok": true,
+    "title": "I Think We're Forgetting How to Be Bored",
+    "description": "You know the moment. You're waiting for the kettle, or the elevator, or a page to load, or a friend...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fstxw72m5gmecg3spnulh.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-08"
   },
   "https://dev.to/james_anderson_h/most-ai-agents-are-just-if-statements-in-a-trench-coat-3960": {
     "ok": true,
