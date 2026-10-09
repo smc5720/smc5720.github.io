@@ -1,0 +1,165 @@
+﻿---
+title: "새벽 3시 저혈당 경보가 울리기 전에: TabPFN으로 친구의 야간 저혈당을 예측한 NightGuard AI"
+description: "제1형 당뇨를 앓는 친구를 위해 한 개발자가 Prior Labs의 표 데이터 파운데이션 모델 TabPFN으로 야간 저혈당을 잠들기 전에 예측하는 로컬 앱 NightGuard AI를 만들었습니다. 90일치 연속혈당측정기(CGM) 기록만으로 클라우드 전송 없이 예측합니다."
+date: "2026-10-04"
+published_at: "2026-10-09"
+slug: "predicting-nocturnal-hypoglycemia-with-tabpfn"
+category: "news"
+tags: ["hf26challenge", "weekendchallenge", "devchallenge", "ai"]
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fraw.githubusercontent.com%2FEmmaSofiaDev%2Fnightguard-ai%2Fc95564ad4f0fc00fc0142ff2eee1ba9397931399%2Fcover.jpg"
+coverAlt: "Before the Alarm Screams at 3 AM: Predicting Liam's Nocturnal Hypoglycemia with Prior Labs TabPFN"
+source_id: "devto-4796805"
+source_url: "https://dev.to/emmasofia/before-the-alarm-screams-at-3-am-predicting-liams-nocturnal-hypoglycemia-with-prior-labs-tabpfn-25mn"
+source_title: "Before the Alarm Screams at 3 AM: Predicting Liam's Nocturnal Hypoglycemia with Prior Labs TabPFN"
+source_author: "Emma Sofia"
+source_published: "2026-10-04"
+---
+
+<LinkCard url="https://dev.to/emmasofia/before-the-alarm-screams-at-3-am-predicting-liams-nocturnal-hypoglycemia-with-prior-labs-tabpfn-25mn" author="Emma Sofia" date="2026-10-04" />
+
+## 개요
+
+Dev.to 개발자 Emma Sofia가 제1형 당뇨를 앓는 룸메이트 Liam Vance를 위해 **NightGuard AI**를 만들었습니다. 밤 10시 잠들기 전에 그날 저녁 수치를 입력하면 새벽에 저혈당이 올지 미리 알려 주는 앱입니다. Dev.to의 'Hacktoberfest Weekend Challenge: Build for a Friend' 출품작입니다.
+
+핵심 엔진은 Prior Labs가 개발한 표 데이터용 파운데이션 모델 **TabPFN**입니다. 작성자는 Liam의 90일치 연속혈당측정기(CGM) 기록만 가지고 하이퍼파라미터 튜닝 없이 ROC-AUC 0.938을 얻었다고 밝혔습니다. 모든 연산은 Liam의 컴퓨터 안에서만 돌아가고, 의료 데이터는 외부로 나가지 않습니다.
+
+## 본문
+
+### 경보는 늘 '이미 늦은' 뒤에 울린다
+
+![빨간 알람 시계](https://images.pexels.com/photos/15068318/pexels-photo-15068318.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Towfiqu barbhuiya](https://www.pexels.com/@towfiqu-barbhuiya) on [Pexels](https://www.pexels.com/photo/a-red-alarm-clock-on-an-orange-background-15068318/)*
+
+Liam은 중학생 때부터 제1형 당뇨를 앓아 왔습니다. 왼팔에 Dexcom G7 센서를 붙이고 다니는데, 이 센서는 5분마다 간질액 포도당을 재서 블루투스로 휴대폰에 보냅니다.
+
+작성자가 짚은 문제는 CGM이 **철저히 사후 대응형**이라는 점입니다. 혈당이 안전 하한선인 70mg/dL 밑으로 떨어진 뒤에야 경보가 울립니다. 경보에 깬 Liam은 이미 뇌에 포도당이 모자란 상태(신경당결핍)입니다. 식은땀을 흘리고 심박은 분당 135회까지 오르며, 손이 떨려 숟가락도 제대로 못 쥡니다. 그 상태로 부엌에 가서 탄수화물을 얼마나 먹을지 계산해야 합니다. 너무 적게 먹으면 발작 위험이 있고, 너무 많이 먹으면 혈당이 300mg/dL 넘게 튀어 다음 날 하루를 망칩니다.
+
+저녁 운동을 한 날 혈당이 46mg/dL까지 떨어져 둘이 새벽까지 깨어 있던 일이 있었습니다. 그날 Liam은 이렇게 말했다고 합니다.
+
+> "주사 맞고 탄수화물 세는 건 괜찮아. 진짜 지치는 건 매일 밤 스탠드를 끄면서, 자는 동안 내 몸이 날 배신할지 모른다는 거야."
+
+과거 CGM 기록을 AI에 넣어 보라는 제안에 Liam의 대답은 짧았습니다. **"데이터 유출."** 혈당, 인슐린 투여량, 식사, 운동 심박, 음주 기록은 가장 민감한 생체 정보라서 클라우드 LLM에 올릴 수 없다는 뜻입니다. 작성자는 LLM이 텍스트 토큰을 차례로 생성하는 모델이라 표 데이터에서 비선형 약동학적 지연이나 보정된 확률을 정확히 계산하지 못한다는 점도 함께 지적했습니다.
+
+### 취침 전 120mg/dL이 안전하지 않은 이유
+
+밤 10시에 혈당이 120mg/dL이고 추세 화살표가 평평(→)하면, 겉으로는 무난한 취침 전 수치입니다. 그런데 작성자는 그 밑에서 세 가지 요인이 동시에 작용할 수 있다고 설명합니다.
+
+- **잔여 인슐린(IOB, Insulin on Board):** 늦은 저녁 식사 때 맞은 인슐린이 2시간 반가량 더 작용합니다.
+- **근육의 지연된 포도당 흡수:** 저녁에 45분 조깅하면 근육 글리코겐이 바닥나고, 4~7시간 뒤 근육이 혈중 포도당을 강하게 끌어갑니다.
+- **간의 당 생성 억제:** 저녁에 맥주 한 잔만 마셔도 간이 글리코겐을 내놓지 못합니다.
+
+이 세 요인이 겹치면 새벽 3시 15분쯤 혈당이 48mg/dL까지 떨어질 수 있습니다. CGM은 현재 혈당의 변화율만 보기 때문에 이런 연결 고리를 잡지 못합니다. 선형 회귀로는 지수적으로 줄어드는 인슐린 작용과 지연된 글리코겐 보충을 함께 다루기 어렵습니다.
+
+데이터 양도 걸림돌이었습니다. Liam에게 있는 정리된 일일 기록은 **90일치, 즉 약 90행**뿐입니다. 이 정도 데이터로 XGBoost나 랜덤 포레스트를 학습시키면 과적합, 하이퍼파라미터 민감도, 보정되지 않은 확률이라는 문제에 부딪힙니다.
+
+### TabPFN: 학습하지 않고 문맥으로 추론한다
+
+TabPFN(Prior-Data Fitted Network)은 인과 그래프와 미분방정식으로 만든 수백만 개의 합성 데이터셋으로 사전 학습한 표 데이터 파운데이션 모델입니다. NightGuard는 Liam의 데이터로 경사하강법 학습을 따로 하지 않습니다. 90일치 기록을 '문맥(context)'으로, 오늘 밤 수치를 '질의 행'으로 트랜스포머에 한 번에 넣습니다. 이 방식을 **문맥 내 베이지안 추론(in-context Bayesian inference)**이라고 부릅니다.
+
+작성자에 따르면 일반 CPU에서 한 번의 순전파로 40밀리초 안에 결과가 나옵니다. 출력은 세 가지입니다.
+
+- 야간 저혈당(70mg/dL 미만) 발생 확률 (예: 98%)
+- 예상 최저 혈당 (예: 48.9mg/dL)
+- 예상 저혈당 시간대 (예: 새벽 2시 15분~4시 30분)
+
+작성자가 Liam의 90일 평가 데이터로 비교한 결과는 다음과 같습니다.
+
+| 모델 | 방식 | ROC-AUC | Log-Loss | 튜닝 부담 | 소규모 데이터 안정성 |
+| :--- | :--- | :---: | :---: | :---: | :---: |
+| **TabPFN** | 표 데이터 파운데이션 트랜스포머 | **0.938** | **0.241** | 없음 (사전 학습) | 매우 안정적 (문맥 내 추론) |
+| 랜덤 포레스트 | 배깅 앙상블 | 0.812 | 0.485 | 높음 | 보통 (이상치에 과적합) |
+| XGBoost | 그래디언트 부스팅 | 0.835 | 0.432 | 매우 높음 | 100행 미만에서 취약 |
+| 로지스틱 회귀 | 선형 기준 모델 | 0.741 | 0.579 | 정규화 탐색 | 운동 후 비선형 지연을 못 잡음 |
+
+작성자는 TabPFN이 잔여 인슐린과 운동 후 글리코겐 부족 사이의 비선형 상호작용을 잡아냈고, 모든 과정이 오프라인으로 돌아 Liam의 생체 데이터가 한 바이트도 방 밖으로 나가지 않았다고 강조했습니다.
+
+### 피곤한 밤 10시에 쓰는 화면
+
+프론트엔드는 **Next.js 16(App Router)**, TypeScript, 순수 CSS로 만들었습니다. 디자인은 Zed 코드 에디터에서 따온 초록색(`#00E599`)을 기조로 삼았습니다. 피곤한 상태에서 바로 판단해야 하는 화면이라 설명 문구를 최소화했다고 합니다.
+
+![NightGuard Cockpit Overview](https://raw.githubusercontent.com/EmmaSofiaDev/nightguard-ai/c95564ad4f0fc00fc0142ff2eee1ba9397931399/assets/nightguard_cockpit_overview.png)
+
+화면은 세 개의 세로 단으로 구성됩니다.
+
+- **왼쪽 입력 단:** 취침 전 혈당, 잔여 인슐린, 간식 탄수화물(g), 오후 6시 이후 운동 시간, 음주량, CGM 추세 화살표(↑↑, ↗, →, ↘, ↓↓)를 슬라이더와 버튼으로 입력합니다. Web Audio API로 클릭음을 냅니다. 입력란 바로 아래에는 90일 기록에서 뽑은 요인별 가중치가 `Active Insulin (2.8U) +45%`처럼 표시됩니다.
+- **가운데 3D 구체:** WebGL 파티클 구체가 위험도를 시각적으로 보여 줍니다. 안전할 때는 초록빛으로 천천히 숨 쉬듯 빛나고, 저혈당 위험이 65%를 넘으면 붉은색으로 바뀌며 요동칩니다.
+- **오른쪽 예측 단:** 저혈당 확률 게이지, 예상 최저 혈당, 밤 10시부터 오전 6시까지의 예상 혈당 곡선(70mg/dL 위험선 표시), 그리고 '복합 탄수화물 29g을 지방과 함께 섭취', '펌프 기저 인슐린 3.5시간 동안 30% 감량' 같은 구체적인 대응 지침을 보여 줍니다.
+
+화면 상단에는 Dexcom G7 센서의 블루투스 LE 데이터를 받아 심박, 심박변이도(HRV), 산소포화도를 띄우는 심전도 스트립이 있습니다. **▶ Replay Night** 버튼을 누르면 밤 10시부터 오전 6시까지 혈당 곡선을 한 시간씩 재생하면서, 혈당이 언제 떨어지고 대응 조치가 이를 어떻게 막는지 보여 줍니다.
+
+![NightGuard Crash Simulation](https://raw.githubusercontent.com/EmmaSofiaDev/nightguard-ai/c95564ad4f0fc00fc0142ff2eee1ba9397931399/assets/nightguard_crash_simulation.png)
+
+안전한 상태에서는 화면 전체가 초록색 안정 모드로 바뀝니다.
+
+![NightGuard Safe State](https://raw.githubusercontent.com/EmmaSofiaDev/nightguard-ai/c95564ad4f0fc00fc0142ff2eee1ba9397931399/assets/nightguard_safe_plateau.png)
+
+### 실제로 써 본 토요일 밤
+
+작성자는 실제 사례도 소개했습니다. 토요일 저녁 Liam은 약 13km(8마일) 트레일 러닝을 마치고 오후 7시쯤 귀가했습니다. 저녁으로 통밀 파스타와 닭가슴살 구이를 먹었고, 9시 반쯤 영화를 보며 흑맥주를 나눠 마셨습니다.
+
+밤 10시 15분, Dexcom G7에 찍힌 수치는 **114mg/dL, 완만한 하강 화살표(↘)**였습니다. 평소라면 그냥 잠들었을 수치입니다. NightGuard에 입력한 값은 다음과 같습니다.
+
+- 취침 전 혈당: 114mg/dL
+- 잔여 인슐린: 2.6단위
+- 저녁 운동: 55분
+- 음주: 1잔
+- 추세: 하강(↘)
+
+TabPFN은 35밀리초 만에 결과를 냈습니다.
+
+```plaintext
+CRITICAL NOCTURNAL CRASH IMMINENT: 96% PROBABILITY
+Predicted Nadir: 47.4 mg/dL
+Crash Window: 02:30 AM - 04:30 AM
+Primary Drivers: Active IOB (2.6U) + Delayed Exercise Glycogen Debt
+
+Prescription:
+1. Ingest 26g complex carbohydrates with peanut butter immediately.
+2. Set insulin pump temporary basal rate to -30% for 3.5 hours.
+3. Keep fast-acting glucose tablets bedside.
+```
+
+Liam은 잡곡빵 두 쪽에 땅콩버터 두 스푼을 발라 먹고, 인슐린 펌프의 임시 기저량을 조정한 뒤 잠자리에 들었습니다.
+
+그날 밤 Liam은 8시간 20분 동안 한 번도 깨지 않았고 경보도 울리지 않았습니다. 다음 날 아침 확인한 야간 혈당은 밤새 94~108mg/dL 사이에서 완만하게 움직였고, 최저치는 새벽 4시 15분의 91mg/dL였습니다. Liam은 이렇게 말했다고 합니다.
+
+> "당뇨와 함께한 12년 동안, 깨고 나서 공포에 떠는 대신 잠들기 전에 마음을 놓게 해 준 소프트웨어는 이번이 처음이야."
+
+### 구조와 실행 방법
+
+NightGuard AI는 MIT 라이선스로 [GitHub](https://github.com/EmmaSofiaDev/nightguard-ai)에 공개되어 있습니다. 크게 두 부분으로 나뉩니다.
+
+- **`backend/`**: FastAPI 서버와 TabPFN 추론 엔진. `/api/predict`, `/api/history`, `/api/health` 엔드포인트를 제공하고, Liam의 90일치 CGM 데이터를 생성하는 합성 데이터 생성기(`synthetic_data.py`)도 들어 있습니다.
+- **`web/`**: Next.js 16 대시보드. 3D 구체 컴포넌트와 Web Audio 피드백 유틸리티가 포함됩니다.
+
+이 밖에 멀티 스테이지 `Dockerfile`, Render 배포용 `render.yaml`, 한 번에 실행하는 `run.py`가 있습니다.
+
+프론트엔드는 아래처럼 실행합니다.
+
+```bash
+git clone https://github.com/EmmaSofiaDev/nightguard-ai.git
+cd nightguard-ai/web
+npm install
+npm run dev
+```
+
+브라우저에서 `http://localhost:3000`을 열면 됩니다. 백엔드는 저장소 루트에서 실행합니다.
+
+```bash
+pip install -r requirements.txt
+python run.py
+```
+
+REST API는 `http://localhost:8000`에서 뜨고, `/docs`에서 OpenAPI 문서를 볼 수 있습니다. Render 대시보드에서 **New + Blueprint**를 고르고 저장소를 연결하면 빌드, 헬스 체크, HTTPS 엔드포인트까지 자동으로 구성됩니다.
+
+작성자는 이 프로젝트를 챌린지의 'Best Use of TabPFN' 부문에 주 출품작으로, 'Best Use of Render' 부문에 보조 출품작으로 냈습니다.
+
+### 친구를 위해 코드를 쓴다는 것
+
+작성자는 친구를 위한 소프트웨어를 만들다 보니 코드를 대하는 태도가 달라졌다고 말합니다. 지표나 기능 개수보다 '이게 Liam이 내일 아침 무사히 깨어나는 데 도움이 되는가'가 유일한 기준이 됐다는 것입니다.
+
+작성자는 TabPFN 같은 표 데이터 파운데이션 모델이 학술적 호기심에 그치지 않는다고 봅니다. 의료 기록이 100행도 안 되는 개인 건강 데이터 환경에서도, 개인정보를 지키면서 복잡한 하이퍼파라미터 탐색 없이 쓸 만한 베이지안 예측을 낼 수 있다는 것입니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

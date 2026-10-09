@@ -1031,6 +1031,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-29"
   },
+  "https://dev.to/emmasofia/before-the-alarm-screams-at-3-am-predicting-liams-nocturnal-hypoglycemia-with-prior-labs-tabpfn-25mn": {
+    "ok": true,
+    "title": "Before the Alarm Screams at 3 AM: Predicting Liam's Nocturnal Hypoglycemia with Prior Labs TabPFN",
+    "description": "How Prior Labs TabPFN tabular foundation model predicts nocturnal hypoglycemic crashes from CGM logs at 10 PM with zero cloud data leaks.",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fraw.githubusercontent.com%2FEmmaSofiaDev%2Fnightguard-ai%2Fc95564ad4f0fc00fc0142ff2eee1ba9397931399%2Fcover.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-09"
+  },
   "https://dev.to/entire/never-forget-to-enter-the-stern-grove-lottery-again-31i5": {
     "ok": true,
     "title": "Never forget to enter the Stern Grove lottery again!",
@@ -2799,6 +2807,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/sizzlebop/turn-your-github-contribution-graph-into-an-ascii-city-ic5": {
+    "ok": true,
+    "title": "Turn Your GitHub Contribution Graph Into an ASCII City",
+    "description": "I decided that a normal GitHub contribution graph is not enough.  So I turned mine into a city.  And...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Feulsjeuse6wn9bho0g8d.gif",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-09"
+  },
   "https://dev.to/smtahosin/pointers-arent-arrows-how-c-and-c-actually-talk-to-hardware-9d6": {
     "ok": true,
     "title": "Pointers Aren't Arrows. How C and C++ Actually Talk to Hardware.",
@@ -2894,6 +2910,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ft7ukzmu9bsqznsk6w54g.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-11"
+  },
+  "https://dev.to/sylwia-lask/every-software-developer-has-blamed-3a1o": {
+    "ok": true,
+    "title": "Every Software Developer Has Blamed…",
+    "description": "I got back from FrontKon in Prague today (well, technically yesterday, since I'm publishing this...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ftj0rkm6ei1587n4m5kh3.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-09"
   },
   "https://dev.to/sylwia-lask/it-was-just-a-patch-update-what-could-possibly-go-wrong-3be3": {
     "ok": true,
