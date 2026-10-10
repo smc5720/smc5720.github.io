@@ -5,7 +5,7 @@ description: "MLH 개발자 Swift가 화제의 결정 모델 Jev와 Gemini Flash
 date: "2026-10-08"
 published_at: "2026-10-10"
 category: "news"
-tags: []
+tags: ["ai","llm","google","opensource","news"]
 cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fvvnv8n9pu6407t272avj.png"
 coverAlt: "I got Jev to zero mistakes. I'm still using Flash-Lite."
 source_id: "devto-4819778"
@@ -95,7 +95,7 @@ Flash-Lite는 거짓 양성이 0이었습니다. 과잉 신중이 두 번 있었
 ![make mistakes mug](https://images.pexels.com/photos/15223238/pexels-photo-15223238.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
 *Photo by [Roman Koval](https://www.pexels.com/@roman-koval) on [Pexels](https://www.pexels.com/photo/make-mistakes-mug-15223238/)*
 
-Jev는 글자 그대로 읽습니다. TypeSafe 공식 문서에도 Jev는 의도한 질문이 아니라 적힌 질문에 답한다고 나와 있습니다. 그래서 저자는 질문을 다시 썼습니다. 채팅 모델에서 잘 통하던 예시(worked examples)가 효과를 낼 거라 예상했지만 그렇지 않았습니다. 효과가 있었던 건 문장 하나였습니다.
+Jev는 글자 그대로 읽습니다. TypeSafe 공식 문서에도 Jev는 의도한 질문이 아니라 적힌 질문에 답한다고 나와 있습니다. 저자는 질문 자체를 다시 썼습니다. 채팅 모델에서 잘 통하던 예시(worked examples)가 효과를 낼 거라 예상했지만 그렇지 않았습니다. 효과가 있었던 건 문장 하나였습니다.
 
 ![Imagine the checker runs and passes. Could the check still be false? If yes, that checker is wrong: defer.](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/04uoxsgx2f8gqfwtihn6.png)
 
@@ -150,7 +150,7 @@ Jev는 정밀한 기준을 글자 그대로 따르기 때문에 기준을 고치
 
 첫 발견은 두 모델과 무관한 것이었습니다. Flash-Lite는 정답지에 '함수 없음'으로 표시된 항목에서도 자꾸 함수를 호출했고, 저자는 그때마다 오답 처리했습니다. 네다섯 번째쯤 직접 항목을 읽어 보니 "2020년 월드시리즈 우승팀은?"이라는 질문에 후보 함수가 `get_champion(event, year)` 하나였습니다. 함수가 질문에 답할 수 있는데 정답지는 아니라고 하고 있었습니다.
 
-그래서 표본의 '함수 없음' 항목을 모두 확인했더니 같은 경우가 7개였습니다. Flash-Lite는 정답지와 다른 답을 내는 방식으로 7개를 모두 짚어 냈습니다. 저자는 이 항목을 빼고 채점했고, 목록은 저장소에 공개했습니다. 실제 업무를 맡은 저렴한 모델이 공개 벤치마크의 버그를 찾아낸 셈입니다.
+표본의 '함수 없음' 항목을 전부 확인해 보니 같은 경우가 7개였습니다. Flash-Lite는 정답지와 다른 답을 내는 방식으로 7개를 모두 짚어 냈습니다. 저자는 이 항목을 빼고 채점했고, 목록은 저장소에 공개했습니다. 실제 업무를 맡은 저렴한 모델이 공개 벤치마크의 버그를 찾아낸 셈입니다.
 
 ![BFCL: Jev 94.6% label accuracy, 1.1% false positives, no arguments, 261 ms, $0.025 per 1,000. Flash-Lite 96.9%, 4.3%, writes arguments 93.3%, 800 ms, $0.257. Jev + Flash-Lite 96.4%, 1.1%, 92.0%, 689 ms, $0.101.](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/4y9rrvl3bcdirvovla36.png)
 
