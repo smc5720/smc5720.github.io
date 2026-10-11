@@ -1,0 +1,251 @@
+﻿---
+title: "Bash는 프로그래밍 언어가 아니다, 텍스트 치환 엔진이다"
+description: "Bash에서 공백 하나로 스크립트가 깨지는 이유를 '텍스트 치환 엔진'이라는 관점으로 설명합니다. 확장 파이프라인, 서브셸에서 변수가 사라지는 문제, 리다이렉션 순서, strict mode와 trap 패턴까지 다룹니다."
+date: "2026-10-07"
+published_at: "2026-10-11"
+category: "news"
+tags: ["bash", "linux", "devops", "beginners"]
+slug: "bash-text-substitution-engine"
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fiili.io%2FnMqqPIV.png"
+coverAlt: "Bash Isn't a Programming Language. It's a Text Substitution Engine."
+source_id: "devto-4730140"
+source_url: "https://dev.to/smtahosin/bash-isnt-a-programming-language-its-a-text-substitution-engine-5eml"
+source_title: "Bash Isn't a Programming Language. It's a Text Substitution Engine."
+source_author: "S M Tahosin"
+source_published: "2026-10-07"
+---
+
+<LinkCard url="https://dev.to/smtahosin/bash-isnt-a-programming-language-its-a-text-substitution-engine-5eml" author="S M Tahosin" date="2026-10-07" />
+
+## 개요
+
+터미널에 `x = 10`을 입력하면 Bash는 `x: command not found`를 출력합니다. Python이나 JavaScript에 익숙한 개발자라면 황당한 에러입니다. 변수에 10을 넣으려 했을 뿐인데 Bash는 `x`라는 프로그램을 찾아 실행하려 했기 때문입니다.
+
+개발자 S M Tahosin은 Dev.to에 올린 글에서 이런 동작을 하나의 관점으로 정리했습니다. **Bash는 우리가 생각하는 프로그래밍 언어가 아니라, 텍스트를 치환해 유닉스 프로세스를 이어 붙이는 매크로 엔진**이라는 것입니다. 이 관점만 잡으면 공백 규칙, 따옴표, `2>&1` 같은 이상한 문법이 모두 설명된다고 말합니다.
+
+## 본문
+
+### 공백이 모든 것을 바꾸는 이유
+
+Python 파서는 `x = 10`을 보고 식별자, 대입 연산자, 숫자 리터럴로 나눕니다. 공백은 거의 장식에 가깝습니다. Bash는 다릅니다. 입력한 모든 줄을 `명령어 인자1 인자2 ...` 형태로 보고, 먼저 공백을 기준으로 단어를 쪼갭니다.
+
+![공백이 Bash 스크립트를 깨뜨리는 이유](https://i.imgur.com/bmqgTMP.png)
+
+그래서 `x = 10`은 세 단어가 됩니다.
+
+1. `x` — 명령어 이름
+2. `=` — 첫 번째 인자
+3. `10` — 두 번째 인자
+
+Bash는 `$PATH`에서 `x`라는 실행 파일을 찾고, 없으니 에러를 냅니다. 반대로 `x=10`처럼 공백을 빼면 하나의 토큰이 됩니다. Bash는 이 토큰이 `NAME=VALUE` 패턴과 맞는지 확인하고, 맞으면 외부 명령이 아니라 내부 변수 대입으로 처리합니다. 프로세스를 띄우지 않고 내부 심볼 테이블에 문자열 `"10"`을 저장합니다.
+
+조건문의 대괄호도 같은 규칙을 따릅니다. `if [$x == 10]`이 실패하는 이유는 `[`가 문법이 아니라 **실제 명령어**이기 때문입니다. 과거 유닉스에서는 `/bin/[`에 있었고, 지금은 속도를 위해 셸에 내장돼 있습니다. 명령어이니 인자와 공백으로 구분해야 합니다.
+
+```bash
+if [ "$x" == 10 ]; then  # 정상 동작
+```
+
+여기서 `[`가 프로그램이고, `"$x"`, `==`, `10`, `]`가 차례로 인자입니다. 공백을 하나라도 빼먹으면 Bash는 `[10` 같은 이름의 명령을 실행하려 듭니다.
+
+### Enter를 누른 뒤 벌어지는 4단계
+
+Bash는 명령을 곧바로 실행하지 않습니다. 여러 번에 걸쳐 텍스트를 변환한 다음에야 실행합니다.
+
+![Enter를 눌렀을 때 실제로 일어나는 일](https://i.imgur.com/l28ZDxK.png)
+
+**1단계: 토큰화.** 따옴표 밖의 공백, 탭, 제어 연산자(`;`, `&`, `|`)를 기준으로 입력을 토큰으로 나눕니다.
+
+**2단계: 확장.** 정해진 순서대로 텍스트를 바꿉니다.
+
+1. 중괄호 확장: `echo file{1,2}.txt` → `file1.txt file2.txt`
+2. 틸드 확장: `~/docs` → `/home/user/docs`
+3. 매개변수·변수 확장: `$USER` → `smtahosin`
+4. 명령 치환: `$(date +%Y)`를 실행해 결과를 그 자리에 붙여 넣음
+5. 산술 확장: `$((2 + 2))` → `4`
+6. 단어 분리: 따옴표 없이 확장된 값에 공백이 있으면 여러 인자로 쪼갬
+7. 경로명 확장(글로빙): `*.png`를 실제 파일 목록으로 바꿈
+
+**3단계: 리다이렉션 설정.** `>`, `<`, `>>`, `2>&1`, `|` 같은 연산자를 찾아 프로그램이 실행되기 전에 파일 디스크립터를 조정합니다.
+
+**4단계: 실행.** `cd`, `echo`, `export` 같은 내장 명령은 셸 안에서 바로 처리합니다. `git`, `python`, `curl` 같은 외부 프로그램은 `fork()`로 자식 프로세스를 만들고 `execve()`로 바이너리를 올립니다.
+
+저자가 강조하는 핵심은 이것입니다. **실행되는 프로그램은 원래 스크립트를 보지 못합니다. Bash가 치환을 모두 끝낸 최종 텍스트만 받습니다.**
+
+`grep $PATTERN $FILE`에서 `$PATTERN`에 공백이 있으면 2단계의 단어 분리에서 쪼개집니다. `grep`은 인자를 두 개가 아니라 세 개 받고, 입력을 전혀 다르게 해석합니다. `"$VAR"`처럼 큰따옴표로 감싸야 하는 이유가 여기 있습니다. 큰따옴표는 단어 분리와 글로빙을 꺼서 문자열을 그대로 지켜 줍니다.
+
+![프로그래밍 코드 화면](https://images.pexels.com/photos/1102797/pexels-photo-1102797.png?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Myburgh Roux](https://www.pexels.com/photo/programming-codes-screengrab-1102797/) on [Pexels](https://www.pexels.com/photo/programming-codes-screengrab-1102797/)*
+
+### 파이프 뒤에서 변수가 사라지는 문제
+
+셸 스크립트를 짜 본 사람이라면 한 번쯤 겪는 버그가 있습니다.
+
+```bash
+#!/usr/bin/env bash
+
+total=0
+
+cat sales.txt | while read line; do
+    ((total++))
+done
+
+echo "Final Total: $total"
+```
+
+50줄짜리 파일이면 `Final Total: 50`이 나와야 하지만 결과는 `Final Total: 0`입니다. 루프 안에서 `echo $total`을 찍어 보면 1부터 50까지 잘 올라가는데, 루프가 끝나면 다시 0이 됩니다.
+
+![서브셸 함정: 파이프에서 변수가 사라지는 이유](https://i.imgur.com/9oANUZJ.png)
+
+원인은 프로세스 격리입니다. 파이프(`|`)는 한 프로세스의 출력을 다른 프로세스의 입력으로 연결합니다. 양쪽이 동시에 돌아야 데이터를 흘려보낼 수 있으니, **Bash는 파이프라인의 각 부분을 별도 서브셸에서 실행**합니다.
+
+1. 메인 스크립트(PID 1001)의 메모리에 `total=0`이 있습니다.
+2. 파이프를 만나면 `while` 루프를 돌릴 자식 서브셸(PID 1002)을 띄웁니다.
+3. 자식은 부모 메모리의 *복사본*을 받습니다. 그 안에서 `total`이 50까지 올라갑니다.
+4. 파일 끝에 도달하면 루프가 끝납니다.
+5. 자식 서브셸이 종료되고, 운영체제가 PID 1002의 메모리를 통째로 회수합니다.
+6. 부모(PID 1001)로 돌아오지만, 부모 메모리는 건드린 적이 없으니 `total`은 여전히 0입니다.
+
+자식 프로세스는 부모의 환경 변수를 물려받을 수는 있어도 **부모의 메모리를 바꿀 수는 없습니다.**
+
+해결책은 두 가지입니다. 저자가 권하는 첫 번째 방법은 프로세스 치환입니다. 루프로 파이프를 흘려보내는 대신 아래쪽에서 데이터를 넣어 줍니다.
+
+```bash
+#!/usr/bin/env bash
+
+total=0
+
+while read -r line; do
+    ((total++))
+done < <(cat sales.txt)
+
+echo "Final Total: $total"  # 50 출력
+```
+
+루프가 부모 셸에서 돌기 때문에 변수가 유지됩니다.
+
+두 번째는 Bash 4.2 이상에서 쓸 수 있는 `lastpipe` 옵션입니다. 파이프라인의 마지막 명령을 서브셸이 아닌 현재 프로세스에서 실행하게 합니다.
+
+```bash
+#!/usr/bin/env bash
+shopt -s lastpipe
+
+total=0
+cat sales.txt | while read -r line; do
+    ((total++))
+done
+
+echo "Final Total: $total"  # 50 출력
+```
+
+다만 대화형 셸에서는 작업 제어(job control) 때문에 `set +m`을 함께 써야 동작합니다. 스크립트 안에서는 별도 설정 없이 됩니다.
+
+### `2>&1`은 왜 순서가 중요할까
+
+`my_script.sh > output.log 2>&1`은 보통 "표준 출력과 에러를 모두 파일로 보낸다"고만 설명합니다. 그런데 순서를 바꿔 `2>&1 > output.log`로 쓰면 에러가 여전히 터미널에 찍힙니다.
+
+![2>&1 순서가 중요한 이유](https://i.imgur.com/yZ9pCKm.png)
+
+유닉스 프로세스는 기본으로 세 개의 파일 디스크립터(FD)를 갖고 시작합니다.
+
+| 파일 디스크립터 | 이름 | 기본 대상 |
+|---|---|---|
+| `0` | `stdin` | 키보드 입력 |
+| `1` | `stdout` | 터미널 화면 |
+| `2` | `stderr` | 터미널 화면 |
+
+FD는 커널 안에 있는 작은 포인터 테이블이라고 생각하면 됩니다. Bash는 리다이렉션을 **엄격하게 왼쪽에서 오른쪽으로** 처리합니다.
+
+**올바른 순서 `> output.log 2>&1`**
+
+1. `> output.log`(`1> output.log`의 줄임)로 FD 1이 `output.log`를 가리킵니다.
+2. `2>&1`은 "FD 1의 포인터를 FD 2에 복사하라"는 뜻입니다. `&`는 "1이라는 이름의 파일이 아니라 파일 디스크립터"라는 표시입니다.
+3. FD 1이 이미 파일을 가리키고 있으니 FD 2도 파일을 가리킵니다.
+4. 표준 출력과 에러가 모두 파일에 기록됩니다.
+
+**잘못된 순서 `2>&1 > output.log`**
+
+1. `2>&1`이 먼저 실행됩니다. 이 시점에 FD 1은 아직 **터미널**을 가리키므로 FD 2도 터미널을 가리킵니다.
+2. 그다음 `> output.log`로 FD 1만 파일로 바뀝니다.
+3. 결국 표준 출력만 파일로 가고, 에러는 계속 터미널로 나갑니다.
+
+Bash 4 이상에서는 `my_script.sh &> output.log`라는 짧은 문법으로 두 출력을 한 번에 보낼 수 있습니다.
+
+### Strict mode로 조용한 사고 막기
+
+저자는 Bash의 기본 동작이 1989년의 대화형 편의성에 맞춰져 있지, 2026년의 운영 자동화에 맞춰져 있지 않다고 지적합니다. 아래 예시가 그 위험을 보여 줍니다.
+
+```bash
+#!/bin/bash
+
+# 임시 배포 폴더 정리
+TEMP_DIR="/tmp/deploy_cache"
+
+# 변수 이름에 오타가 있다고 가정
+rm -rf "$TEM_DIR/*"
+```
+
+`$TEM_DIR`은 정의되지 않은 변수지만 Bash는 에러를 내지 않습니다. 빈 문자열로 확장해 `rm -rf "/*"`를 만들어 버립니다. 운영 서버의 루트 디렉터리를 지우는 명령이 됩니다.
+
+저자는 모든 스크립트 맨 위에 다음 한 줄을 넣으라고 권합니다.
+
+```bash
+set -Eeuo pipefail
+```
+
+![Strict mode 안전장치](https://i.imgur.com/eK0DkjB.png)
+
+각 옵션이 하는 일은 이렇습니다.
+
+- **`set -e` (errexit)**: 명령이 0이 아닌 종료 코드를 반환하면 스크립트를 즉시 멈춥니다. DB 마이그레이션이 실패했는데 망가진 앱을 띄우려 드는 연쇄 실패를 막습니다.
+- **`set -u` (nounset)**: 정의되지 않은 변수를 치명적 에러로 처리합니다. `$TEM_DIR` 오타가 있으면 `bash: TEM_DIR: unbound variable`을 내고 멈추므로 위험한 명령이 실행되지 않습니다.
+- **`set -o pipefail`**: `dump_database | gzip > backup.sql.gz`에서 `dump_database`가 메모리 부족으로 죽어도, `gzip`이 빈 입력을 정상 압축하면 Bash는 종료 코드 0을 돌려줍니다. CI/CD는 백업이 성공했다고 판단하지만 실제 파일은 비어 있습니다. 이 옵션을 켜면 파이프라인 안에서 하나라도 실패할 경우 전체가 실패로 처리되고, 마지막으로 실패한 프로그램의 종료 코드가 남습니다.
+- **`set -E` (errtrace)**: `ERR` trap을 함수, 명령 치환, 서브셸에도 물려줍니다. 이 옵션이 없으면 함수 안에서 난 에러가 정리 핸들러를 건너뛸 수 있습니다.
+
+### trap으로 정리 작업 보장하기
+
+저자는 아마추어 스크립트와 운영용 자동화를 가르는 차이로 '실패했을 때의 정리'를 꼽습니다. `/tmp`에 임시 파일을 만들었는데 사용자가 `Ctrl+C`를 누르거나 네트워크 호출이 타임아웃 나면, 파일은 디스크에 그대로 남습니다. Bash 내장 `trap`으로 이 문제를 해결할 수 있습니다.
+
+```bash
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+# 안전한 임시 디렉터리 생성
+SCRATCH_DIR=$(mktemp -d)
+
+# 정리 핸들러 정의
+cleanup() {
+    local exit_code=$?
+    echo "Cleaning up scratch directory: $SCRATCH_DIR"
+    rm -rf "$SCRATCH_DIR"
+    exit "$exit_code"
+}
+
+# EXIT, INT(Ctrl+C), TERM(kill) 시그널을 잡음
+trap cleanup EXIT INT TERM
+
+echo "Doing heavy work in $SCRATCH_DIR..."
+# 여기서 작업 수행
+# 중간에 명령이 실패해도 cleanup 함수는 실행됨
+```
+
+정상 종료든, 치명적 에러든, 종료 시그널이든 `EXIT` trap은 항상 실행됩니다. 저자는 이를 Bash판 `try...finally`라고 표현합니다.
+
+### 한눈에 보는 정리표
+
+| 습관 / 함정 | 실제로 일어나는 일 | 해결 방법 |
+|---|---|---|
+| `x = 10` | `=`, `10`을 인자로 `x`라는 프로그램 실행 | `x=10` (`=` 주변 공백 제거) |
+| `[ $val == 1 ]` | `$val`이 비었거나 공백을 포함하면 실패 | `[[ "$val" == 1 ]]` (이중 대괄호와 따옴표) |
+| 파이프로 `while read` 루프에 입력 | 루프가 서브셸에서 돌아 변수 변경이 사라짐 | `while read line; do ... done < <(cmd)` |
+| `rm -rf $DIR` | 공백이 있으면 단어 분리, 비어 있으면 `/` 삭제 위험 | `rm -rf "${DIR:?Variable DIR is required}"` |
+| `cmd 2>&1 > file.log` | 리다이렉션 전에 FD 1을 복사해 에러가 화면에 남음 | `cmd > file.log 2>&1` 또는 `cmd &> file.log` |
+| 기본 실행 모드 | 에러와 오타가 있어도 조용히 계속 진행 | 두 번째 줄에 `set -Eeuo pipefail` 추가 |
+| 임시 파일 수동 삭제 | 스크립트가 강제 종료되면 파일이 남음 | `trap cleanup EXIT INT TERM` 사용 |
+
+### 마치며
+
+저자는 Bash를 Dockerfile이나 CI가 깨질 때만 마지못해 들여다보는 골칫거리로 여기는 시선을 짚습니다. 객체지향 언어처럼 다루기를 그만두고, 시스템 프로세스를 조율하려고 만든 고속 문자열 치환 엔진으로 받아들이면 마찰이 사라진다는 것이 글의 결론입니다. 공백을 어디에 둘지 더는 추측하지 않게 되고, 따옴표가 왜 필요한지 이해하게 되며, 운영 환경에서 조용히 깨지는 대신 제대로 실패하고 정리하는 스크립트를 쓸 수 있다고 말합니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

@@ -1,0 +1,289 @@
+﻿---
+title: "타입스크립트로 짰는데 왜 프로덕션에서 터질까 (Why Your TypeScript Code Still Crashes in Production)"
+description: "타입은 런타임에 남지 않습니다. 타입 소거, 구조적 타이핑, unknown과 never, 판별 유니온, satisfies까지 다섯 가지 개념으로 타입스크립트가 실제로 동작하는 방식을 정리합니다."
+date: "2026-10-06"
+published_at: "2026-10-11"
+category: "news"
+slug: "why-typescript-code-still-crashes-in-production"
+tags: ["typescript", "javascript", "beginners", "discuss"]
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fiili.io%2FnMqdhbt.png"
+coverAlt: "Why Your TypeScript Code Still Crashes in Production"
+source_id: "devto-4729395"
+source_url: "https://dev.to/smtahosin/why-your-typescript-code-still-crashes-in-production-2bf4"
+source_title: "Why Your TypeScript Code Still Crashes in Production"
+source_author: "S M Tahosin"
+source_published: "2026-10-06"
+---
+
+<LinkCard url="https://dev.to/smtahosin/why-your-typescript-code-still-crashes-in-production-2bf4" author="S M Tahosin" date="2026-10-06" />
+
+## 개요
+
+오후 내내 프로젝트에 타입을 붙였다고 해 봅시다. 변수마다 인터페이스를 달고, 함수마다 반환 타입을 명시했습니다. 에디터에 빨간 밑줄은 하나도 없습니다. 그런데 배포하고 20분 뒤, 에러 트래커에 이런 알림이 뜹니다.
+
+```plaintext
+TypeError: Cannot read properties of undefined (reading 'toUpperCase')
+```
+
+타입스크립트를 쓰면 이런 에러는 안 나야 하는 것 아니었을까요? Dev.to 작성자 S M Tahosin은 문제가 코드보다 **멘탈 모델**에 있는 경우가 대부분이라고 말합니다. 많은 입문자가 타입스크립트를 "자바스크립트에 Java나 C#을 얹은 것"으로 생각하지만, 실제 동작 방식은 전혀 다릅니다. 작성자는 이를 다섯 가지 개념으로 나눠 설명합니다.
+
+## 타입은 실행 시점에 사라진다
+
+가장 중요한 사실부터 짚고 넘어갑니다. **코드가 실행될 때 타입스크립트는 존재하지 않습니다.**
+
+`tsc`는 두 가지 일을 따로 합니다. 먼저 타입 에러를 검사하고, 그다음 `type`, `interface`, 타입 표기를 모두 지운 뒤 순수 자바스크립트를 내놓습니다. 공들여 설계한 인터페이스도, 제네릭 제약도 컴파일이 끝나면 흔적이 남지 않습니다. Node.js든 크롬 V8 엔진이든 실제로 돌아가는 건 자바스크립트이고, 런타임은 개발자가 어떤 타입을 썼는지 전혀 모릅니다.
+
+![Type Erasure: The Phantom Type System](https://i.imgur.com/y25EVqM.png)
+
+### 입문자가 자주 빠지는 함정
+
+타입이 런타임에도 남아 있다고 생각하면 이런 코드가 나옵니다.
+
+```typescript
+interface User {
+  id: number;
+  name: string;
+}
+
+function processResponse(data: unknown) {
+  // ❌ RUNTIME ERROR: 'User' only refers to a type, 
+  // but is being used as a value here.
+  if (data instanceof User) {
+    console.log(data.name);
+  }
+}
+```
+
+자바스크립트의 `instanceof`는 메모리에 있는 실제 객체의 프로토타입을 확인합니다. 그런데 `User`는 컴파일 과정에서 지워졌으니, 런타임 입장에서 `instanceof User`는 말이 안 되는 코드입니다.
+
+### 외부 데이터가 앱을 무너뜨리는 이유
+
+같은 원리로 외부에서 들어온 데이터도 앱을 터뜨립니다.
+
+```typescript
+interface ApiResponse {
+  username: string;
+}
+
+// You tell TypeScript: "Trust me, the API returns an ApiResponse"
+const response = await fetch('/api/user');
+const user = (await response.json()) as ApiResponse;
+
+// If the backend sent { error: "User not found" }, this explodes!
+console.log(user.username.toUpperCase()); 
+```
+
+타입스크립트는 컴파일할 때 개발자가 단 타입을 그대로 믿었을 뿐입니다. 네트워크로 무엇이 들어오는지까지 감시하지는 못합니다. 백엔드가 `null`이나 `{ error: 500 }`을 보내면 코드는 런타임에 그대로 죽습니다.
+
+작성자가 제시하는 원칙은 이렇습니다. **타입스크립트는 개발자가 쓴 코드를 검증할 뿐, 바깥에서 들어오는 데이터는 검증하지 않는다.** API 응답, localStorage, 사용자 입력처럼 외부와 맞닿는 지점에서는 Zod 같은 런타임 검증 도구나 직접 만든 타입 가드 함수를 써야 합니다.
+
+## 이름이 아니라 모양을 본다: 구조적 타이핑
+
+Java, C#, C++에 익숙한 개발자에게는 이 부분이 낯설 수 있습니다. 이런 언어의 타입 시스템은 **명목적(nominal)** 입니다. 타입이 무엇인지는 이름과 선언으로 정해집니다.
+
+타입스크립트는 **구조적(structural)** 타입 시스템을 씁니다. 컴파일 타임 덕 타이핑이라고도 부르는데, 타입의 정체를 내부 구조만으로 판단합니다.
+
+![Structural vs Nominal Typing](https://i.imgur.com/fH6alER.png)
+
+```typescript
+type Vector2D = {
+  x: number;
+  y: number;
+};
+
+type Point2D = {
+  x: number;
+  y: number;
+};
+
+const point: Point2D = { x: 10, y: 20 };
+const vector: Vector2D = point; // ✅ 100% Valid!
+```
+
+Java나 C#이라면 명시적인 캐스팅 없이 `Point2D`를 `Vector2D`에 넣는 순간 컴파일 에러가 납니다. 이름이 다르면 다른 타입이니까요. 반면 타입스크립트 컴파일러는 설계도만 확인합니다. `point`에 number 타입 `x`가 있는가? 있다. number 타입 `y`가 있는가? 있다. 그러면 두 타입은 서로 바꿔 써도 됩니다.
+
+### 초과 속성 검사가 헷갈리는 이유
+
+처음 접하면 거의 모두가 헷갈리는 예제가 있습니다.
+
+```typescript
+type Options = {
+  timeout: number;
+};
+
+function startServer(opts: Options) {
+  console.log(`Starting with timeout: ${opts.timeout}`);
+}
+
+// Case A: Passing an object literal directly
+// ❌ ERROR: Object literal may only specify known properties, 
+// and 'port' does not exist in type 'Options'.
+startServer({ timeout: 5000, port: 8080 });
+
+// Case B: Passing an existing variable reference
+const myConfig = { timeout: 5000, port: 8080 };
+startServer(myConfig); // ✅ Valid! No errors!
+```
+
+똑같은 속성을 넘기는데 A는 에러가 나고 B는 통과합니다. 타입스크립트가 **초과 속성 검사(Excess Property Checks)** 를 새로 만든 객체 리터럴에만 적용하기 때문입니다.
+
+`{ timeout: 5000, port: 8080 }`처럼 인라인 리터럴을 바로 넘기면, 타입스크립트는 개발자가 오타를 냈을 가능성(`timeout`을 `timeouut`으로 쓴 경우 등)을 의심하고 정의에 없는 필드를 엄격하게 잡아냅니다. 하지만 중간에 `myConfig` 변수로 한 번 받으면 다시 순수한 구조적 타이핑으로 돌아갑니다. `myConfig`에 `timeout: number`가 있으니 계약을 지킨 것으로 보고 통과시킵니다. 이 차이만 알아도 헤매는 시간이 크게 줄어듭니다.
+
+## any 대신 unknown, 그리고 never
+
+고집스러운 타입 에러를 만나면 `any`로 덮고 싶어집니다.
+
+```typescript
+// The "I give up" button
+const user: any = fetchUserData();
+```
+
+작성자는 `any`가 문제를 해결하는 게 아니라 컴파일러에게 "일하지 말고 이 변수와 이 변수가 닿는 모든 곳의 안전장치를 꺼라"라고 지시하는 것이라고 설명합니다. 게다가 바이러스처럼 번집니다. 변수 하나가 `any`가 되면 그걸 쓰는 함수들도 자동완성과 검증을 잃습니다. 지금의 타입스크립트에는 이보다 나은 도구가 있습니다.
+
+![The Type Spectrum: any vs unknown vs never](https://i.imgur.com/aHECbrC.png)
+
+### unknown: 안전한 최상위 타입
+
+API 응답, 사용자 입력, 파싱한 JSON처럼 값의 정체를 정말 모를 때는 `any` 대신 `unknown`을 씁니다. `unknown`은 어떤 값이든 받지만, 그 값이 무엇인지 증명하기 전까지는 아무것도 못 하게 막습니다.
+
+```typescript
+function parsePayload(input: unknown) {
+  // ❌ ERROR: 'input' is of type 'unknown'.
+  // console.log(input.trim());
+
+  // ✅ Safe: We prove it is a string first (Type Narrowing)
+  if (typeof input === 'string') {
+    console.log(input.trim()); 
+  }
+}
+```
+
+### never: 빠진 분기를 잡아내는 최하위 타입
+
+`never`는 절대 일어나서는 안 되는 상태를 뜻합니다. 복잡한 조건 분기에서 케이스를 빠뜨리지 않게 해 주는 도구로 쓸 수 있습니다.
+
+```typescript
+type Action = 
+  | { type: 'LOGIN'; username: string }
+  | { type: 'LOGOUT' }
+  | { type: 'SIGNUP'; email: string };
+
+function handleAction(action: Action) {
+  switch (action.type) {
+    case 'LOGIN':
+      return `Welcome, ${action.username}`;
+    case 'LOGOUT':
+      return 'Goodbye';
+    case 'SIGNUP':
+      return `Signed up with ${action.email}`;
+    default: {
+      // If someone adds a new action to Action and forgets 
+      // to add a case here, this line will NOT compile!
+      const _exhaustiveCheck: never = action;
+      return _exhaustiveCheck;
+    }
+  }
+}
+```
+
+나중에 다른 개발자가 `Action`에 `{ type: 'RESET_PASSWORD' }`를 추가하고 `case`를 빠뜨리면, 테스트까지 가기 전에 컴파일러가 `handleAction` 안에서 바로 에러를 냅니다.
+
+## 옵셔널 플래그 지옥은 판별 유니온으로 끝낸다
+
+네트워크 요청 상태를 다룰 때 흔히 보는 패턴입니다.
+
+```typescript
+// The "Everything Might Exist" anti-pattern
+type RequestState = {
+  isLoading: boolean;
+  data?: UserData;
+  error?: string;
+};
+```
+
+별문제 없어 보이지만, 이 타입은 **8가지 조합**을 허용합니다. `isLoading: true`인데 `data`도 있고 `error`도 `"Failed"`인 상태, `isLoading: false`인데 `data`와 `error`가 모두 `undefined`인 상태도 가능합니다. 현실에서는 말이 안 되는 조합인데도, 코드는 `if (state.data && !state.isLoading && !state.error)`처럼 속성마다 방어적으로 확인해야 합니다.
+
+작성자는 도메인을 **판별 유니온(Discriminated Union)** 으로 모델링하라고 권합니다.
+
+![Discriminated Unions: Eliminating Impossible States](https://i.imgur.com/6Ln06G2.png)
+
+```typescript
+type RequestState =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'success'; data: UserData }
+  | { status: 'error'; error: string };
+
+function renderUI(state: RequestState) {
+  switch (state.status) {
+    case 'loading':
+      return '<Spinner />';
+    case 'error':
+      // TypeScript knows 'error' exists here!
+      return `<ErrorMessage text="${state.error}" />`;
+    case 'success':
+      // TypeScript guarantees 'data' exists here!
+      return `<UserProfile user="${state.data.name}" />`;
+    case 'idle':
+      return '<WelcomePrompt />';
+  }
+}
+```
+
+`status`라는 문자열 리터럴 태그 하나만 추가하면 불가능한 상태는 아예 코드로 표현할 수 없게 됩니다. 각 분기 안에서는 타입스크립트가 객체 타입을 알아서 좁혀 줍니다.
+
+## as 대신 satisfies
+
+오래된 타입스크립트 코드베이스에는 `as`가 곳곳에 있습니다.
+
+```typescript
+type Theme = 'light' | 'dark';
+
+type Palette = Record<Theme, string>;
+
+// The "as" type assertion (A polite lie to the compiler)
+const colors = {
+  light: '#ffffff',
+  dark: '#121212',
+} as Palette;
+
+// No autocomplete for exact color strings!
+colors.light; // Type is just 'string', not '#ffffff'
+```
+
+`as`는 컴파일러에게 개발자의 선언을 그냥 받아들이라고 강요합니다. 작성자는 이를 "컴파일러에게 하는 예의 바른 거짓말"이라고 부릅니다. 헥스 코드를 잘못 쓰거나 필수 키를 빠뜨려도 `as`가 문제를 가려 버리는 경우가 많습니다.
+
+타입스크립트 4.9부터는 `satisfies` 연산자를 쓸 수 있습니다.
+
+```typescript
+type Theme = 'light' | 'dark';
+type Palette = Record<Theme, string>;
+
+const colors = {
+  light: '#ffffff',
+  dark: '#121212',
+} satisfies Palette;
+
+// 1. Validates that 'colors' matches Palette shape
+// 2. Retains exact literal precision!
+// colors.light has type '#ffffff', not generic string!
+```
+
+`satisfies`는 객체가 계약을 지키는지 검증하면서도, 데이터가 가진 구체적인 리터럴 타입과 속성은 그대로 남겨 둡니다. 검증과 정밀함을 둘 다 챙기는 셈입니다.
+
+## 정리: 다섯 가지만 기억하면 된다
+
+![Close-up shot of laptop screen](https://images.pexels.com/photos/4578665/pexels-photo-4578665.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Markus Winkler](https://www.pexels.com/@markus-winkler-1430818) on [Pexels](https://www.pexels.com/photo/close-up-shot-of-laptop-scree-4578665/)*
+
+1. **타입은 런타임에 완전히 지워진다.** 외부와 맞닿는 지점은 Zod나 직접 만든 가드로 검증한다.
+2. **타입스크립트는 이름이 아니라 모양을 본다.** 구조적 호환성을 거스르지 말고 활용한다.
+3. **`any`를 피한다.** 안전하게 다루려면 `unknown`, 빠진 케이스를 잡으려면 `never`를 쓴다.
+4. **판별 유니온을 쓴다.** 잘못된 상태는 아예 표현할 수 없게 만든다.
+5. **`as`보다 `satisfies`를 쓴다.** 실제 버그는 잡고 리터럴 타입은 살린다.
+
+작성자는 이 개념들이 몸에 붙으면 타입스크립트가 더 이상 싸워야 할 상대가 아니라 가장 날카로운 페어 프로그래머가 된다고 말합니다. 본인에게 가장 어려웠던 건 런타임에도 타입을 믿는 습관을 버리는 일이었고, 금요일 밤 배포 장애를 한 번 겪고 나서야 그 교훈이 제대로 남았다고 털어놓습니다. 글 말미에서는 독자들에게도 가장 오래 이해가 안 됐던 타입스크립트 에러나 생각의 전환, 타입 소거 때문에 런타임 버그를 놓친 경험을 댓글로 나눠 달라고 제안합니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

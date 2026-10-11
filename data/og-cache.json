@@ -1591,6 +1591,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-27"
   },
+  "https://dev.to/gramli/to-retry-or-not-to-retry-that-is-the-question-1j2l": {
+    "ok": true,
+    "title": "To Retry or Not to Retry? That Is the Question.",
+    "description": "This is a submission for the Kaggle Benchmarking Challenge  Those who read my articles know that a...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fkwmpr58hbcmut3j173us.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-11"
+  },
   "https://dev.to/gramli/tower-before-dusk-i-built-a-puzzle-game-for-humans-and-ai-oao": {
     "ok": true,
     "title": "Tower Before Dusk: I Built a Puzzle Game for Humans and AI",
@@ -2839,6 +2847,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-10-09"
   },
+  "https://dev.to/smtahosin/bash-isnt-a-programming-language-its-a-text-substitution-engine-5eml": {
+    "ok": true,
+    "title": "Bash Isn't a Programming Language. It's a Text Substitution Engine.",
+    "description": "A visual, beginner-friendly guide to how Bash actually executes commands. Discover why spaces break your scripts, how the expansion pipeline works, the subshell amnesia trap, and how to write scripts that never silently fail.",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fiili.io%2FnMqqPIV.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-11"
+  },
   "https://dev.to/smtahosin/pointers-arent-arrows-how-c-and-c-actually-talk-to-hardware-9d6": {
     "ok": true,
     "title": "Pointers Aren't Arrows. How C and C++ Actually Talk to Hardware.",
@@ -2846,6 +2862,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fi.imgur.com%2FvG94Gtq.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-26"
+  },
+  "https://dev.to/smtahosin/why-your-typescript-code-still-crashes-in-production-2bf4": {
+    "ok": true,
+    "title": "Why Your TypeScript Code Still Crashes in Production",
+    "description": "A practical visual guide to the TypeScript mental model. Discover why types vanish at runtime, how structural typing works, and how to write clean, type-safe code that never crashes in production.",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fiili.io%2FnMqdhbt.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-11"
   },
   "https://dev.to/ssukhpinder/78-mb-of-keys-i-allocated-just-to-throw-away-50mn": {
     "ok": true,
@@ -3214,6 +3238,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fvup12usdzyn4mywxxvwv.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-23"
+  },
+  "https://dev.to/xulingfeng/what-do-you-drink-while-you-work-17bm": {
+    "ok": true,
+    "title": "What Do You Drink While You Work?",
+    "description": "I wrote a fiction series with six characters. Each one drinks a different coffee.  I didn't plan it...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fsqu8mmyyofvus7v3q4ep.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-11"
   },
   "https://dev.to/yashksaini/the-test-was-green-every-real-connection-would-have-failed-3e37": {
     "ok": true,
