@@ -1783,6 +1783,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-26"
   },
+  "https://dev.to/hemapriya_kanagala/dev-pet-corner-1-show-us-your-pets-39n6": {
+    "ok": true,
+    "title": "🐾 DEV Pet Corner #1: Show Us Your Pets!",
+    "description": "TL;DR  Welcome to DEV Pet Corner, a new weekly series where we take a little break from tech and...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Frb0gie54qt3gdsl0cepl.jpeg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-12"
+  },
   "https://dev.to/hemapriya_kanagala/from-silent-reader-to-25-articles-what-3-months-on-dev-taught-me-ama-2b0j": {
     "ok": true,
     "title": "From Silent Reader to 25 Articles: What 3 Months on DEV Taught Me + AMA",
@@ -2439,6 +2447,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-24"
   },
+  "https://dev.to/mikachu/i-write-on-a-2006-imac-and-code-on-a-200-laptop-9n4": {
+    "ok": true,
+    "title": "I Write on a 2006 iMac and Code on a $200 Laptop",
+    "description": "I've always loved the idea of reusing old hardware, especially when it's still more than capable of...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fa6s485r66rbdy2316p3r.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-12"
+  },
   "https://dev.to/minhlong2605/mam-com-landing-page-i-built-a-vietnamese-dinner-tray-on-a-3000-year-old-bronze-drum-3e6h": {
     "ok": true,
     "title": "🥁 Mâm Cơm Landing Page: I built a Vietnamese dinner tray on a 3,000-year-old bronze drum",
@@ -2550,6 +2566,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fjeg91ul98zpllf1gmdcg.jpg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-04"
+  },
+  "https://dev.to/nyaomaru/how-do-we-extract-the-why-from-a-pr-into-a-changelog-with-jev-52pk": {
+    "ok": true,
+    "title": "How Do We Extract the “Why” from a PR into a CHANGELOG with Jev? 🤔",
+    "description": "Hoi hoi! 👋  I'm @nyaomaru, a frontend engineer currently building an AI-assisted CHANGELOG generator...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fu1ftyxif2qza2zkzjzyx.gif",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-12"
   },
   "https://dev.to/nyaomaru/learn-trapping-rain-water-top-k-frequent-and-selection-sort-with-step-by-step-visualization-in-dsa-1flg": {
     "ok": true,
@@ -3062,6 +3086,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fxet3n6gavmvob5dfz772.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-17"
+  },
+  "https://dev.to/the_nortern_dev/ai-got-better-while-i-was-away-software-didnt-4b2b": {
+    "ok": true,
+    "title": "AI Got Better While I Was Away. Software Didn't.",
+    "description": "I haven't written here in a while.  Not because I ran out of opinions.  That would be concerning.  I...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F2hev0q7dznyfw5y4tr2l.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-12"
   },
   "https://dev.to/thepracticaldev/general-challenge-updates-moving-forward-5h39": {
     "ok": true,
