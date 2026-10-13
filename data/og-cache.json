@@ -447,6 +447,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/dailycontext/one-weekend-3000-open-source-ai-projects-3g65": {
+    "ok": true,
+    "title": "One Weekend: 3,000 Open-Source AI Projects",
+    "description": "Every October for the past twelve years, developers around the world have taken part in...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F0ez8hua8zoepb31imryi.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-13"
+  },
   "https://dev.to/dailycontext/pragmatism-in-an-age-of-infinite-code-and-unavoidable-bottlenecks-1bkd": {
     "ok": true,
     "title": "Pragmatism in an Age of Infinite Code and Unavoidable Bottlenecks",
@@ -527,6 +535,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/dannwaneri/light-don-go-when-nigerias-power-cuts-out-my-laptop-sends-me-outside-38k8": {
+    "ok": true,
+    "title": "\"Light don go\": when Nigeria''s power cuts out, my laptop sends me outside",
+    "description": "This is a submission for the Hacktoberfest Open-Source AI Challenge Week 1: Touch Grass          ...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Frk9zrof15vljtel3o9tq.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-13"
+  },
   "https://dev.to/dannwaneri/my-ai-coding-session-burns-more-power-than-the-average-nigerian-gets-all-day-3l87": {
     "ok": true,
     "title": "my ai coding session burns more power than the average nigerian gets all day.",
@@ -542,6 +558,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fj889ziljqry8p43elfc0.jpg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/dannwaneri/super-intelligent-yes-men-are-we-training-ai-to-ignore-the-truth-epp": {
+    "ok": true,
+    "title": "Super-Intelligent Yes-Men: Are We Training AI to Ignore the Truth?",
+    "description": "This is a submission for the Kaggle Benchmarking Challenge           What I Benchmarked   A published...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fzbfo80f8ybw9hnissfdp.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-13"
   },
   "https://dev.to/dannwaneri/the-loop-is-not-the-product-466d": {
     "ok": true,
@@ -2878,6 +2902,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fiili.io%2FnMqqPIV.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-10-11"
+  },
+  "https://dev.to/smtahosin/how-react-actually-works-under-the-hood-and-why-your-mental-model-might-be-wrong-12b8": {
+    "ok": true,
+    "title": "How React Actually Works Under the Hood (And Why Your Mental Model Might Be Wrong)",
+    "description": "A visual, beginner-friendly guide to React internals. Learn what triggers re-renders, how the Virtual DOM diffs trees, what the Commit phase actually touches, and why state updates feel asynchronous.",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fiili.io%2FnMqxol9.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-13"
   },
   "https://dev.to/smtahosin/pointers-arent-arrows-how-c-and-c-actually-talk-to-hardware-9d6": {
     "ok": true,

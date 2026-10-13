@@ -1,0 +1,532 @@
+﻿---
+title: "React는 내부에서 실제로 어떻게 동작할까 — 당신의 멘탈 모델이 틀렸을 수도 있는 이유"
+description: "setState를 호출해도 console.log에 이전 값이 찍히는 이유부터 Fiber 연결 리스트, 리렌더링 조건, key의 역할까지 React 내부 동작을 정리했습니다. 25줄짜리 미니 React 구현도 함께 다룹니다."
+date: "2026-10-08"
+published_at: "2026-10-13"
+category: "news"
+tags: ["react", "javascript", "webdev", "discuss"]
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fiili.io%2FnMqxol9.png"
+coverAlt: "How React Actually Works Under the Hood (And Why Your Mental Model Might Be Wrong)"
+slug: "how-react-actually-works-under-the-hood"
+source_id: "devto-4729307"
+source_url: "https://dev.to/smtahosin/how-react-actually-works-under-the-hood-and-why-your-mental-model-might-be-wrong-12b8"
+source_title: "How React Actually Works Under the Hood (And Why Your Mental Model Might Be Wrong)"
+source_author: "S M Tahosin"
+source_published: "2026-10-08"
+---
+
+<LinkCard url="https://dev.to/smtahosin/how-react-actually-works-under-the-hood-and-why-your-mental-model-might-be-wrong-12b8" author="S M Tahosin" date="2026-10-08" />
+
+## 개요
+
+React를 쓰는 개발자라면 한 번쯤 아래 코드를 짜 봤을 겁니다.
+
+```jsx
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  function handleClick() {
+    setCount(count + 1);
+    console.log(count);
+  }
+
+  return <button onClick={handleClick}>Count: {count}</button>;
+}
+```
+
+버튼을 누르면 화면의 숫자는 0에서 1로 바뀝니다. 그런데 콘솔에는 `0`이 찍힙니다. 한 번 더 누르면 화면은 2인데 콘솔은 1입니다. 항상 한 박자씩 늦습니다.
+
+흔히 듣는 답은 "`setState`는 비동기라서"입니다. 개발자 S M Tahosin은 이 설명이 절반만 맞다고 지적합니다. 상태를 "비동기로 바뀌는 변수"로 이해하는 습관이 오히려 실제 서비스에서 버그를 많이 만든다는 겁니다. 그는 Fiber 트리, 훅 규칙이 존재하는 이유, JSX가 화면의 픽셀이 되기까지의 과정을 차례로 짚으며 React의 실제 동작 방식을 설명합니다.
+
+## 초보자가 그리는 React, 실제 React
+
+React를 처음 배울 때 머릿속에 그리는 그림은 대개 단순합니다.
+
+1. `setCount(1)`을 호출한다
+2. React가 HTML로 들어간다
+3. `Count: 0`이던 버튼 텍스트를 `Count: 1`로 바꾼다
+4. 끝
+
+![How Beginners Think React Works vs How It Actually Works](https://i.imgur.com/uZ0b2ET.jpeg)
+
+React가 정말 이렇게 동작한다면 성능은 형편없을 겁니다. 상태가 바뀔 때마다 브라우저 DOM을 찾아 직접 고치면 비용이 큽니다. 브라우저는 스타일을 다시 계산하고, 레이아웃(reflow)을 다시 잡고, 픽셀을 다시 칠해야 합니다.
+
+실제 React의 동작은 다릅니다.
+
+**`setState`를 호출해도 React는 DOM을 바로 바꾸지 않습니다. 나중에 실행할 계산을 예약할 뿐입니다.**
+
+## 업데이트는 세 단계를 거친다: Trigger, Render, Commit
+
+글쓴이는 이 과정을 고급 레스토랑 주방에 빗댑니다.
+
+- **Trigger 단계**: 손님이 주문한다.
+- **Render 단계**: 셰프가 주방 안에서 요리를 만들어 카운터에 올린다. 손님은 이 과정을 보지 못한다.
+- **Commit 단계**: 웨이터가 접시를 손님 테이블에 내려놓는다.
+
+요리 도중 손님이 주문을 바꾸면 셰프는 만들던 접시를 버리면 그만입니다. 손님은 아무것도 모릅니다. 하지만 접시가 테이블에 올라가면 그때부터는 되돌릴 수 없습니다. 이게 commit입니다.
+
+```plaintext
+[User Interaction]
+       |
+       v
+1. TRIGGER PHASE (dispatchSetState queues an update request)
+       |
+       v
+2. RENDER PHASE (Pure JS calculations: calls your component, diffs Fiber tree)
+       |
+       v
+3. COMMIT PHASE (Synchronous DOM mutations: document.createElement, appendChild)
+       |
+       v
+4. BROWSER PAINT (The browser repaints the pixels on your monitor)
+```
+
+### 1단계: Trigger
+
+`setCount(count + 1)`을 호출해도 컴포넌트 함수는 바로 다시 실행되지 않습니다.
+
+React는 **업데이트 객체(Update Object)**를 만들어 해당 컴포넌트의 내부 표현에 붙은 업데이트 큐에 넣습니다. 그리고 컴포넌트를 "dirty" 상태로 표시한 뒤 React Scheduler에 작업을 예약합니다.
+
+버튼을 빠르게 세 번 누르거나, 이벤트 핸들러 하나에서 상태 세 개를 바꿔도 React는 이를 하나로 묶어(batching) 처리합니다. 빵 세 개를 주문받았다고 주방을 세 번 돌리지 않고, 주문을 다 받은 다음 한꺼번에 요리하는 셈입니다.
+
+### 2단계: Render — 순수한 자바스크립트 계산
+
+이름 때문에 가장 많이 헷갈리는 단계입니다. "렌더"라고 하면 화면에 픽셀을 그리는 장면을 떠올리기 쉽지만, React에서 **렌더링은 그냥 컴포넌트 함수를 호출하는 일**입니다.
+
+React가 `Counter()`를 호출하면 함수가 위에서 아래로 실행되고 JSX를 반환합니다. 그럼 JSX는 정체가 뭘까요?
+
+```jsx
+return <button className="btn">Click me</button>;
+```
+
+Babel이나 Vite 같은 컴파일러는 이 JSX를 평범한 함수 호출로 바꿉니다.
+
+```javascript
+return React.createElement('button', { className: 'btn' }, 'Click me');
+```
+
+`React.createElement()`가 반환하는 것은 가벼운 자바스크립트 객체 하나입니다.
+
+```javascript
+{
+  type: 'button',
+  props: {
+    className: 'btn',
+    children: 'Click me'
+  },
+  key: null,
+  ref: null
+}
+```
+
+"가상 DOM 노드"란 결국 이게 전부입니다. UI가 어떤 모습이어야 하는지 적어 둔 객체일 뿐이고, 아직 실제 브라우저 DOM과는 아무 관계가 없습니다.
+
+React는 새로 받은 객체 트리를 이전 트리와 비교합니다. 이 과정을 **재조정(Reconciliation)**이라고 부릅니다. "`type`이 바뀌었나? 아니, 여전히 button이다. `className`은? 그대로 'btn'이다. 텍스트는? '0'에서 '1'로 바뀌었다." 이렇게 비교한 끝에 React는 "버튼 텍스트를 1로 바꿀 것"이라는 작은 수정 지시만 남깁니다.
+
+### 3단계: Commit
+
+바꿔야 할 최소한의 변경 목록이 정해지면 Commit 단계로 넘어갑니다.
+
+이 단계는 동기적으로 실행되고 중간에 끊을 수 없습니다. React는 브라우저 네이티브 API로 실제 DOM을 건드립니다.
+
+```javascript
+domNode.textContent = '1';
+```
+
+바뀐 텍스트 노드 하나만 수정하고, 나머지 DOM 트리는 전혀 손대지 않습니다. Commit이 끝나고 레이아웃 이펙트까지 실행되면, 그다음은 브라우저 엔진이 맡아 바뀐 픽셀을 화면에 그립니다.
+
+## 훅 순서가 중요한 이유: Fiber의 연결 리스트
+
+React에는 까다로운 규칙이 하나 있습니다.
+
+> "반복문, 조건문, 중첩 함수 안에서 훅을 호출하지 마세요."
+
+이 규칙을 어기면 콘솔에 이런 에러가 뜹니다.
+
+```plaintext
+Error: Rendered fewer hooks than expected. This may be caused by an accidental early return statement.
+```
+
+React가 변수 이름으로 상태를 찾는 걸까요?
+
+```jsx
+const [name, setName] = useState("Dan");
+const [age, setAge] = useState(25);
+```
+
+`const [name, setName]`이라고 써도 자바스크립트는 React에게 `"name"`이라는 단어를 알려주지 않습니다. 변수 이름은 함수 안에서만 의미가 있고, React는 여러분이 변수를 뭐라고 불렀는지 전혀 모릅니다.
+
+그럼 React는 첫 번째 `useState`가 `name`이고 두 번째가 `age`라는 걸 어떻게 알까요?
+
+**React는 훅을 컴포넌트의 Fiber 노드에 단방향 연결 리스트(singly-linked list)로 저장합니다.**
+
+![Why Hook Order Rules Exist: The Fiber Linked List](https://i.imgur.com/h8AQQlI.jpeg)
+
+화면에 있는 모든 컴포넌트는 내부적으로 `FiberNode` 객체로 표현되고, 이 노드에는 `memoizedState`라는 속성이 있습니다. 컴포넌트가 처음 렌더링될 때 React는 훅 객체를 사슬처럼 이어 붙입니다.
+
+```plaintext
+FiberNode (<UserProfile />)
+    |
+    v
+memoizedState ──> [ Hook 0: useState ('Dan') ]
+                         │
+                         ▼ (next)
+                  [ Hook 1: useEffect (fetchData) ]
+                         │
+                         ▼ (next)
+                  [ Hook 2: useState (25) ]
+                         │
+                         ▼ (next)
+                        null
+```
+
+이후 렌더링에서는 리스트를 새로 만들지 않습니다. `workInProgressHook`이라는 내부 포인터를 리스트의 첫 번째 훅에 맞춰 두고 차례로 읽어 나갑니다.
+
+1. `useState()` 호출 → Hook 0(`'Dan'`)을 읽고 포인터를 Hook 1로 옮긴다.
+2. `useEffect()` 호출 → Hook 1을 읽고 포인터를 Hook 2로 옮긴다.
+3. `useState()` 호출 → Hook 2(`25`)를 읽고 포인터를 null로 옮긴다.
+
+이제 훅을 `if`문 안에 넣으면 어떻게 되는지 봅시다.
+
+```jsx
+function UserProfile({ isLoggedIn }) {
+  const [name, setName] = useState("Dan"); // Hook 0
+
+  if (isLoggedIn) {
+    useEffect(() => {                      // Hook 1 (Conditional!)
+      fetchUserData();
+    }, []);
+  }
+
+  const [age, setAge] = useState(25);       // Hook 2
+  
+  return <div>{name}, {age}</div>;
+}
+```
+
+첫 렌더링에서 `isLoggedIn`이 `true`였다면 React는 `name`, effect, `age` 세 개의 훅 기록을 만듭니다. 두 번째 렌더링에서 `isLoggedIn`이 `false`가 되면 이렇게 됩니다.
+
+1. 2번째 줄의 `useState()` → Hook 0(`name`)을 읽고 포인터는 Hook 1로 간다.
+2. 4번째 줄 조건이 거짓이라 `useEffect`를 건너뛴다.
+3. 10번째 줄의 `useState()` → Hook 1을 읽는다. 그런데 Hook 1은 `age`가 아니라 effect 객체 자리다.
+
+데이터가 완전히 뒤엉킵니다. React는 호출된 훅 개수가 연결 리스트와 맞지 않는다는 걸 감지하면, 데이터가 망가지기 전에 에러를 던지고 실행을 멈춥니다. 렌더링마다 훅 순서가 100% 같아야 하는 이유가 여기 있습니다.
+
+## 상태는 "스냅샷"이다: 렌더링 안에서 state는 상수
+
+처음의 수수께끼로 돌아가 봅시다.
+
+```jsx
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  function handleClick() {
+    setCount(count + 1);
+    console.log(count); // Prints 0!
+  }
+
+  return <button onClick={handleClick}>{count}</button>;
+}
+```
+
+이 동작을 제대로 이해하려면 `count`를 "시간이 지나면서 바뀌는 변수"로 보는 시각부터 버려야 합니다. 대신 이 규칙을 기억하면 됩니다.
+
+**컴포넌트의 렌더링 한 번 안에서 props와 state는 상수다.**
+
+![State Closure Snapshot Diagram](https://i.imgur.com/tzJNSfb.jpeg)
+
+React가 컴포넌트 함수를 처음 호출할 때 실제로 실행되는 코드는 사실상 이렇습니다.
+
+```javascript
+// Render #1
+function Counter() {
+  const count = 0; // Fixed constant for this entire execution!
+
+  function handleClick() {
+    setCount(0 + 1);
+    console.log(0); // It literally logs 0
+  }
+
+  return <button onClick={handleClick}>0</button>;
+}
+```
+
+이 함수 호출 안에서 `count`는 `0`이고, 이 실행이 끝날 때까지 다른 값이 될 수 없습니다. `setCount(count + 1)`을 호출한다고 로컬 변수 `count`가 바뀌지는 않습니다. `const`는 원래 바꿀 수 없으니까요.
+
+`setCount`가 하는 일은 React에게 "다음에 내 컴포넌트를 다시 실행할 때 count를 `1`로 줘"라고 부탁하는 것입니다. React는 새 렌더링을 예약하고, 몇 밀리초 뒤 `Counter()`를 다시 호출합니다. 이건 완전히 새로운 함수 호출입니다.
+
+```javascript
+// Render #2 (A fresh function execution)
+function Counter() {
+  const count = 1; // Fixed constant for THIS execution!
+
+  function handleClick() {
+    setCount(1 + 1);
+    console.log(1);
+  }
+
+  return <button onClick={handleClick}>1</button>;
+}
+```
+
+렌더링마다 고유한 `count`, 고유한 이벤트 핸들러, 고유한 로컬 스코프가 생깁니다. 자바스크립트 클로저가 이렇게 동작하기 때문입니다.
+
+### 비동기 콜백에서 생기는 함정
+
+스냅샷 개념을 이해하면 아래 같은 버그도 금방 보입니다.
+
+```jsx
+function Chat() {
+  const [message, setMessage] = useState("");
+
+  function handleSend() {
+    setTimeout(() => {
+      alert("Sent message: " + message);
+    }, 3000);
+  }
+
+  return (
+    <div>
+      <input value={message} onChange={e => setMessage(e.target.value)} />
+      <button onClick={handleSend}>Send after 3 seconds</button>
+    </div>
+  );
+}
+```
+
+1. 입력창에 `"Hello"`를 입력한다.
+2. "Send after 3 seconds" 버튼을 누른다.
+3. 곧바로 입력창 내용을 `"Goodbye"`로 바꾼다.
+4. 알림창을 기다린다.
+
+알림창에는 `Sent message: Hello`가 뜹니다. `handleSend`는 `message`가 `"Hello"`였던 렌더링에서 만들어졌고, `setTimeout` 콜백은 그 스냅샷을 붙잡고 있습니다. 화면의 입력창은 바뀌었지만, 콜백은 버튼을 누른 순간의 상태를 사진처럼 들고 있는 겁니다.
+
+리렌더링을 기다리지 않고 비동기 콜백에서 최신 값을 읽어야 한다면 `useRef`를 쓰면 됩니다.
+
+```jsx
+const messageRef = useRef(message);
+messageRef.current = message; // Always points to latest value
+```
+
+## 컴포넌트는 언제 리렌더링될까: "props가 바뀌면"이라는 오해
+
+개발자 다섯 명에게 컴포넌트가 언제 리렌더링되냐고 물으면 적어도 세 명은 "props가 바뀔 때"라고 답할 거라고 글쓴이는 말합니다. 프론트엔드에서 가장 흔한 오해 중 하나라는 겁니다. 직접 확인해 봅시다.
+
+```jsx
+function Parent() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div>
+      <button onClick={() => setCount(count + 1)}>Increment</button>
+      <ExpensiveChild />
+    </div>
+  );
+}
+
+function ExpensiveChild() {
+  console.log("ExpensiveChild re-rendered!");
+  return <p>I take 50ms to render.</p>;
+}
+```
+
+`ExpensiveChild`는 props를 **하나도** 받지 않고, 상태도 없습니다. 전달받는 값이 바뀔 일이 없죠. 그런데 `Parent`의 "Increment" 버튼을 누르면 `ExpensiveChild`는 리렌더링됩니다. **누를 때마다 매번.**
+
+![The Re-Render Cascade and How to Optimize](https://i.imgur.com/3cxnByt.jpeg)
+
+### 실제 리렌더링 조건
+
+컴포넌트는 다음 세 경우에만 리렌더링됩니다.
+
+1. **자기 상태가 바뀌었을 때** (`useState`, `useReducer`)
+2. **구독 중인 Context가 바뀌었을 때** (`useContext`)
+3. **부모 컴포넌트가 리렌더링됐을 때**
+
+기본적으로 부모가 리렌더링되면 React는 props 변화와 상관없이 자식, 손자를 포함한 모든 하위 컴포넌트를 재귀적으로 다시 렌더링합니다.
+
+React가 이렇게 설계된 이유는 렌더링이 싸고 안전하다고 보기 때문입니다. 글쓴이는 웹 앱의 95%에서 자바스크립트 함수를 호출해 가상 DOM 객체 몇 개를 반환하는 데 0.01밀리초면 충분하다고 설명합니다.
+
+### useMemo 남발 없이 리렌더링 연쇄 끊기
+
+자식 컴포넌트가 리렌더링되는 걸 보고 당황해서 모든 함수를 `useCallback`으로, 모든 컴포넌트를 `React.memo`로 감싸는 경우가 많습니다. 그 전에 써 볼 만한 깔끔한 방법이 있습니다. React에 원래 있는 **컴포넌트 합성(Component Composition)**입니다.
+
+```jsx
+// 1. Move the state into its own small wrapper
+function CounterContainer({ children }) {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div>
+      <button onClick={() => setCount(count + 1)}>Increment: {count}</button>
+      {children}
+    </div>
+  );
+}
+
+// 2. Pass ExpensiveChild as a child prop
+function App() {
+  return (
+    <CounterContainer>
+      <ExpensiveChild />
+    </CounterContainer>
+  );
+}
+```
+
+`CounterContainer` 안의 버튼을 누르면 `CounterContainer`는 리렌더링됩니다. **하지만 `ExpensiveChild`는 리렌더링되지 않습니다.**
+
+`ExpensiveChild` 요소는 `CounterContainer`가 아니라 `App`에서 만들어졌기 때문입니다. `CounterContainer` 입장에서 `children`은 참조가 바뀌지 않은 기존 prop 객체일 뿐입니다(`prevProps.children === nextProps.children`). React는 같은 객체 참조임을 확인하고 하위 트리 렌더링을 통째로 건너뜁니다.
+
+`React.memo`도, `useCallback`도 필요 없습니다. 컴포넌트 구조만 바꿨을 뿐입니다.
+
+## key가 중요한 이유: 리스트 비교의 함정
+
+입력창 목록을 렌더링한 뒤 첫 항목을 지웠는데, 입력한 텍스트가 엉뚱한 줄에 남아 있던 경험이 있을 겁니다.
+
+```jsx
+function TodoList() {
+  const [items, setItems] = useState(['Buy milk', 'Walk dog', 'Read book']);
+
+  function removeFirst() {
+    setItems(items.slice(1));
+  }
+
+  return (
+    <div>
+      <button onClick={removeFirst}>Delete First</button>
+      <ul>
+        {items.map((item, index) => (
+          // BAD: using index as key
+          <li key={index}>
+            <input defaultValue={item} />
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+```
+
+"Delete First"를 누르면 "Buy milk"가 사라지고 첫 입력창에 "Walk dog"가 보일 거라고 기대합니다. 그런데 실제로는 첫 입력창에 여전히 "Buy milk"가 있고, 세 번째 입력창이 사라집니다.
+
+![Why Keys Matter: What Actually Happens In List Diffing](https://i.imgur.com/dj9vzvK.jpeg)
+
+React의 비교 알고리즘은 자식 요소를 **요소 타입**과 **key** 두 가지로 비교합니다. 배열 인덱스를 key로 쓰면 이렇게 됩니다.
+
+- 첫 번째 렌더링
+  - key `0` → `Buy milk`
+  - key `1` → `Walk dog`
+  - key `2` → `Read book`
+- 두 번째 렌더링('Buy milk' 삭제 후)
+  - key `0` → `Walk dog`
+  - key `1` → `Read book`
+
+React는 이전 key `0`과 새 key `0`을 비교합니다. key도 같고, 둘 다 `li` 안에 `input`이 있는 같은 구조입니다. React는 "key 0은 같은 요소구나. 기존 DOM 노드와 내부 상태를 그대로 쓰자"고 판단합니다.
+
+`input`에는 사용자가 입력한 텍스트라는 브라우저 DOM 자체의 상태가 있습니다. React는 기존 입력창을 그대로 두고 갱신하지 않습니다. 그리고 새 리스트에 key `2`가 없으니 세 번째 DOM 노드를 지웁니다.
+
+### key에 관한 원칙
+
+key는 콘솔의 노란 경고를 없애려고 붙이는 게 아닙니다.
+
+**key는 렌더링이 바뀌어도 컴포넌트를 같은 존재로 알아보게 해 주는 고유 식별자입니다.**
+
+`key={item.id}`처럼 안정적이고 고유한 key를 주면 다음이 보장됩니다.
+
+1. 항목 위치가 인덱스 0에서 10으로 옮겨가도 React가 정확히 같은 항목을 찾아낸다.
+2. 리스트 순서를 바꿀 때 DOM 노드를 부수고 새로 만들지 않고 옮기기만 한다.
+3. 컴포넌트 상태가 올바른 데이터 항목에 계속 붙어 있다.
+
+## 25줄로 만드는 미니 React
+
+멘탈 모델을 다지는 가장 좋은 방법은 핵심 원리가 얼마나 단순한지 직접 보는 것입니다. 글쓴이는 브라우저 개발자 콘솔(F12)에 아래 코드를 붙여 넣고 실행해 보라고 권합니다.
+
+```javascript
+// A 25-line mental model of React's state engine
+const MiniReact = (() => {
+  let hooks = [];
+  let currentHook = 0;
+
+  function useState(initialValue) {
+    const hookIndex = currentHook;
+    hooks[hookIndex] = hooks[hookIndex] !== undefined ? hooks[hookIndex] : initialValue;
+
+    const setState = (newValue) => {
+      hooks[hookIndex] = newValue;
+      render(); // Trigger re-render
+    };
+
+    currentHook++;
+    return [hooks[hookIndex], setState];
+  }
+
+  function render(Component) {
+    if (Component) MiniReact.activeComponent = Component;
+    currentHook = 0; // Reset pointer for next render pass
+    const output = MiniReact.activeComponent();
+    console.log("Rendered UI:", output);
+    return output;
+  }
+
+  return { useState, render };
+})();
+
+// Try it with a component!
+function MyComponent() {
+  const [name, setName] = MiniReact.useState("Alex");
+  const [count, setCount] = MiniReact.useState(0);
+
+  return {
+    text: `Hello ${name}, click count is ${count}`,
+    click: () => setCount(count + 1),
+    changeName: (n) => setName(n)
+  };
+}
+
+// Initial render
+let app = MiniReact.render(MyComponent);
+
+// Simulate clicking button
+app.click();
+
+// Simulate changing name
+app.changeName("Sarah");
+```
+
+이 짧은 코드에서 일어나는 일은 이렇습니다.
+
+1. `hooks`는 컴포넌트 바깥에 값을 저장하는 단순한 배열이다.
+2. `currentHook`은 렌더링 직전마다 0으로 초기화되는 인덱스다.
+3. `useState`를 호출하면 `hooks[currentHook]`을 읽고 인덱스를 하나 올린다.
+4. `setState`를 호출하면 배열 값을 바꾸고 `render()`를 다시 실행한다.
+
+실제 React는 배열 대신 Fiber 노드의 연결 리스트를 쓰고, 우선순위 큐와 동시성 스케줄링까지 갖추고 있습니다. 그래도 기본 구조는 이 25줄과 같다고 글쓴이는 설명합니다. 마법은 없고, 배열과 포인터, 그리고 함수를 호출하는 함수가 있을 뿐이라는 겁니다.
+
+## 한눈에 보는 React 멘탈 모델
+
+| 질문 | 흔한 오해 | 실제 React의 동작 |
+|---|---|---|
+| **`setState`는 무엇을 하나?** | DOM 값을 바로 바꾼다 | Fiber 큐에 업데이트를 넣고 렌더링을 예약한다 |
+| **`console.log`에 왜 이전 값이 찍히나?** | 상태 업데이트가 느리거나 비동기라서 | state는 해당 렌더링 클로저 안의 상수 스냅샷이라서 |
+| **훅은 왜 조건부로 쓰면 안 되나?** | React가 변수 이름으로 훅을 찾아서 | 훅은 순서가 있는 연결 리스트라서, 하나를 건너뛰면 순서가 전부 어긋난다 |
+| **자식은 언제 리렌더링되나?** | props가 바뀔 때만 | 부모가 리렌더링될 때마다 (memo를 쓰거나 children으로 넘기면 예외) |
+| **JSX는 무엇을 반환하나?** | 실제 HTML DOM 요소 | 평범한 자바스크립트 객체 (`React.createElement`) |
+| **Commit 단계란?** | 가상 DOM 차이를 계산하는 단계 | 계산해 둔 DOM 변경을 브라우저에 동기적으로 반영하는 단계 |
+| **key는 왜 중요한가?** | 콘솔 경고를 없애려고 | 고유 식별자 역할을 해서 React가 DOM 노드를 정확히 재사용하게 한다 |
+
+## 마치며
+
+글쓴이는 React를 마법 상자로 보지 않고 내부 파이프라인을 이해하면 많은 것이 달라진다고 말합니다.
+
+- 상태를 "동기화"하려고 `useEffect`를 줄줄이 엮지 않게 된다.
+- `console.log`에 이전 값이 찍혀도 놀라지 않는다.
+- 컴포넌트가 언제, 왜 리렌더링되는지 정확히 안다.
+- 더 빠르고 버그가 적은 코드를 쓴다.
+
+누군가 `setState`나 훅 에러 때문에 고민하고 있다면 이렇게 말해 주면 된다고 합니다. "마법이 아니야. 스냅샷 하나랑 연결 리스트 하나일 뿐이야(It is not magic. It is just a snapshot and a linked list)."
+
+원문 말미에서 글쓴이는 독자들에게 세 가지를 묻습니다. React를 처음 배울 때 가장 당황스러웠던 동작은 무엇이었는지, 배열 인덱스 key 버그로 실서비스에서 곤란을 겪은 적이 있는지, 불필요한 리렌더링을 합성과 메모이제이션 중 어느 쪽으로 해결하는지입니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
