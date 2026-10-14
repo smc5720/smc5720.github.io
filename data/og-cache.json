@@ -231,6 +231,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-13"
   },
+  "https://dev.to/annavi11arrea1/keyboard-makeover-i6a": {
+    "ok": true,
+    "title": "💅 Keyboard Makeover",
+    "description": "I have had this interesting piece of psychedelic looking vinyl for some time. Today I finally found a...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fl7kl36k3o4g8j2q6u9jr.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-14"
+  },
   "https://dev.to/annavi11arrea1/server-access-logs-with-goaccess-333d": {
     "ok": true,
     "title": "👾 Server Access Logs with GoAccess",
@@ -1118,6 +1126,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F5mo3ccbzdcppseqkrrrp.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/francistrdev/ai-fatigue-yea-i-know-f9": {
+    "ok": true,
+    "title": "AI Fatigue? Yea I know.",
+    "description": "I don't know how to start this off really haha. Though to be fair, everyone is talking about AI...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fkwr5z8mzbe8dlvbb81m5.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-14"
   },
   "https://dev.to/francistrdev/ask-a-dev-community-mod-50hk": {
     "ok": true,
