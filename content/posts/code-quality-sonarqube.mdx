@@ -1,0 +1,214 @@
+---
+title: "[코드 품질] SonarQube란 무엇인가 — 코드의 건강검진 센터 (2)"
+description: "SonarQube는 코드를 실행하지 않고 읽기만 해서 버그와 냄새를 찾아낸다. 구조, 이슈 분류, A–E 등급, Quality Gate까지 비유로 먼저 잡고 Docker로 직접 띄워본다."
+date: "2026-10-15"
+published_at: "2026-10-15T09:05:00+09:00"
+category: "dev"
+tags: ["sonarqube", "static-analysis", "code-quality", "java", "ci"]
+slug: "code-quality-sonarqube"
+cover: "https://images.pexels.com/photos/7319068/pexels-photo-7319068.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+coverAlt: "Vintage office scene with cryptic documents and a magnifying glass"
+---
+
+## 코드를 실행하지 않고 검사한다
+
+1편에서 JaCoCo가 "테스트가 코드를 얼마나 밟았는지"를 재는 도구라고 했다. 이번 편의 SonarQube는 질문이 다르다. 밟았든 안 밟았든, 이 코드가 애초에 **건강한가**를 묻는다. 그리고 코드를 한 줄도 실행하지 않고 읽기만 해서 답한다.
+
+이 글은 SonarQube가 뭘 하는 도구인지, 화면에 나오는 용어(이슈, 핫스팟, 등급, Quality Gate)가 각각 뭘 뜻하는지를 정리한다. 마지막에는 Docker로 로컬에 직접 띄워본다. CI에 실제로 붙이는 이야기는 3편으로 넘긴다.
+
+## 건강검진 센터에 가는 코드
+
+비유부터 가자. 정기 건강검진을 받으면 혈압, 혈당, 콜레스테롤 같은 수치가 나온다. 의사는 "지금 당장 아프지는 않지만 이 수치는 3년 뒤에 문제가 됩니다"라고 말해준다. 증상이 없어도 수치로 위험을 알 수 있다는 게 검진의 핵심이다.
+
+SonarQube는 코드의 검진 센터다. 서비스가 지금 잘 돌아가고 있어도, 코드를 읽어보면 "이 메서드는 분기가 너무 깊다", "이 쿼리는 SQL 인젝션에 열려 있다", "같은 코드가 세 군데에 복사돼 있다" 같은 소견이 나온다. 그리고 검진 결과지에는 종합 판정이 붙는다. 이게 뒤에서 다룰 Quality Gate다.
+
+조금 더 개발자스럽게 비유하면 **맞춤법 검사기와 편집장을 합친 것**이다. 맞춤법 검사기는 글을 읽고 틀린 곳에 밑줄을 긋는다. 편집장은 "이 원고는 이 기준을 넘어야 출판한다"고 최종 판정을 내린다. SonarQube는 코드에 밑줄을 긋고 기준 미달이면 머지를 막는다.
+
+## 정적 분석이 뭔가
+
+이런 식으로 코드를 실행하지 않고 소스 자체를 읽어서 문제를 찾는 걸 **정적 분석**(static analysis)이라고 한다. 반대는 동적 분석이다. 프로그램을 실제로 돌려보면서 동작을 관찰한다. 테스트가 대표적인 동적 방법이다.
+
+정적 분석이 잡는 건 이런 것들이다.
+
+```java filename="OrderService.java"
+public String findName(Order order) {
+    String name = order.getCustomer().getName(); // order.getCustomer()가 null이면?
+    if (name.equals("")) {                        // 비교 대상이 상수가 아님
+        return null;                              // null을 반환
+    }
+    return name;
+}
+```
+
+이 코드는 컴파일되고 테스트도 평범한 입력이면 통과한다. 하지만 null이 들어오는 순간 `NullPointerException`이다. 정적 분석기는 "이 경로에서 null일 수 있다"는 걸 코드 흐름만 보고 짚는다. 테스트를 안 짜도, 그 입력이 운영에서 오기 전에 말이다.
+
+한계도 분명하다. 코드를 안 돌리니까 "이 기능이 요구사항대로 동작하는가"는 모른다. 그건 테스트의 몫이다. 그래서 정적 분석과 테스트는 대체재가 아니라 서로 다른 구멍을 막는 짝이다.
+
+## SonarQube의 이름과 에디션
+
+SonarQube는 SonarSource라는 회사가 만든다. 이름이 최근에 한 번 정리됐는데 검색하다 보면 옛 이름과 섞여 나와서 헷갈린다. 2024년 10월에 SonarSource가 제품명을 SonarQube 중심으로 통일한다고 발표했고, 매핑은 이렇다.
+
+| 현재 이름 | 이전 이름 | 정체 |
+| --- | --- | --- |
+| SonarQube Server | SonarQube | 직접 서버를 띄워 쓰는 설치형. Developer / Enterprise / Data Center 에디션 |
+| SonarQube Community Build | SonarQube Community Edition | 무료 오픈소스 빌드 |
+| SonarQube Cloud | SonarCloud | SonarSource가 호스팅하는 SaaS |
+| SonarQube for IDE | SonarLint | IntelliJ, VS Code 등에 붙는 IDE 플러그인 |
+
+개인이나 사이드 프로젝트라면 Community Build로 충분하다. 에디션이 올라갈수록 언어 지원, 브랜치·PR 분석, 보안 리포트 같은 기능이 붙는 구조인데, 어떤 기능이 어느 에디션에 있는지는 버전마다 바뀐다. 도입 전에 공식 비교표를 직접 확인하는 걸 권한다. 이 글의 예제는 Community Build 기준으로만 설명한다.
+
+IDE 플러그인(SonarQube for IDE)은 메모해둘 만하다. 서버까지 안 가고 코드를 짜는 중에 밑줄을 그어준다. 앞의 비유로 치면 서버는 건강검진 센터이고, IDE 플러그인은 집에서 재보는 혈압계다.
+
+## 구조: Scanner가 읽고, Server가 계산한다
+
+여기서부터가 기술 이야기다. SonarQube는 크게 두 조각으로 나뉜다. **Scanner**와 **Server**다.
+
+![Scanner가 CI에서 분석 결과를 SonarQube Server의 Web Server에 올리면 Compute Engine이 처리해 DB에 저장하고, 브라우저는 Web Server로 결과를 조회하는 구조도](/images/code-quality-sonarqube/architecture.svg)
+
+흐름은 이렇다.
+
+1. **Scanner**가 CI(또는 로컬)에서 소스 코드를 읽고 분석한다. Maven, Gradle, 범용 CLI 스캐너가 있다. 이때 JaCoCo 같은 외부 리포트 파일도 같이 읽는다.
+2. 분석 결과를 묶은 리포트를 서버의 Web Server로 **업로드**한다.
+3. Web Server는 리포트를 큐에 넣고, **Compute Engine**이 하나씩 꺼내 처리한다. 이슈를 계산하고 지표를 집계한 뒤 Quality Gate를 판정하는 곳이다.
+4. 결과는 **DB**(PostgreSQL 등)에 저장되고, 이슈 검색을 위한 **Elasticsearch 기반 색인**도 같이 갱신된다.
+5. 개발자는 브라우저로 Web Server에 접속해 결과를 본다.
+
+여기서 눈여겨볼 건 분석이 서버 안에서 돌지 않는다는 점이다. 코드를 읽는 무거운 일은 CI 쪽 Scanner가 하고, 서버는 받은 결과를 계산해서 저장하고 보여주는 일을 한다. 그래서 CI 로그에서 `ANALYSIS SUCCESSFUL`이 떴어도 대시보드에 결과가 안 보이는 순간이 있다. Compute Engine 큐에서 아직 처리 중일 때다.
+
+## 이슈에는 종류가 있다
+
+결과 화면에서 가장 먼저 보는 건 **이슈**(issue) 목록이다. 이슈 분류가 두 세대에 걸쳐 있어서 둘 다 알아야 자료를 읽을 수 있다.
+
+**전통적인 분류**는 세 가지다.
+
+- **Bug** — 틀리게 동작할 가능성이 높은 코드. 위의 null 예제 같은 것.
+- **Vulnerability** — 공격자가 악용할 수 있는 보안 결함.
+- **Code Smell** — 당장 틀리지는 않지만 유지보수를 어렵게 하는 코드.
+
+**최신 분류**는 SonarQube가 Clean Code라는 틀을 들고 나오면서 바뀌었다. 이슈를 종류가 아니라 어떤 **소프트웨어 품질**(software quality)에 영향을 주는가로 본다. 세 축은 Security, Reliability, Maintainability다. 이 모드를 MQR(Multi-Quality Rule) 모드라고 부르고, 이슈 하나가 여러 품질에 동시에 영향을 줄 수 있다. 옛 방식은 문서에서 Standard Experience라는 이름으로 남아 있다.
+
+대응은 대략 Vulnerability는 Security, Bug는 Reliability, Code Smell은 Maintainability로 보면 된다. 어느 모드로 보이는지는 서버 인스턴스 설정에 달려 있어서, 내 화면이 어느 쪽인지는 직접 열어서 확인해야 한다.
+
+별도로 **Security Hotspot**이 있다. 이건 "취약점이다"가 아니라 "보안에 민감한 코드니까 사람이 한 번 봐달라"는 표시다. 예를 들어 정규식이나 쿠키 설정 코드가 걸린다. 쓰는 맥락에 따라 안전할 수도 위험할 수도 있어서 도구가 단정하지 않는다. 사람이 열어서 Safe / Fixed / Acknowledged 중 하나로 **검토 처리**를 해야 한다. 아래 Quality Gate에서 "핫스팟 100% 검토"가 나오는 이유다.
+
+심각도도 모드마다 이름이 다르다.
+
+| 모드 | 심각도 단계 |
+| --- | --- |
+| Standard Experience | Blocker / Critical / Major / Minor / Info |
+| MQR 모드 | Blocker / High / Medium / Low / Info |
+
+## 숫자로 보는 코드: 지표와 A–E 등급
+
+검진표에 수치가 나오듯, SonarQube는 코드를 지표로 요약한다. 자주 만나는 것만 추리면 이렇다.
+
+| 지표 | 뜻 |
+| --- | --- |
+| Coverage | 테스트가 밟은 코드 비율. 줄 커버리지와 조건 커버리지를 합쳐서 계산한다 |
+| Duplications | 복사 붙여넣기로 중복된 코드 비율 |
+| Cognitive Complexity | 코드 흐름을 사람이 이해하기 얼마나 어려운지 |
+| Technical Debt | 유지보수 이슈를 전부 고치는 데 드는 예상 시간 |
+
+**Cognitive Complexity**는 중첩이 깊을수록 점수가 빠르게 오른다. 같은 분기 개수라도 평평하게 늘어놓은 코드보다 깊게 들여쓴 코드가 더 어렵다고 쳐주는 식이다.
+
+```java filename="Discount.java"
+// 중첩이 깊은 버전: if 안의 if 안의 if
+if (user != null) {
+    if (user.isMember()) {
+        if (order.getTotal() > 100_000) {
+            return 0.1;
+        }
+    }
+}
+return 0.0;
+
+// 평평한 버전: 같은 의미, 점수는 훨씬 낮다
+if (user == null || !user.isMember()) return 0.0;
+if (order.getTotal() <= 100_000) return 0.0;
+return 0.1;
+```
+
+**Technical Debt**는 이슈마다 붙은 예상 수정 시간(분 단위)의 합이다. 문서 기준으로 하루는 8시간으로 환산한다. 이 값을 코드 규모 대비 비율로 바꾼 게 Maintainability 등급이다.
+
+**등급**은 A부터 E까지다. A가 최고다. Maintainability는 부채 비율 구간(공식 문서 기준 A 0–5%, B 5–10%, C 10–20%, D 20–50%, E 50% 이상)으로 정해지고, Security·Reliability는 이슈의 심각도에 따라 정해진다. 학교 성적표와 반대로 A가 대부분 정상이고, 대시보드가 B만 돼도 눈이 가게 된다.
+
+대시보드는 이렇게 생겼다. 아래는 직접 지어낸 값으로 그린 예시 화면이다.
+
+![Quality Gate Passed 배지 아래 Security A, Reliability A, Maintainability B 등급과 커버리지 83.2퍼센트, 중복 1.8퍼센트, 핫스팟 검토 100퍼센트가 카드로 놓인 가상의 대시보드](/images/code-quality-sonarqube/dashboard-mock.svg)
+
+맨 위의 "새 코드 / 전체 코드" 탭이 중요하다. 이 탭이 다음 절의 철학과 이어진다.
+
+## Quality Profile과 Rule: 무엇을 문제로 볼 것인가
+
+이슈는 어디서 나올까. **Rule**(규칙)에서 나온다. "메서드 하나에 파라미터가 7개를 넘으면 안 된다", "SQL을 문자열 연결로 만들지 마라" 같은 개별 검사 항목이다. 언어별로 수백 개씩 있다.
+
+**Quality Profile**은 이 규칙들 중 어떤 걸 켤지 모아둔 묶음이다. 언어마다 하나씩 붙는다. 기본값은 "Sonar way" 프로필이고, 이걸 복제해서 팀 취향으로 규칙을 켜고 끌 수 있다. 검진 센터로 치면 Rule은 개별 검사 항목, Quality Profile은 "기본 검진 패키지 / 정밀 검진 패키지" 같은 코스 선택이다.
+
+## Quality Gate: 편집장의 최종 판정
+
+Rule이 밑줄이라면 **Quality Gate**는 판정이다. 몇 가지 조건을 걸어두고, 분석 결과가 이걸 모두 만족하면 Passed, 하나라도 어기면 Failed다.
+
+![새 코드가 Quality Gate의 네 가지 조건인 새 이슈 없음, 핫스팟 100퍼센트 검토, 커버리지 80퍼센트 이상, 중복 3퍼센트 이하를 모두 통과하면 Passed, 하나라도 어기면 Failed가 되는 흐름](/images/code-quality-sonarqube/quality-gate.svg)
+
+기본으로 제공되는 "Sonar way" 게이트는 **새 코드**에 대해 이 조건을 건다.
+
+- 새 이슈가 없을 것 (또는 새 코드의 등급이 모두 A)
+- 새 Security Hotspot을 100% 검토했을 것
+- 새 코드의 커버리지가 80% 이상일 것
+- 새 코드의 중복이 3% 이하일 것
+
+세부 기준은 버전마다 조금 바뀔 수 있으니 서버의 Quality Gates 메뉴에서 확인하자. 참고로 변경이 20줄 이하처럼 아주 작으면 커버리지와 중복 조건은 면제된다는 문서 설명이 있다.
+
+여기서 핵심 개념이 **Clean as You Code**다. 레거시 코드 전체를 깨끗하게 만들려고 하지 않고, **이번에 새로 쓰거나 고친 코드만** 기준을 지키게 한다는 철학이다. 10년 된 코드에서 이슈가 3,000개 나와도 한 번에 고치는 건 불가능하다. 대신 오늘부터 들어오는 코드는 깨끗하게 하면 시간이 지나며 전체가 좋아진다. 대시보드의 "새 코드" 탭이 이 개념을 화면으로 옮긴 것이다.
+
+## SonarQube는 커버리지를 직접 재지 않는다
+
+여기서 1편과 이어지는 중요한 사실이 하나 있다. 위에서 커버리지 지표를 말했지만, **SonarQube는 커버리지를 직접 계산하지 않는다.** 테스트를 실행하지 않기 때문이다. 정적 분석 도구니까.
+
+대신 다른 도구가 만든 커버리지 리포트를 **가져온다**. Java라면 JaCoCo가 만든 XML 리포트를 Scanner에 알려주는 식이다.
+
+```properties filename="sonar-project.properties"
+sonar.projectKey=shop-api
+sonar.sources=src/main/java
+sonar.tests=src/test/java
+sonar.java.binaries=build/classes
+sonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/test/jacocoTestReport.xml
+```
+
+이 설정이 빠지면 어떻게 될까. 대시보드의 커버리지가 0%나 N/A로 뜬다. 테스트를 아무리 열심히 짜도 말이다. "분명 테스트가 있는데 왜 0%지?"의 원인은 대부분 리포트 경로 문제다. 위 경로는 예시일 뿐이고 빌드 도구마다 기본 위치가 다르다. 이 연결은 3편에서 실제 CI 흐름으로 풀어본다.
+
+## 로컬에서 직접 띄워보기
+
+설명만으로는 감이 안 오니 직접 띄워보자. Docker가 있으면 한 줄이다.
+
+```bash filename="terminal"
+docker run -d --name sonarqube -p 9000:9000 sonarqube:community
+```
+
+`community` 태그가 Community Build 이미지다. 공식 문서의 예시에는 `sonarqube:latest`와 `-e SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true`가 같이 나온다. 로컬 체험용으로 Elasticsearch 부트스트랩 검사를 꺼서, 호스트의 커널 설정 때문에 서버가 안 뜨는 상황을 피하려는 옵션이다. 내 환경에서 컨테이너가 바로 죽으면 이 옵션을 붙여본다.
+
+수십 초 뒤 `http://localhost:9000`에 접속하면 로그인 화면이 나온다. 계정은 `admin` / `admin`이고, 첫 로그인에서 비밀번호를 바꾸라고 요구한다.
+
+그다음은 이 순서다.
+
+1. 프로젝트를 만들고 토큰을 발급받는다. (My Account의 Security 메뉴)
+2. Maven 프로젝트라면 이렇게 분석을 돌린다.
+
+```bash filename="terminal"
+mvn verify sonar:sonar \
+  -Dsonar.projectKey=shop-api \
+  -Dsonar.host.url=http://localhost:9000 \
+  -Dsonar.token=<발급받은 토큰>
+```
+
+3. 끝나면 대시보드에 결과가 뜬다. 처음엔 Issues 탭에서 이슈 하나를 열어보자. 코드의 해당 줄, 왜 문제인지, 어떻게 고치는지가 같이 나온다. 이 설명 때문에 SonarQube를 쓰는 사람도 많다.
+
+테스트 대상으로 아무 프로젝트나 돌려보면 처음엔 이슈가 생각보다 많이 나와서 놀란다. 그래서 처음부터 전체 코드를 보지 말고 "새 코드" 탭만 보는 걸 권한다.
+
+## 정리
+
+SonarQube는 코드를 실행하지 않고 읽어서 건강 상태를 숫자와 등급으로 알려주는 서버다. Scanner가 CI에서 분석하면 Server가 계산해서 보여준다. 이슈, 핫스팟, A–E 등급은 검진표의 소견과 수치고, Quality Gate는 합격 여부를 가르는 판정이다.
+
+지금도 헷갈리는 게 하나 있다. 팀이 SonarQube를 도입하면 결국 Quality Gate 숫자를 맞추는 게임이 되기 쉬운데, 커버리지 80%를 넘기려고 assert 없는 테스트를 짜는 일이 흔히 벌어진다고 한다. 수치가 목적이 되지 않게 하려면 게이트를 어디까지 엄격하게 둘지는 아직 정답을 모르겠다.
+
+[다음 3편](/blog/code-quality-jacoco-sonarqube-in-practice)에서는 JaCoCo가 만든 리포트를 SonarQube로 넘기고, 이걸 CI에 붙여 PR마다 게이트를 거는 실전 구성을 다룬다.

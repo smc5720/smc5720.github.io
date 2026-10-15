@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 340" role="img" aria-label="테스트부터 머지 차단까지 이어지는 전체 파이프라인">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#9a9aa2"/></marker>
+  </defs>
+  <rect width="760" height="340" rx="14" fill="#101012" stroke="#232327"/>
+  <g font-family="Pretendard, system-ui, sans-serif" text-anchor="middle">
+    <text x="26" y="34" font-size="14" fill="#9a9aa2" text-anchor="start">Gradle (로컬 / CI)</text>
+    <g stroke-width="1.5">
+      <rect x="26" y="50" width="150" height="76" rx="10" fill="#14181f" stroke="#6aa5ff"/>
+      <rect x="212" y="50" width="150" height="76" rx="10" fill="#14181f" stroke="#6aa5ff"/>
+      <rect x="398" y="50" width="150" height="76" rx="10" fill="#14181f" stroke="#6aa5ff"/>
+      <rect x="584" y="50" width="150" height="76" rx="10" fill="#14181f" stroke="#6aa5ff"/>
+    </g>
+    <g font-family="ui-monospace, Consolas, monospace" font-size="15" fill="#e6e6e8">
+      <text x="101" y="82">test</text>
+      <text x="287" y="82">jacoco.exec</text>
+      <text x="473" y="82" font-size="14">jacocoTestReport</text>
+      <text x="659" y="82">sonar</text>
+    </g>
+    <g font-size="14" fill="#9a9aa2">
+      <text x="101" y="106">JUnit 실행</text>
+      <text x="287" y="106">실행 기록(바이너리)</text>
+      <text x="473" y="106">XML 리포트 생성</text>
+      <text x="659" y="106">Scanner가 업로드</text>
+    </g>
+    <g stroke="#9a9aa2" stroke-width="1.5" marker-end="url(#a)">
+      <line x1="178" y1="88" x2="208" y2="88"/>
+      <line x1="364" y1="88" x2="394" y2="88"/>
+      <line x1="550" y1="88" x2="580" y2="88"/>
+    </g>
+    <path d="M659 128 V168 H101 V198" fill="none" stroke="#9a9aa2" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#a)"/>
+    <text x="380" y="160" font-size="14" fill="#9a9aa2">HTTP 업로드 (sonar.host.url + token)</text>
+    <g stroke-width="1.5">
+      <rect x="26" y="200" width="150" height="76" rx="10" fill="#10201a" stroke="#4fc08d"/>
+      <rect x="212" y="200" width="150" height="76" rx="10" fill="#241f10" stroke="#e0c070"/>
+      <rect x="398" y="200" width="150" height="76" rx="10" fill="#14181f" stroke="#6aa5ff"/>
+      <rect x="584" y="200" width="150" height="76" rx="10" fill="#101012" stroke="#9a9aa2"/>
+    </g>
+    <g font-size="15" fill="#e6e6e8">
+      <text x="101" y="232">SonarQube 서버</text>
+      <text x="287" y="232">Quality Gate</text>
+      <text x="473" y="232">PR / CI 체크</text>
+      <text x="659" y="232">머지</text>
+    </g>
+    <g font-size="14" fill="#9a9aa2">
+      <text x="101" y="256">분석 · 이력 저장</text>
+      <text x="287" y="256">조건 평가</text>
+      <text x="473" y="256">성공 / 실패 표시</text>
+      <text x="659" y="256">허용 또는 차단</text>
+    </g>
+    <g stroke="#9a9aa2" stroke-width="1.5" marker-end="url(#a)">
+      <line x1="178" y1="238" x2="208" y2="238"/>
+      <line x1="364" y1="238" x2="394" y2="238"/>
+      <line x1="550" y1="238" x2="580" y2="238"/>
+    </g>
+    <text x="26" y="312" font-size="14" fill="#9a9aa2" text-anchor="start">SonarQube 서버 (docker compose 또는 사내 서버)</text>
+  </g>
+</svg>

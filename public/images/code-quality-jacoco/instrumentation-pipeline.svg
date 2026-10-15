@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 340" role="img" aria-label="JaCoCo 에이전트가 클래스에 probe를 삽입하고 jacoco.exec를 거쳐 리포트를 만드는 흐름">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#9a9aa2"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="720" height="340" rx="14" fill="#101012" stroke="#232327"/>
+  <g font-family="Pretendard, system-ui, sans-serif" font-size="14" fill="#e6e6e8">
+    <text x="24" y="34" font-size="15" font-weight="700" fill="#9a9aa2">ON-THE-FLY INSTRUMENTATION</text>
+
+    <rect x="18" y="52" width="156" height="128" rx="10" fill="#151518" stroke="#232327"/>
+    <text x="32" y="80" font-weight="700" fill="#6aa5ff">1. JVM 시작</text>
+    <text x="32" y="106">agent를 붙여서</text>
+    <text x="32" y="128">테스트를 띄운다</text>
+    <text x="32" y="158" font-family="ui-monospace, Consolas, monospace" fill="#e0c070">-javaagent</text>
+
+    <rect x="198" y="52" width="156" height="128" rx="10" fill="#151518" stroke="#232327"/>
+    <text x="212" y="80" font-weight="700" fill="#6aa5ff">2. 클래스 로딩</text>
+    <text x="212" y="106">로드되는 순간</text>
+    <text x="212" y="128">바이트코드에</text>
+    <text x="212" y="150" fill="#4fc08d" font-weight="700">probe 삽입</text>
+
+    <rect x="378" y="52" width="156" height="128" rx="10" fill="#151518" stroke="#232327"/>
+    <text x="392" y="80" font-weight="700" fill="#6aa5ff">3. 테스트 실행</text>
+    <text x="392" y="106">지나간 자리의</text>
+    <text x="392" y="128">probe 값이</text>
+    <text x="392" y="150" font-family="ui-monospace, Consolas, monospace" fill="#4fc08d">false → true</text>
+
+    <rect x="558" y="52" width="144" height="128" rx="10" fill="#151518" stroke="#232327"/>
+    <text x="572" y="80" font-weight="700" fill="#6aa5ff">4. JVM 종료</text>
+    <text x="572" y="106">종료 시점에</text>
+    <text x="572" y="128">파일로 저장</text>
+    <text x="572" y="158" font-family="ui-monospace, Consolas, monospace" fill="#e0c070">jacoco.exec</text>
+
+    <line x1="174" y1="116" x2="196" y2="116" stroke="#9a9aa2" stroke-width="2" marker-end="url(#ar)"/>
+    <line x1="354" y1="116" x2="376" y2="116" stroke="#9a9aa2" stroke-width="2" marker-end="url(#ar)"/>
+    <line x1="534" y1="116" x2="556" y2="116" stroke="#9a9aa2" stroke-width="2" marker-end="url(#ar)"/>
+
+    <path d="M630 180 L630 214 L360 214 L360 232" fill="none" stroke="#9a9aa2" stroke-width="2" marker-end="url(#ar)"/>
+    <text x="620" y="204" text-anchor="end" fill="#9a9aa2">+ 컴파일된 .class</text>
+
+    <rect x="18" y="236" width="684" height="82" rx="10" fill="#151518" stroke="#4fc08d"/>
+    <text x="36" y="266" font-weight="700" fill="#4fc08d">5. 리포트 생성 (jacocoTestReport)</text>
+    <text x="36" y="292">exec의 "지나간 흔적"을 클래스 구조와 대조해 줄·분기별로 칠한다</text>
+    <text x="36" y="312" fill="#9a9aa2" font-family="ui-monospace, Consolas, monospace">HTML / XML / CSV</text>
+  </g>
+</svg>

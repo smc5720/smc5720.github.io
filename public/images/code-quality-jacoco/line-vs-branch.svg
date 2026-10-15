@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" role="img" aria-label="vip=true 테스트 하나만 돌렸을 때 라인 커버리지는 100퍼센트이지만 브랜치 커버리지는 50퍼센트인 예시">
+  <rect x="0" y="0" width="720" height="380" rx="14" fill="#101012" stroke="#232327"/>
+  <g font-family="Pretendard, system-ui, sans-serif" font-size="14" fill="#e6e6e8">
+    <text x="24" y="34" font-size="15" font-weight="700" fill="#9a9aa2">테스트: discount(100, true) 한 번만 호출</text>
+  </g>
+  <g font-family="ui-monospace, Consolas, monospace" font-size="15" fill="#e6e6e8">
+    <rect x="18" y="52" width="684" height="34" fill="#4fc08d" fill-opacity="0.18"/>
+    <rect x="18" y="86" width="684" height="34" fill="#4fc08d" fill-opacity="0.18"/>
+    <rect x="18" y="120" width="684" height="34" fill="#e0c070" fill-opacity="0.22"/>
+    <rect x="18" y="154" width="684" height="34" fill="#4fc08d" fill-opacity="0.18"/>
+    <text x="30" y="75" fill="#9a9aa2">1</text>
+    <text x="30" y="109" fill="#9a9aa2">2</text>
+    <text x="30" y="143" fill="#9a9aa2">3</text>
+    <text x="30" y="177" fill="#9a9aa2">4</text>
+    <text x="70" y="75">int discount(int price, boolean vip) {</text>
+    <text x="70" y="109">    int d = 0;</text>
+    <text x="70" y="143">    if (vip) d = 10;</text>
+    <text x="70" y="177">    return price - d;</text>
+    <text x="70" y="205" fill="#9a9aa2">}</text>
+    <polygon points="448,137 458,126 468,137 458,148" fill="#e0c070"/>
+  </g>
+  <g font-family="Pretendard, system-ui, sans-serif" font-size="14" fill="#e6e6e8">
+    <text x="480" y="143" fill="#e0c070">true만 탔다, false는 안 탔다</text>
+
+    <rect x="18" y="226" width="334" height="136" rx="10" fill="#151518" stroke="#4fc08d"/>
+    <text x="34" y="254" font-weight="700" fill="#4fc08d">Line coverage</text>
+    <text x="34" y="296" font-size="34" font-weight="700" fill="#4fc08d">4 / 4 = 100%</text>
+    <text x="34" y="326">모든 줄을 한 번은 지나갔다</text>
+    <text x="34" y="348" fill="#9a9aa2">"이 줄을 실행했나"만 본다</text>
+
+    <rect x="368" y="226" width="334" height="136" rx="10" fill="#151518" stroke="#e0c070"/>
+    <text x="384" y="254" font-weight="700" fill="#e0c070">Branch coverage</text>
+    <text x="384" y="296" font-size="34" font-weight="700" fill="#e0c070">1 / 2 = 50%</text>
+    <text x="384" y="326">if의 두 갈래 중 한쪽만 걸었다</text>
+    <text x="384" y="348" fill="#9a9aa2">vip=false 경로는 검증된 적 없다</text>
+  </g>
+</svg>

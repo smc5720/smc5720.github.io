@@ -1,0 +1,300 @@
+---
+title: "[코드 품질] JaCoCo와 SonarQube 실전 활용 — 로컬 구축부터 CI 게이트까지 (3)"
+description: "docker compose로 SonarQube를 띄우고, Gradle과 GitHub Actions에 JaCoCo 커버리지를 연결해 Quality Gate로 머지를 막기까지. 따라 치면 되는 설정과 막혔던 지점을 정리했다."
+date: "2026-10-15"
+published_at: "2026-10-15T09:06:00+09:00"
+category: "dev"
+tags: ["jacoco", "sonarqube", "gradle", "github-actions", "spring-boot"]
+slug: "code-quality-jacoco-sonarqube-in-practice"
+cover: "https://images.pexels.com/photos/546819/pexels-photo-546819.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+coverAlt: "Close-up of programming code on a dark computer screen"
+---
+
+이 명령어 한 줄이 이 글의 목표다.
+
+```bash
+./gradlew test jacocoTestReport sonar
+```
+
+테스트를 돌려 커버리지 XML을 만들고 SonarQube 서버에 올려서 Quality Gate 결과까지 받는다. 여기에 GitHub Actions를 붙이면 기준에 못 미치는 PR은 머지 버튼이 막힌다. 개념은 [1편 JaCoCo](/blog/code-quality-jacoco)와 [2편 SonarQube](/blog/code-quality-sonarqube)에서 다뤘으니, 이번 글은 설정 파일과 명령어 위주로 간다. 기준은 Spring Boot, Gradle Kotlin DSL이다.
+
+## 전체 그림부터
+
+설정을 시작하기 전에 데이터가 어디로 흐르는지만 잡고 가자. 중간에 막혔을 때 어느 칸에서 막혔는지 알아야 고칠 수 있다.
+
+![테스트 실행에서 JaCoCo XML 리포트, Sonar Scanner, SonarQube 서버, Quality Gate, 머지 허용 또는 차단으로 이어지는 파이프라인](/images/code-quality-jacoco-sonarqube-in-practice/pipeline-overview.svg)
+
+역할은 이렇게 나뉜다.
+
+| 칸 | 하는 일 | 흔한 실패 |
+| --- | --- | --- |
+| `test` | JaCoCo agent가 붙은 채로 JUnit 실행, `jacoco.exec` 기록 | 테스트가 아예 안 돌았다 |
+| `jacocoTestReport` | exec를 읽어 XML/HTML로 변환 | XML 옵션이 꺼져 있다 |
+| `sonar` | 소스, 바이트코드, XML 경로를 서버로 전송 | 경로가 틀려서 0% |
+| SonarQube 서버 | 분석 결과 저장, 이슈 계산 | 토큰/URL 오류 |
+| Quality Gate | 조건 평가 후 Passed/Failed | 게이트를 기다리지 않아서 항상 성공 |
+
+핵심은 **Sonar가 커버리지를 직접 계산하지 않는다**는 점이다. JaCoCo가 만든 XML을 읽어서 보여줄 뿐이다. 그래서 0%가 뜨면 대부분 Sonar가 아니라 XML 쪽 문제다.
+
+## 로컬에 SonarQube 띄우기
+
+먼저 연습용 서버가 필요하다. 회사에 이미 서버가 있다면 이 섹션은 건너뛰어도 된다. 로컬에서는 docker compose로 SonarQube와 PostgreSQL을 같이 띄운다.
+
+```yaml filename="docker-compose.yml"
+services:
+  sonarqube:
+    image: sonarqube:community
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://db:5432/sonar
+      SONAR_JDBC_USERNAME: sonar
+      SONAR_JDBC_PASSWORD: sonar
+    ports:
+      - "9000:9000"
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: sonar
+      POSTGRES_DB: sonar
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sonar"]
+      interval: 5s
+      retries: 10
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:
+  postgres_data:
+```
+
+`docker compose up -d` 뒤 1~2분 정도 기다렸다가 `http://localhost:9000`에 접속한다. 첫 로그인은 `admin` / `admin`이고, 바로 비밀번호를 바꾸라고 요구한다. Linux에서는 `vm.max_map_count`가 모자라 Elasticsearch가 죽는 경우가 있다(`sysctl -w vm.max_map_count=524288`). Windows Docker Desktop에서는 내 경우 따로 건드릴 필요가 없었다.
+
+로그인한 다음에는 이 순서로 진행한다. 메뉴 이름은 버전마다 조금씩 달라서 이름보다 흐름을 보면 된다.
+
+1. **Create a local project**로 프로젝트를 만든다. Project key는 나중에 `sonar.projectKey`가 되니 기억해둔다.
+2. 분석 방법은 **Locally**를 고른다.
+3. 토큰을 생성한다. 이 값이 `SONAR_TOKEN`이다. 화면을 닫으면 다시 못 보니 바로 복사해둔다.
+
+> Community Build는 **브랜치/PR 단위 분석이 없다**. 메인 브랜치 하나만 분석한다. PR 화면에 코멘트를 달아주는 PR decoration은 Developer Edition 이상 기능이다. 이 글의 CI 예시는 그 제약을 감안해서, 게이트 결과를 워크플로 성공/실패로 받는 방식을 쓴다.
+
+## build.gradle.kts 설정
+
+이제 프로젝트 쪽이다. 플러그인 두 개를 추가하고 JaCoCo가 XML을 뱉게 한 다음 Sonar에 경로를 알려주면 끝이다.
+
+```kotlin filename="build.gradle.kts"
+plugins {
+    java
+    jacoco
+    id("org.springframework.boot") version "3.5.0"
+    id("io.spring.dependency-management") version "1.1.7"
+    id("org.sonarqube") version "7.5.0.8588"
+}
+
+jacoco {
+    toolVersion = "0.8.14"
+}
+
+tasks.test {
+    useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+sonar {
+    properties {
+        property("sonar.projectKey", "my-app")
+        property("sonar.host.url", System.getenv("SONAR_HOST_URL") ?: "http://localhost:9000")
+        property(
+            "sonar.coverage.jacoco.xmlReportPaths",
+            layout.buildDirectory.file("reports/jacoco/test/jacocoTestReport.xml").get().asFile.path,
+        )
+        property("sonar.exclusions", "**/config/**,**/*Application.java,**/dto/**")
+        property("sonar.coverage.exclusions", "**/config/**,**/*Application.java,**/dto/**")
+    }
+}
+```
+
+몇 가지 짚어둔다.
+
+- `org.sonarqube` 버전은 글을 쓴 시점에 Gradle Plugin Portal에서 확인한 최신인 `7.5.0.8588`이다. 복붙하기 전에 [플러그인 포털](https://plugins.gradle.org/plugin/org.sonarqube)에서 한 번 더 보자. Gradle 9와 호환되지 않는 구버전 이슈가 커뮤니티에 올라온 적이 있어서 오래된 버전을 그대로 쓰면 안 된다.
+- 태스크 이름은 **`sonar`**다. 예전의 `sonarqube` 태스크는 deprecated다.
+- `finalizedBy`를 걸어두면 `./gradlew test`만 쳐도 리포트가 따라 나온다. `dependsOn`은 `jacocoTestReport`만 단독 실행했을 때를 위한 보험이다.
+- `toolVersion`을 명시한 이유는 JDK가 최신일 때 Gradle 기본 JaCoCo가 그 JDK의 클래스 파일을 못 읽는 경우가 있어서다. 어떤 JDK에 어떤 버전이 맞는지는 JaCoCo 릴리스 노트에서 확인해야 한다.
+- 위 예제의 XML 경로는 Gradle 플러그인이 기본으로 잡아주는 경로와 같을 것이다. 내 기억으로는 `jacoco` 플러그인이 있으면 알아서 연결되지만, 명시해두면 어디를 보는지 로그에서 바로 확인된다.
+
+`sonar.exclusions`와 `sonar.coverage.exclusions`는 역할이 다르다. 앞의 것은 분석 자체에서 빼고, 뒤의 것은 **분석은 하되 커버리지 계산에서만** 뺀다. 설정 클래스는 이슈 검사는 받아야 하니 후자만 쓰는 편이 낫다. 위 예제처럼 둘 다 넣은 건 설명용이다.
+
+## 실행해보기
+
+토큰은 코드에 쓰지 않고 환경변수로 넘긴다. Scanner는 `SONAR_TOKEN` 환경변수를 읽는다.
+
+```bash filename="terminal"
+export SONAR_TOKEN=squ_xxxxxxxxxxxxxxxx
+export SONAR_HOST_URL=http://localhost:9000
+
+./gradlew test jacocoTestReport sonar
+```
+
+성공하면 마지막에 이런 줄이 나온다.
+
+```text
+ANALYSIS SUCCESSFUL, you can find the results at: http://localhost:9000/dashboard?id=my-app
+```
+
+대시보드에서 Coverage 수치가 보이면 성공이다. 0%나 `-`로 나오면 아래 트러블슈팅 표로 가면 된다. 첫 분석은 전체 코드가 "New Code"로 잡히니 이슈가 많아 보일 텐데, 기준일을 어디로 둘지는 뒤에서 다룬다.
+
+## 멀티 모듈에서 커버리지 합치기
+
+모듈이 여러 개면 선택지가 둘이다. 모듈마다 자기 XML 경로를 Sonar에 넘기거나, 루트에서 한 장으로 합치거나.
+
+![app, core, api 모듈의 테스트 실행 기록을 루트에서 jacoco-report-aggregation으로 합쳐 Sonar에 한 경로만 넘기는 구조](/images/code-quality-jacoco-sonarqube-in-practice/multi-module-coverage.svg)
+
+모듈별 방식은 설정이 단순하다. 각 모듈에 `jacoco` 플러그인과 XML 옵션만 켜두면 `sonar` 태스크가 서브프로젝트를 돌며 각자의 리포트를 가져간다. 다만 모듈 A의 테스트가 모듈 B의 코드를 밟는 통합 테스트 구조라면 A에서만 커버된 부분이 B 수치에 반영되지 않는다. 이럴 때 합산 방식이 필요하다.
+
+```kotlin filename="build.gradle.kts (root)"
+plugins {
+    java
+    `jacoco-report-aggregation`
+    id("org.sonarqube") version "7.5.0.8588"
+}
+
+dependencies {
+    jacocoAggregation(project(":app"))
+    jacocoAggregation(project(":core"))
+    jacocoAggregation(project(":api"))
+}
+
+reporting {
+    reports {
+        val testCodeCoverageReport by creating(JacocoCoverageReport::class) {
+            testSuiteName = "test"
+        }
+    }
+}
+
+sonar {
+    properties {
+        property(
+            "sonar.coverage.jacoco.xmlReportPaths",
+            layout.buildDirectory
+                .file("reports/jacoco/testCodeCoverageReport/testCodeCoverageReport.xml")
+                .get().asFile.path,
+        )
+    }
+}
+```
+
+실행은 `./gradlew test testCodeCoverageReport sonar`다. 루트에서 지정한 프로퍼티가 서브모듈에도 상속되는지는 Gradle 플러그인 문서상 그렇다고 알고 있는데, 직접 모든 구성에서 검증하지는 못했다. 모듈 쪽 커버리지가 0%로 나온다면 각 모듈의 `sonar` 블록에도 같은 경로를 넣어서 확인해보자.
+
+## GitHub Actions에 붙이기
+
+로컬에서 되면 CI로 옮긴다. 워크플로가 하는 일은 단순하다. 코드를 받고 JDK를 깐 뒤 Gradle을 돌리고 게이트 결과를 기다린다.
+
+![checkout, setup-java, gradle 캐시, test, sonar 단계 뒤에 Quality Gate가 통과면 머지 허용, 실패면 머지 차단으로 갈라지는 흐름](/images/code-quality-jacoco-sonarqube-in-practice/ci-workflow.svg)
+
+```yaml filename=".github/workflows/sonar.yml"
+name: Sonar
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Test, coverage, Sonar analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: ./gradlew test jacocoTestReport sonar -Dsonar.qualitygate.wait=true
+```
+
+세 군데가 중요하다.
+
+- `fetch-depth: 0`이 없으면 얕은 클론이 되어 blame 정보가 없다는 경고가 뜨고, "New Code" 판정이 어긋난다.
+- `-Dsonar.qualitygate.wait=true`가 있어야 Scanner가 서버의 게이트 판정이 끝날 때까지 기다렸다가 실패 시 비정상 종료한다. 이게 없으면 게이트가 Failed여도 워크플로는 초록색이다.
+- Secrets에 `SONAR_TOKEN`과 `SONAR_HOST_URL`을 등록한다. 값은 저장소 Settings의 Secrets and variables에서 넣는다.
+
+여기서 현실적인 걸림돌이 있다. GitHub 호스티드 러너는 내 노트북의 `localhost:9000`에 닿지 못한다. 연습은 로컬 Gradle 실행으로 하고 CI에는 외부에서 접근 가능한 서버(사내 서버, 클라우드 VM, 또는 SonarQube Cloud)가 필요하다. 이 부분은 환경마다 달라서 글에서 다 못 다룬다.
+
+마지막으로 저장소의 branch protection에서 이 job을 **required status check**로 지정한다. 이걸 안 하면 워크플로가 빨개져도 머지 버튼은 눌린다.
+
+## 팀 규칙 정하기
+
+도구가 붙으면 다음 문제는 기준이다. 숫자 하나 잘못 정하면 팀이 도구를 싫어하게 된다.
+
+**전체가 아니라 신규 코드에 건다.** SonarQube의 기본 게이트(Sonar way)는 New Code 기준으로 커버리지 80% 이상, 중복 3% 이하, 신규 이슈 0, 보안 핫스팟 검토 100%, 각 등급 A를 요구한다. 레거시가 커버리지 20%인 프로젝트에 전체 80%를 걸면 첫날부터 전원이 막힌다. 신규 코드만 보게 하면 "새로 짠 건 책임진다"로 시작할 수 있다. New Code 기준은 보통 이전 버전이나 최근 N일로 잡는다.
+
+**exclusions는 이유를 적고 합의한 것만.**
+
+| 제외해도 되는 것 | 제외하면 안 되는 것 |
+| --- | --- |
+| 설정 클래스, `Application` 진입점 | 서비스/도메인 로직 |
+| 단순 DTO, 생성된 코드 | 테스트하기 어렵다는 이유의 복잡한 클래스 |
+| 외부 라이브러리 래퍼의 보일러플레이트 | 수치가 낮은 패키지 통째로 |
+
+**커버리지를 속이지 않는다.** 단언 없이 메서드만 호출하는 테스트는 수치만 올리고 버그는 못 잡는다. 리뷰에서 `assert`가 없는 테스트를 거르는 편이 게이트 숫자를 올리는 것보다 낫다. 커버리지는 "안 밟은 곳이 어디인가"를 알려주는 도구이지, 품질의 증명이 아니다.
+
+**결과는 이 순서로 읽는다.** 대시보드를 열면 숫자가 많아서 어디부터 봐야 할지 막막한데, 나는 이렇게 본다. 1) Security Hotspot과 Vulnerability, 2) Bug, 3) 신규 코드의 커버리지 낮은 파일, 4) Code Smell. 보안과 버그는 바로 고치고 Smell은 건드리는 파일에서 같이 정리하는 정도로 둔다. 한 번에 다 갚으려 하면 PR이 커지고 리뷰가 안 된다.
+
+## 막혔을 때
+
+내가 만나거나 흔히 알려진 문제를 표로 모았다.
+
+| 증상 | 원인 | 확인/해결 |
+| --- | --- | --- |
+| 커버리지 0% | XML 경로가 틀렸다 | `build/reports/jacoco/test/jacocoTestReport.xml`이 실제로 있는지 확인하고 `xmlReportPaths`와 비교 |
+| 커버리지 0% | XML이 안 만들어졌다 | `jacocoTestReport { reports { xml.required = true } }` 확인 |
+| 커버리지 0% | 리포트 태스크를 안 돌렸다 | `./gradlew test jacocoTestReport sonar` 순서로 실행. `sonar`는 리포트를 대신 만들어주지 않는다 |
+| `Shallow clone detected` | CI가 얕은 클론 | `actions/checkout`에 `fetch-depth: 0` |
+| Lombok 생성 코드가 미커버로 잡힘 | getter/builder 등이 분모에 포함 | 프로젝트 루트 `lombok.config`에 `lombok.addLombokGeneratedAnnotation = true` |
+| `Unsupported class file major version` | JaCoCo가 현재 JDK의 클래스 파일을 못 읽는다 | `jacoco { toolVersion }`을 해당 JDK를 지원하는 버전으로 올린다 |
+| Scanner가 Java 버전 오류로 실패 | Scanner 실행 JDK가 너무 낮다 | 최신 Scanner는 JDK 17 이상에서 돌려야 한다. 러너의 `java-version` 확인 |
+| 게이트 Failed인데 CI는 초록 | 게이트를 안 기다렸다 | `-Dsonar.qualitygate.wait=true` |
+
+Lombok 항목은 한 줄 설정이 전부다.
+
+```properties filename="lombok.config"
+config.stopBubbling = true
+lombok.addLombokGeneratedAnnotation = true
+```
+
+JaCoCo는 `@Generated` 계열 어노테이션이 붙은 코드를 리포트에서 뺀다. 이 설정은 Lombok이 생성 코드에 그 어노테이션을 붙이게 한다.
+
+## 정리하며
+
+명령어 하나로 돌아가게 만드는 건 오래 걸리지 않는다. 오래 걸리는 쪽은 그 다음이다. 게이트 기준을 팀이 납득할 수준으로 정하고, 막혔을 때 우회하지 않고 고치는 문화를 만드는 일이다.
+
+지금도 확신이 없는 부분은 신규 코드 커버리지 80%라는 숫자다. 기본값이라 쓰고 있지만 프로젝트 성격에 따라 맞는 값은 달라질 것 같다. 해보면서 팀 상황에 맞춰 조정하는 수밖에 없다고 생각한다.

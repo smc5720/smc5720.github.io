@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" role="img" aria-labelledby="t d" font-family="Pretendard, system-ui, sans-serif">
+  <title id="t">대시보드 예시</title>
+  <desc id="d">프로젝트 Overview 화면을 흉내 낸 가상의 예시. Quality Gate Passed, Reliability A, Security A, Maintainability B, 커버리지 83.2%, 중복 1.8%, 핫스팟 검토 100%.</desc>
+  <rect x="0" y="0" width="720" height="420" rx="14" fill="#101012" stroke="#232327"/>
+
+  <text x="28" y="44" font-size="17" fill="#e6e6e8" font-weight="600">shop-api</text>
+  <text x="112" y="44" font-size="14" fill="#9a9aa2">main</text>
+  <rect x="470" y="22" width="110" height="32" rx="16" fill="none" stroke="#4fc08d"/>
+  <text x="525" y="44" font-size="14" fill="#4fc08d" text-anchor="middle" font-weight="600">새 코드</text>
+  <rect x="588" y="22" width="110" height="32" rx="16" fill="none" stroke="#232327"/>
+  <text x="643" y="44" font-size="14" fill="#9a9aa2" text-anchor="middle">전체 코드</text>
+
+  <rect x="28" y="70" width="664" height="52" rx="8" fill="#16161a" stroke="#4fc08d"/>
+  <text x="48" y="103" font-size="16" fill="#4fc08d" font-weight="700">Quality Gate: Passed</text>
+  <text x="680" y="103" font-size="14" fill="#9a9aa2" text-anchor="end">모든 조건 통과</text>
+
+  <g>
+    <rect x="28" y="140" width="212" height="112" rx="8" fill="#16161a" stroke="#232327"/>
+    <text x="44" y="166" font-size="14" fill="#9a9aa2">Security</text>
+    <text x="44" y="216" font-size="40" fill="#4fc08d" font-weight="700">A</text>
+    <text x="224" y="236" font-size="14" fill="#9a9aa2" text-anchor="end">새 이슈 0</text>
+
+    <rect x="254" y="140" width="212" height="112" rx="8" fill="#16161a" stroke="#232327"/>
+    <text x="270" y="166" font-size="14" fill="#9a9aa2">Reliability</text>
+    <text x="270" y="216" font-size="40" fill="#4fc08d" font-weight="700">A</text>
+    <text x="450" y="236" font-size="14" fill="#9a9aa2" text-anchor="end">새 이슈 0</text>
+
+    <rect x="480" y="140" width="212" height="112" rx="8" fill="#16161a" stroke="#232327"/>
+    <text x="496" y="166" font-size="14" fill="#9a9aa2">Maintainability</text>
+    <text x="496" y="216" font-size="40" fill="#a8c96a" font-weight="700">B</text>
+    <text x="676" y="236" font-size="14" fill="#9a9aa2" text-anchor="end">부채 2h 10m</text>
+  </g>
+  <g>
+    <rect x="28" y="266" width="212" height="86" rx="8" fill="#16161a" stroke="#232327"/>
+    <text x="44" y="292" font-size="14" fill="#9a9aa2">Coverage</text>
+    <text x="44" y="334" font-size="28" fill="#6aa5ff" font-weight="700">83.2%</text>
+
+    <rect x="254" y="266" width="212" height="86" rx="8" fill="#16161a" stroke="#232327"/>
+    <text x="270" y="292" font-size="14" fill="#9a9aa2">Duplications</text>
+    <text x="270" y="334" font-size="28" fill="#6aa5ff" font-weight="700">1.8%</text>
+
+    <rect x="480" y="266" width="212" height="86" rx="8" fill="#16161a" stroke="#232327"/>
+    <text x="496" y="292" font-size="14" fill="#9a9aa2">Hotspots 검토</text>
+    <text x="496" y="334" font-size="28" fill="#6aa5ff" font-weight="700">100%</text>
+  </g>
+
+  <text x="28" y="388" font-size="14" fill="#9a9aa2">등급</text>
+  <g font-size="14" font-weight="700" text-anchor="middle" fill="#101012">
+    <rect x="80" y="372" width="32" height="24" rx="4" fill="#4fc08d"/><text x="96" y="389">A</text>
+    <rect x="120" y="372" width="32" height="24" rx="4" fill="#a8c96a"/><text x="136" y="389">B</text>
+    <rect x="160" y="372" width="32" height="24" rx="4" fill="#e0c070"/><text x="176" y="389">C</text>
+    <rect x="200" y="372" width="32" height="24" rx="4" fill="#e0955a"/><text x="216" y="389">D</text>
+    <rect x="240" y="372" width="32" height="24" rx="4" fill="#e06c6c"/><text x="256" y="389">E</text>
+  </g>
+  <text x="692" y="389" font-size="14" fill="#9a9aa2" text-anchor="end">가상의 예시 화면, 수치는 지어낸 값</text>
+</svg>

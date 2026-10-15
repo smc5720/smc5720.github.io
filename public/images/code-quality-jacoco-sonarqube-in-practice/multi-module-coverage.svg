@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 360" role="img" aria-label="멀티 모듈 프로젝트에서 모듈별 커버리지를 하나로 합치는 구조">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#9a9aa2"/></marker>
+  </defs>
+  <rect width="760" height="360" rx="14" fill="#101012" stroke="#232327"/>
+  <g font-family="Pretendard, system-ui, sans-serif" text-anchor="middle">
+    <text x="26" y="34" font-size="14" fill="#9a9aa2" text-anchor="start">모듈별 test 실행 기록</text>
+    <g stroke="#6aa5ff" stroke-width="1.5" fill="#14181f">
+      <rect x="26" y="50" width="180" height="70" rx="10"/>
+      <rect x="26" y="146" width="180" height="70" rx="10"/>
+      <rect x="26" y="242" width="180" height="70" rx="10"/>
+    </g>
+    <g font-family="ui-monospace, Consolas, monospace" font-size="15" fill="#e6e6e8">
+      <text x="116" y="80">:app</text>
+      <text x="116" y="176">:core</text>
+      <text x="116" y="272">:api</text>
+    </g>
+    <g font-size="14" fill="#9a9aa2">
+      <text x="116" y="102">test.exec</text>
+      <text x="116" y="198">test.exec</text>
+      <text x="116" y="294">test.exec</text>
+    </g>
+    <g stroke="#9a9aa2" stroke-width="1.5" marker-end="url(#a)" fill="none">
+      <path d="M208 85 H268 Q290 85 290 107 V150 H298"/>
+      <line x1="208" y1="181" x2="298" y2="181"/>
+      <path d="M208 277 H268 Q290 277 290 255 V212 H298"/>
+    </g>
+    <rect x="302" y="120" width="190" height="122" rx="10" fill="#241f10" stroke="#e0c070" stroke-width="1.5"/>
+    <text x="397" y="148" font-size="14" fill="#e6e6e8" font-family="ui-monospace, Consolas, monospace">root 프로젝트</text>
+    <text x="397" y="172" font-size="14" fill="#e0c070" font-family="ui-monospace, Consolas, monospace">jacoco-report-</text>
+    <text x="397" y="190" font-size="14" fill="#e0c070" font-family="ui-monospace, Consolas, monospace">aggregation</text>
+    <text x="397" y="222" font-size="14" fill="#9a9aa2">합산 XML 1개</text>
+    <line x1="494" y1="181" x2="546" y2="181" stroke="#9a9aa2" stroke-width="1.5" marker-end="url(#a)"/>
+    <rect x="550" y="136" width="184" height="90" rx="10" fill="#10201a" stroke="#4fc08d" stroke-width="1.5"/>
+    <text x="642" y="168" font-size="15" fill="#e6e6e8" font-family="ui-monospace, Consolas, monospace">sonar</text>
+    <text x="642" y="192" font-size="14" fill="#9a9aa2">xmlReportPaths</text>
+    <text x="642" y="210" font-size="14" fill="#9a9aa2">한 곳만 지정</text>
+    <text x="380" y="342" font-size="14" fill="#9a9aa2">대안: 합치지 않고 모듈마다 자기 XML 경로를 Sonar에 넘긴다</text>
+  </g>
+</svg>

@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 380" role="img" aria-label="GitHub Actions 워크플로 단계와 Quality Gate 통과/실패 분기">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#9a9aa2"/></marker>
+  </defs>
+  <rect width="760" height="380" rx="14" fill="#101012" stroke="#232327"/>
+  <g font-family="Pretendard, system-ui, sans-serif" text-anchor="middle">
+    <text x="26" y="34" font-size="14" fill="#9a9aa2" text-anchor="start">GitHub Actions job: build</text>
+    <g stroke="#6aa5ff" stroke-width="1.5" fill="#14181f">
+      <rect x="26" y="50" width="128" height="84" rx="10"/>
+      <rect x="174" y="50" width="128" height="84" rx="10"/>
+      <rect x="322" y="50" width="128" height="84" rx="10"/>
+      <rect x="470" y="50" width="128" height="84" rx="10"/>
+    </g>
+    <rect x="618" y="50" width="116" height="84" rx="10" fill="#10201a" stroke="#4fc08d" stroke-width="1.5"/>
+    <g font-size="15" fill="#e6e6e8" font-family="ui-monospace, Consolas, monospace">
+      <text x="90" y="82">checkout</text>
+      <text x="238" y="82">setup-java</text>
+      <text x="386" y="82">gradle</text>
+      <text x="534" y="82">test</text>
+      <text x="676" y="82">sonar</text>
+    </g>
+    <g font-size="14" fill="#9a9aa2">
+      <text x="90" y="106">fetch-depth: 0</text>
+      <text x="238" y="106">JDK 21</text>
+      <text x="386" y="106">캐시 복원</text>
+      <text x="534" y="106">+ jacoco XML</text>
+      <text x="676" y="106">gate.wait</text>
+      <text x="676" y="124">=true</text>
+    </g>
+    <g stroke="#9a9aa2" stroke-width="1.5" marker-end="url(#a)">
+      <line x1="156" y1="92" x2="170" y2="92"/>
+      <line x1="304" y1="92" x2="318" y2="92"/>
+      <line x1="452" y1="92" x2="466" y2="92"/>
+      <line x1="600" y1="92" x2="614" y2="92"/>
+    </g>
+    <path d="M676 136 V170 H380 V196" fill="none" stroke="#9a9aa2" stroke-width="1.5" marker-end="url(#a)"/>
+    <text x="528" y="162" font-size="14" fill="#9a9aa2">서버가 게이트 평가</text>
+    <polygon points="380,198 470,244 380,290 290,244" fill="#241f10" stroke="#e0c070" stroke-width="1.5"/>
+    <text x="380" y="241" font-size="15" fill="#e6e6e8">Quality Gate</text>
+    <text x="380" y="261" font-size="14" fill="#9a9aa2">통과?</text>
+    <path d="M470 244 H558" fill="none" stroke="#4fc08d" stroke-width="1.5" marker-end="url(#a)"/>
+    <path d="M290 244 H202" fill="none" stroke="#e06c6c" stroke-width="1.5" marker-end="url(#a)"/>
+    <text x="515" y="236" font-size="14" fill="#4fc08d">Passed</text>
+    <text x="245" y="236" font-size="14" fill="#e06c6c">Failed</text>
+    <rect x="562" y="206" width="172" height="76" rx="10" fill="#10201a" stroke="#4fc08d" stroke-width="1.5"/>
+    <text x="648" y="238" font-size="15" fill="#e6e6e8">job 성공 (exit 0)</text>
+    <text x="648" y="262" font-size="14" fill="#9a9aa2">머지 허용</text>
+    <rect x="26" y="206" width="172" height="76" rx="10" fill="#241414" stroke="#e06c6c" stroke-width="1.5"/>
+    <text x="112" y="238" font-size="15" fill="#e6e6e8">job 실패 (exit 1)</text>
+    <text x="112" y="262" font-size="14" fill="#9a9aa2">머지 차단</text>
+    <text x="26" y="326" font-size="14" fill="#9a9aa2" text-anchor="start">branch protection에서 이 job을 required check로 지정해야 차단이 실제로 걸린다.</text>
+    <text x="26" y="350" font-size="14" fill="#9a9aa2" text-anchor="start">gate.wait가 없으면 Scanner는 업로드만 하고 성공으로 끝난다.</text>
+  </g>
+</svg>

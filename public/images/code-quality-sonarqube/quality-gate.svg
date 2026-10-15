@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 340" role="img" aria-labelledby="t d" font-family="Pretendard, system-ui, sans-serif">
+  <title id="t">Quality Gate 개념도</title>
+  <desc id="d">새 코드의 분석 결과가 네 가지 조건을 모두 만족하면 Passed, 하나라도 어기면 Failed가 된다.</desc>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#9a9aa2"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="720" height="340" rx="14" fill="#101012" stroke="#232327"/>
+
+  <rect x="24" y="110" width="150" height="120" rx="8" fill="#16161a" stroke="#232327"/>
+  <text x="99" y="158" font-size="15" fill="#e6e6e8" text-anchor="middle">새 코드</text>
+  <text x="99" y="182" font-size="14" fill="#9a9aa2" text-anchor="middle">이번에 바꾼 부분</text>
+  <text x="99" y="204" font-size="14" fill="#9a9aa2" text-anchor="middle">만 심사</text>
+
+  <rect x="226" y="30" width="270" height="280" rx="12" fill="#16161a" stroke="#6aa5ff"/>
+  <text x="361" y="62" font-size="16" fill="#6aa5ff" text-anchor="middle" font-weight="600">Quality Gate (Sonar way)</text>
+  <g font-size="15" fill="#e6e6e8">
+    <rect x="246" y="86" width="230" height="48" rx="6" fill="#101012" stroke="#232327"/>
+    <text x="262" y="116">새 이슈 없음</text>
+    <rect x="246" y="144" width="230" height="48" rx="6" fill="#101012" stroke="#232327"/>
+    <text x="262" y="174">핫스팟 100% 검토</text>
+    <rect x="246" y="202" width="230" height="48" rx="6" fill="#101012" stroke="#232327"/>
+    <text x="262" y="232">커버리지 80% 이상</text>
+    <rect x="246" y="260" width="230" height="40" rx="6" fill="#101012" stroke="#232327"/>
+    <text x="262" y="286">중복 3% 이하</text>
+  </g>
+
+  <rect x="548" y="40" width="148" height="100" rx="8" fill="#16161a" stroke="#4fc08d"/>
+  <text x="622" y="82" font-size="17" fill="#4fc08d" text-anchor="middle" font-weight="700">Passed</text>
+  <text x="622" y="108" font-size="14" fill="#9a9aa2" text-anchor="middle">모두 통과</text>
+  <text x="622" y="128" font-size="14" fill="#9a9aa2" text-anchor="middle">머지 가능</text>
+
+  <rect x="548" y="200" width="148" height="100" rx="8" fill="#16161a" stroke="#e06c6c"/>
+  <text x="622" y="242" font-size="17" fill="#e06c6c" text-anchor="middle" font-weight="700">Failed</text>
+  <text x="622" y="268" font-size="14" fill="#9a9aa2" text-anchor="middle">하나라도 위반</text>
+  <text x="622" y="288" font-size="14" fill="#9a9aa2" text-anchor="middle">머지 차단</text>
+
+  <g stroke="#9a9aa2" stroke-width="1.6" fill="none" marker-end="url(#ar)">
+    <path d="M174 170 H224"/>
+    <path d="M496 90 H546"/>
+    <path d="M496 250 H546"/>
+  </g>
+</svg>
