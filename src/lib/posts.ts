@@ -7,15 +7,36 @@ export { CATEGORY_LABELS } from "./constants";
 
 const POSTS_DIR = path.join(process.cwd(), "content/posts");
 
+/**
+ * 빌드(production) 중에는 워커 프로세스당 한 번만 읽고 재사용한다.
+ * 안 그러면 글 페이지마다 getPrevNextPosts → getAllPosts가 전체 MDX를 다시 읽어 O(N²)가 된다.
+ * dev에서는 편집이 바로 반영되도록 캐시하지 않는다. 반환 배열/객체는 읽기 전용으로 취급할 것.
+ */
+const MEMOIZE = process.env.NODE_ENV === "production";
+let slugsCache: string[] | null = null;
+let allPostsCache: PostMeta[] | null = null;
+const postCache = new Map<string, Post | null>();
+
 export function getAllPostSlugs(): string[] {
+  if (MEMOIZE && slugsCache) return slugsCache;
   if (!fs.existsSync(POSTS_DIR)) return [];
-  return fs
+  const slugs = fs
     .readdirSync(POSTS_DIR)
     .filter((f) => f.endsWith(".mdx") || f.endsWith(".md"))
     .map((f) => f.replace(/\.(mdx|md)$/, ""));
+  if (MEMOIZE) slugsCache = slugs;
+  return slugs;
 }
 
 export function getPostBySlug(slug: string): Post | null {
+  if (!MEMOIZE) return readPost(slug);
+  if (postCache.has(slug)) return postCache.get(slug) ?? null;
+  const post = readPost(slug);
+  postCache.set(slug, post);
+  return post;
+}
+
+function readPost(slug: string): Post | null {
   const mdxPath = path.join(POSTS_DIR, `${slug}.mdx`);
   const mdPath = path.join(POSTS_DIR, `${slug}.md`);
   const filePath = fs.existsSync(mdxPath) ? mdxPath : fs.existsSync(mdPath) ? mdPath : null;
@@ -46,7 +67,8 @@ export function getPostBySlug(slug: string): Post | null {
 }
 
 export function getAllPosts(): PostMeta[] {
-  return getAllPostSlugs()
+  if (MEMOIZE && allPostsCache) return allPostsCache;
+  const posts = getAllPostSlugs()
     .map((slug) => getPostBySlug(slug))
     .filter((p): p is Post => p !== null)
     .map(({ content: _content, ...meta }) => meta)
@@ -55,6 +77,8 @@ export function getAllPosts(): PostMeta[] {
       const tb = new Date(b.published_at ?? b.date).getTime();
       return tb - ta;
     });
+  if (MEMOIZE) allPostsCache = posts;
+  return posts;
 }
 
 export function getPostsByCategory(category: Category): PostMeta[] {
