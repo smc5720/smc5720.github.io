@@ -5,7 +5,7 @@ date: "2026-10-14"
 published_at: "2026-10-15"
 slug: "the-minimum-you-need-to-know-about-github-actions"
 category: "news"
-tags: []
+tags: ["github","devops","tutorial","beginners"]
 cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fobv02u6hsajq0vunpac3.png"
 coverAlt: "The minimum you need to know about GitHub Actions"
 source_id: "devto-4847645"
@@ -31,7 +31,7 @@ GitHub Actions가 어려워 보여서 미뤄 둔 사람이 많습니다. 작성�
 
 정적 사이트 생성기 Hugo를 쓸 때 예전에는 로컬에서 직접 사이트를 빌드한 뒤, 만들어진 `public/` 폴더를 GitHub에 푸시해서 배포했습니다. GitHub Actions를 쓰면 빌드를 GitHub 서버가 대신 맡습니다. 이제 작성자는 새 글을 푸시하기만 하면 됩니다. 빌드와 배포는 GitHub가 알아서 합니다.
 
-정해진 시간과 주기에 맞춰 돌릴 수도 있습니다. 스케줄 실행을 지원하기 때문입니다.
+스케줄 실행도 지원해서, 정해진 시간과 주기에 맞춰 돌리는 것도 가능합니다.
 
 ### 핵심은 워크플로 파일
 
@@ -57,7 +57,7 @@ on:
 
 - **`push`**: 누군가 `main` 브랜치에 푸시하면 실행합니다.
 - **`schedule`**: cron 일정에 따라 실행합니다. 위 예시는 매일 UTC 01시 26분입니다. GitHub의 cron은 UTC 기준이라 한국 시간(KST)으로 쓰려면 9시간을 빼서 적어야 합니다. cron 필드 설명은 작성자의 [별도 글](https://dev.to/julies1/how-to-schedule-posts-for-future-publication-1bem)에 정리돼 있습니다.
-- **`workflow_dispatch`**: 워크플로를 손으로 실행할 수 있게 해 줍니다. 원래 워크플로는 이벤트가 있어야만 돌기 때문에, 테스트하려면 의미 없는 커밋을 하나 만들어야 합니다. `workflow_dispatch`는 그런 번거로움을 없애려고 있는 트리거입니다.
+- **`workflow_dispatch`**: 워크플로를 손으로 실행할 수 있게 해 줍니다. 원래 워크플로는 이벤트가 있어야만 돌기 때문에, 테스트하려면 의미 없는 커밋을 하나 만들어야 합니다. `workflow_dispatch`가 바로 그 번거로움을 덜어 줍니다.
 
 `workflow_dispatch`를 넣으면 Actions 탭에 **Run workflow** 버튼이 생깁니다. 사용 순서는 이렇습니다.
 
