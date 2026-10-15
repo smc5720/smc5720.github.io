@@ -439,6 +439,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/dailycontext/building-better-agents-through-end-to-end-evals-pgh": {
+    "ok": true,
+    "title": "Building Better Agents through End-to-End Evals",
+    "description": "Deeply understand the task at hand   The biggest mistake teams make with agents is...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F9f39ycw3nmggoxt5bwmd.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-15"
+  },
   "https://dev.to/dailycontext/coding-agents-play-favorites-with-your-dependencies-2dl6": {
     "ok": true,
     "title": "Coding Agents Play Favorites With Your Dependencies",
@@ -502,6 +510,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fi2z6j08wyjsoc7bm4p2h.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/dailycontext/what-9050-ai-written-scripts-taught-me-about-slop-1g5n": {
+    "ok": true,
+    "title": "What 9,050 AI-Written Scripts Taught Me About Slop",
+    "description": "You’ve read way too many versions of this paragraph already. Probably even this week:   “In today’s...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F5jcfndik4zmecrxf21x7.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-15"
   },
   "https://dev.to/dailycontext/youre-not-really-that-far-behind-h4d": {
     "ok": true,
@@ -2207,6 +2223,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-31"
   },
+  "https://dev.to/julies1/the-minimum-you-need-to-know-about-github-actions-6p7": {
+    "ok": true,
+    "title": "The minimum you need to know about GitHub Actions",
+    "description": "What is GitHub Actions?   Have you heard of GitHub Actions but assumed it was too...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fobv02u6hsajq0vunpac3.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-15"
+  },
   "https://dev.to/kaleman15/gotta-earn-em-all-the-gym-badges-of-agentic-engineering-part-1-5bff": {
     "ok": true,
     "title": "Gotta Earn 'Em All: The Gym Badges of Agentic Engineering (Part 1)",
@@ -3110,6 +3134,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2Fimjd4mru57oe573vb59y.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/sylwia-lask/your-browser-can-do-what-5-ai-features-that-actually-work-1blb": {
+    "ok": true,
+    "title": "Your Browser Can Do WHAT?! 5 AI Features That Actually Work",
+    "description": "Are AI models running directly in the browser finally good enough to use in production? Let's find...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F90o18t6tkw38pe11snwy.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-15"
   },
   "https://dev.to/tahosin/chasing-the-sun-building-a-3d-ai-powered-solstice-runner-with-react-three-fiber-bk3": {
     "ok": true,

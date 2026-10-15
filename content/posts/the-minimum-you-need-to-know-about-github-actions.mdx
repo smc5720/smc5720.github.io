@@ -1,0 +1,161 @@
+﻿---
+title: "GitHub Actions, 이것만 알면 시작할 수 있다 (The minimum you need to know about GitHub Actions)"
+description: "GitHub Actions 워크플로 파일에 꼭 들어가야 하는 on, jobs 두 섹션을 Hugo 사이트 예제로 설명하고, 바로 붙여 넣어 쓸 수 있는 여섯 줄짜리 최소 워크플로를 소개합니다."
+date: "2026-10-14"
+published_at: "2026-10-15"
+slug: "the-minimum-you-need-to-know-about-github-actions"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fobv02u6hsajq0vunpac3.png"
+coverAlt: "The minimum you need to know about GitHub Actions"
+source_id: "devto-4847645"
+source_url: "https://dev.to/julies1/the-minimum-you-need-to-know-about-github-actions-6p7"
+source_title: "The minimum you need to know about GitHub Actions"
+source_author: "Julie"
+source_published: "2026-10-14"
+---
+
+<LinkCard url="https://dev.to/julies1/the-minimum-you-need-to-know-about-github-actions-6p7" author="Julie" date="2026-10-14" />
+
+## 개요
+
+GitHub Actions가 어려워 보여서 미뤄 둔 사람이 많습니다. 작성자 Julie도 그랬습니다. 그런데 실제 프로젝트에 써 보고 나서 생각이 바뀌었다고 합니다. Hugo 사이트를 빌드·배포하고([관련 글](https://dev.to/julies1/i-tried-to-learn-github-actions-twice-i-failed-the-first-time-but-ai-helped-me-succeed-the-second-4ph)), 예약 날짜에 글이 올라가도록 만드는 데([관련 글](https://dev.to/julies1/how-to-schedule-posts-for-future-publication-1bem)) 썼습니다.
+
+작성자는 GitHub Actions를 "GitHub에 사는 로봇"에 비유합니다. 미리 할 일을 적어 두면, 지정한 이벤트가 일어날 때마다 GitHub가 그대로 실행해 줍니다. 정확히 말하면 GitHub에 내장된 자동화 기능입니다.
+
+이 글에서는 워크플로 파일에 반드시 있어야 하는 두 섹션을 짚고, 지금 바로 저장소에 넣어 볼 수 있는 여섯 줄짜리 워크플로를 소개합니다.
+
+## 본문
+
+### Hugo 사이트로 본 실제 사례
+
+정적 사이트 생성기 Hugo를 쓸 때 예전에는 로컬에서 직접 사이트를 빌드한 뒤, 만들어진 `public/` 폴더를 GitHub에 푸시해서 배포했습니다. GitHub Actions를 쓰면 빌드를 GitHub 서버가 대신 맡습니다. 이제 작성자는 새 글을 푸시하기만 하면 됩니다. 빌드와 배포는 GitHub가 알아서 합니다.
+
+정해진 시간과 주기에 맞춰 돌릴 수도 있습니다. 스케줄 실행을 지원하기 때문입니다.
+
+### 핵심은 워크플로 파일
+
+동작 방식의 중심에는 워크플로 파일이 있습니다. `.github/workflows/` 아래에 두는 `.yml` 또는 `.yaml` 파일입니다. 로봇이 호출됐을 때 무엇을 할지 미리 적어 둔 지시서라고 보면 됩니다. `workflows/` 폴더 하나에 워크플로 파일을 여러 개 둘 수 있습니다.
+
+워크플로 파일에 꼭 필요한 섹션은 **`on`과 `jobs` 두 개**입니다.
+
+### on 섹션: 언제 실행할까
+
+`on` 섹션에는 워크플로를 실행시킬 이벤트를 적습니다. 브랜치에 대한 `push`나 `pull_request` 같은 것들입니다.
+
+작성자의 Hugo 사이트 워크플로에는 트리거가 세 개 있습니다. `push`, `schedule`, `workflow_dispatch`입니다.
+
+```yaml
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '26 1 * * *'
+  workflow_dispatch:
+```
+
+- **`push`**: 누군가 `main` 브랜치에 푸시하면 실행합니다.
+- **`schedule`**: cron 일정에 따라 실행합니다. 위 예시는 매일 UTC 01시 26분입니다. GitHub의 cron은 UTC 기준이라 한국 시간(KST)으로 쓰려면 9시간을 빼서 적어야 합니다. cron 필드 설명은 작성자의 [별도 글](https://dev.to/julies1/how-to-schedule-posts-for-future-publication-1bem)에 정리돼 있습니다.
+- **`workflow_dispatch`**: 워크플로를 손으로 실행할 수 있게 해 줍니다. 원래 워크플로는 이벤트가 있어야만 돌기 때문에, 테스트하려면 의미 없는 커밋을 하나 만들어야 합니다. `workflow_dispatch`는 그런 번거로움을 없애려고 있는 트리거입니다.
+
+`workflow_dispatch`를 넣으면 Actions 탭에 **Run workflow** 버튼이 생깁니다. 사용 순서는 이렇습니다.
+
+1. 저장소에서 **Actions** 탭을 엽니다.
+2. 왼쪽 사이드바에서 워크플로 이름을 누릅니다.
+3. 오른쪽의 **Run workflow** 버튼을 누릅니다. 여기서 브랜치도 고를 수 있습니다. 이 버튼은 파일에 `workflow_dispatch`가 있을 때만 보입니다.
+4. 목록 맨 위에 새 실행 기록이 나타납니다.
+
+들여쓰기는 꼭 확인해야 합니다. 작성자는 `schedule`을 `push` 아래의 `branches`와 같은 깊이로 들여 쓰는 실수를 한 적이 있는데, 이것 때문에 디버깅에 시간을 꽤 썼다고 합니다.
+
+### jobs 섹션: 무엇을 할까
+
+`jobs` 섹션에는 워크플로가 실제로 할 일을 적습니다. Hugo 예제에서는 사이트를 빌드하고 배포하는 작업입니다.
+
+각 job에는 두 가지 키가 필요합니다.
+
+- **`runs-on`**: job을 돌릴 머신입니다. `ubuntu-latest`, `windows-latest`, `macos-latest` 등을 고를 수 있습니다.
+- **`steps`**: 실행할 개별 작업 목록입니다. **적힌 순서대로** 실행합니다.
+
+아래는 `build` job입니다. 그 뒤에 오는 `deploy` job은 생략했습니다. 전체 파일은 [작성자 저장소](https://github.com/Juliecodestack/Juliecodestack.github.io/blob/main/.github/workflows/hugo.yml)에서 볼 수 있습니다.
+
+```yaml
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      HUGO_VERSION: 0.166.0
+    steps:
+      - name: Install Hugo CLI
+        run: wget -O ${{ runner.temp }}/hugo.deb https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb && sudo dpkg -i ${{ runner.temp }}/hugo.deb
+
+      - name: Install Dart Sass
+        run: sudo snap install dart-sass
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v4
+
+      - name: Install Node.js dependencies
+        run: "[[ -f package-lock.json || -f npm-shrinkwrap.json ]] && npm ci || true"
+
+      - name: Build with Hugo
+        env:
+          HUGO_CACHEDIR: ${{ runner.temp }}/hugo_cache
+          HUGO_ENV: production
+        run: hugo --gc --minify
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./public
+```
+
+위에서 아래로 읽으면 흐름이 보입니다. Hugo와 Dart Sass를 설치하고, 저장소를 러너로 체크아웃하고, Hugo로 사이트를 빌드한 다음, `public/` 폴더를 Pages 아티팩트로 묶습니다.
+
+### 직접 해 보기
+
+사실 비슷한 기능은 이미 익숙합니다. 메일 앱의 자동 회신 규칙도 메일이 도착하는 순간 실행됩니다. GitHub Actions는 같은 발상을 코드에 적용한 것입니다.
+
+GitHub에서도 흔히 볼 수 있습니다. 어떤 프로젝트에 처음 PR을 올렸을 때 환영 메시지가 달린다면, 그것도 GitHub Actions가 한 일일 가능성이 큽니다.
+
+처음부터 GitHub Pages 사이트가 있을 필요는 없습니다. 아무 저장소에나 푸시하면 실행되는 워크플로부터 만들어 보면 됩니다. 가장 작은 형태는 이렇습니다.
+
+```yaml
+on: push
+jobs:
+  hello:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "hello"
+```
+
+이 내용을 저장소의 `.github/workflows/hello.yml`로 저장하고 푸시하면 바로 실행됩니다.
+
+다만 GitHub Actions는 GitHub가 호스팅하는 러너에서 돌기 때문에 `echo "hello"` 결과가 내 로컬 터미널에는 찍히지 않습니다. 출력은 실행 로그에 남습니다. GitHub에서 저장소를 열고 **Actions** 탭으로 간 뒤, 해당 실행 기록과 job(이 예시에서는 `hello`)을 차례로 누르면 됩니다.
+
+![hello job](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/c325wk9no9d7kqj1rqau.png)
+
+step을 펼치면 로그에 `hello`가 찍혀 있습니다.
+
+![실행 로그](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/tx3i4ve601k05u3c3gst.png)
+
+이걸로 푸시할 때마다 도는 워크플로가 생겼습니다. 작성자는 이게 요령의 전부라고 말합니다. 워크플로 파일은 내가 쓰고, 일은 GitHub가 합니다.
+
+### 다음 단계
+
+좀 더 해 보고 싶다면 작성자는 세 가지를 권합니다.
+
+- **스케줄 추가**: 앞에서 본 `schedule` 트리거를 넣으면 매일 밤 사이트를 다시 빌드할 수 있습니다. cron이 UTC 기준이라는 점만 기억하면 됩니다.
+- **수동 실행 추가**: `workflow_dispatch`를 넣으면 **Run workflow** 버튼이 생겨서, 의미 없는 커밋 없이도 워크플로 변경을 테스트할 수 있습니다.
+- **실제 워크플로 읽어 보기**: 작성자의 [Hugo 사이트 전체 워크플로 파일](https://github.com/Juliecodestack/Juliecodestack.github.io/blob/main/.github/workflows/hugo.yml)을 열어 보세요. 여기까지 읽었다면 흐름을 따라갈 수 있을 겁니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
