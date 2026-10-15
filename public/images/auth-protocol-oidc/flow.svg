@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 600" role="img" aria-label="Authorization Code Flow with PKCE 시퀀스 다이어그램" font-family="Pretendard, system-ui, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#9a9aa2"/>
+    </marker>
+    <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4fc08d"/>
+    </marker>
+    <marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#6aa5ff"/>
+    </marker>
+  </defs>
+  <rect width="720" height="600" rx="14" fill="#101012" stroke="#232327"/>
+
+  <!-- participants -->
+  <rect x="40" y="20" width="160" height="44" rx="8" fill="#0c0c0d" stroke="#232327"/>
+  <text x="120" y="48" text-anchor="middle" fill="#e6e6e8" font-size="16" font-weight="700">사용자 (브라우저)</text>
+  <rect x="280" y="20" width="160" height="44" rx="8" fill="#0c0c0d" stroke="#6aa5ff"/>
+  <text x="360" y="48" text-anchor="middle" fill="#6aa5ff" font-size="16" font-weight="700">RP (내 서비스)</text>
+  <rect x="520" y="20" width="160" height="44" rx="8" fill="#0c0c0d" stroke="#4fc08d"/>
+  <text x="600" y="48" text-anchor="middle" fill="#4fc08d" font-size="16" font-weight="700">OP (구글)</text>
+
+  <line x1="120" y1="64" x2="120" y2="584" stroke="#232327" stroke-width="2" stroke-dasharray="4 4"/>
+  <line x1="360" y1="64" x2="360" y2="584" stroke="#232327" stroke-width="2" stroke-dasharray="4 4"/>
+  <line x1="600" y1="64" x2="600" y2="584" stroke="#232327" stroke-width="2" stroke-dasharray="4 4"/>
+
+  <!-- 1 -->
+  <circle cx="26" cy="100" r="11" fill="#232327"/><text x="26" y="105" text-anchor="middle" fill="#e6e6e8" font-size="14">1</text>
+  <line x1="122" y1="100" x2="358" y2="100" stroke="#9a9aa2" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="240" y="90" text-anchor="middle" fill="#e6e6e8" font-size="14">"Google로 로그인" 클릭</text>
+
+  <!-- 2 -->
+  <circle cx="26" cy="160" r="11" fill="#232327"/><text x="26" y="165" text-anchor="middle" fill="#e6e6e8" font-size="14">2</text>
+  <line x1="358" y1="168" x2="122" y2="168" stroke="#6aa5ff" stroke-width="1.5" marker-end="url(#b)"/>
+  <text x="240" y="134" text-anchor="middle" fill="#6aa5ff" font-size="14">302 리다이렉트 → OP /authorize</text>
+  <text x="240" y="156" text-anchor="middle" fill="#9a9aa2" font-size="14">scope=openid · state · nonce · code_challenge</text>
+
+  <!-- 2b browser to OP -->
+  <line x1="122" y1="214" x2="598" y2="214" stroke="#9a9aa2" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="360" y="204" text-anchor="middle" fill="#e6e6e8" font-size="14">브라우저가 OP의 /authorize로 이동</text>
+
+  <!-- 3 -->
+  <circle cx="26" cy="262" r="11" fill="#232327"/><text x="26" y="267" text-anchor="middle" fill="#e6e6e8" font-size="14">3</text>
+  <rect x="500" y="240" width="200" height="50" rx="8" fill="#0c0c0d" stroke="#4fc08d"/>
+  <text x="600" y="262" text-anchor="middle" fill="#4fc08d" font-size="14">로그인 + 동의 화면</text>
+  <text x="600" y="281" text-anchor="middle" fill="#9a9aa2" font-size="14">사용자가 직접 입력</text>
+
+  <!-- 4 -->
+  <circle cx="26" cy="330" r="11" fill="#232327"/><text x="26" y="335" text-anchor="middle" fill="#e6e6e8" font-size="14">4</text>
+  <line x1="598" y1="340" x2="122" y2="340" stroke="#4fc08d" stroke-width="1.5" marker-end="url(#g)"/>
+  <text x="360" y="322" text-anchor="middle" fill="#4fc08d" font-size="14">302 → redirect_uri?code=…&amp;state=…</text>
+  <line x1="122" y1="378" x2="358" y2="378" stroke="#9a9aa2" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="240" y="368" text-anchor="middle" fill="#e6e6e8" font-size="14">code 전달</text>
+
+  <!-- back channel band -->
+  <rect x="270" y="400" width="440" height="116" rx="8" fill="none" stroke="#232327" stroke-dasharray="5 4"/>
+  <text x="700" y="420" text-anchor="end" fill="#9a9aa2" font-size="14">back channel (서버 to 서버)</text>
+
+  <!-- 5 -->
+  <circle cx="26" cy="440" r="11" fill="#232327"/><text x="26" y="445" text-anchor="middle" fill="#e6e6e8" font-size="14">5</text>
+  <line x1="362" y1="448" x2="598" y2="448" stroke="#6aa5ff" stroke-width="1.5" marker-end="url(#b)"/>
+  <text x="480" y="440" text-anchor="middle" fill="#6aa5ff" font-size="14">POST /token</text>
+  <text x="480" y="466" text-anchor="middle" fill="#9a9aa2" font-size="14">code + code_verifier</text>
+
+  <!-- 6 -->
+  <circle cx="26" cy="490" r="11" fill="#232327"/><text x="26" y="495" text-anchor="middle" fill="#e6e6e8" font-size="14">6</text>
+  <line x1="598" y1="500" x2="362" y2="500" stroke="#4fc08d" stroke-width="1.5" marker-end="url(#g)"/>
+  <text x="480" y="492" text-anchor="middle" fill="#4fc08d" font-size="14">id_token + access_token</text>
+
+  <!-- 7 -->
+  <circle cx="26" cy="548" r="11" fill="#232327"/><text x="26" y="553" text-anchor="middle" fill="#e6e6e8" font-size="14">7</text>
+  <rect x="250" y="530" width="220" height="40" rx="8" fill="#0c0c0d" stroke="#6aa5ff"/>
+  <text x="360" y="555" text-anchor="middle" fill="#6aa5ff" font-size="14">ID Token 검증 → 세션 발급</text>
+</svg>

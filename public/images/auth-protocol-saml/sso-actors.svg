@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 390" role="img" aria-labelledby="t d" font-family="Pretendard, system-ui, sans-serif">
+  <title id="t">SAML SSO의 세 주체</title>
+  <desc id="d">사용자, Identity Provider, Service Provider 세 주체와 그 사이를 오가는 Assertion의 흐름</desc>
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#e6e6e8"/>
+    </marker>
+    <marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4fc08d"/>
+    </marker>
+  </defs>
+  <rect width="720" height="390" rx="14" fill="#101012"/>
+
+  <rect x="240" y="30" width="240" height="90" rx="10" fill="#0c0c0d" stroke="#4fc08d" stroke-width="2"/>
+  <text x="360" y="64" text-anchor="middle" font-size="17" font-weight="700" fill="#e6e6e8">Identity Provider (IdP)</text>
+  <text x="360" y="92" text-anchor="middle" font-size="14" fill="#9a9aa2">Okta · Entra ID · ADFS</text>
+
+  <rect x="30" y="250" width="200" height="90" rx="10" fill="#0c0c0d" stroke="#232327" stroke-width="2"/>
+  <text x="130" y="287" text-anchor="middle" font-size="17" font-weight="700" fill="#e6e6e8">Principal (사용자)</text>
+  <text x="130" y="314" text-anchor="middle" font-size="14" fill="#9a9aa2">브라우저로 접속</text>
+
+  <rect x="490" y="250" width="200" height="90" rx="10" fill="#0c0c0d" stroke="#6aa5ff" stroke-width="2"/>
+  <text x="590" y="287" text-anchor="middle" font-size="17" font-weight="700" fill="#e6e6e8">Service Provider (SP)</text>
+  <text x="590" y="314" text-anchor="middle" font-size="14" fill="#9a9aa2">Salesforce · Jira</text>
+
+  <path d="M90,248 L252,114" stroke="#e6e6e8" stroke-width="2" fill="none" marker-end="url(#ah)"/>
+  <text x="150" y="176" text-anchor="end" font-size="14" fill="#e6e6e8">① 로그인·인증</text>
+
+  <path d="M300,122 L202,248" stroke="#4fc08d" stroke-width="2" fill="none" marker-end="url(#ag)"/>
+  <text x="262" y="196" font-size="14" fill="#4fc08d">② Assertion 발급</text>
+
+  <path d="M232,295 L486,295" stroke="#4fc08d" stroke-width="2" fill="none" marker-end="url(#ag)"/>
+  <text x="360" y="284" text-anchor="middle" font-size="14" fill="#4fc08d">③ Assertion 제출</text>
+
+  <path d="M482,75 H590 V246" stroke="#6aa5ff" stroke-width="2" stroke-dasharray="6 5" fill="none"/>
+  <text x="576" y="140" text-anchor="end" font-size="14" fill="#6aa5ff">사전 신뢰 관계</text>
+  <text x="576" y="160" text-anchor="end" font-size="14" fill="#9a9aa2">(metadata 교환)</text>
+
+  <text x="360" y="372" text-anchor="middle" font-size="14" fill="#9a9aa2">실선: 로그인할 때마다 오가는 흐름 / 점선: 연동 설정 때 한 번 맺는 신뢰</text>
+</svg>

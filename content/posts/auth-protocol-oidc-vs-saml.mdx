@@ -1,0 +1,179 @@
+---
+title: "[인증 프로토콜] OIDC와 SAML, 무엇이 다른가 — 공문서와 신분증 카드 (3)"
+description: "SAML은 봉인된 XML 공문서, OIDC는 JWT 신분증 카드다. 같은 로그인 문제를 두 프로토콜이 어떻게 다르게 푸는지, 언제 무엇을 골라야 하는지 표와 그림으로 정리한다."
+date: "2026-10-15"
+published_at: "2026-10-15T09:03:00+09:00"
+category: "dev"
+tags: ["oidc", "saml", "sso", "authentication", "jwt"]
+slug: "auth-protocol-oidc-vs-saml"
+cover: "https://images.pexels.com/photos/284923/pexels-photo-284923.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+coverAlt: "Blue combination padlock securing a wooden gate"
+---
+
+## 같은 문제, 다른 서류
+
+"회사 계정으로 로그인"이라는 버튼은 SAML로도 만들 수 있고 OIDC로도 만들 수 있다. 사용자 눈에는 똑같이 보인다. 그런데 뒤에서 오가는 물건이 다르다. SAML은 **서명 도장이 찍힌 XML 공문서**를 브라우저 손에 들려 보내고, OIDC는 **서버끼리 직접 받아오는 JWT 신분증 카드**를 쓴다.
+
+이 글은 3부작의 마지막 편이다. 1편(OIDC)과 2편(SAML)을 안 읽었어도 따라올 수 있게 각자 한 번씩 요약하고, 둘을 나란히 놓고 비교한다. 결론부터 말하면, 새로 만드는 앱은 대체로 OIDC가 편하고 기존 기업 시스템과 붙을 때는 SAML을 피할 수 없다. 어느 쪽이 더 좋은지가 아니라 어느 시대에 어느 문제를 풀려고 나왔는지가 갈림길이다.
+
+## 먼저 비유로 잡고 가자
+
+회사 건물에 들어가려는 상황을 떠올려 보자.
+
+- **SAML**: 인사팀이 "이 사람은 홍길동, 개발팀 소속, 오늘 10시까지 유효"라고 적은 공문서에 직인을 찍어 방문자 손에 쥐여준다. 방문자는 그 종이를 그대로 안내데스크에 낸다. 데스크는 직인만 확인하면 된다. 종이는 길고 형식이 엄격하다.
+- **OIDC**: 인사팀이 방문자에게 직접 카드를 주지 않는다. 대신 "이 번호표를 들고 가세요"라는 임시 번호표(code)만 준다. 안내데스크가 그 번호표를 들고 인사팀에 직접 전화해서 신분증 카드를 받아온다. 카드는 작고 가볍고, 모바일 신분증처럼 어디서든 읽을 수 있다.
+
+종이를 사람이 들고 가느냐, 서버가 직접 받아오느냐. 이 차이가 뒤에 나오는 대부분의 차이를 설명한다.
+
+![SAML과 OIDC 로그인 흐름 비교](/images/auth-protocol-oidc-vs-saml/flow-comparison.svg)
+
+## 각자 한 줄 요약
+
+**SAML 2.0**은 2005년에 OASIS가 표준화한 프로토콜이다. 기업 내부의 웹 SSO를 풀려고 나왔다. 사용자가 한 번 로그인하면 여러 사내 웹 시스템에 다시 로그인하지 않고 들어간다. 신원 정보는 서명된 XML인 Assertion에 담긴다.
+
+**OIDC**(OpenID Connect)는 2014년에 OpenID Foundation이 내놓았다. 이미 널리 쓰이던 OAuth 2.0 위에 "이 사람이 누구인지"를 알려주는 층(ID Token)을 얹은 것이다. OAuth 2.0은 원래 "이 앱이 내 데이터에 접근해도 된다"는 인가 프로토콜이라 로그인 표준이 아니었다. OIDC가 그 빈자리를 채웠다. 웹뿐 아니라 모바일 앱과 API까지 염두에 두고 설계됐다.
+
+즉 SAML은 데스크톱 브라우저와 사내 포털의 시대에, OIDC는 모바일과 REST API의 시대에 태어났다.
+
+## 눈으로 보는 데이터 포맷
+
+같은 사람을 SAML과 OIDC가 각각 어떻게 표현하는지 보자. 둘 다 서명과 일부 필드를 생략한 축약본이다.
+
+```xml filename="SAML Assertion (축약)"
+<saml:Assertion ID="_a75adf55" IssueInstant="2026-10-15T00:03:00Z" Version="2.0">
+  <saml:Issuer>https://idp.example.com/metadata</saml:Issuer>
+  <ds:Signature>...</ds:Signature>
+  <saml:Subject>
+    <saml:NameID>hong@example.com</saml:NameID>
+  </saml:Subject>
+  <saml:Conditions NotOnOrAfter="2026-10-15T00:08:00Z">
+    <saml:AudienceRestriction>
+      <saml:Audience>https://app.example.com/saml</saml:Audience>
+    </saml:AudienceRestriction>
+  </saml:Conditions>
+  <saml:AttributeStatement>
+    <saml:Attribute Name="department">
+      <saml:AttributeValue>platform</saml:AttributeValue>
+    </saml:Attribute>
+  </saml:AttributeStatement>
+</saml:Assertion>
+```
+
+```json filename="ID Token payload (디코딩 결과)"
+{
+  "iss": "https://idp.example.com",
+  "sub": "248289761001",
+  "aud": "my-app-client-id",
+  "exp": 1792022580,
+  "iat": 1792022280,
+  "nonce": "n-0S6_WzA2Mj",
+  "email": "hong@example.com",
+  "department": "platform"
+}
+```
+
+담긴 정보는 거의 같다. 발급자(`Issuer`/`iss`), 대상자(`NameID`/`sub`), 수신 대상(`Audience`/`aud`), 만료 시각(`NotOnOrAfter`/`exp`), 부가 속성. 다른 건 포장이다. XML은 서명 위치와 네임스페이스까지 따라붙어서 읽기 무겁고, JWT는 `헤더.페이로드.서명` 세 덩어리를 Base64URL로 이어 붙인 한 줄 문자열이다. 위 JSON은 그중 가운데 덩어리를 풀어 본 것이다.
+
+## 용어는 번역하면 된다
+
+두 세계는 이름만 다르고 역할은 1:1로 겹치는 부분이 많다. 한쪽 문서를 읽다가 막히면 아래 대응표로 옮겨 생각하면 된다.
+
+![SAML과 OIDC 용어 대응표](/images/auth-protocol-oidc-vs-saml/terminology-map.svg)
+
+마지막 줄의 `≈`는 짚어둘 만하다. SAML Binding은 "메시지를 HTTP 위에 어떻게 싣느냐"의 규칙이다. 브라우저를 통해 Redirect나 POST로 XML을 전달한다. OIDC의 인가 코드 흐름은 브라우저 리다이렉트로 code만 받고, 실제 토큰은 서버가 `/token` 엔드포인트에 REST 호출로 가져온다. 그래서 1:1이 아니라 비슷하다는 의미의 `≈`로 적었다.
+
+## 전달 방식이 갈리는 지점
+
+SAML에서 Assertion은 사용자의 브라우저를 **경유**한다. IdP가 만든 서명된 XML이 브라우저의 HTML 폼 POST에 실려 SP로 간다. SP와 IdP는 로그인 중 서로 직접 통신하지 않아도 된다. 신뢰는 사전에 교환한 Metadata와 인증서로 성립한다.
+
+OIDC 인가 코드 흐름에서는 브라우저에 수명 짧은 `code`만 지나간다. 이 코드를 토큰으로 바꾸는 호출은 RP 서버가 OP의 `/token`으로 직접 보낸다(back-channel). 토큰이 브라우저 주소창이나 히스토리에 남을 일이 없다. 신뢰는 Discovery 문서(`/.well-known/openid-configuration`)와 JWKS 공개키로 만든다.
+
+```http filename="token 엔드포인트 호출 (back-channel)"
+POST /oauth2/token HTTP/1.1
+Host: idp.example.com
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=authorization_code
+&code=SplxlOBeZQQYbYS6WxSbIA
+&redirect_uri=https://app.example.com/callback
+&client_id=my-app-client-id
+&client_secret=...
+```
+
+이 한 번의 REST 호출 덕에 OIDC는 JSON 응답 하나에 ID Token과 Access Token을 같이 받을 수 있다.
+
+## 모바일, SPA, 그리고 API
+
+여기서 실무 체감 차이가 가장 크다.
+
+SAML은 브라우저가 폼을 POST하는 흐름을 전제한다. 네이티브 모바일 앱이나 순수 SPA에는 맞지 않는다. 비브라우저 클라이언트용 프로파일(ECP)이 표준에 있기는 하지만 실제로는 거의 안 쓴다. 앱에서 SAML을 억지로 쓰면 WebView에 로그인 페이지를 띄우고 응답을 가로채는 식의 우회가 된다.
+
+OIDC는 처음부터 이 환경을 고려했다. 시스템 브라우저를 띄우는 방식(RFC 8252)과 비밀 값을 못 숨기는 공개 클라이언트용 PKCE(RFC 7636)가 표준으로 정리돼 있고, 공식 라이브러리도 많다.
+
+API 접근도 다르다. OIDC는 OAuth 2.0 위에 있으니 로그인과 함께 **Access Token**을 받는다. 이 토큰으로 백엔드 API를 호출하고 scope로 권한 범위를 좁힌다. SAML Assertion은 "이 사람이 로그인했다"는 증명이지 API 호출용 토큰이 아니다. API에 쓰려면 OAuth SAML Bearer(RFC 7522) 같은 별도 경로로 토큰을 교환해야 하는데, 흔한 구성은 아니다.
+
+## 보안: 각자 다른 곳이 아프다
+
+둘 다 서명으로 위변조를 막는다. 그런데 사고가 나는 지점이 포맷에 따라 갈린다.
+
+| 구분 | 대표 공격 | 원리 | 방어 |
+| --- | --- | --- | --- |
+| SAML | XML Signature Wrapping | 서명이 유효한 부분은 그대로 두고, 검증기와 비즈니스 로직이 서로 다른 요소를 읽게 XML 구조를 바꿔치기 | 서명된 요소를 ID로 정확히 참조, 스키마 검증, 검증된 라이브러리 사용 |
+| SAML | XML 파서 취약점 | XXE 등 XML 파서 자체의 문제 | 외부 엔티티 비활성화 |
+| OIDC (JWT) | `alg: none` | 헤더에 서명 없음을 선언해 검증 우회 | 허용 알고리즘을 서버에서 고정 |
+| OIDC (JWT) | 알고리즘 혼동 | RS256용 공개키를 HS256의 비밀키처럼 사용해 위조 | 헤더의 `alg`를 믿지 말고 기대 알고리즘만 허용 |
+
+공통 교훈은 같다. **검증 로직을 직접 짜지 않는다.** 두 계열 모두 취약점은 프로토콜이 아니라 구현에서 나온 경우가 대부분이다. 그리고 `aud`, `iss`, 만료 시각, `nonce` 같은 클레임 검증은 서명 검증과 별개로 반드시 해야 한다.
+
+## 구현 난이도와 생태계
+
+체감 난이도는 OIDC가 낮다. JSON과 HTTP만 다룰 줄 알면 `curl`로 흐름을 따라가며 디버깅할 수 있다. 반면 SAML은 XML 서명, 정규화(canonicalization), 인증서 갱신 같은 주제를 만난다. 디버깅도 브라우저 확장 도구로 Base64 XML을 풀어 읽는 식이 된다.
+
+라이브러리는 둘 다 성숙하다. 다만 이것은 내 인상이라 정확하지 않을 수 있는데, 새 언어나 프레임워크에서 지원이 먼저 좋아지는 쪽은 대개 OIDC다. SAML 라이브러리는 엔터프라이즈 환경(Java/.NET)에 두껍게 쌓여 있다.
+
+## 로그아웃은 둘 다 어렵다
+
+로그인이 SSO면 로그아웃도 SSO여야 할 것 같지만, 현실은 그렇게 깔끔하지 않다.
+
+- **SAML**: Single Logout(SLO) 프로파일이 있다. IdP나 SP가 `LogoutRequest`를 보내고 다른 SP들에게 전파한다. 그런데 한 SP라도 응답이 없으면 전체가 어중간하게 끝나서 실무에서 자주 말썽이 난다.
+- **OIDC**: 세 가지 명세로 나뉜다. RP-Initiated Logout(앱이 OP에 로그아웃을 요청), Front-Channel Logout(브라우저 iframe 경유), Back-Channel Logout(OP가 RP 서버를 직접 호출). 서버끼리 부르는 Back-Channel이 신뢰성은 높지만, 지원 여부는 IdP마다 다르다.
+
+어느 쪽이든 "로그아웃하면 모든 앱이 즉시 세션을 끊는다"를 기대하면 안 된다. 앱 세션 수명을 짧게 가져가는 쪽이 현실적인 보험이다.
+
+## 한눈에 보는 비교표
+
+| 항목 | SAML 2.0 | OIDC |
+| --- | --- | --- |
+| 표준화 | 2005, OASIS | 2014, OpenID Foundation |
+| 기반 | 독립 프로토콜 (XML) | OAuth 2.0 위의 인증 층 |
+| 주 무대 | 엔터프라이즈 웹 SSO | 웹, 모바일, SPA, API |
+| 신원 증명 | Assertion (XML) | ID Token (JWT) |
+| 서명 방식 | XML Signature | JWS (JWT 서명) |
+| 전달 경로 | 브라우저 경유 (POST/Redirect) | 브라우저는 code만, 토큰은 back-channel |
+| 신뢰 설정 | Metadata XML, X.509 인증서 | Discovery 문서, JWKS |
+| API 인가 | 기본 지원 없음 | OAuth Access Token과 함께 |
+| 모바일/SPA | 어색함 | 표준 패턴(PKCE) 존재 |
+| 로그아웃 | SLO 프로파일 | RP-Initiated, Front/Back-Channel |
+| 대표 취약 지점 | XML Signature Wrapping, XML 파서 | alg none, 알고리즘 혼동 |
+| 구현·디버깅 | 무겁다 | 가볍다 |
+
+## 그래서 뭘 고를까
+
+![SAML과 OIDC 선택 의사결정 트리](/images/auth-protocol-oidc-vs-saml/decision-tree.svg)
+
+판단 순서는 단순하다.
+
+1. **상대가 SAML만 말하면 SAML이다.** 선택권이 없다. 오래된 사내 시스템, 일부 SaaS의 엔터프라이즈 SSO 기능이 여기에 해당한다.
+2. **모바일, SPA, 네이티브 앱이 있거나 API 권한도 같이 다뤄야 하면 OIDC다.**
+3. **새로 만드는 서비스에 기존 제약이 없으면 OIDC다.** 구현과 디버깅 비용이 낮다.
+4. **섞여 있으면 IdP를 앞에 두고 둘 다 지원한다.**
+
+네 번째가 의외로 흔하다. Keycloak, Okta, Microsoft Entra ID 같은 IdP는 SAML과 OIDC를 모두 지원한다. 사용자 계정과 MFA는 IdP 한 곳에서 관리하고, 앱마다 그 앱이 이해하는 프로토콜로 연결하면 된다. IdP가 SAML 쪽 로그인을 받아서 OIDC로 내보내는 브로커 역할도 한다(Keycloak의 Identity Brokering이 대표적이다).
+
+## 지금도 헷갈리는 것
+
+OIDC가 더 새롭고 가벼우니 SAML은 곧 사라질까 하는 질문을 종종 받는다. 내 생각은 아니다. 기업 환경에는 SAML로 이미 연동된 시스템이 수두룩하고, 그걸 OIDC로 갈아엎을 동기가 약하다. 새 시스템은 OIDC로 쌓이고 오래된 시스템은 SAML로 남는 공존이 한동안 이어질 것 같다. 이건 예측이라 틀릴 수 있다.
+
+정리하면, 둘은 경쟁자라기보다 서로 다른 시대의 같은 해법이다. SAML은 종이 공문서처럼 엄격하고 무겁고, OIDC는 모바일 신분증처럼 가볍고 어디서든 쓴다. 지금 눈앞의 연동 상대가 누구인지부터 확인하면 선택은 대개 거기서 끝난다.
+
+> 시리즈: [OIDC란](/blog/auth-protocol-oidc) · [SAML이란](/blog/auth-protocol-saml) · OIDC와 SAML의 차이 (이 글)

@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 448" role="img" aria-labelledby="t d" font-family="Pretendard, system-ui, sans-serif">
+  <title id="t">SAML과 OIDC 로그인 흐름 비교</title>
+  <desc id="d">왼쪽은 SAML의 5단계, 오른쪽은 OIDC 인가 코드 흐름의 5단계. SAML은 서명된 XML을 브라우저가 전달하고, OIDC는 서버가 token 엔드포인트에서 직접 토큰을 받는다.</desc>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,1 L9,5 L0,9 z" fill="#9a9aa2"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="720" height="448" rx="14" fill="#101012" stroke="#232327"/>
+
+  <!-- left: SAML -->
+  <text x="185" y="40" text-anchor="middle" font-size="18" font-weight="700" fill="#6aa5ff">SAML 2.0 (Web SSO)</text>
+  <text x="185" y="62" text-anchor="middle" font-size="14" fill="#9a9aa2">브라우저가 서류를 나른다</text>
+
+  <g font-size="14">
+    <rect x="20" y="76" width="330" height="56" rx="8" fill="#151518" stroke="#232327"/>
+    <text x="36" y="99" fill="#e6e6e8">1. 브라우저가 SP에 접근</text>
+    <text x="36" y="120" fill="#9a9aa2">로그인 안 됨 → IdP로 보냄</text>
+    <line x1="185" y1="132" x2="185" y2="146" stroke="#9a9aa2" stroke-width="1.5" marker-end="url(#ar)"/>
+
+    <rect x="20" y="148" width="330" height="56" rx="8" fill="#151518" stroke="#232327"/>
+    <text x="36" y="171" fill="#e6e6e8">2. SP가 AuthnRequest 생성</text>
+    <text x="36" y="192" fill="#9a9aa2">브라우저 리다이렉트로 전달</text>
+    <line x1="185" y1="204" x2="185" y2="218" stroke="#9a9aa2" stroke-width="1.5" marker-end="url(#ar)"/>
+
+    <rect x="20" y="220" width="330" height="56" rx="8" fill="#151518" stroke="#232327"/>
+    <text x="36" y="243" fill="#e6e6e8">3. IdP에서 사용자 로그인</text>
+    <text x="36" y="264" fill="#9a9aa2">사내 계정, MFA 등</text>
+    <line x1="185" y1="276" x2="185" y2="290" stroke="#9a9aa2" stroke-width="1.5" marker-end="url(#ar)"/>
+
+    <rect x="20" y="292" width="330" height="56" rx="8" fill="#151518" stroke="#6aa5ff" stroke-width="1.5"/>
+    <text x="36" y="315" fill="#e6e6e8">4. 서명된 XML Assertion</text>
+    <text x="36" y="336" fill="#6aa5ff">브라우저가 SP로 그대로 POST</text>
+    <line x1="185" y1="348" x2="185" y2="362" stroke="#9a9aa2" stroke-width="1.5" marker-end="url(#ar)"/>
+
+    <rect x="20" y="364" width="330" height="56" rx="8" fill="#151518" stroke="#232327"/>
+    <text x="36" y="387" fill="#e6e6e8">5. SP가 서명 검증</text>
+    <text x="36" y="408" fill="#9a9aa2">통과하면 자체 세션 발급</text>
+  </g>
+
+  <line x1="360" y1="28" x2="360" y2="420" stroke="#232327" stroke-dasharray="4 5"/>
+
+  <!-- right: OIDC -->
+  <text x="535" y="40" text-anchor="middle" font-size="18" font-weight="700" fill="#4fc08d">OIDC (인가 코드 흐름)</text>
+  <text x="535" y="62" text-anchor="middle" font-size="14" fill="#9a9aa2">서버가 카드를 직접 받아온다</text>
+
+  <g font-size="14">
+    <rect x="370" y="76" width="330" height="56" rx="8" fill="#151518" stroke="#232327"/>
+    <text x="386" y="99" fill="#e6e6e8">1. RP가 /authorize 로 이동</text>
+    <text x="386" y="120" fill="#9a9aa2">client_id, scope=openid</text>
+    <line x1="535" y1="132" x2="535" y2="146" stroke="#9a9aa2" stroke-width="1.5" marker-end="url(#ar)"/>
+
+    <rect x="370" y="148" width="330" height="56" rx="8" fill="#151518" stroke="#232327"/>
+    <text x="386" y="171" fill="#e6e6e8">2. OP에서 로그인·동의</text>
+    <text x="386" y="192" fill="#9a9aa2">사용자 인증 수행</text>
+    <line x1="535" y1="204" x2="535" y2="218" stroke="#9a9aa2" stroke-width="1.5" marker-end="url(#ar)"/>
+
+    <rect x="370" y="220" width="330" height="56" rx="8" fill="#151518" stroke="#232327"/>
+    <text x="386" y="243" fill="#e6e6e8">3. OP가 짧은 code 를 돌려줌</text>
+    <text x="386" y="264" fill="#9a9aa2">redirect_uri 로 리다이렉트</text>
+    <line x1="535" y1="276" x2="535" y2="290" stroke="#9a9aa2" stroke-width="1.5" marker-end="url(#ar)"/>
+
+    <rect x="370" y="292" width="330" height="56" rx="8" fill="#151518" stroke="#4fc08d" stroke-width="1.5"/>
+    <text x="386" y="315" fill="#e6e6e8">4. RP 서버가 /token 호출</text>
+    <text x="386" y="336" fill="#4fc08d">back-channel, REST/JSON</text>
+    <line x1="535" y1="348" x2="535" y2="362" stroke="#9a9aa2" stroke-width="1.5" marker-end="url(#ar)"/>
+
+    <rect x="370" y="364" width="330" height="56" rx="8" fill="#151518" stroke="#232327"/>
+    <text x="386" y="387" fill="#e6e6e8">5. ID Token(JWT) 수신</text>
+    <text x="386" y="408" fill="#9a9aa2">JWKS 공개키로 서명 검증</text>
+  </g>
+
+  <text x="360" y="438" text-anchor="middle" font-size="14" fill="#9a9aa2">강조 박스: 사용자 신원이 앱에 도착하는 경로가 갈리는 지점</text>
+</svg>

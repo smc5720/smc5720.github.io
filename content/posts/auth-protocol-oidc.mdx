@@ -1,0 +1,199 @@
+---
+title: "[인증 프로토콜] OIDC란 무엇인가 — 'Google로 로그인'의 정체 (1)"
+description: "'Google로 로그인' 버튼 뒤에서 실제로 오가는 것은 무엇인가. 호텔 키카드에 빗대어 OIDC의 등장인물, ID Token, Authorization Code Flow를 풀고 검증 실수까지 짚는다."
+date: "2026-10-15"
+published_at: "2026-10-15T09:01:00+09:00"
+category: "dev"
+tags: ["oidc", "oauth2", "authentication", "jwt", "security"]
+slug: "auth-protocol-oidc"
+cover: "https://images.pexels.com/photos/4006805/pexels-photo-4006805.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+coverAlt: "Iron gate with a padlock securing a closed entrance"
+---
+
+## 버튼 하나 뒤에서 일어나는 일
+
+처음 보는 서비스에서 "Google로 로그인"을 누르면 구글 화면이 잠깐 뜨고, 곧바로 로그인된 상태로 돌아온다. 가입 폼은 없었다. 그 서비스는 내 구글 비밀번호를 받은 적도 없다. 그런데 어떻게 "이 사람이 누구인지" 알게 된 걸까.
+
+답이 **OIDC(OpenID Connect)**다. 이 시리즈는 인증 프로토콜 두 개, OIDC와 SAML을 세 편에 걸쳐 비교한다. 1편은 OIDC 하나만 끝까지 판다. 결론부터 말하면 OIDC는 "신원 보증서(ID Token)를 안전하게 주고받는 규칙"이고, 개발자가 가장 자주 틀리는 부분은 그 보증서를 받은 뒤의 **검증**이다.
+
+## 호텔 키카드로 이해하기
+
+비유부터 잡는다. 호텔에 체크인하는 상황이다.
+
+- 프런트 데스크에서 신분증을 보여주고 **객실 키카드**를 받는다.
+- 키카드는 "304호 문을 열 수 있다"는 권한만 준다. 이 카드를 든 사람이 누구인지는 카드에 적혀 있지 않다.
+- 반대로 **여권**은 "이 사람은 홍길동이다"를 증명하지만, 304호 문을 열어주지는 않는다.
+
+OAuth 2.0은 키카드 쪽이다. "이 앱이 내 구글 드라이브에 접근해도 된다"는 **권한 위임(authorization)**을 위한 규격이다. 그래서 OAuth 2.0 토큰(access token)은 이 앱이 어디까지 할 수 있는지만 말하고, 사용자가 누구인지는 말하지 않는다.
+
+그런데 사람들은 이 토큰으로 로그인을 구현하기 시작했다. "토큰이 유효하면 이 사람이 맞겠지" 하고. 서비스마다 제각각의 방식으로 구글이든 페이스북이든 사용자 정보를 조회하는 API를 따로 만들어 붙였다. 표준이 없으니 보안 구멍도 제각각이었다.
+
+OIDC는 OAuth 2.0 위에 **여권**을 얹은 규격이다. 키카드 발급 절차는 그대로 두고, "이 사람이 누구인지 발급자가 서명해서 보증한다"는 한 장을 더 끼운다. 그 한 장이 **ID Token**이다.
+
+| | OAuth 2.0 | OIDC |
+| --- | --- | --- |
+| 답하는 질문 | 이 앱이 무엇을 할 수 있나 | 이 사람이 누구인가 |
+| 핵심 토큰 | access token | ID Token (+ access token) |
+| 호텔 비유 | 키카드 | 여권 |
+| 분류 | 인가(authorization) | 인증(authentication) |
+
+## 등장인물 세 명
+
+OIDC 문서에는 용어가 많은데, 실제로 기억할 역할은 셋이다.
+
+![OIDC의 세 등장인물: 사용자, RP, OP 사이의 관계](/images/auth-protocol-oidc/actors.svg)
+
+- **End-User**: 로그인하려는 사람.
+- **RP(Relying Party)**: 사용자가 누구인지 알아야 하는 서비스. OAuth 용어로는 Client다. 내가 만드는 웹앱이 보통 여기에 해당한다.
+- **OP(OpenID Provider)**: 사용자의 신원을 확인하고 보증하는 쪽. 구글, 카카오, 사내 Keycloak 같은 것들이다.
+
+핵심은 비밀번호가 OP에만 입력된다는 점이다. RP는 "OP가 서명한 증명서"만 받는다. 서비스가 해킹당해도 구글 비밀번호는 거기 없다.
+
+## ID Token은 JWT다
+
+OP가 발급하는 신원 보증서가 ID Token이고, 형식은 JWT(JSON Web Token)다. 점으로 이은 세 덩어리다.
+
+![ID Token의 구조: header.payload.signature와 주요 claim 설명](/images/auth-protocol-oidc/id-token.svg)
+
+가운데 payload를 디코딩하면 이런 JSON이 나온다.
+
+```json filename="decoded ID token payload"
+{
+  "iss": "https://accounts.google.com",
+  "sub": "110169484474386276334",
+  "aud": "1234567890-abc.apps.googleusercontent.com",
+  "iat": 1760486400,
+  "exp": 1760490000,
+  "nonce": "n-0S6_WzA2Mj",
+  "email": "user@example.com",
+  "email_verified": true,
+  "name": "홍길동"
+}
+```
+
+OIDC Core가 **반드시 있어야 한다고 못 박은** claim은 `iss`, `sub`, `aud`, `exp`, `iat` 다섯 개다. `nonce`는 요청에 nonce를 실어 보냈을 때 돌아온다. `email`, `name` 같은 건 요청한 scope에 따라 붙는 부가 정보다.
+
+이 중 `sub`가 가장 중요하다. 사용자를 식별하는 키는 이메일이 아니라 `(iss, sub)` 쌍이어야 한다. 이메일은 바뀔 수 있고, 다른 사람에게 재할당될 수도 있다. `sub`는 해당 OP 안에서 바뀌지 않는 값이다.
+
+그리고 하나 더. payload는 **암호화가 아니라 인코딩**이다. base64url로 풀면 누구나 읽는다. 서명은 "읽지 못하게" 하는 게 아니라 "고치지 못하게" 하는 장치다.
+
+## Authorization Code Flow
+
+로그인 과정 전체가 한 장에 들어간다. 웹 서비스처럼 서버가 있는 RP라면 OIDC가 권하는 방식은 Authorization Code Flow다.
+
+![Authorization Code Flow with PKCE 시퀀스 다이어그램](/images/auth-protocol-oidc/flow.svg)
+
+단계를 말로 풀면 이렇다.
+
+1. 사용자가 "Google로 로그인"을 누른다.
+2. RP가 사용자를 OP의 `/authorize`로 **리다이렉트**한다. 이때 "누구인지 알려달라(`scope=openid`)"는 요청과 몇 가지 안전장치 값을 쿼리에 싣는다.
+3. 사용자는 OP 화면에서 로그인하고 동의한다.
+4. OP가 사용자를 `redirect_uri`로 돌려보내며 **짧게 쓰고 버리는 `code`**를 붙인다.
+5. RP 서버가 OP의 `/token`을 **직접** 호출해 `code`를 토큰으로 바꾼다. 브라우저를 거치지 않는 서버 간 통신이다.
+6. OP가 `id_token`과 `access_token`을 돌려준다.
+7. RP가 ID Token을 검증하고 자기 세션을 만든다.
+
+왜 토큰을 바로 주지 않고 `code`를 한 번 거칠까. 4번은 브라우저 주소창을 지나간다. 히스토리나 로그, 확장 프로그램에 노출될 수 있는 구간이다. 그래서 여기서는 쓸모없는 임시 코드만 흘리고, 진짜 토큰은 5~6번의 서버 간 구간에서만 오간다.
+
+### 2번의 실제 요청
+
+2번 단계에서 브라우저가 OP로 보내는 요청은 이렇게 생겼다.
+
+```http filename="GET /authorize (줄바꿈은 가독성용)"
+GET /o/oauth2/v2/auth
+  ?response_type=code
+  &client_id=1234567890-abc.apps.googleusercontent.com
+  &redirect_uri=https%3A%2F%2Fmyapp.com%2Fcallback
+  &scope=openid%20email%20profile
+  &state=af0ifjsldkj
+  &nonce=n-0S6_WzA2Mj
+  &code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM
+  &code_challenge_method=S256 HTTP/1.1
+Host: accounts.google.com
+```
+
+파라미터 의미는 다음과 같다.
+
+- `scope=openid ...`: **`openid`가 없으면 그냥 OAuth 2.0 요청**이다. OIDC를 켜는 스위치다.
+- `state`: CSRF 방지용. RP가 만든 랜덤 값을 저장해뒀다가 돌아온 값과 비교한다.
+- `nonce`: ID Token과 이 요청을 묶는 값. ID Token을 훔쳐 다른 세션에 끼워 넣는 재사용 공격을 막는다.
+- `code_challenge`: PKCE. 아래에서 설명한다.
+
+### PKCE는 왜 필요한가
+
+PKCE(Proof Key for Code Exchange, RFC 7636)는 "`code`를 가로채도 못 쓰게" 만든다. 호텔 비유로는 예약할 때 나만 아는 비밀 문구를 정해두고, 키를 받을 때 그 문구를 말해야 내준다고 보면 된다.
+
+- RP가 랜덤 문자열 `code_verifier`를 만든다.
+- 그 SHA-256 해시를 `code_challenge`로 2번 요청에 실어 보낸다.
+- 5번 `/token` 호출에서 원본 `code_verifier`를 보낸다. OP는 해시를 다시 계산해 일치할 때만 토큰을 준다.
+
+`code`를 훔친 공격자는 `code_verifier`를 모른다. 원래 모바일 앱·SPA처럼 client secret을 못 숨기는 환경을 위해 나왔는데, 지금은 서버가 있는 RP에도 켜는 게 권장된다. 어차피 비용이 거의 없다.
+
+## scope와 UserInfo
+
+`scope`는 "어떤 정보를 달라"는 요청 범위다. OIDC가 정의한 표준 scope는 다음과 같다.
+
+| scope | 얻는 것 |
+| --- | --- |
+| `openid` | 필수. ID Token 발급 (`sub` 포함) |
+| `profile` | `name`, `picture`, `locale` 등 |
+| `email` | `email`, `email_verified` |
+| `address`, `phone` | 주소, 전화번호 |
+| `offline_access` | refresh token 요청 |
+
+이 정보가 ID Token에 다 들어가는 건 아니다. OP 구현에 따라 ID Token은 가볍게 두고, 나머지는 **UserInfo endpoint**에서 가져가게 하기도 한다. access token을 `Authorization: Bearer`로 실어 호출한다.
+
+```http filename="GET /userinfo"
+GET /v1/userinfo HTTP/1.1
+Host: openidconnect.googleapis.com
+Authorization: Bearer ya29.a0AfH6SMB...
+```
+
+여기서 UserInfo 응답의 `sub`는 ID Token의 `sub`와 같아야 한다. 스펙이 요구하는 검증 항목이다. 다르면 버려야 한다.
+
+## Discovery와 JWKS
+
+RP를 만들 때 OP의 엔드포인트 URL을 일일이 복사해 붙여넣을 필요는 없다. OP는 자기 정보를 한곳에 공개해둔다.
+
+```text filename="Discovery 문서 위치"
+{issuer}/.well-known/openid-configuration
+https://accounts.google.com/.well-known/openid-configuration
+```
+
+이 JSON에는 `authorization_endpoint`, `token_endpoint`, `userinfo_endpoint`, 그리고 `jwks_uri`가 들어 있다. 라이브러리에 issuer URL 하나만 주면 나머지는 알아서 채우는 이유다.
+
+`jwks_uri`가 가리키는 **JWKS(JSON Web Key Set)**는 OP의 **공개키 목록**이다. ID Token 서명을 검증할 때 쓴다. 토큰 header의 `kid`로 목록에서 맞는 키를 고른다. OP는 키를 주기적으로 교체하므로, JWKS를 코드에 박아두지 말고 캐시하되 `kid`를 못 찾으면 다시 받아와야 한다.
+
+## 검증에서 실수하기 쉬운 것들
+
+토큰을 받았다고 끝이 아니다. 받은 ID Token을 RP가 직접 검증해야 한다. 최소한 이 다섯 가지다.
+
+| 검증 | 확인할 것 | 빠뜨리면 |
+| --- | --- | --- |
+| 서명 | JWKS 공개키로 서명 검증, `alg`는 등록된 값만 허용 | 위조 토큰 통과 |
+| `iss` | 기대한 OP의 issuer와 정확히 일치 | 다른 OP가 발급한 토큰 통과 |
+| `aud` | 내 `client_id`를 포함 | 다른 서비스용 토큰 통과 |
+| `exp` | 현재 시각이 만료 이전 | 만료 토큰 재사용 |
+| `nonce` | 요청 때 저장한 값과 일치 | 토큰 재사용 공격 |
+
+특히 `aud` 검증을 빼먹는 경우가 흔하다. 서명만 맞으면 된다고 생각하기 쉬운데, 구글이 서명한 토큰이라도 **다른 앱을 위해 발급된 것**일 수 있다. 서명은 "구글이 만들었다"만 알려준다. "나한테 온 것이다"는 `aud`가 알려준다.
+
+또 하나는 토큰 종류의 혼동이다.
+
+- **ID Token**: RP가 읽고 검증하는 용도. "누구인가"가 담겨 있다. 내 백엔드 API의 인가용으로 쓰지 않는다.
+- **access token**: API 호출 용도. 대상 API가 해석한다. RP가 이 토큰 내용으로 사용자를 판단하면 안 된다. 형식도 OP 마음이다(JWT일 수도, 불투명 문자열일 수도 있다).
+
+"JWT니까 ID Token이겠지" 하고 access token을 로그인 증명으로 받아들이는 코드가 실제로 있다. 두 토큰은 `aud`부터 용도가 다르다.
+
+직접 구현하기보다는 검증된 라이브러리를 쓰는 게 낫다. 다만 라이브러리가 대신 해주는 일이 무엇인지는 알고 쓰자. 설정을 잘못 건드렸을 때 어디가 뚫리는지 아는 것과 모르는 것의 차이가 크다.
+
+## 정리
+
+- OAuth 2.0은 "무엇을 할 수 있나"(권한), OIDC는 그 위에 "누구인가"(신원)를 얹은 규격이다.
+- 신원은 OP가 서명한 JWT, ID Token으로 전달된다. 사용자 식별은 `(iss, sub)`로 한다.
+- 웹 서비스는 Authorization Code Flow + PKCE를 쓴다. 토큰은 서버 간 통신으로만 받는다.
+- 받은 ID Token은 서명, `iss`, `aud`, `exp`, `nonce`를 반드시 검증한다.
+
+지금도 헷갈리는 건 실무에서 UserInfo를 호출할지 ID Token claim만 쓸지의 기준이다. OP마다 ID Token에 담아주는 범위가 달라서 아직 정답을 못 정했다.
+
+다음 편에서는 OIDC보다 훨씬 오래된 기업용 SSO의 표준, [**SAML**](/blog/auth-protocol-saml)을 다룬다. 똑같이 "신원을 보증한다"는 일을 하는데 왜 XML을 쓰고, 어떤 모양으로 동작하는지 본다.

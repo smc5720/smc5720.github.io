@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 460" role="img" aria-labelledby="t d" font-family="Pretendard, system-ui, sans-serif">
+  <title id="t">SAML과 OIDC 용어 대응표</title>
+  <desc id="d">IdP와 OP, SP와 RP, Assertion과 ID Token, Metadata와 Discovery 문서, X.509 인증서와 JWKS, 브라우저 바인딩과 리다이렉트 더하기 token 엔드포인트가 서로 대응한다.</desc>
+  <rect x="0" y="0" width="720" height="460" rx="14" fill="#101012" stroke="#232327"/>
+
+  <text x="170" y="42" text-anchor="middle" font-size="18" font-weight="700" fill="#6aa5ff">SAML</text>
+  <text x="550" y="42" text-anchor="middle" font-size="18" font-weight="700" fill="#4fc08d">OIDC</text>
+  <text x="360" y="42" text-anchor="middle" font-size="14" fill="#9a9aa2">같은 역할</text>
+
+  <g font-size="15">
+    <!-- row 1 -->
+    <rect x="30" y="64" width="280" height="54" rx="8" fill="#151518" stroke="#232327"/>
+    <text x="46" y="96" fill="#e6e6e8">IdP (Identity Provider)</text>
+    <text x="360" y="97" text-anchor="middle" font-size="20" fill="#9a9aa2">↔</text>
+    <rect x="410" y="64" width="280" height="54" rx="8" fill="#151518" stroke="#232327"/>
+    <text x="426" y="96" fill="#e6e6e8">OP (OpenID Provider)</text>
+
+    <!-- row 2 -->
+    <rect x="30" y="130" width="280" height="54" rx="8" fill="#151518" stroke="#232327"/>
+    <text x="46" y="162" fill="#e6e6e8">SP (Service Provider)</text>
+    <text x="360" y="163" text-anchor="middle" font-size="20" fill="#9a9aa2">↔</text>
+    <rect x="410" y="130" width="280" height="54" rx="8" fill="#151518" stroke="#232327"/>
+    <text x="426" y="162" fill="#e6e6e8">RP (Relying Party)</text>
+
+    <!-- row 3 -->
+    <rect x="30" y="196" width="280" height="54" rx="8" fill="#151518" stroke="#232327"/>
+    <text x="46" y="228" fill="#e6e6e8">Assertion (서명된 XML)</text>
+    <text x="360" y="229" text-anchor="middle" font-size="20" fill="#9a9aa2">↔</text>
+    <rect x="410" y="196" width="280" height="54" rx="8" fill="#151518" stroke="#232327"/>
+    <text x="426" y="228" fill="#e6e6e8">ID Token (서명된 JWT)</text>
+
+    <!-- row 4 -->
+    <rect x="30" y="262" width="280" height="54" rx="8" fill="#151518" stroke="#232327"/>
+    <text x="46" y="294" fill="#e6e6e8">Metadata XML</text>
+    <text x="360" y="295" text-anchor="middle" font-size="20" fill="#9a9aa2">↔</text>
+    <rect x="410" y="262" width="280" height="54" rx="8" fill="#151518" stroke="#232327"/>
+    <text x="426" y="294" fill="#e6e6e8">Discovery 문서 (JSON)</text>
+
+    <!-- row 5 -->
+    <rect x="30" y="328" width="280" height="54" rx="8" fill="#151518" stroke="#232327"/>
+    <text x="46" y="360" fill="#e6e6e8">X.509 인증서 (Metadata 안)</text>
+    <text x="360" y="361" text-anchor="middle" font-size="20" fill="#9a9aa2">↔</text>
+    <rect x="410" y="328" width="280" height="54" rx="8" fill="#151518" stroke="#232327"/>
+    <text x="426" y="360" fill="#e6e6e8">JWKS (jwks_uri)</text>
+
+    <!-- row 6 -->
+    <rect x="30" y="394" width="280" height="54" rx="8" fill="#151518" stroke="#232327"/>
+    <text x="46" y="426" fill="#e6e6e8">POST / Redirect Binding</text>
+    <text x="360" y="427" text-anchor="middle" font-size="20" fill="#9a9aa2">≈</text>
+    <rect x="410" y="394" width="280" height="54" rx="8" fill="#151518" stroke="#232327"/>
+    <text x="426" y="426" fill="#e6e6e8">Redirect + /token (REST)</text>
+  </g>
+</svg>

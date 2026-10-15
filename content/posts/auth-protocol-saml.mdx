@@ -1,0 +1,191 @@
+---
+title: "[인증 프로토콜] SAML이란 무엇인가 — 사원증 한 장으로 회사 시스템을 다 여는 방법 (2)"
+description: "Okta로 로그인했는데 Salesforce와 Jira가 알아서 열리는 이유. SAML의 세 주체, Assertion 구조, 로그인 흐름, 그리고 구현에서 실제로 터지는 함정을 XML 예제와 함께 정리한다."
+date: "2026-10-15"
+published_at: "2026-10-15T09:02:00+09:00"
+category: "dev"
+tags: ["saml", "sso", "authentication", "security", "identity"]
+slug: "auth-protocol-saml"
+cover: "https://images.pexels.com/photos/13657444/pexels-photo-13657444.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
+coverAlt: "Hand holding an access card over a wall-mounted card reader"
+---
+
+## 회사 계정으로 로그인 버튼 하나
+
+Salesforce 로그인 화면에서 "회사 계정으로 로그인"을 누르면 사내 Okta 화면으로 넘어간다. 거기서 한 번 인증하고 나면 Salesforce가 열린다. 이어서 Jira를 누르면 이번엔 비밀번호를 묻지 않는다. 이 뒤에서 오가는 게 대부분 SAML이다.
+
+[1편](/blog/auth-protocol-oidc)에서 OIDC를 다뤘다. 이번 2편은 같은 문제를 훨씬 먼저 풀었던 SAML이다. XML이 줄줄이 나와서 첫인상이 별로지만, 구조를 한 번 잡아두면 그렇게 복잡하지 않다. 한국 엔터프라이즈 환경에서는 지금도 SAML을 만날 일이 많다.
+
+## SSO가 왜 필요했나
+
+직원 500명인 회사에 SaaS가 20개 있다고 하자. 시스템마다 계정을 따로 만들면 비밀번호가 1만 개다. 사람들은 같은 비밀번호를 돌려쓰고, 포스트잇에 적고, 퇴사자 계정은 어딘가에 살아남는다.
+
+SSO(Single Sign-On)는 이걸 뒤집는다. 인증은 한 곳에서만 하고, 나머지 시스템은 "그 한 곳이 인증했다더라"를 믿는다. 회사 입장에서 얻는 건 세 가지다.
+
+- **퇴사 처리가 한 군데로 끝난다.** 중앙 계정만 비활성화하면 연동된 시스템에 새로 들어갈 수 없다.
+- **MFA와 비밀번호 정책을 한 곳에서 강제한다.**
+- **로그인 감사 로그가 한곳에 모인다.**
+
+2005년에 OASIS가 표준으로 확정한 SAML 2.0이 바로 이 "믿는 방법"을 정한 규격이다. 모바일 앱이 없던 시절이라 전제는 **브라우저**다. 이 점이 나중에 OIDC와 갈리는 지점이 된다. 3편에서 다룬다.
+
+## 사원증 비유
+
+본사 인사팀이 사원증을 발급한다고 해보자. 협력사 건물 경비는 우리 회사 직원 명부를 갖고 있지 않다. 대신 "본사가 발급한 증명서라면 믿는다"는 약속만 되어 있다. 방문자가 증명서를 내밀면 경비는 이름, 발급처, 유효기간, 방문 대상 건물이 맞는지 보고, 위조 방지 도장이 진짜인지만 확인한다. 본사에 전화해서 물어보지 않는다.
+
+SAML이 정확히 이 구조다. 여권도 같은 원리다. 입국심사관은 발급국 정부에 전화하지 않는다. 위조 방지 장치를 보고 판단하고, 그 검증 방법은 나라끼리 미리 공유해 둔다. SAML에서 그 "미리 공유해 둔 검증 방법"이 뒤에 나올 metadata 속 인증서다.
+
+## 세 주체
+
+![SSO의 세 주체: 사용자, IdP, SP와 Assertion이 오가는 흐름](/images/auth-protocol-saml/sso-actors.svg)
+
+| 용어 | 비유 | 실제 |
+| --- | --- | --- |
+| Principal (User) | 방문자 | 브라우저를 쓰는 사람 |
+| Identity Provider (IdP) | 본사 인사팀 | Okta, Microsoft Entra ID(구 Azure AD), ADFS |
+| Service Provider (SP) | 협력사 건물 경비 | Salesforce, Jira 같은 서비스 |
+
+IdP가 "이 사람은 누구다"라는 **Assertion**을 만들어 서명하고, 사용자의 브라우저가 그걸 SP에 전달한다. SP는 IdP와 직접 통신하지 않는다. 사용자의 브라우저가 우편배달부 역할을 하는 셈이다. 그래서 SP가 사내망 안에 있든 인터넷 건너편에 있든 상관없다.
+
+## Assertion 해부
+
+![SAML Assertion의 여섯 요소와 각각이 답하는 질문](/images/auth-protocol-saml/assertion-anatomy.svg)
+
+실물을 먼저 보자. 아래는 SP로 돌아오는 Response를 잔가지만 쳐낸 것이다.
+
+```xml filename="SAMLResponse (decoded, trimmed)"
+<samlp:Response ID="_r8f2c1" InResponseTo="_a91b30"
+    IssueInstant="2026-10-15T00:01:10Z"
+    Destination="https://acme.my.salesforce.com/saml/acs"
+    xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
+    xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">
+  <saml:Issuer>https://idp.example.com/metadata</saml:Issuer>
+  <samlp:Status>
+    <samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/>
+  </samlp:Status>
+  <saml:Assertion ID="_e7c40d" IssueInstant="2026-10-15T00:01:10Z" Version="2.0">
+    <saml:Issuer>https://idp.example.com/metadata</saml:Issuer>
+    <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+      <!-- SignedInfo / Reference URI="#_e7c40d" / SignatureValue ... -->
+    </ds:Signature>
+    <saml:Subject>
+      <saml:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress">minchul@acme.com</saml:NameID>
+      <saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
+        <saml:SubjectConfirmationData InResponseTo="_a91b30"
+            Recipient="https://acme.my.salesforce.com/saml/acs"
+            NotOnOrAfter="2026-10-15T00:06:10Z"/>
+      </saml:SubjectConfirmation>
+    </saml:Subject>
+    <saml:Conditions NotBefore="2026-10-15T00:01:10Z" NotOnOrAfter="2026-10-15T00:06:10Z">
+      <saml:AudienceRestriction>
+        <saml:Audience>https://acme.my.salesforce.com</saml:Audience>
+      </saml:AudienceRestriction>
+    </saml:Conditions>
+    <saml:AuthnStatement AuthnInstant="2026-10-15T00:01:08Z" SessionIndex="_s55a">
+      <saml:AuthnContext>
+        <saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport</saml:AuthnContextClassRef>
+      </saml:AuthnContext>
+    </saml:AuthnStatement>
+    <saml:AttributeStatement>
+      <saml:Attribute Name="department">
+        <saml:AttributeValue>backend</saml:AttributeValue>
+      </saml:Attribute>
+    </saml:AttributeStatement>
+  </saml:Assertion>
+</samlp:Response>
+```
+
+SP가 눈여겨봐야 하는 건 이 필드들이다.
+
+- **Issuer**: 신뢰하기로 한 IdP의 entityID와 정확히 같은지 본다.
+- **NameID**: 사용자 식별자. 이메일 형식도 있고, 바뀌지 않는 persistent 식별자도 있다. 이메일은 바뀔 수 있어서 SP에서 계정 매칭 키로 쓰면 나중에 문제가 된다.
+- **Conditions**: `NotBefore`부터 `NotOnOrAfter` 직전까지만 유효하다. `NotOnOrAfter`는 그 시각 **이전까지**라서 정각이면 이미 무효다. `AudienceRestriction`의 Audience는 SP의 entityID다. 다른 SP용으로 발급된 Assertion을 내게 들고 오면 거부해야 한다.
+- **SubjectConfirmationData**: `Recipient`가 내 ACS URL인지, `InResponseTo`가 내가 보낸 요청 ID인지 본다.
+- **AuthnStatement**: 언제 어떤 방식으로 인증했는지. MFA를 했는지 여부를 `AuthnContextClassRef`로 판단하는 SP도 있다.
+- **AttributeStatement**: 부서, 그룹 같은 속성. SP가 권한 매핑에 쓴다.
+- **Signature**: Assertion 자체 또는 Response에 붙는 XML Signature. 이게 전부를 떠받친다.
+
+## 로그인 흐름: SP-initiated
+
+![SP-initiated 로그인 시퀀스: Browser, SP, IdP 사이 8단계](/images/auth-protocol-saml/sp-initiated-flow.svg)
+
+사용자가 먼저 SP를 찾아가는 흐름이다. 순서대로 따라가면 이렇다.
+
+1. 브라우저가 SP의 보호된 페이지를 요청한다. 세션이 없다.
+2. SP가 `AuthnRequest`를 만들어 IdP로 302 리다이렉트한다. 요청 ID를 기억해 둔다.
+3. 브라우저가 IdP의 SSO URL로 넘어간다.
+4. IdP가 사용자를 인증한다. 이미 IdP 세션이 있으면 이 단계는 화면 없이 지나간다. 두 번째 앱부터 비밀번호를 안 묻는 이유가 이거다.
+5. IdP가 서명된 Response를 담은 HTML 폼을 내려준다. 자바스크립트로 자동 제출된다.
+6. 브라우저가 SP의 ACS(Assertion Consumer Service) URL로 POST한다.
+7. SP가 서명, Conditions, `InResponseTo`를 검증하고 세션을 만든다.
+8. 원래 가려던 페이지로 보낸다.
+
+SP가 `RelayState`라는 값을 같이 보내면 IdP가 그대로 돌려준다. "원래 가려던 URL"을 기억하는 데 쓴다. 스펙상 80바이트를 넘으면 안 된다.
+
+**IdP-initiated**는 1~3번이 없다. 사용자가 Okta 대시보드의 Salesforce 타일을 누르면 IdP가 요청 없이 곧바로 Response를 만들어 SP로 보낸다. 편하지만 `InResponseTo`가 없어서 SP가 "내가 요청한 응답인지" 확인할 방법이 없다. 공격자가 남의 Assertion을 사용자 브라우저에 밀어 넣는 로그인 CSRF에 취약하다. 그래서 SP-initiated만 허용하는 설정을 권장하는 곳이 많다.
+
+## Binding: 메시지를 무엇에 실어 보내나
+
+같은 SAML 메시지라도 전달 방식이 여러 가지다. 이걸 binding이라 부른다.
+
+| Binding | 방식 | 주로 쓰이는 곳 |
+| --- | --- | --- |
+| HTTP-Redirect | 메시지를 DEFLATE 압축 후 base64, URL 인코딩해서 쿼리스트링에 싣는다. 서명은 XML 안이 아니라 쿼리 파라미터로 붙는다 | `AuthnRequest` (작아서 가능) |
+| HTTP-POST | base64 인코딩한 메시지를 HTML 폼 필드로 싣고 자동 제출한다 | `Response` (Assertion이 커서 URL에 못 담는다) |
+| HTTP-Artifact | 메시지 대신 짧은 참조값(artifact)만 브라우저로 보내고, 수신 측이 서버끼리 직접 SOAP으로 가져온다 | 브라우저에 Assertion을 노출하기 싫은 환경 |
+
+실무에서는 "요청은 Redirect, 응답은 POST" 조합이 사실상 기본이다. Artifact는 구성이 번거로워서 드물게 본다.
+
+## Metadata: 신뢰는 XML 한 장으로 맺는다
+
+IdP와 SP는 서로의 metadata를 교환한다. "연동 설정"이라는 작업의 실체가 이거다.
+
+```xml filename="IdP metadata (trimmed)"
+<EntityDescriptor entityID="https://idp.example.com/metadata"
+    xmlns="urn:oasis:names:tc:SAML:2.0:metadata">
+  <IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+    <KeyDescriptor use="signing">
+      <KeyInfo xmlns="http://www.w3.org/2000/09/xmldsig#">
+        <X509Data><X509Certificate>MIIC...</X509Certificate></X509Data>
+      </KeyInfo>
+    </KeyDescriptor>
+    <SingleSignOnService
+        Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+        Location="https://idp.example.com/sso"/>
+  </IDPSSODescriptor>
+</EntityDescriptor>
+```
+
+- **entityID**: 상대를 가리키는 이름. URL 모양이지만 실제로 접속하는 주소가 아니라 식별자다. Issuer와 Audience 검사에 쓴다.
+- **SingleSignOnService**: 사용자를 보낼 IdP 로그인 주소.
+- **X509Certificate**: Assertion 서명을 검증할 공개키. 여권의 "위조 식별 방법"이 이 자리에 있다.
+- SP 쪽 metadata에는 반대로 **AssertionConsumerService**(ACS URL)가 들어간다. IdP는 이 주소로만 Assertion을 보낸다.
+
+Salesforce를 예로 들면 Setup의 Single Sign-On Settings에 IdP의 Entity ID, 로그인 URL, 인증서를 넣는 게 전부다. 반대로 Okta나 Entra ID에서는 SP의 ACS URL과 Entity ID를 넣는다. Jira Cloud는 Atlassian Guard(구 Atlassian Access)에서 비슷하게 설정한다. 어디서든 결국 위 세 가지를 서로 맞바꾸는 일이다.
+
+## 구현에서 실제로 터지는 것들
+
+**서명 검증을 건너뛰거나 잘못한다.** SAML의 보안은 서명 하나에 달려 있다. 서명 검증이 빠지면 누구나 "나는 CEO"라는 Assertion을 만들 수 있다. 검증했다고 안심할 수도 없다. 서명이 유효하다는 것과 **내가 읽은 그 Assertion이 서명된 것이다**는 별개다.
+
+**XML Signature Wrapping(XSW).** 서명은 `Reference URI="#ID"`로 대상 요소를 가리킨다. 공격자는 서명된 진짜 Assertion을 다른 위치로 옮기고, 그 자리에 위조 Assertion을 끼워 넣는다. 서명 검증기는 ID로 원본을 찾아 "유효"라고 하고, 비즈니스 로직은 위조본을 읽는다. 2024년 ruby-saml의 서명 검증 우회(CVE-2024-45409)도 이런 계열의 파서 불일치 문제였다. 대응은 이렇다.
+
+- 직접 구현하지 말고, 관리되는 라이브러리를 쓰고 버전을 올린다.
+- 서명 검증을 통과한 **바로 그 노드**에서 값을 읽는다.
+- Assertion이 여러 개이거나 ID가 중복되면 거부한다.
+
+**시계 어긋남(clock skew).** `NotBefore`는 IdP 시계로 찍힌다. SP 서버 시계가 몇 분 느리면 방금 발급된 Assertion이 "아직 유효하지 않다"로 거부된다. 유효시간이 보통 몇 분 수준이라 오차 허용(보통 1~3분 정도)을 두되, 너무 넓히면 재사용 창이 커진다. NTP부터 확인하는 게 맞다.
+
+**Replay.** Bearer Assertion은 가진 사람이 곧 주인이다. 유효시간 안에 같은 Assertion이 두 번 들어오면 막도록, 사용한 Assertion ID를 `NotOnOrAfter`까지 기억해야 한다.
+
+**인증서 만료와 rotation.** IdP의 서명 인증서는 만료된다. 만료일에 맞춰 SP가 새 인증서로 갈아끼우지 않으면 그날 아침 전 직원이 로그인을 못 한다. 방지책은 IdP가 새 인증서를 metadata에 먼저 게시하고 SP가 둘 다 신뢰하는 중첩 기간을 두는 것, 그리고 만료일을 캘린더에 박아두는 것이다. metadata URL을 주기적으로 읽어 오는 SP라면 훨씬 수월하다.
+
+**Single Logout.** 스펙에는 SLO(Single Logout)가 있지만 SP 여러 곳의 세션을 정확히 끊는 건 구현 편차가 커서 신뢰하기 어렵다. 로그아웃 요구사항이 빡빡하면 미리 검증해 봐야 한다. 이 부분은 지금도 확신이 서지 않는다.
+
+## 정리
+
+SAML을 한 줄로 줄이면 **"IdP가 서명한 XML 증명서를 브라우저가 SP에 배달한다"**다. 외울 건 세 가지다.
+
+- 신뢰는 metadata로 **사전에** 맺는다. 로그인 때 IdP에 확인 전화를 하지 않는다.
+- Assertion의 가치는 서명, Audience, 유효시간 세 가지 검증에서 나온다.
+- 문제는 대개 프로토콜이 아니라 서명 검증, 시계, 인증서 만료 같은 운영에서 터진다.
+
+이렇게 잘 만들어진 SAML이 있는데 왜 OIDC가 나왔을까. 모바일 앱, SPA, API 호출에서는 XML을 브라우저에 실어 나르는 방식이 맞지 않았기 때문이다. [3편](/blog/auth-protocol-oidc-vs-saml)에서 두 프로토콜을 같은 로그인 장면에 나란히 놓고 비교한다.

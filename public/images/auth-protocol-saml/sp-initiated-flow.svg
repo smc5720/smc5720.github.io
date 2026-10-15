@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 520" role="img" aria-labelledby="t d" font-family="Pretendard, system-ui, sans-serif">
+  <title id="t">SP-initiated SAML 로그인 시퀀스</title>
+  <desc id="d">브라우저, SP, IdP 사이에서 AuthnRequest와 SAMLResponse가 오가는 8단계 흐름</desc>
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#e6e6e8"/>
+    </marker>
+    <marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4fc08d"/>
+    </marker>
+  </defs>
+  <rect width="720" height="520" rx="14" fill="#101012"/>
+
+  <g font-size="15" font-weight="700" text-anchor="middle" fill="#e6e6e8">
+    <rect x="45" y="16" width="150" height="40" rx="8" fill="#0c0c0d" stroke="#232327" stroke-width="2"/>
+    <text x="120" y="42">Browser</text>
+    <rect x="285" y="16" width="150" height="40" rx="8" fill="#0c0c0d" stroke="#6aa5ff" stroke-width="2"/>
+    <text x="360" y="42">SP (Salesforce)</text>
+    <rect x="525" y="16" width="150" height="40" rx="8" fill="#0c0c0d" stroke="#4fc08d" stroke-width="2"/>
+    <text x="600" y="42">IdP (Okta)</text>
+  </g>
+  <g stroke="#232327" stroke-width="2" stroke-dasharray="5 6">
+    <line x1="120" y1="58" x2="120" y2="506"/>
+    <line x1="360" y1="58" x2="360" y2="506"/>
+    <line x1="600" y1="58" x2="600" y2="506"/>
+  </g>
+
+  <g font-size="14" text-anchor="middle" fill="#e6e6e8" stroke="#101012" stroke-width="4" paint-order="stroke">
+    <text x="240" y="102">① GET /dashboard</text>
+    <text x="240" y="154">② 302 → IdP + SAMLRequest</text>
+    <text x="360" y="206">③ GET /sso?SAMLRequest=…</text>
+    <text x="360" y="310">⑤ 200 + 자동 제출 폼(SAMLResponse)</text>
+    <text x="240" y="362">⑥ POST /acs + SAMLResponse</text>
+    <text x="240" y="466">⑧ 302 /dashboard + 세션 쿠키</text>
+  </g>
+  <g font-size="14" text-anchor="middle" fill="#6aa5ff" stroke="#101012" stroke-width="4" paint-order="stroke">
+    <text x="240" y="174">HTTP-Redirect binding</text>
+    <text x="360" y="330">HTTP-POST binding</text>
+    <text x="240" y="382">HTTP-POST binding</text>
+  </g>
+
+  <g stroke-width="2" fill="none">
+    <path d="M122,110 H356" stroke="#e6e6e8" marker-end="url(#ah)"/>
+    <path d="M358,162 H124" stroke="#e6e6e8" marker-end="url(#ah)"/>
+    <path d="M122,214 H596" stroke="#e6e6e8" marker-end="url(#ah)"/>
+    <path d="M598,318 H124" stroke="#4fc08d" marker-end="url(#ag)"/>
+    <path d="M122,370 H356" stroke="#4fc08d" marker-end="url(#ag)"/>
+    <path d="M358,474 H124" stroke="#e6e6e8" marker-end="url(#ah)"/>
+  </g>
+
+  <rect x="440" y="238" width="260" height="40" rx="8" fill="#0c0c0d" stroke="#4fc08d" stroke-width="2"/>
+  <text x="570" y="263" text-anchor="middle" font-size="14" fill="#e6e6e8">④ 사용자 인증 (ID/PW, MFA)</text>
+
+  <rect x="230" y="400" width="260" height="40" rx="8" fill="#0c0c0d" stroke="#6aa5ff" stroke-width="2"/>
+  <text x="360" y="425" text-anchor="middle" font-size="14" fill="#e6e6e8">⑦ 서명·조건 검증 → 세션 생성</text>
+</svg>

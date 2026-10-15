@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 470" role="img" aria-labelledby="t d" font-family="Pretendard, system-ui, sans-serif">
+  <title id="t">SAML과 OIDC 선택 의사결정 트리</title>
+  <desc id="d">연동 대상이 SAML만 지원하면 SAML. 모바일, SPA, API 호출이 필요하면 OIDC. 새로 만드는 서비스면 OIDC. 그 외에는 둘 다 지원하는 IdP를 앞에 두고 프로토콜을 변환한다.</desc>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,1 L9,5 L0,9 z" fill="#9a9aa2"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="720" height="470" rx="14" fill="#101012" stroke="#232327"/>
+
+  <g font-size="15">
+    <!-- Q1 -->
+    <rect x="30" y="28" width="360" height="62" rx="10" fill="#151518" stroke="#6a6a72"/>
+    <text x="46" y="55" fill="#e6e6e8">연동할 상대가 SAML만 지원하는가?</text>
+    <text x="46" y="77" font-size="14" fill="#9a9aa2">레거시 사내 시스템, 일부 SaaS</text>
+    <line x1="390" y1="59" x2="478" y2="59" stroke="#9a9aa2" stroke-width="1.5" marker-end="url(#ar)"/>
+    <text x="434" y="50" text-anchor="middle" font-size="14" fill="#9a9aa2">예</text>
+    <rect x="480" y="34" width="210" height="50" rx="10" fill="#151518" stroke="#6aa5ff" stroke-width="1.5"/>
+    <text x="585" y="66" text-anchor="middle" font-weight="700" fill="#6aa5ff">SAML</text>
+    <line x1="210" y1="90" x2="210" y2="136" stroke="#9a9aa2" stroke-width="1.5" marker-end="url(#ar)"/>
+    <text x="226" y="118" font-size="14" fill="#9a9aa2">아니오</text>
+
+    <!-- Q2 -->
+    <rect x="30" y="138" width="360" height="62" rx="10" fill="#151518" stroke="#6a6a72"/>
+    <text x="46" y="165" fill="#e6e6e8">모바일·SPA·네이티브 앱이 있거나</text>
+    <text x="46" y="187" fill="#e6e6e8">API 호출 권한도 같이 필요한가?</text>
+    <line x1="390" y1="169" x2="478" y2="169" stroke="#9a9aa2" stroke-width="1.5" marker-end="url(#ar)"/>
+    <text x="434" y="160" text-anchor="middle" font-size="14" fill="#9a9aa2">예</text>
+    <rect x="480" y="144" width="210" height="50" rx="10" fill="#151518" stroke="#4fc08d" stroke-width="1.5"/>
+    <text x="585" y="176" text-anchor="middle" font-weight="700" fill="#4fc08d">OIDC</text>
+    <line x1="210" y1="200" x2="210" y2="246" stroke="#9a9aa2" stroke-width="1.5" marker-end="url(#ar)"/>
+    <text x="226" y="228" font-size="14" fill="#9a9aa2">아니오</text>
+
+    <!-- Q3 -->
+    <rect x="30" y="248" width="360" height="62" rx="10" fill="#151518" stroke="#6a6a72"/>
+    <text x="46" y="275" fill="#e6e6e8">새로 만드는 서비스인가?</text>
+    <text x="46" y="297" font-size="14" fill="#9a9aa2">기존 SAML 연동을 유지할 이유가 없다</text>
+    <line x1="390" y1="279" x2="478" y2="279" stroke="#9a9aa2" stroke-width="1.5" marker-end="url(#ar)"/>
+    <text x="434" y="270" text-anchor="middle" font-size="14" fill="#9a9aa2">예</text>
+    <rect x="480" y="254" width="210" height="50" rx="10" fill="#151518" stroke="#4fc08d" stroke-width="1.5"/>
+    <text x="585" y="286" text-anchor="middle" font-weight="700" fill="#4fc08d">OIDC</text>
+    <line x1="210" y1="310" x2="210" y2="356" stroke="#9a9aa2" stroke-width="1.5" marker-end="url(#ar)"/>
+    <text x="226" y="338" font-size="14" fill="#9a9aa2">아니오</text>
+
+    <!-- Bridge -->
+    <rect x="30" y="358" width="660" height="88" rx="10" fill="#151518" stroke="#6a6a72" stroke-dasharray="5 4"/>
+    <text x="360" y="390" text-anchor="middle" font-weight="700" fill="#e6e6e8">둘 다 쓴다: IdP를 앞에 두고 변환</text>
+    <text x="360" y="414" text-anchor="middle" font-size="14" fill="#9a9aa2">Keycloak · Okta · Entra ID 같은 IdP가 SAML과 OIDC를 동시에 말한다</text>
+    <text x="360" y="434" text-anchor="middle" font-size="14" fill="#9a9aa2">앱마다 SAML/OIDC 고르고, 사용자 계정은 한 곳에서 관리</text>
+  </g>
+</svg>

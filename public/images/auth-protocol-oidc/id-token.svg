@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" role="img" aria-label="ID Token의 구조: header, payload, signature" font-family="Pretendard, system-ui, sans-serif">
+  <rect width="720" height="420" rx="14" fill="#101012" stroke="#232327"/>
+
+  <text x="360" y="38" text-anchor="middle" fill="#9a9aa2" font-size="14">점(.)으로 이어 붙인 base64url 문자열 세 덩어리</text>
+
+  <!-- header -->
+  <rect x="30" y="60" width="180" height="56" rx="8" fill="#0c0c0d" stroke="#6aa5ff"/>
+  <text x="120" y="94" text-anchor="middle" fill="#6aa5ff" font-size="18" font-weight="700" font-family="ui-monospace, Consolas, monospace">header</text>
+  <text x="225" y="94" text-anchor="middle" fill="#e6e6e8" font-size="22">.</text>
+  <!-- payload -->
+  <rect x="240" y="60" width="240" height="56" rx="8" fill="#0c0c0d" stroke="#4fc08d"/>
+  <text x="360" y="94" text-anchor="middle" fill="#4fc08d" font-size="18" font-weight="700" font-family="ui-monospace, Consolas, monospace">payload (claims)</text>
+  <text x="495" y="94" text-anchor="middle" fill="#e6e6e8" font-size="22">.</text>
+  <!-- signature -->
+  <rect x="510" y="60" width="180" height="56" rx="8" fill="#0c0c0d" stroke="#9a9aa2"/>
+  <text x="600" y="94" text-anchor="middle" fill="#9a9aa2" font-size="18" font-weight="700" font-family="ui-monospace, Consolas, monospace">signature</text>
+
+  <!-- descriptions -->
+  <text x="30" y="148" fill="#e6e6e8" font-size="14">alg: RS256   kid: 어떤 키로 서명했나</text>
+  <text x="240" y="148" fill="#e6e6e8" font-size="14">"이 사람이 누구인가"를 담은 본문</text>
+  <text x="510" y="148" fill="#e6e6e8" font-size="14">위변조 방지 도장</text>
+
+  <line x1="30" y1="166" x2="690" y2="166" stroke="#232327"/>
+
+  <!-- claims table -->
+  <g font-size="15">
+    <text x="40" y="196" fill="#4fc08d" font-family="ui-monospace, Consolas, monospace" font-weight="700">iss</text>
+    <text x="130" y="196" fill="#e6e6e8">발급자. 구글이면 https://accounts.google.com</text>
+
+    <text x="40" y="226" fill="#4fc08d" font-family="ui-monospace, Consolas, monospace" font-weight="700">sub</text>
+    <text x="130" y="226" fill="#e6e6e8">사용자 고유 ID. 발급자 안에서 바뀌지 않는다</text>
+
+    <text x="40" y="256" fill="#4fc08d" font-family="ui-monospace, Consolas, monospace" font-weight="700">aud</text>
+    <text x="130" y="256" fill="#e6e6e8">이 토큰을 받을 서비스 (내 client_id)</text>
+
+    <text x="40" y="286" fill="#4fc08d" font-family="ui-monospace, Consolas, monospace" font-weight="700">exp</text>
+    <text x="130" y="286" fill="#e6e6e8">만료 시각 (Unix time, 초)</text>
+
+    <text x="40" y="316" fill="#4fc08d" font-family="ui-monospace, Consolas, monospace" font-weight="700">iat</text>
+    <text x="130" y="316" fill="#e6e6e8">발급 시각</text>
+
+    <text x="40" y="346" fill="#4fc08d" font-family="ui-monospace, Consolas, monospace" font-weight="700">nonce</text>
+    <text x="130" y="346" fill="#e6e6e8">내가 요청 때 보낸 값 그대로 (재사용 공격 방지)</text>
+  </g>
+
+  <line x1="30" y1="368" x2="690" y2="368" stroke="#232327"/>
+  <text x="360" y="396" text-anchor="middle" fill="#9a9aa2" font-size="14">payload는 암호화가 아니라 인코딩이다. 누구나 읽을 수 있다</text>
+</svg>

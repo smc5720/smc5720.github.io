@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 320" role="img" aria-label="OIDC 등장인물 세 명과 그들 사이의 관계" font-family="Pretendard, system-ui, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#9a9aa2"/>
+    </marker>
+    <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4fc08d"/>
+    </marker>
+  </defs>
+  <rect width="720" height="320" rx="14" fill="#101012" stroke="#232327"/>
+
+  <!-- End-User -->
+  <rect x="30" y="100" width="180" height="110" rx="10" fill="#0c0c0d" stroke="#232327"/>
+  <text x="120" y="140" text-anchor="middle" fill="#e6e6e8" font-size="18" font-weight="700">사용자</text>
+  <text x="120" y="164" text-anchor="middle" fill="#9a9aa2" font-size="14">End-User</text>
+  <text x="120" y="190" text-anchor="middle" fill="#9a9aa2" font-size="14">로그인하려는 사람</text>
+
+  <!-- RP -->
+  <rect x="270" y="100" width="180" height="110" rx="10" fill="#0c0c0d" stroke="#6aa5ff"/>
+  <text x="360" y="140" text-anchor="middle" fill="#6aa5ff" font-size="18" font-weight="700">내 서비스</text>
+  <text x="360" y="164" text-anchor="middle" fill="#9a9aa2" font-size="14">RP (Client)</text>
+  <text x="360" y="190" text-anchor="middle" fill="#9a9aa2" font-size="14">신원을 확인받고 싶은 쪽</text>
+
+  <!-- OP -->
+  <rect x="510" y="100" width="180" height="110" rx="10" fill="#0c0c0d" stroke="#4fc08d"/>
+  <text x="600" y="140" text-anchor="middle" fill="#4fc08d" font-size="18" font-weight="700">구글 같은 곳</text>
+  <text x="600" y="164" text-anchor="middle" fill="#9a9aa2" font-size="14">OP (OpenID Provider)</text>
+  <text x="600" y="190" text-anchor="middle" fill="#9a9aa2" font-size="14">신원을 보증하는 쪽</text>
+
+  <!-- arrows -->
+  <line x1="212" y1="140" x2="268" y2="140" stroke="#9a9aa2" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="240" y="128" text-anchor="middle" fill="#9a9aa2" font-size="14">접속</text>
+
+  <line x1="452" y1="140" x2="508" y2="140" stroke="#4fc08d" stroke-width="1.5" marker-end="url(#g)"/>
+  <text x="480" y="128" text-anchor="middle" fill="#4fc08d" font-size="14">보내기</text>
+
+  <path d="M 120 100 C 120 40, 600 40, 600 98" fill="none" stroke="#4fc08d" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#g)"/>
+  <text x="360" y="34" text-anchor="middle" fill="#4fc08d" font-size="14">실제 로그인은 여기서 (비밀번호는 OP에만 입력)</text>
+
+  <path d="M 600 212 C 600 262, 360 262, 360 214" fill="none" stroke="#4fc08d" stroke-width="1.5" marker-end="url(#g)"/>
+  <text x="480" y="284" text-anchor="middle" fill="#e6e6e8" font-size="14">ID Token: "이 사람은 sub=1234, 구글이 보증함"</text>
+  <text x="360" y="308" text-anchor="middle" fill="#9a9aa2" font-size="14">서비스는 비밀번호를 한 번도 보지 않는다</text>
+</svg>

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 520" role="img" aria-labelledby="t d" font-family="Pretendard, system-ui, sans-serif">
+  <title id="t">SAML Assertion의 구조</title>
+  <desc id="d">Assertion 안의 Issuer, Subject, Conditions, AuthnStatement, AttributeStatement, Signature 여섯 요소와 각각이 답하는 질문</desc>
+  <rect width="720" height="520" rx="14" fill="#101012"/>
+  <rect x="16" y="14" width="688" height="492" rx="12" fill="none" stroke="#232327" stroke-width="2"/>
+  <text x="36" y="44" font-size="16" font-weight="700" fill="#e6e6e8" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">saml:Assertion</text>
+  <text x="684" y="44" text-anchor="end" font-size="14" fill="#9a9aa2">IdP가 서명해서 보내는 "신원 증명서"</text>
+
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14" font-weight="700" fill="#e6e6e8">
+    <rect x="36" y="64" width="210" height="62" rx="8" fill="#0c0c0d" stroke="#232327" stroke-width="2"/>
+    <text x="52" y="101">Issuer</text>
+    <rect x="36" y="134" width="210" height="62" rx="8" fill="#0c0c0d" stroke="#232327" stroke-width="2"/>
+    <text x="52" y="171">Subject</text>
+    <rect x="36" y="204" width="210" height="62" rx="8" fill="#0c0c0d" stroke="#6aa5ff" stroke-width="2"/>
+    <text x="52" y="241">Conditions</text>
+    <rect x="36" y="274" width="210" height="62" rx="8" fill="#0c0c0d" stroke="#232327" stroke-width="2"/>
+    <text x="52" y="311">AuthnStatement</text>
+    <rect x="36" y="344" width="210" height="62" rx="8" fill="#0c0c0d" stroke="#232327" stroke-width="2"/>
+    <text x="52" y="381">AttributeStatement</text>
+    <rect x="36" y="414" width="210" height="62" rx="8" fill="#0c0c0d" stroke="#4fc08d" stroke-width="2"/>
+    <text x="52" y="451">Signature</text>
+  </g>
+
+  <g font-size="15" font-weight="700" fill="#e6e6e8">
+    <text x="266" y="90">누가 발급했나</text>
+    <text x="266" y="160">누구에 대한 주장인가</text>
+    <text x="266" y="230" fill="#6aa5ff">언제, 누구에게 유효한가</text>
+    <text x="266" y="300">어떻게 인증했나</text>
+    <text x="266" y="370">사용자 속성</text>
+    <text x="266" y="440" fill="#4fc08d">위변조 방지</text>
+  </g>
+  <g font-size="14" fill="#9a9aa2">
+    <text x="266" y="112">IdP의 entityID (SP가 신뢰 목록과 대조)</text>
+    <text x="266" y="182">NameID + SubjectConfirmation(Recipient = ACS URL)</text>
+    <text x="266" y="252">NotBefore · NotOnOrAfter · AudienceRestriction</text>
+    <text x="266" y="322">AuthnInstant · AuthnContextClassRef · SessionIndex</text>
+    <text x="266" y="392">email · displayName · groups 등 SP가 요청한 값</text>
+    <text x="266" y="462">IdP 개인키로 서명 (Reference URI = Assertion ID)</text>
+  </g>
+</svg>
