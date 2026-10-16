@@ -1,0 +1,88 @@
+﻿---
+title: "'로컬호스트'는 거짓말이다: 대학이 알려주지 않은 실무 개발의 다섯 가지 진실"
+description: "인턴십과 풀스택 개발을 거친 한 개발자가 대학 과제와 실무 사이의 간극을 다섯 가지로 정리했습니다. 배포, 지저분한 데이터, 읽기 쉬운 코드, 남의 코드 읽기, 실수에서 배우는 법을 다룹니다."
+slug: "localhost-is-a-lie-uni-vs-real-world-tech"
+date: "2026-10-13"
+published_at: "2026-10-16"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fc0vtjsmt280pxtbhor9e.jpg"
+coverAlt: "'Localhost' is a Lie: Everything Uni Missed About Real-World Tech"
+source_id: "devto-4846326"
+source_url: "https://dev.to/maame-codes/localhost-is-a-lie-everything-uni-missed-about-real-world-tech-66n"
+source_title: "'Localhost' is a Lie: Everything Uni Missed About Real-World Tech"
+source_author: "Maame Afua A. P. Fordjour"
+source_published: "2026-10-13"
+---
+
+<LinkCard url="https://dev.to/maame-codes/localhost-is-a-lie-everything-uni-missed-about-real-world-tech-66n" author="Maame Afua A. P. Fordjour" date="2026-10-13" />
+
+## 개요
+
+컴퓨터공학과 학생이라면 익숙한 흐름이 있습니다. 과제를 받고, 내 노트북의 `localhost`에서 코드를 짜고, 폴더를 압축해 마감 직전에 제출합니다. 내 화면에서 돌아가기만 하면 A를 받고 다음 과제로 넘어갑니다.
+
+그런데 인턴십을 시작하거나 실제 사용자가 쓸 앱을 만들기 시작하면 사정이 달라집니다. 작성자 Maame Afua A. P. Fordjour는 이 차이를 한 문장으로 정리했습니다.
+
+> **학교에서 코드는 잠깐 쓰고 버리는 것이다. 현실에서 코드는 계속 살아 있어야 한다.**
+> (In school, your code is temporary. In the real world, your code has to live.)
+
+작성자는 인턴십과 풀스택 개발로 보낸 6개월 동안, 몇 년간 들은 강의보다 실무 엔지니어링을 더 많이 배웠다고 말합니다. 그 경험에서 나온 다섯 가지 교훈을 소개합니다.
+
+## 대학과 실무 사이의 다섯 가지 간극
+
+### 1. 로컬호스트는 거짓말이다
+
+![키보드 버튼 클로즈업](https://images.pexels.com/photos/2882570/pexels-photo-2882570.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Miguel Á. Padriñán](https://www.pexels.com/@padrinan) on [Pexels](https://www.pexels.com/photo/close-up-shot-of-keyboard-buttons-2882570/)*
+
+대학에서는 내 노트북에서 코드가 돌아가면 할 일이 끝납니다. 실무에서는 **코드 작성이 절반에 불과합니다.** 진짜 일은 그 코드를 인터넷에 올리는 배포 단계에서 시작됩니다.
+
+작성자가 처음 프로젝트를 배포했을 때는 모든 게 무너졌습니다.
+
+- 환경 변수가 빠져서 서버가 죽었습니다.
+- 알 수 없는 CORS 오류 때문에 프론트엔드가 백엔드와 통신하지 못했습니다.
+- 내 컴퓨터에서는 멀쩡하던 앱이 온라인에서는 지나치게 느렸습니다.
+
+학교는 로컬에서 코드 짜는 법을 가르치고, 현업은 그 코드가 망가지지 않고 인터넷에서 계속 돌아가게 만드는 법을 가르친다는 게 작성자의 설명입니다.
+
+### 2. 실제 데이터는 지저분하다
+
+과제에 나오는 데이터는 깔끔합니다. 가상의 사용자는 모두 이름을 정확히 입력하고, 빈 필드도 없고, 데이터베이스 호출이 실패하는 일도 없습니다.
+
+실제 사용자는 그렇게 움직이지 않습니다.
+
+- 숫자 입력란에 글자를 넣습니다.
+- API 연결이 예고 없이 끊깁니다.
+- 데이터가 깨져서 오거나 필드 절반이 비어 있습니다.
+
+그래서 작성자는 실제 앱을 만들면서 **방어적인 코드**(defensive code)를 쓰는 법을 익혔습니다. 사람이 손대는 순간 앱이 죽지 않도록 로딩 화면, 오류 팝업, 대비책을 미리 만들어 둬야 한다는 것입니다.
+
+### 3. 영리한 코드보다 단순한 코드가 이긴다
+
+대학은 복잡한 수학과 기발한 알고리즘을 좋아합니다. 그러다 보니 좋은 코드는 복잡해 보여야 한다는 착각이 생깁니다.
+
+현업에서 **너무 영리한 코드는 골칫거리입니다.** 열 줄짜리 함수를 알아보기 힘든 자바스크립트 한 줄로 욱여넣은 코드를 반기는 시니어 개발자는 없습니다. 이름이 명확하고 바로 이해되는 코드를 원합니다. 다른 사람이, 혹은 새벽 2시의 미래의 내가 쉽게 읽지 못한다면 좋은 코드가 아니라고 작성자는 말합니다.
+
+### 4. 코드를 쓰는 시간보다 읽는 시간이 더 길다
+
+학교 프로젝트는 늘 빈 폴더에서 시작합니다. 모든 줄을 직접 썼으니 전부 알고 있습니다.
+
+실무에서는 2년 전에 회사를 떠난 개발자들이 남긴 수천 줄짜리 코드베이스에 갑자기 투입됩니다. 기존 프로젝트를 열어 데이터가 어떻게 흐르는지 따라가고, 다른 곳 세 군데를 망가뜨리지 않고 버그 하나를 고치는 일은 그 자체로 큰 역량입니다. 작성자는 대학이 이 부분을 거의 준비시켜 주지 않는다고 지적합니다.
+
+### 5. 무언가를 망가뜨려 봐야 제대로 배운다
+
+학교에서는 버그 하나가 학점을 깎기 때문에 실수를 두려워하게 됩니다.
+
+현실에서는 **망가뜨리면서 성장합니다.** 작성자에게 가장 큰 도약은 과제에서 높은 점수를 받았을 때가 아니라, 빌드를 깨뜨리고 압박 속에서 침착하게 로그를 뒤져 고친 뒤 같은 실수를 반복하지 않도록 했을 때 찾아왔다고 합니다.
+
+## 마무리: 학위는 기초, 엔지니어는 배포에서 만들어진다
+
+작성자는 컴퓨터공학 학위가 탄탄한 기초를 주지만, **실제 프로젝트를 출시해 봐야 엔지니어가 된다**고 정리합니다.
+
+아직 학생이고 학점과 실제 실력 사이의 차이가 걱정된다면, 수업이 따라오기를 기다리지 말라고 조언합니다. 작은 프로젝트를 만들어 직접 배포해 보고, 인턴십에 도전하고, 무언가를 망가뜨리는 걸 두려워하지 말라는 것입니다.
+
+*원문 커버 이미지: Photo by [Dom Fou](https://unsplash.com/@domlafou) on [Unsplash](https://unsplash.com/photos/people-sitting-on-chair-in-front-of-computer-YRMWVcdyhmI)*
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

@@ -455,6 +455,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/dailycontext/design-for-churn-5c6h": {
+    "ok": true,
+    "title": "Design for Churn",
+    "description": "The biggest design shift of the AI era isn’t about who writes the code. It’s about how long the code...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F4cyn0n0uzj2m1wnya1y0.jpeg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-16"
+  },
   "https://dev.to/dailycontext/from-harness-engineering-to-evals-4212": {
     "ok": true,
     "title": "From Harness Engineering to Evals: What’s Trending at AI Engineer",
@@ -2207,6 +2215,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/jess/how-i-feel-about-the-grace-hopper-celebration-getting-cancelled-3l2k": {
+    "ok": true,
+    "title": "How I Feel about the Grace Hopper Celebration Getting Cancelled",
+    "description": "The Grace Hopper Celebration has been around since 1994, and for a lot of people, it's the event for...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F3w45a3d1mjqg6g9mhebf.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-16"
+  },
   "https://dev.to/jon_at_backboardio/internmaxxing-vs-old-man-shakes-fist-at-cloud-5bnd": {
     "ok": true,
     "title": "Internmaxxing vs. Old Man Shakes Fist at Cloud",
@@ -2422,6 +2438,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fjkefqnwarmqoxiv5dy8n.jpg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-24"
+  },
+  "https://dev.to/maame-codes/localhost-is-a-lie-everything-uni-missed-about-real-world-tech-66n": {
+    "ok": true,
+    "title": "'Localhost' is a Lie: Everything Uni Missed About Real-World Tech",
+    "description": "Every CS student knows the drill. You get an assignment, write your code on your laptop using...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fc0vtjsmt280pxtbhor9e.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-16"
   },
   "https://dev.to/maame-codes/someone-already-built-that-is-the-favourite-excuse-of-broke-developers-44o6": {
     "ok": true,
@@ -3294,6 +3318,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fw03r4jpc38l2bc7fosv1.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-15"
+  },
+  "https://dev.to/webdeveloperhyper/ai-avatar-v25-avatar-run-voxel-avatar-muscle-brain-5gi3": {
+    "ok": true,
+    "title": "AI Avatar v25 (Avatar Run, Voxel Avatar, Muscle Brain)💪",
+    "description": "Intro   AI Avatar is a free app where your VRoid (VRM) avatar cheers you with all its...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fqflfozyi3kyv0xfa4ijs.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-16"
   },
   "https://dev.to/wiseai/i-built-a-version-bump-tool-in-rust-that-is-10000x-faster-than-its-python-counterparts-i6b": {
     "ok": true,

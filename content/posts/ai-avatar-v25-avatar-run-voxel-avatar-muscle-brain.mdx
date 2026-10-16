@@ -1,0 +1,121 @@
+﻿---
+title: "AI Avatar v25 업데이트: 아바타 런, 머슬 브레인 3D, 복셀 아바타 개선"
+description: "VS Code와 브라우저 사이드 패널에서 VRM 아바타가 응원해 주는 무료 앱 AI Avatar가 v25를 내놨습니다. 아바타 런 게임과 두뇌 훈련 게임 Muscle Brain 3D를 추가하고, Jev 기반 감정 판별과 Codex 지원도 들어갔습니다."
+date: "2026-10-14"
+published_at: "2026-10-16"
+slug: "ai-avatar-v25-avatar-run-voxel-avatar-muscle-brain"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fqflfozyi3kyv0xfa4ijs.png"
+coverAlt: "AI Avatar v25 (Avatar Run, Voxel Avatar, Muscle Brain)💪"
+source_id: "devto-4647583"
+source_url: "https://dev.to/webdeveloperhyper/ai-avatar-v25-avatar-run-voxel-avatar-muscle-brain-5gi3"
+source_title: "AI Avatar v25 (Avatar Run, Voxel Avatar, Muscle Brain)💪"
+source_author: "Web Developer Hyper"
+source_published: "2026-10-14"
+---
+
+<LinkCard url="https://dev.to/webdeveloperhyper/ai-avatar-v25-avatar-run-voxel-avatar-muscle-brain-5gi3" author="Web Developer Hyper" date="2026-10-14" />
+
+## 개요
+
+**AI Avatar**는 VRoid(VRM) 아바타가 코딩하는 사용자를 온 힘을 다해 응원해 주는 무료 앱입니다. VS Code 사이드바에 띄우면 Claude Code, Codex, GitHub Copilot에 반응하고, 브라우저 사이드 패널에 띄우면 ChatGPT와 Claude에 반응합니다. 애니메이션과 말풍선은 AI 없이도 돌아갑니다.
+
+개발자 Web Developer Hyper가 v25 업데이트를 공개했습니다. 이번 버전에서 바뀐 것은 크게 다섯 가지입니다.
+
+- 새 게임 **Avatar Run**
+- 두뇌 훈련 게임 **Muscle Brain 2D/3D** 이식
+- **Voxel Avatar** 업데이트
+- 새 AI **Jev**를 활용한 기능
+- **Codex** 지원
+
+## 새로 들어온 게임
+
+![Friends playing a virtual reality game together](https://images.pexels.com/photos/6498306/pexels-photo-6498306.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Tima Miroshnichenko](https://www.pexels.com/@tima-miroshnichenko) on [Pexels](https://www.pexels.com/photo/friends-playing-a-virtual-reality-game-together-6498306/)*
+
+### Avatar Run
+
+[YouTube 영상 보기 →](https://www.youtube.com/watch?v=XFJPhHryzYg)
+
+Avatar Run은 마블 런(marble run) 방식의 게임입니다. 함정을 피하고 트랙에서 떨어지지 않게 조심하며 골인 지점까지 가면 됩니다.
+
+처음에는 구슬이 굴러가는 평범한 마블 런으로 만들었습니다. 그런데 AI Avatar 세계관에 더 어울리게 하고 싶어서 구슬 대신 아바타가 트랙을 달리도록 바꿨습니다. 구슬 버전도 버튼 하나로 즐길 수 있게 남겨 뒀습니다. 개발자는 앞으로 Voxel Avatar처럼 코딩 중에도 볼 수 있는 자동 모드를 추가할 수도 있다고 밝혔습니다.
+
+### Muscle Brain 2D/3D
+
+[YouTube 영상 보기 →](https://www.youtube.com/watch?v=Fmc6esopt4k)
+
+Muscle Brain은 개발자가 지난해 만들어 `Microsoft Store`와 `Chrome 확장`으로 공개했던 두뇌 훈련 게임입니다. 한동안 잊고 지내다 최근 확인해 보니 여전히 다운로드가 꾸준히 일어나고 있었고, 이를 계기로 AI Avatar로 옮기기로 했습니다.
+
+이식은 생각보다 순탄치 않았습니다. 원래 Muscle Brain은 `Next.js`, `React`, `KendoReact`, `CSS-in-JS`와 `Tailwind CSS`로 만든 반면, AI Avatar는 대부분 순수 `TypeScript`로 짜여 있어 코드를 새로 써야 했습니다. AI에 맡기면 금방 끝날 줄 알았지만 결과물에는 회귀(regression)가 잔뜩 있었습니다. 몇 번을 고쳐 달라고 해도 문제가 줄지 않았는데, 알고 보니 AI가 내놓은 코드 길이가 원본의 절반밖에 되지 않았습니다. 개발자는 결국 처음부터 다시 시작했고, 이번에는 "코드를 절대 빼지 말라"고 강하게 지시해 이식을 마쳤습니다.
+
+원래 게임은 숫자나 글자를 기억하는 방식이었습니다. 여기에 3D 공간 정보를 기억하는 버전을 더해 **Muscle Brain 3D**를 새로 만들었습니다.
+
+### Voxel Avatar 업데이트
+
+[v22 영상 보기 →](https://www.youtube.com/watch?v=Hm1q03RXCwg)
+
+[v21 영상 보기 →](https://www.youtube.com/watch?v=iRlw3OASnWI)
+
+Voxel Avatar는 정원을 가꾸고 동물을 배치하는 방치형(idle) 게임입니다. 정원은 자동으로 키울 수도, 직접 손볼 수도 있습니다.
+
+이번에는 정원 패턴과 동물 종류를 늘리고, 외곽선 표시 설정 같은 사용성 개선도 넣었습니다. 롤러코스터 빌더도 추가해서 직접 만든 코스를 타고 복셀 세계를 둘러볼 수 있습니다.
+
+## AI로 3D 모델 만들기
+
+개발자는 예전부터 AI로 3D 오브젝트 모델을 만들어 AI Avatar에 넣고 싶었습니다. 하지만 당시 AI는 3D를 잘 다루지 못해 아이디어를 접어 뒀다가, 최근 AI 성능이 올라오면서 다시 시도했습니다.
+
+과정은 이렇습니다.
+
+1. `ChatGPT`로 참조 이미지를 만든다. 정면뿐 아니라 측면과 위에서 본 모습까지 함께 뽑는 것이 핵심이다.
+2. AI에게 3D 오브젝트를 그리는 `Three.js` 코드를 작성하게 한다.
+3. 하네스(harness)를 만들어 코드 생성 → 렌더링 결과와 참조 이미지 비교 → 코드 수정을 반복시킨다.
+
+이 하네스 덕분에 AI를 한동안 알아서 돌릴 수 있었습니다. 하네스까지 갖췄으니 가장 비싼 최신 모델인 `Astra`까지는 필요 없겠다고 판단해, 비용을 아끼려고 더 저렴한 `Sonnet 5`로 바꿔 봤습니다. 그러나 `Sonnet 5`는 3D 모델을 전혀 만들어 내지 못했습니다.
+
+![Image description](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/1bp9lsn8we02yilmxtgu.png)
+
+개발자는 3D 모델 생성 품질은 하네스보다 AI 모델 자체에 달려 있다고 봤습니다. 다만 최근 `Opus 5.5`와 `Sol 6.1`이 나왔으니 다시 테스트하면 결과가 달라질 수 있다고 덧붙였습니다.
+
+## Jev로 바꾼 감정 판별과 개발 로그
+
+[YouTube 영상 보기 →](https://www.youtube.com/watch?v=5gn6hlxRUWY)
+
+`Jev`는 매우 빠르고 매우 저렴한 것이 특징인 새 AI입니다. 텍스트를 생성하지 않고 판단 결과와 점수만 돌려주기 때문에 이런 속도와 가격이 가능하다고 합니다.
+
+AI Avatar에는 원래 긍정/부정을 판별해 그에 맞는 피드백 애니메이션을 보여 주는 기능이 있었습니다. 하지만 단어 목록으로만 판단하다 보니 정확도가 낮았고, 이번에 Jev의 긍정/부정 판별 기능을 붙여 개선했습니다.
+
+개발 로그(dev log)도 새로 생겼습니다. Claude Code와 Codex에 보낸 요청을 버그 수정, 새 기능, 질문, 기타로 나눠 기록하고, 일·주·전체 기간별로 보여 줍니다. 개발자는 이 로그가 코딩 의욕을 북돋워 주길 바란다고 했습니다.
+
+## Codex 지원
+
+개발자는 회사에서는 `Claude Code`와 `Codex`를 함께 쓰지만, 집에서는 Claude Code만 써 왔습니다. 그러다 `Astra`가 3D를 잘 다룬다는 이야기를 듣고, Voxel Avatar에 새 3D 오브젝트를 넣는 데 쓰려고 Codex를 구독했습니다. 이참에 AI Avatar도 Codex에 반응하도록 지원을 추가했습니다.
+
+## 설치 방법
+
+### VS Code 확장 (설치 300회 돌파)
+
+두 가지 방법이 있습니다.
+
+- **VS Code에서 바로 설치:** 왼쪽 사이드바의 `Extensions` 버튼 → **AI Avatar** 검색 → `Install`
+
+![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/tth8lq5he7amhieh2l9v.png)
+
+- **VS Code Marketplace에서 설치:** [AI Avatar – VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=web-developer-hyper.ai-avatar)
+
+![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/ntpvooe7n55djawitt9g.png)
+
+### Chrome 버전
+
+[Chrome 웹 스토어에서 설치 →](https://chromewebstore.google.com/detail/ai-avatar/afmcfaeaaojalninahhhjnonhmlmiidi)
+
+## 함께 만든 사람들과 다음 계획
+
+개발자는 버전마다 도움을 준 DEV 커뮤니티 친구와 동료들에게 감사를 전했습니다. v17에서 Catbot과 협업한 @annavi11arrea1, v15의 이펙트 제작을 도운 @rutenveil, v2 업데이트에 참여한 @gramli, AI Avatar의 출발점이 된 아바타 협업 프로젝트를 함께한 @itsugo, v6에서 독특한 아바타를 만든 동료 Maximum Blue입니다. 개발자는 이들에게 CCO, CDO, CTO, CMO 같은 장난스러운 직함을 붙여 소개했습니다.
+
+v26 업데이트는 이미 작업 중입니다. 개발자는 앞으로도 재미있는 기능을 더하고 최신 AI를 활용하겠다고 밝혔고, 더 재미있게 만들 아이디어나 AI 기능, 아바타·애니메이션, 사용성 개선, 사용자 확대 방안에 대한 의견을 댓글로 받고 있습니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

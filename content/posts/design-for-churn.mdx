@@ -1,0 +1,78 @@
+﻿---
+title: "코드는 오래 남는다는 전제를 버리자: 'Design for Churn'"
+description: "AI 시대에는 코드를 쓰는 비용보다 코드가 얼마나 오래 남느냐가 설계의 핵심 변수가 됐다고 Ben Halpern은 말합니다. 그는 잦은 변경(churn)을 결함의 신호로만 보지 말고, 설계에 미리 반영하자고 제안합니다."
+date: "2026-10-14"
+published_at: "2026-10-16"
+category: "news"
+tags: []
+slug: "design-for-churn"
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F4cyn0n0uzj2m1wnya1y0.jpeg"
+coverAlt: "Design for Churn"
+source_id: "devto-4846219"
+source_url: "https://dev.to/dailycontext/design-for-churn-5c6h"
+source_title: "Design for Churn"
+source_author: "Ben Halpern"
+source_published: "2026-10-14"
+---
+
+<LinkCard url="https://dev.to/dailycontext/design-for-churn-5c6h" author="Ben Halpern" date="2026-10-14" />
+
+## 개요
+
+DEV 커뮤니티를 만든 Ben Halpern이 AI 시대 소프트웨어 설계에 관한 글을 올렸습니다. 그가 꼽은 가장 큰 변화는 "누가 코드를 쓰느냐"가 아닙니다. **코드가 얼마나 오래 살아남을 거라고 기대하느냐**입니다.
+
+업계는 그동안 자주 바뀌는 코드, 즉 churn을 나쁜 신호로 여겨 왔습니다. Halpern은 이 감각이 코드 작성 비용이 비쌌던 시절에 굳어졌다고 봅니다. 기능 하나를 스프린트 대신 오후 한나절에 만들 수 있다면 계산이 뒤집힙니다. 공들여 보존하는 것보다 다시 쓰는 편이 싼 경우가 많아지고, 이 흐름은 앞으로 더 강해질 거라는 게 그의 주장입니다.
+
+## 본문
+
+### churn은 왜 '나쁜 말'이 됐나
+
+Halpern은 churn에 대한 부정적 인식이 근거 없이 생긴 게 아니라고 먼저 짚습니다.
+
+- Microsoft 연구진은 [상대적 코드 churn이 결함 밀도를 예측한다](https://www.microsoft.com/en-us/research/publication/use-of-relative-code-churn-measures-to-predict-system-defect-density/)는 결과를 오래전에 내놓았습니다.
+- Adam Tornhill은 [『Your Code as a Crime Scene』](https://pragprog.com/titles/atcrime2/your-code-as-a-crime-scene-second-edition/)에서 자주 바뀌면서 복잡한 파일을 1순위 용의자로 지목했습니다.
+- [GitClear 연구](https://www.gitclear.com/coding_on_copilot_data_shows_ais_downward_pressure_on_code_quality)는 AI 어시스턴트 때문에 작성 후 2주 안에 다시 쓰이는 코드 비중이 두 배로 늘 것으로 내다보고, 이를 품질 하락 압력으로 해석했습니다.
+
+정리하면 "계속 바뀌는 코드는 처음부터 틀린 코드"라는 직관이 업계에 깊이 박혀 있습니다. 내구성은 비싼 작성 비용의 본전을 뽑는 방법이었습니다.
+
+### 코드베이스는 건물이 아니라 정원이다
+
+우리는 소프트웨어를 늘 건축 용어로 설명해 왔습니다. 아키텍처, 기초, 비계, 하중을 받는 벽. 건물은 가만히 서 있어야 합니다.
+
+Halpern은 코드베이스가 점점 **정원**, 그중에서도 한해살이 식물이 가득한 정원을 닮아 간다고 말합니다. 정원사는 계절마다 한해살이를 새로 심습니다. 10월에 토마토가 시든다고 기술 부채라고 부르는 사람은 없습니다. 정원사가 진짜로 투자하는 곳은 바뀌지 않는 부분입니다. 흙, 화단, 관개 시설, 구석의 참나무 같은 것들이죠. 이런 구조가 탄탄해야 다시 심는 비용이 싸집니다.
+
+자주 바뀌는 코드는 사실상 일회용입니다. 다만 일회용이라고 해서 대충 만들어도 된다는 뜻은 아닙니다. 오래 가도록 만들지 않았을 뿐, 잘 만들 수 있습니다. 한해살이 코드의 품질 기준은 이렇습니다. 맡은 일을 해내고, 경계 부분이 테스트돼 있고, 주변을 헤집지 않고 뽑아낼 수 있어야 합니다.
+
+문제는 "품질 좋은 churn"이 어떤 모습인지 아직 아무도 그림을 갖고 있지 않다는 점입니다. 우리가 생각하는 품질은 수명과 얽혀 있습니다. 6년 동안 손대지 않고 돌아간 코드를 자랑하곤 하죠. 그래서 churn은 어차피 일어나는데도 암묵적으로 일어나고, 가장 손대기 편한 곳에 떨어집니다.
+
+### Forem 저장소에서 본 실제 사례
+
+Halpern은 DEV를 구동하는 오픈소스 [Forem](https://github.com/forem/forem)의 최근 6개월 기록을 직접 살펴봤습니다. 커밋은 563개였고, 가장 많이 바뀐 파일은 `app/models/article.rb`로 그중 37개 커밋에 등장했습니다.
+
+스팸 처리 코드도 13회로 상위권이었습니다. Halpern은 이쪽은 반갑다고 말합니다. 스패머는 수법을 계속 바꾸니 스팸 대응은 계절 작물과 같고, 코드도 그 속도에 맞춰 바뀌는 게 당연하다는 겁니다.
+
+반면 `article.rb`는 정원의 참나무입니다. 참나무를 매주 파낸다는 건, 새 기능이 그저 심기 가장 쉬웠다는 이유로 핵심 모델에 뿌리를 내리고 있다는 뜻입니다. Halpern은 이것을 구조적 타협이라고 부릅니다. 그의 결론은 이렇습니다. **churn 자체는 문제가 아니다. 하중을 받는 곳에서 계획 없이 일어나는 churn이 문제다.**
+
+### churn을 설계에 반영하는 네 가지 방법
+
+Halpern은 churn을 우연에 맡기지 말고 드러내 놓고 다루자며 몇 가지 아이디어를 내놓았습니다.
+
+**계층에 이름을 붙인다.** 무엇이 한해살이이고 무엇이 여러해살이인지 소리 내어 말하자는 겁니다. Forem의 `AGENTS.md`는 이미 AI 어시스턴트에게 핵심 인증, 피드 정렬, 캐시 파이프라인 주변에서는 조심하라고 알려 주는데, Halpern은 이를 거친 초기 형태로 봅니다. 경고 문구에서 그치지 말고 코드베이스의 구조 자체가 그렇게 생겨야 한다고 말합니다.
+
+**화단 가장자리에 계약을 둔다.** 인터페이스, 스키마, API 명세, 그리고 구현이 아닌 동작을 고정하는 테스트가 여러해살이에 해당합니다. 그 뒤에 있는 코드는 사람이든 에이전트든 자유롭게 다시 쓸 수 있습니다.
+
+**제거 비용을 낮춘다.** 좋은 한해살이인지 판단하는 기준은 화단을 건드리지 않고 뽑아낼 수 있느냐입니다. 바뀔 것을 전제로 만든 코드라면 여기저기 덩굴을 뻗고 있으면 안 됩니다.
+
+**churn을 계층별로 측정한다.** 빠르게 바뀌는 계층에서 churn이 높으면 건강하다는 신호입니다. 느린 계층에서 churn이 생기면 그때가 경보입니다.
+
+### churn은 설계의 입력값이다
+
+Halpern은 churn이 어떻게든 일어난다고 강조합니다. AI 덕분에 우리가 만드는 대부분의 코드에서 churn이 기본 변화 속도가 됐습니다. 계속 증상으로 취급할 수도 있고, 설계 입력값으로 받아들여 자신 있게 다시 심을 수 있는 구조를 만들 수도 있습니다.
+
+그는 자신이 원래부터 기존 설계 통념보다 churn에 관대한 편이었다고 털어놓습니다. 실무에서 churn을 피하는 게 좋은 결과로 이어지는 걸 본 적이 없다는 겁니다. 예전에는 양쪽 주장을 모두 이해했지만, 지금은 churn이 코드베이스와 시스템의 품질, 견고함과 긍정적으로 연결된다는 쪽에 확고히 서 있다고 밝혔습니다.
+
+글은 이 문장으로 끝납니다. "건물인 척하기보다 정원을 가꾸겠다(I'd rather tend the garden than pretend it's a building)."
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
