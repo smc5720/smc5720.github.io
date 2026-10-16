@@ -5,7 +5,7 @@ date: "2026-10-14"
 published_at: "2026-10-16"
 slug: "ai-avatar-v25-avatar-run-voxel-avatar-muscle-brain"
 category: "news"
-tags: []
+tags: ["ai","news","tech","llm","productivity"]
 cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fqflfozyi3kyv0xfa4ijs.png"
 coverAlt: "AI Avatar v25 (Avatar Run, Voxel Avatar, Muscle Brain)💪"
 source_id: "devto-4647583"
@@ -46,7 +46,7 @@ Avatar Run은 마블 런(marble run) 방식의 게임입니다. 함정을 피하
 
 [YouTube 영상 보기 →](https://www.youtube.com/watch?v=Fmc6esopt4k)
 
-Muscle Brain은 개발자가 지난해 만들어 `Microsoft Store`와 `Chrome 확장`으로 공개했던 두뇌 훈련 게임입니다. 한동안 잊고 지내다 최근 확인해 보니 여전히 다운로드가 꾸준히 일어나고 있었고, 이를 계기로 AI Avatar로 옮기기로 했습니다.
+Muscle Brain은 개발자가 지난해 만들어 `Microsoft Store`와 `Chrome 확장`으로 공개했던 두뇌 훈련 게임입니다. 한동안 잊고 지내다 최근 확인해 보니 여전히 다운로드가 꾸준히 일어나고 있었고, 그래서 AI Avatar로 옮겨 오기로 했습니다.
 
 이식은 생각보다 순탄치 않았습니다. 원래 Muscle Brain은 `Next.js`, `React`, `KendoReact`, `CSS-in-JS`와 `Tailwind CSS`로 만든 반면, AI Avatar는 대부분 순수 `TypeScript`로 짜여 있어 코드를 새로 써야 했습니다. AI에 맡기면 금방 끝날 줄 알았지만 결과물에는 회귀(regression)가 잔뜩 있었습니다. 몇 번을 고쳐 달라고 해도 문제가 줄지 않았는데, 알고 보니 AI가 내놓은 코드 길이가 원본의 절반밖에 되지 않았습니다. 개발자는 결국 처음부터 다시 시작했고, 이번에는 "코드를 절대 빼지 말라"고 강하게 지시해 이식을 마쳤습니다.
 
@@ -72,7 +72,7 @@ Voxel Avatar는 정원을 가꾸고 동물을 배치하는 방치형(idle) 게�
 2. AI에게 3D 오브젝트를 그리는 `Three.js` 코드를 작성하게 한다.
 3. 하네스(harness)를 만들어 코드 생성 → 렌더링 결과와 참조 이미지 비교 → 코드 수정을 반복시킨다.
 
-이 하네스 덕분에 AI를 한동안 알아서 돌릴 수 있었습니다. 하네스까지 갖췄으니 가장 비싼 최신 모델인 `Astra`까지는 필요 없겠다고 판단해, 비용을 아끼려고 더 저렴한 `Sonnet 5`로 바꿔 봤습니다. 그러나 `Sonnet 5`는 3D 모델을 전혀 만들어 내지 못했습니다.
+이 하네스 덕분에 AI를 한동안 알아서 돌릴 수 있었습니다. 이 정도 장치가 있으면 가장 비싼 최신 모델인 `Astra`까지는 필요 없겠다고 판단해, 비용을 아끼려고 더 저렴한 `Sonnet 5`로 바꿔 봤습니다. 그러나 `Sonnet 5`는 3D 모델을 전혀 만들어 내지 못했습니다.
 
 ![Image description](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/1bp9lsn8we02yilmxtgu.png)
 
