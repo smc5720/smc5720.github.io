@@ -1,0 +1,214 @@
+﻿---
+title: "디스코드 링크 미리보기를 직접 꾸미는 법: 컴포넌트 임베드 적용기 (Integrating SEO Components into Discord)"
+description: "디스코드에 '컴포넌트 임베드'가 생겨 링크 미리보기 카드를 서식 있는 텍스트, 이미지 갤러리, 버튼으로 바꿀 수 있게 됐습니다. 직접 블로그에 붙여 본 개발자의 경험을 바탕으로 동작 방식과 제약, 주의할 점을 정리했습니다."
+slug: "integrating-seo-components-into-discord"
+date: "2026-10-13"
+published_at: "2026-10-17"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fnw2uehy40vpx8p2djptn.png"
+coverAlt: "Integrating SEO Components into Discord"
+source_id: "devto-4846764"
+source_url: "https://dev.to/thomasbnt/integrating-seo-components-into-discord-2d8g"
+source_title: "Integrating SEO Components into Discord"
+source_author: "Thomas Bonnet"
+source_published: "2026-10-13"
+---
+
+<LinkCard url="https://dev.to/thomasbnt/integrating-seo-components-into-discord-2d8g" author="Thomas Bonnet" date="2026-10-13" />
+
+## 개요
+
+디스코드 채널에 웹사이트 링크를 붙이면 제목, 설명, 이미지가 담긴 작은 카드가 자동으로 뜹니다. 사이트 쪽에서 따로 코드를 짜지 않아도 되는 기본 동작입니다.
+
+최근 디스코드는 이 카드를 통째로 바꿔 끼울 방법을 하나 더 내놓았습니다. **컴포넌트 임베드(component embed)** 라는 기능으로, 서식 있는 텍스트와 이미지 갤러리, 버튼을 조합해 미리보기를 직접 구성할 수 있습니다.
+
+개발자 Thomas Bonnet은 이 기능을 자기 블로그에 붙여 보고 동작 방식과 제약, 시행착오를 정리했습니다. 핵심은 하나입니다. 컴포넌트 임베드는 기존 Open Graph 카드를 **대체하지 않고 그 위에 얹는 선택지**입니다.
+
+## 본문
+
+### 시작 전에 갖춰야 할 것
+
+필요한 조건은 다음과 같습니다.
+
+- HTTPS로 서비스되는 사이트
+- Open Graph 태그가 이미 들어가 있을 것 (임베드 컴포넌트를 쓰더라도 필수)
+- 서버 사이드 렌더링. 태그는 JavaScript 실행 이후가 아니라 서버 응답 HTML 자체에 들어 있어야 합니다.
+- 사이트 앞단에 WAF, CDN, rate limiter가 있다면 Discordbot 크롤러를 허용할 것
+- 임베드 컴포넌트에 넣을 JSON 페이로드
+
+### 기본 동작: Open Graph 태그
+
+디스코드는 링크가 올라오면 해당 URL에 요청을 보내 서버가 돌려준 HTML을 읽고, `<head>` 안의 Open Graph 태그를 찾습니다. 태그가 있으면 카드를 자동으로 만듭니다.
+
+```html
+<meta property="og:title" content="Title of this page" />
+<meta property="og:description" content="Description of this page" />
+<meta property="og:image" content="https://example.com/og-image.png" />
+<meta property="og:url" content="https://example.com/page" />
+<meta name="twitter:card" content="summary_large_image" />
+```
+
+이 태그만으로 디스코드에 표시되는 모습은 아래와 같습니다.
+
+![Discord preview of a link based solely on Open Graph tags: title, description, and image](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/m9dflhpvw5h3marmp2d3.png)
+
+뒤에서 다룰 컴포넌트 임베드에도 그대로 적용되는 세 가지가 있습니다.
+
+- 태그는 **서버가 보낸 HTML** 안에 있어야 합니다. 디스코드는 JavaScript를 실행하지 않으므로 클라이언트에서 나중에 추가한 태그는 보지 못합니다.
+- 크롤러의 user-agent는 `Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)`입니다. WAF나 rate limiter가 봇을 막고 있다면 **Discordbot**을 명시적으로 허용해야 합니다.
+- 미리보기는 약 **30분** 동안 캐시됩니다. 테스트 중 바로 갱신하고 싶다면 URL 끝에 `?v=2`를 붙이면 됩니다.
+
+Open Graph 이미지 크기나 Twitter Card 태그 같은 세부 내용은 저자가 쓴 다른 글 「[A Few Tips for Improving Your SEO](https://dev.to/thomasbnt/a-few-tips-for-improving-your-seo-5df3)」에 정리돼 있습니다.
+
+### 새 방식: 컴포넌트 임베드
+
+![Close-up shot of a chip](https://images.pexels.com/photos/6755081/pexels-photo-6755081.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by Tima Miroshnichenko on [Pexels](https://www.pexels.com/photo/close-up-shot-of-a-chip-6755081/)*
+
+페이지에 임베드 컴포넌트가 없으면 디스코드는 위의 기본 카드만 보여 줍니다. 임베드 컴포넌트를 넣더라도 `og:*` 태그는 여전히 필요합니다. 임베드를 지원하지 않는 환경이거나 페이로드가 잘못됐을 때 되돌아갈 기본값이기 때문입니다.
+
+크롤러 동작은 기본 카드와 같고, 단계가 하나 늘어납니다.
+
+1. 디스코드 메시지에 페이지 링크가 올라옵니다.
+2. 디스코드가 URL을 가져와 HTML을 읽습니다.
+3. 이때 `embed` 컴포넌트 태그도 함께 찾습니다. 태그가 있으면 JSON을 파싱하고, 페이로드에 들어 있는 각 이미지의 메타데이터를 가져옵니다.
+4. 페이로드가 유효하면 Open Graph 카드 대신 이 커스텀 렌더링을 보여 줍니다. 유효하지 않으면 기본 카드로 돌아갑니다.
+
+JSON을 페이지에 넣는 방법은 두 가지입니다.
+
+**방법 1: 인라인.** `<head>` 안에 `<script>` 태그로 직접 넣습니다.
+
+```html
+<script id="discord:component-embed" type="application/json">
+  {
+    "component": {
+      "type": 17,
+      "components": [
+        {
+          "type": 10,
+          "content": "# Patch Notes\n- Correction d'un bug d'affichage"
+        }
+      ]
+    }
+  }
+</script>
+```
+
+**방법 2: 외부 JSON 파일.** 같은 도메인(또는 서브도메인)에 있는 파일을 링크로 가리킵니다.
+
+```html
+<link
+  rel="discord:component-embed"
+  type="application/json"
+  href="https://exemple.com/embeds/article.json"
+/>
+```
+
+외부 파일 방식에는 원본 파일 기준 **3,000바이트**라는 엄격한 제한이 있습니다. 이미지 갤러리와 버튼까지 넣는다면 인라인 방식이 더 넉넉합니다.
+
+### 쓸 수 있는 컴포넌트
+
+루트 `component`는 반드시 **Container**(`type: 17`)여야 합니다. 전체 컴포넌트 수는 최대 **40개**이고, 아래 표에 있는 타입만 쓸 수 있습니다. 목록에 없는 타입이 하나라도 섞이면 페이로드 전체가 무효가 됩니다.
+
+| Type | 컴포넌트 | 비고 |
+| - | - | - |
+| 1 | Action Row | 버튼을 담는 행 |
+| 2 | Button | 링크 스타일(`style: 5`)만 가능. `label`이나 `emoji`, 또는 둘 다 사용 |
+| 9 | Section | 텍스트 + 요소 하나(썸네일 또는 버튼) |
+| 10 | Text Display | 디스코드 마크다운(제목, 굵게, 목록, 링크 등) |
+| 11 | Thumbnail | Section에 붙는 작은 이미지 |
+| 12 | Media Gallery | 이미지·영상 여러 개를 큰 크기로 표시 |
+| 14 | Separator | 구분선 |
+| 17 | Container | 루트 컴포넌트 |
+
+썸네일과 Media Gallery 이미지는 URL만 넣으면 됩니다. 크기와 파일 형식은 디스코드가 알아서 가져옵니다.
+
+```json
+{ "url": "https://exemple.com/images/hero.webp" }
+```
+
+지원 형식은 PNG, GIF, JPEG, WebP, AVIF이고, Media Gallery에서는 MP4, MOV, WebM 영상도 쓸 수 있습니다.
+
+### 저자의 블로그 적용 사례
+
+저자는 [자기 블로그](https://thomasbnt.dev/blog)의 모든 글에 임베드 컴포넌트를 추가했습니다. 기존 Open Graph 태그도 그대로 남겨 뒀습니다. 임베드 내용은 기본 카드와 같은 데이터로 만듭니다. 글 제목, 설명, 커버 이미지, 그리고 글마다 정해 둔 강조 색상입니다.
+
+단순화한 구조는 다음과 같습니다.
+
+```json
+{
+  "component": {
+    "type": 17,
+    "accent_color": 5793266,
+    "components": [
+      {
+        "type": 10,
+        "content": "# [Title of the post](https://thomasbnt.dev/blog/...)\nDescription."
+      },
+      {
+        "type": 12,
+        "items": [{ "media": { "url": "https://thomasbnt.dev/.../index.png" } }]
+      },
+      {
+        "type": 1,
+        "components": [
+          {
+            "type": 2,
+            "style": 5,
+            "url": "https://thomasbnt.dev/blog/...",
+            "label": "Lire l'article"
+          },
+          {
+            "type": 2,
+            "style": 5,
+            "url": "https://thomasbnt.dev/blog/",
+            "label": "Blog"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+디스코드에 실제로 표시된 결과입니다.
+
+![Preview of this article's embed component on Discord, with the full-size image and the two buttons "Read the article" and "Blog"](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/h8dh3s7isfv5kc1z1771.png)
+
+만들면서 내린 결정도 함께 공개했습니다.
+
+- **Thumbnail 대신 Media Gallery.** 처음에는 Section + Thumbnail 조합을 썼는데 텍스트 옆 이미지가 너무 작아 보였습니다. Media Gallery는 이미지를 원래 크기로 보여 줘서 배너처럼 쓸 수 있습니다.
+- **Separator는 뺐습니다.** 텍스트와 이미지 사이를 괜히 끊어 놓는 느낌이었다고 합니다.
+- **버튼 두 개.** 하나는 글 읽기, 하나는 블로그 목록입니다. 단순하지만 디스코드에서 바로 블로그로 들어오는 입구가 하나 더 생깁니다.
+- **`accent_color`는 정수입니다.** 16진수 색상 문자열이 아닙니다. 저자의 블로그는 글마다 frontmatter에 `backgroundColor`를 지정해 두고 있어서, 새 값을 따로 관리하지 않고 `parseInt(hex.replace("#", ""), 16)`으로 10진수로 바꿔 넣었습니다.
+
+이 스크립트도 OG 태그처럼 빌드 시점에 서버에서 생성됩니다. 블로그가 Astro로 만든 정적 사이트라 클라이언트에서 실행할 코드는 없습니다.
+
+### 자주 하는 실수
+
+- **목록에 없는 컴포넌트나 버튼의 불필요한 키**(`id`, `custom_id` 등). 문제가 된 컴포넌트 하나만이 아니라 페이로드 전체가 무효 처리됩니다.
+- **OG 태그 삭제.** 임베드가 있으니 필요 없다고 생각하기 쉽지만, 임베드가 표시되지 않을 때 대신 쓰이므로 반드시 남겨야 합니다.
+- **30분 캐시.** 테스트할 때 URL에 `?v=2`를 붙이면 왜 안 바뀌는지 10분씩 고민하지 않아도 됩니다.
+- **10초 제한.** 이미지까지 포함한 전체 요청이 10초 안에 끝나야 합니다. 이미지 여러 장을 불러오는 Media Gallery는 `og:image` 하나만 쓸 때보다 이 제한에 훨씬 빨리 걸립니다.
+
+### 테스트 방법
+
+디스코드가 제공하는 [Embed Debugger](https://discord.com/developers/embeds)를 쓰면 크롤러가 특정 URL을 어떻게 읽는지 그대로 볼 수 있습니다. 어떤 태그를 찾았는지, 어떤 임베드 형식을 골랐는지 나옵니다. 저자는 다른 곳에서 버그를 찾기 전에 이 도구부터 확인하라고 권합니다.
+
+### 정리
+
+아무것도 하지 않아도 디스코드는 `og:*` 태그를 읽어 카드를 보여 줍니다. 임베드 컴포넌트는 그 위에 더하는 선택지일 뿐입니다. JSON 페이로드가 있고 유효할 때만 동작하고, 그렇지 않으면 기본 카드로 자동 전환됩니다.
+
+저자의 블로그에서는 변경 폭도 크지 않았습니다. 제목, 설명, 이미지는 기본 카드와 같고, 보여 주는 방식만 바꿔서 디스코드에서 블로그의 다른 페이지로 바로 넘어올 수 있게 했습니다.
+
+### 참고 자료
+
+- [컴포넌트 임베드 공식 문서](https://docs.discord.com/developers/link-previews/component-embeds): 전체 스펙과 컴포넌트 타입별 제약 조건
+- [Embed Debugger](https://discord.com/developers/embeds): 디스코드가 특정 URL을 어떻게 읽는지 확인하는 도구
+- [A Few Tips for Improving Your SEO](https://dev.to/thomasbnt/a-few-tips-for-improving-your-seo-5df3): Open Graph 태그, Core Web Vitals 등 기술 SEO 기초
+- [저자 블로그의 디스코드 서버](https://thomasbnt.dev/discord): 링크 테스트와 관련 논의
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

@@ -1,0 +1,189 @@
+﻿---
+title: "자연어에도 설계 트레이드오프가 있다: 조지아어는 동적 타입, 영어는 정적 타입"
+description: "조지아 출신 개발자 기오르기 코바이제는 조지아어에 관사와 성(gender)이 없다는 점을 영어, 독일어, 이탈리아어와 비교합니다. 그리고 이 차이를 C#의 var, 정적·동적 타이핑 같은 프로그래밍 언어 설계에 빗대 설명합니다."
+date: "2026-10-15"
+published_at: "2026-10-17"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fox7963esvydjbsiqboye.jpeg"
+coverAlt: "Natural Languages Have Design Trade-offs Too: Georgian Is Dynamically Typed, English Is Statically Typed"
+slug: "natural-languages-design-tradeoffs-georgian-dynamic-english-static"
+source_id: "devto-4858196"
+source_url: "https://dev.to/georgekobaidze/natural-languages-have-design-trade-offs-too-georgian-is-dynamically-typed-english-is-statically-emi"
+source_title: "Natural Languages Have Design Trade-offs Too: Georgian Is Dynamically Typed, English Is Statically Typed"
+source_author: "Giorgi Kobaidze"
+source_published: "2026-10-15"
+---
+
+<LinkCard url="https://dev.to/georgekobaidze/natural-languages-have-design-trade-offs-too-georgian-is-dynamically-typed-english-is-statically-emi" author="Giorgi Kobaidze" date="2026-10-15" />
+
+## 개요
+
+조지아어에는 관사가 없습니다. 문법적 성도 없어서 사람을 가리킬 때조차 '그'와 '그녀'를 나누지 않습니다. 조지아어가 모국어인 개발자 기오르기 코바이제(Giorgi Kobaidze)는 AI 모델이 소수 언어를 얼마나 잘 다루는지 조사하다가 이 차이에 주목했습니다. 모델 출력을 비교해 보니 정작 어려운 건 어휘가 아니었습니다. 영어는 반드시 표시해야 하는데 조지아어는 아예 표시하지 않는 구조, 혹은 그 반대 경우가 문제였습니다.
+
+개발자인 그는 이 차이를 자연스럽게 **언어 기능(language feature)** 으로 분류했습니다. 삶을 편하게 해 주는 기능도 있고 어렵게 만드는 기능도 있지만, 결국 대부분은 트레이드오프라는 겁니다. 그는 관사와 성 두 가지 기능을 골라 영어·독일어·이탈리아어와 조지아어를 비교하고, 이를 C#과 JavaScript의 타입 시스템에 빗대 설명합니다.
+
+참고로 조지아어는 므헤드룰리(Mkhedruli)라는 고유 문자를 씁니다. 글자는 33자이고, 일상 표기에는 대소문자 구분이 없습니다. 필자의 표현을 빌리면 "설계부터 case-insensitive한 언어"입니다.
+
+관련 글: [조지아어 AI 벤치마크 원문 보기 →](https://dev.to/georgekobaidze/georgian-language-benchmark-two-biggest-ai-labs-clash-in-a-language-that-doesnt-play-by-anyones-5b22)
+
+## 본문
+
+### 관사 없는 언어: 맥락이 정관사 역할을 한다
+
+![Learn languages text on dice](https://images.pexels.com/photos/14814047/pexels-photo-14814047.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Ling App](https://www.pexels.com/@ling-app) on [Pexels](https://www.pexels.com/photo/learn-languages-text-on-dice-14814047/)*
+
+영어는 명사가 **한정적**(듣는 사람이 이미 아는 특정 대상)인지 **비한정적**(새롭거나 특정되지 않은 대상)인지를 관사로 표시합니다. `the`와 `a`/`an`이 하는 일이 바로 이것입니다.
+
+![Bus leaving a station](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/lmit3pwx9fw2x5xtodw0.jpeg)
+
+> I saw **a** bus leaving **the** station. **The** bus was **a** white MCI 102-DL3 with silver rims and **a** Greyhound badge on it.
+
+조지아어로 옮기면 관사가 전부 사라집니다.
+
+> დავინახე, როგორ გადიოდა ავტობუსი სადგურიდან. ავტობუსი იყო თეთრი MCI 102-DL3, ვერცხლისფერი დისკებით და Greyhound-ის ემბლემით.
+
+한정성은 듣는 사람이 앞서 나온 내용, 어순, 상황을 보고 판단합니다. 첫 번째 '버스'는 처음 등장하는 정보이고, 두 번째 '버스'는 같은 버스라는 걸 누구나 압니다. 정밀하게 말해야 할 때는 다른 도구를 꺼내 씁니다.
+
+- 지시어 **ეს**(이)와 **ის**(저)를 붙이면 대상이 특정됩니다.
+- 구어에서는 **ერთი**(하나)가 부정관사처럼 쓰이기도 합니다. 예: ერთი კაცი შემხვდა("어떤 남자를 만났다")
+
+장점은 단순함입니다. 말하고 쓸 단어가 줄고, 고민할 선택지도 없습니다. 관사가 없는 언어권 사람들에게 영어 관사는 악명 높은 난관인데, 조지아어에는 그런 고민이 아예 없습니다.
+
+단점은 명시적이지 않다는 점입니다. 드물긴 하지만 모호해질 때가 있습니다. 누군가 "버스 타(Take bus)"라고 하면 아무 버스나 타라는 건지, 바로 앞에 선 그 버스를 타라는 건지 알 수 없습니다. 실제로는 억양이나 손짓, 혹은 "*이* 버스 타"라는 말로 해결하지만 늘 그렇게 되지는 않습니다.
+
+필자의 AI 연구와 맞닿는 지점이 여기입니다. 모델이 조지아어를 영어로 번역하려면 원문에 없던 정보를 *끼워 넣어야* 합니다. 출력에 들어간 'a'와 'the'는 하나하나가 추측입니다. 대개는 맞히지만, 그래도 추측입니다.
+
+### 성(gender): 자연적 성과 문법적 성
+
+필자는 성을 두 가지로 나눠 봐야 한다고 말합니다.
+
+- **자연적 성**: 대명사가 실제 사람의 성별을 반영합니다. 영어가 여기에 해당합니다.
+- **문법적 성**: 숟가락, 탁자, 달까지 *모든* 명사가 특정 부류에 속합니다. 이탈리아어와 독일어가 대표적입니다.
+
+**영어**에는 he/him/his, she/her/hers, it/its가 있고, 대체로 현실을 따릅니다. 사람은 he나 she, 탁자는 it입니다. 예외로 배를 she라고 부르기도 하는데, 그 이유는 뱃사람들에게 물어봐야 한다는 게 필자의 설명입니다.
+
+**이탈리아어**에는 남성과 여성 두 가지가 있고 모든 명사가 둘 중 하나를 고릅니다. *-o*로 끝나면 대개 남성, *-a*로 끝나면 대개 여성이지만 예외가 곧바로 나옵니다.
+
+- **la mano**(손)는 *-o*로 끝나지만 여성
+- **il problema**(문제)는 *-a*로 끝나지만 남성
+- **il sole**(해)는 남성, **la luna**(달)는 여성
+
+필자는 "이유는 아무도 모른다. 적어도 나는 모른다. 그냥 외울 뿐"이라고 적었습니다.
+
+![The word German is spelled out with scrabble letters](https://images.pexels.com/photos/19902307/pexels-photo-19902307.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Markus Winkler](https://www.pexels.com/@markus-winkler-1430818) on [Pexels](https://www.pexels.com/photo/the-word-german-is-spelled-out-with-scrabble-letters-19902307/)*
+
+**독일어**는 한술 더 떠서 남성(*der*), 여성(*die*), 중성(*das*) 세 가지를 씁니다. 식탁만 봐도 그렇습니다.
+
+![Dinner Table](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/6nspnrwie1rpo6pcpavr.jpeg)
+
+- **der Löffel**: 숟가락은 남성
+- **die Gabel**: 포크는 여성
+- **das Messer**: 나이프는 중성
+
+식기 세 개에 성이 세 개입니다. **das Mädchen**(소녀)은 *중성*인데, 지소 접미사 *-chen*이 붙으면 무조건 중성이 되기 때문입니다. 생물학보다 문법이 우선인 셈입니다. 해와 달도 **die Sonne**(여성), **der Mond**(남성)로 이탈리아어와 정반대입니다. 필자는 "성이 논리적이라면 두 언어가 하늘에 대해서만큼은 의견이 같았을 것"이라고 꼬집습니다. 최근 독일어를 배우기 시작한 그에게 가장 어려운 부분도 der/die/das라고 합니다. 명사는 반드시 관사와 함께 외우라는 조언을 이제야 이해했다고 덧붙였습니다.
+
+**조지아어**에는 성이 아예 없습니다. 사람에게도 없습니다. 같은 대명사가 he, she, it을 모두 맡습니다. **ის**(그/그녀/그것), **მას**(목적격), **მისი**(소유격)가 그렇습니다. 유일한 구분은 사람과 사물, 즉 **ვინ**(누구)과 **რა**(무엇)뿐입니다. 필자는 어릴 때 외국어를 배우면서 단어를 성별로 나눈다는 게 도무지 이해되지 않았다고 회상합니다.
+
+### 성이 있으면 좋은 점, 불편한 점
+
+**정보를 실어 나릅니다.** "My boss is really lovely, she told me..."라는 문장에서는 대명사 하나만으로 상사가 여성이라는 걸 알 수 있습니다.
+
+**지칭 대상을 추적하기 쉽습니다.** 필자는 이 장점이 잘 언급되지 않는다고 지적합니다.
+
+> Die Gabel liegt neben dem Löffel. **Sie** ist schmutzig.
+
+포크는 여성이고 숟가락은 아니므로 *Sie*는 포크일 수밖에 없습니다. 영어로 "The fork is next to the spoon. **It** is dirty."라고 하면 모호해지고, 조지아어도 마찬가지입니다. 필자는 문법적 성을 일종의 **체크섬**에 비유합니다. 듣는 사람이 대명사와 명사를 올바르게 연결하도록 돕는 중복 정보라는 겁니다.
+
+반면 성별을 모를 때는 곤란합니다. "he or she"를 매번 쓰면 문장이 금세 둔해집니다. 영어는 **단수 they**로 이 문제를 피합니다. 필자는 처음엔 문법적으로 틀렸다고 생각했지만, 영어 화자들은 14세기부터 이렇게 써 왔고 셰익스피어와 제인 오스틴도 썼다고 소개합니다. 게다가 영어는 같은 일을 이미 한 번 겪었습니다. **you**는 원래 *복수 전용*이었고 단수는 **thou**였는데, 시간이 지나며 you가 단수까지 흡수했습니다. 지금 "you are"를 문법 버그로 보는 사람은 없습니다. 단수 they는 같은 마이그레이션이 아직 진행 중인 것이라고 필자는 설명합니다.
+
+![Medieval and Modern Guys](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/pxcqaknbdurjc40yxfzi.jpeg)
+
+사람에게 성은 의미가 있지만 숟가락과 포크에게는 아무 의미가 없습니다. 그런데도 이탈리아어와 독일어 학습자는 명사마다 성을 외워야 합니다. 필자는 이를 **암기세(memorization tax)** 라고 부릅니다.
+
+성이 없는 조지아어도 대가를 치릅니다. 성별을 드러내고 싶으면 남자·여자, 신사·숙녀처럼 직접 말해야 합니다. '내 친구'(**მეგობარი**)라는 말만으로는 그 친구에 대해 아무것도 알 수 없습니다. AI에게도 진짜 문제가 됩니다. ის를 영어로 옮기려면 원문에 없던 he와 she 중 하나를 골라야 합니다. 기계 번역 시스템은 그동안 이 빈칸을 고정관념으로 채워 왔습니다. 의사는 he, 간호사는 she가 되는 식입니다.
+
+### 복잡도는 사라지지 않고 자리만 옮긴다
+
+그렇다고 조지아어가 '쉬운 모드'인 건 결코 아닙니다. 필자는 원어민조차 문법에 맞게 말하고 쓰는 데 애를 먹을 만큼 복잡하다고 말합니다. 복잡도를 다른 곳, 주로 **동사**에 몰아 두었을 뿐입니다.
+
+조지아어 동사 하나는 주어와 목적어를 함께 담을 수 있습니다. **მიყვარხარ**는 "나는 너를 사랑해"라는 뜻으로, 단어 하나에 개념 세 개가 들어 있습니다. 동사는 시제 그룹마다 형태가 바뀌고, 시제에 따라 *주어의 격*까지 달라집니다. 관사와 성을 버린 대신 아낀 힘을 모조리 동사에 쏟아부은 셈입니다.
+
+소프트웨어에는 이를 가리키는 원칙이 있습니다. **테슬러의 법칙**, 다른 말로 복잡도 보존의 법칙입니다. 복잡도는 없앨 수 없고 옮길 수만 있다는 원칙인데, 자연어도 이 법칙을 따르는 것처럼 보인다는 게 필자의 관찰입니다.
+
+### 개발자라면 익숙한 이야기: 관사와 `var`
+
+필자는 조지아어에 관사가 없는 것이 C#의 타입 추론과 거의 그대로 대응한다고 봅니다.
+
+```csharp
+Bus bus = new Bus("MCI 102-DL3");   // explicit: "the bus"
+var bus = new Bus("MCI 102-DL3");   // implied, but obvious from context
+var next = dispatcher.Next();        // ...is that a Bus? A Route? "take bus"
+```
+
+컴파일러는 `next`의 타입을 언제나 압니다. 코드를 읽는 사람은 모를 수 있습니다. 그래서 많은 팀이 "우변에서 타입이 분명할 때만 `var`를 쓴다"는 스타일 규칙을 둡니다. 맥락이 분명하면 암시적으로 두고, 그렇지 않으면 "*이* 버스"라고 말하거나 타입을 적는다는 점에서 조지아어의 규칙과 똑같습니다.
+
+C#은 반대 방향으로도 갔습니다. target-typed `new`는 좌변이 정보를 들고 우변이 생략합니다.
+
+```csharp
+Bus bus = new("MCI 102-DL3");
+```
+
+같은 아이디어를 문장의 반대쪽에 적용한 것입니다.
+
+### 성과 타입 시스템
+
+필자는 독일어의 문법적 성이 **정적 타이핑**과 비슷하다고 말합니다. 모든 명사가 태그를 달고 다니고, 관사와 형용사 어미 같은 주변 요소가 그 태그에 맞춰야 합니다. 번거로운 의식(ceremony)처럼 느껴질 때도 있지만, 불일치를 잡아내고 지칭 대상을 추적하기 쉬워집니다.
+
+조지아어 대명사는 **동적 타이핑**에 가깝습니다. **ის**에는 사람, 트럭, 아이디어 무엇이든 담깁니다. 형식은 가볍고 유연하며, 의미는 '런타임'에 맥락으로 결정됩니다.
+
+C#은 명시하지 않으면 타입을 섞지 못하게 합니다.
+
+```csharp
+int distance = 5;
+string label = "2";
+var total = distance - label;
+// error CS0019: Operator '-' cannot be applied to operands of type 'int' and 'string'
+```
+
+JavaScript는 개발자의 의도를 기꺼이 짐작합니다.
+
+```javascript
+"5" - 2   // 3
+"5" + 2   // "52"
+[] + []   // ""
+```
+
+필자는 정확히 말하면 정적·동적 축과 강한·약한 타이핑 축이 서로 다르다고 짚습니다. Python은 동적이지만 강타입이라 `"5" + 2`에서 `TypeError`를 던집니다. JavaScript는 동적이면서 *약타입*이기 때문에 `"52"`가 나옵니다.
+
+독일어 성의 자의성도 이렇게 비유합니다. 모든 변수에 타입을 달아야 하는데, 그 타입 이름은 수백 년 전에 주사위를 굴려 정했고, 아무도 리팩터링할 수 없는 언어를 떠올려 보라는 겁니다. 그게 바로 der Löffel, die Gabel, das Messer입니다.
+
+### 진화하는 언어, 잘 바뀌지 않는 언어
+
+![Photo of alphabet tiles on wooden surface](https://images.pexels.com/photos/3747568/pexels-photo-3747568.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Polina Zimmerman](https://www.pexels.com/@polina-zimmerman) on [Pexels](https://www.pexels.com/photo/photo-of-alphabet-tiles-on-wooden-surface-3747568/)*
+
+여기서 자연어와 프로그래밍 언어가 크게 갈립니다. 프로그래밍 언어는 서로에게서 끊임없이 배웁니다. 필자가 예로 든 C#은 제네릭을 추가했고, 함수형 프로그래밍에서 람다와 LINQ를 가져왔습니다. F#과 ML 계열에서 영감을 받은 패턴 매칭, 레코드, 그리고 토니 호어가 "10억 달러짜리 실수"라 부른 null 문제에 맞서는 nullable 참조 타입도 들였습니다. 빌려 오기만 한 것도 아닙니다. C# 5에서 도입한 **async/await**는 이후 JavaScript, Python, Rust 등 여러 언어가 받아들였습니다.
+
+자연어는 주로 *단어*를 빌립니다. 영어는 노르만 정복 이후 프랑스어에서 *beef*, *pork*, *mutton*을 들여왔지만, 살아 있는 동물은 *cow*, *pig*, *sheep*으로 남았습니다. 조지아어도 다른 언어들처럼 **კომპიუტერი**(컴퓨터), **ტელეფონი**(전화)를 빌려 썼습니다. 빌린 단어가 완전히 자리를 차지해 원래 고유어가 있었다는 사실조차 잊히는 일도 있습니다.
+
+반면 구조는 대개 그대로 남습니다. *대개*는 그렇습니다. 자연어도 아주 천천히 리팩터링을 합니다.
+
+- **고대 영어에는 독일어처럼 문법적 성이 세 가지 있었습니다.** 중세 영어 시기에 모두 사라졌습니다. 독일어가 지금도 탑재하고 있는 기능을 영어는 deprecate한 셈입니다.
+- **thou**가 deprecate되고 **you**가 그 역할을 흡수했습니다. 단수 they의 선례가 바로 이것입니다.
+
+차이는 릴리스 프로세스에 있습니다. 체인지로그도 마이그레이션 가이드도 없고, breaking change 하나가 배포되는 데 몇 세기가 걸리며, 모든 화자가 메인테이너입니다.
+
+### 모든 언어는 트레이드오프다
+
+필자의 결론은 이렇습니다. 어떤 설계든 트레이드오프는 피할 수 없습니다. 관사는 정밀함을 주는 대신 수고가 듭니다. 성은 정보와 지칭 추적을 주는 대신 암기를 요구합니다. 둘 다 버리면 단순해지지만 명시성을 잃고, 복잡도는 동사를 타고 다시 들어옵니다.
+
+그는 말이든 코드든 새 언어를 배우는 것이 자신도 몰랐던 가정을 발견하는 가장 좋은 방법이라고 말합니다. 조지아어는 'a/an/the'와 'she/he' 없이도 언어가 멀쩡히 돌아간다는 걸, C#은 `var`에 스타일 가이드가 필요한 이유를 가르쳐 줬습니다. 그리고 독일어는 지금 그에게 언어가 얼마나 어려울 수 있는지 가르치는 중입니다.
+
+AI 이야기로 돌아가면, 언어마다 무엇을 표시할지 의견이 갈리는 지점이 곧 모델이 추측해야 하는 지점입니다. 필자가 조지아어로 AI를 벤치마크하는 이유도 여기에 있습니다. 그는 독자들에게 각자의 모국어가 관사와 문법적 성을 어떻게 다루는지, '정적 타입'인지 '동적 타입'인지 댓글로 알려 달라고 요청하며 글을 맺습니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
