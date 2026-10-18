@@ -999,6 +999,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-19"
   },
+  "https://dev.to/devteam/what-was-your-win-this-week-36am": {
+    "ok": true,
+    "title": "What was your win this week?!",
+    "description": "👋👋👋👋 Looking back on your week -- what was something you're proud of? All wins count -- big or small...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fkioo3fh4yz8yd3x7yc1e.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-18"
+  },
   "https://dev.to/devteam/what-was-your-win-this-week-4jli": {
     "ok": true,
     "title": "What was your win this week?",
@@ -1654,6 +1662,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fhwmq8sywc3w0s6zwx0us.jpg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/gramli/i-vibe-coded-my-way-out-of-angular-upgrades-4fkh": {
+    "ok": true,
+    "title": "I Vibe-Coded My Way Out of Angular Upgrades",
+    "description": "Do you also hate upgrading Angular versions? Because I do. I maintain a few open-source projects, and...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F294m2kq52bb6uybxx6mq.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-18"
   },
   "https://dev.to/gramli/old-pc-vs-new-ai-can-a-2015-desktop-actually-run-gemma-4-2b-vs-4b-benchmark-2eg6": {
     "ok": true,

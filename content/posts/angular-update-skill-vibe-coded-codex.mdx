@@ -1,0 +1,99 @@
+﻿---
+title: "Angular 업그레이드가 싫어서 바이브 코딩으로 Codex 스킬을 만들었다"
+description: "오픈소스 메인테이너 Daniel Balcarek이 Angular 버전 업그레이드를 자동화하는 Codex 스킬을 바이브 코딩으로 만들었습니다. 실제 프로젝트 세 곳에 적용하는 과정에서 겪은 문제와 해결 방법을 정리했습니다."
+date: "2026-10-15"
+published_at: "2026-10-18"
+slug: "angular-update-skill-vibe-coded-codex"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F294m2kq52bb6uybxx6mq.jpg"
+coverAlt: "I Vibe-Coded My Way Out of Angular Upgrades"
+source_id: "devto-4808239"
+source_url: "https://dev.to/gramli/i-vibe-coded-my-way-out-of-angular-upgrades-4fkh"
+source_title: "I Vibe-Coded My Way Out of Angular Upgrades"
+source_author: "Daniel Balcarek"
+source_published: "2026-10-15"
+---
+
+<LinkCard url="https://dev.to/gramli/i-vibe-coded-my-way-out-of-angular-upgrades-4fkh" author="Daniel Balcarek" date="2026-10-15" />
+
+## 개요
+
+여러 오픈소스 프로젝트를 관리하는 개발자 Daniel Balcarek은 Angular 버전 업그레이드를 가장 하기 싫은 유지보수 작업으로 꼽습니다. 그래서 프론트엔드 업데이트를 자꾸 미뤄 왔다고 합니다.
+
+이번에는 AI에게 맡겨 보기로 했습니다. Codex용 **Angular Update Skill**을 사실상 바이브 코딩(vibe coding)으로 만들었고, 이 스킬로 자신의 프로젝트 세 곳을 Angular 22로 올렸습니다. 세 건 모두 병합까지 마쳤습니다.
+
+## 스킬에 담은 요구사항
+
+Angular 업그레이드는 `ng update` 한 줄로 끝나지 않습니다. 작성자는 평소 손으로 업그레이드할 때 챙기던 일을 프롬프트로 정리해 스킬의 뼈대로 삼았습니다.
+
+- 공식 [Angular Update Guide](https://angular.dev/update-guide)를 따른다
+- 업그레이드용 Git 브랜치를 따로 만든다
+- 마이그레이션과 의존성 업데이트를 처리한다
+- 빌드와 동작에 문제가 없는지 검증한다
+- 수동 업그레이드 때 지키던 좋은 습관을 그대로 따른다
+
+작성자는 ".NET에서 NuGet 패키지를 올리는 게 훨씬 간단하게 느껴진다"고 덧붙였습니다.
+
+Codex가 만든 첫 버전은 의외로 잘 돌아갔습니다. 다만 로컬에서만이었습니다.
+
+## 실제로 써 보며 고친 세 가지
+
+![바이너리 코드가 얼굴에 비친 사람](https://images.pexels.com/photos/5474031/pexels-photo-5474031.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [cottonbro studio](https://www.pexels.com/@cottonbro) on [Pexels](https://www.pexels.com/photo/man-with-binary-code-projected-on-his-face-5474031/)*
+
+### 1. CI에서 터진 npm ci
+
+변경 사항을 GitHub에 푸시하자 CI 파이프라인이 아래 오류를 내며 실패했습니다.
+
+```plaintext
+npm ci can only install packages when your package.json and package-lock.json are in sync.
+```
+
+전형적인 "내 컴퓨터에선 되는데" 문제였습니다. 스킬은 Angular 버전은 올렸지만, 깨끗한 환경에서 설치가 되는지는 확인하지 않았습니다. 작성자는 업그레이드를 끝내기 전에 `npm ci`를 직접 돌려 보는 검증 단계를 추가했습니다. 이제 lock 파일 문제를 CI까지 가기 전에 에이전트가 먼저 잡아냅니다.
+
+### 2. npm 배포 실패
+
+Angular 라이브러리를 npm에 배포하려 하자 또 다른 오류가 났습니다.
+
+```plaintext
+npm error code E404
+npm error 404 Not Found - PUT https://registry.npmjs.org/gramli-angular-mydatepicker - Not found
+```
+
+오류 메시지만으로는 원인을 알기 어려웠습니다. 조사해 보니 배포 환경이 Node.js 22와 npm 10을 쓰고 있었습니다. [npm trusted publishing 문서](https://docs.npmjs.com/trusted-publishers)를 보면 trusted publishing에는 다음 버전이 필요합니다.
+
+- Node.js 22.14.0 이상
+- npm 11.5.1 이상
+
+작성자는 스킬을 다시 고쳐, 대상 Angular 버전과 호환되는 최신 Node.js LTS를 우선 쓰고 npm 버전도 배포 요구사항을 만족하는지 확인하도록 했습니다.
+
+### 3. 너무 커진 스킬
+
+이렇게 보완을 거듭하자 스킬 분량이 꽤 커졌습니다. 토큰 한도가 넉넉하면 큰 문제가 아니지만, 작성자는 AI 예산이 빠듯한 사람도 쓸 수 있기를 바랐습니다. 그래서 지시문을 줄이고 반복되는 내용을 덜어내되, 중요한 검증 단계는 남겼습니다.
+
+그 결과 메인 스킬은 1,252단어에서 701단어로 줄었고, 전체 번들도 약 40% 짧아졌습니다.
+
+## 오픈소스 프로젝트 세 곳에 적용
+
+스킬을 만드는 일과 실제로 쓰는 일은 다릅니다. 작성자는 현재 버전을 자신의 오픈소스 프로젝트 세 곳에 적용했습니다.
+
+| 프로젝트 | 업그레이드 | PR |
+| --- | --- | --- |
+| angular-mydatepicker | Angular 21 → 22 | [PR #12](https://github.com/Gramli/angular-mydatepicker/pull/12) |
+| FileApi | Angular 19 → 22 | [PR #13](https://github.com/Gramli/FileApi/pull/13) |
+| AuthApi | Angular 21 → 22 | [PR #113](https://github.com/Gramli/AuthApi/pull/113) |
+
+FileApi는 메이저 버전 세 개를 건너뛰는 마이그레이션이 필요해서 특히 흥미로운 사례였습니다. AuthApi에서는 PrimeNG 라이선스 정책이 바뀐 탓에 PrimeNG를 Optimus UI로 교체하는 작업도 함께 진행했습니다. 세 PR 모두 병합을 마쳤습니다.
+
+## 한계와 공개
+
+작성자는 현재 버전이 적어도 자신의 작은 프로젝트에서는 꽤 잘 동작한다고 평가했습니다. 다만 완벽하지는 않다고 선을 그었습니다. 훨씬 복잡한 Angular 프로젝트라면 스킬을 손봐야 할 가능성이 높다는 설명입니다.
+
+그래도 가장 큰 성과로는 "또 미루지 않고 단 일주일 만에 Angular 프로젝트를 업데이트했다"는 점을 꼽았습니다. 스킬은 GitHub에 공개되어 있어 누구나 써 보거나 개선에 참여할 수 있습니다.
+
+[Angular Update Skill on GitHub →](https://github.com/Gramli/Gramli.Framework/tree/main/src/angular-skills/angular-update)
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
