@@ -1,0 +1,80 @@
+﻿---
+title: "프랑스 슈퍼마켓 400곳 냉동고가 해킹당했다 (Someone hacked the freezers at 400 French supermarkets)"
+description: "프랑스 슈퍼마켓 400여 곳의 냉장·냉동 시스템이 사이버 공격을 받아 신선식품을 폐기하는 피해가 났습니다. 작성자는 이 사건을 예로 들어, 강력한 AI가 악용되면 현실에서 어떤 위험이 생길 수 있는지 설명합니다."
+date: "2026-10-13"
+published_at: "2026-10-19"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F008lxwyehzrvzvtgcu5x.png"
+coverAlt: "Someone hacked the freezers at 400 French supermarkets"
+slug: "someone-hacked-the-freezers-at-400-french-supermarkets"
+source_id: "devto-4846067"
+source_url: "https://dev.to/peter/someone-hacked-the-freezers-at-400-french-supermarkets-5flm"
+source_title: "Someone hacked the freezers at 400 French supermarkets"
+source_author: "Peter Kim Frank"
+source_published: "2026-10-13"
+---
+
+<LinkCard url="https://dev.to/peter/someone-hacked-the-freezers-at-400-french-supermarkets-5flm" author="Peter Kim Frank" date="2026-10-13" />
+
+## 개요
+
+프랑스 슈퍼마켓 400곳이 넘는 매장의 냉장·냉동 시스템이 사이버 공격을 받았습니다. 공격자는 냉장설비 업체가 원격으로 장비를 관리할 때 쓰는 소프트웨어를 노렸고, 일부 매장은 신선식품과 냉동식품을 전부 버려야 했습니다.
+
+글쓴이 Peter Kim Frank는 "강력한 AI를 손에 쥔 악당이 현실에서 실제로 누구를 어떻게 해칠 수 있느냐"는 질문을 주변에서 자주 받는다고 합니다. 질문하는 쪽은 대개 회의적입니다. 미국 팟캐스트 All-In의 진행자들도 이런 우려를 허수아비 논증(straw man)으로 취급하곤 했습니다. 걱정하는 사람들이 터미네이터 같은 장면을 떠올린다고 보는 겁니다. 글쓴이는 이번 사건이 그 질문에 대한 훨씬 평범하고 현실적인 답이라고 말합니다.
+
+## 프랑스에서 무슨 일이 있었나
+
+### 피해 규모
+
+뉴욕타임스 보도([기사 보기 →](https://www.nytimes.com/2026/10/13/world/europe/france-cyberattack-supermarkets-refrigeration.html))를 보면 피해 매장은 다음과 같습니다.
+
+- Intermarché·Netto 약 300곳
+- Coopérative U 80곳
+- Monoprix 30곳
+
+Coopérative U 대표는 시스템 하나가 멈추면 소형 슈퍼마켓은 수만 달러, 대형 하이퍼마켓은 약 22만 달러의 손실을 본다고 설명했습니다.
+
+### 오래된 장비가 뚫렸다
+
+배후를 자처한 곳은 아직 없습니다. 냉장 시스템 제조사 중 하나인 Danfoss는 피해 장비 상당수가 구형이라 보안 업데이트를 더 이상 받지 못하던 상태였다고 밝혔습니다.
+
+![노트북 앞에서 생각에 잠긴 해커](https://images.pexels.com/photos/5926391/pexels-photo-5926391.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Sora Shimazaki](https://www.pexels.com/@sora-shimazaki) on [Pexels](https://www.pexels.com/photo/crop-pensive-hacker-using-laptop-and-touching-chin-5926391/)*
+
+## 소프트웨어가 물리 세계를 망가뜨린 전례
+
+이런 일이 처음은 아닙니다. 소프트웨어 공격으로 현실의 설비가 멈추거나 부서진 사례는 이미 여러 번 있었습니다.
+
+- **스턱스넷(Stuxnet)**: 2010년에 발견된 악성코드로, 이란의 우라늄 원심분리기 약 1,000대를 파괴했습니다. ([위키백과 →](https://en.wikipedia.org/wiki/Stuxnet))
+- **우크라이나 전력망 공격**: 2015년 12월, 공격자들이 우크라이나 주민 약 23만 명의 전기를 끊었습니다. ([위키백과 →](https://en.wikipedia.org/wiki/2015_Ukraine_power_grid_hack))
+- **콜로니얼 파이프라인(Colonial Pipeline)**: 2021년 랜섬웨어가 회사의 업무 시스템을 감염시키자 회사는 송유관 가동을 멈췄고, 미국 남동부 곳곳의 주유소에서 기름이 동났습니다. ([위키백과 →](https://en.wikipedia.org/wiki/Colonial_Pipeline_ransomware_attack))
+
+## 글쓴이가 이 사건을 주목하는 이유
+
+### 국가급 예산 대신 낡은 컨트롤러 하나
+
+스턱스넷에는 국가 단위 예산과 수년의 작업이 들어갔습니다. 반면 이번 냉동고 공격에 필요했던 건 인터넷에 노출된 오래된 컨트롤러 하나였습니다.
+
+글쓴이는 지금까지 나온 보도 중 이 공격에 AI가 쓰였다는 내용은 없다고 분명히 밝힙니다. AI 없이도 가능했고, 그래서 오히려 좋은 예시라는 겁니다.
+
+### 지루하고 끈기가 필요한 작업
+
+이런 공격은 대부분 인내심이 필요한 지루한 일입니다. 노출된 장비를 찾아내고, 오래된 펌웨어를 읽고, 어떤 설정을 건드려야 피해가 나는지 알아내야 합니다. 지금은 이 일을 하려는 숙련자가 얼마나 있는지, 그들에게 시간이 얼마나 있는지가 공격의 한계입니다. 글쓴이는 수많은 대상을 상대로 이런 지루한 작업을 끈질기게 반복하는 일이야말로 AI 모델이 점점 잘하게 되는 분야라고 지적합니다.
+
+### 세상은 '냉동고'로 가득하다
+
+냉동고 같은 장비는 어디에나 있습니다. 건물 냉난방 설비(HVAC), 양수 펌프, 주차장 차단기, 약국의 냉장고까지요. 아무도 이런 장비를 공격 대상으로 여기지 않다 보니, 오래된 소프트웨어에 원격 접속을 켜둔 채로 돌아가는 경우가 많습니다.
+
+![해골 이미지가 띄워진 태블릿을 든 사람](https://images.pexels.com/photos/14066351/pexels-photo-14066351.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Lucas Andrade](https://www.pexels.com/@lucasandrade) on [Pexels](https://www.pexels.com/photo/a-person-holding-a-tablet-device-with-skull-image-near-blackboard-14066351/)*
+
+## 로봇 없는 답
+
+그래서 강력한 AI를 가진 악당이 뭘 할 수 있겠느냐는 질문에 글쓴이가 내놓는 답에는 로봇이 등장하지 않습니다. 이번 주 프랑스에서 벌어진 일과 비슷한 모습이고, 다만 더 많은 곳에서, 더 자주, 예전 같으면 혼자서는 해내지 못했을 사람들이 벌이는 일이라는 겁니다.
+
+글쓴이는 독자에게 이렇게 묻고 글을 마칩니다. "여러분 직장에서 가장 지루해 보이지만, 누가 꺼버리면 진짜 문제가 생기는 인터넷 연결 장비는 무엇인가요?"
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

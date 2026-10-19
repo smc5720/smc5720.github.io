@@ -1887,6 +1887,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-10-12"
   },
+  "https://dev.to/hemapriya_kanagala/dev-pet-corner-2-show-us-your-pets-37nj": {
+    "ok": true,
+    "title": "🐾 DEV Pet Corner #2: Show Us Your Pets!",
+    "description": "TL;DR  DEV Pet Corner is back for another Sunday! It's a weekly series where we take a little break...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F0zgjndf50xmevmbc4ufo.jpeg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-19"
+  },
   "https://dev.to/hemapriya_kanagala/from-silent-reader-to-25-articles-what-3-months-on-dev-taught-me-ama-2b0j": {
     "ok": true,
     "title": "From Silent Reader to 25 Articles: What 3 Months on DEV Taught Me + AMA",
@@ -2695,6 +2703,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-10-12"
   },
+  "https://dev.to/nyaomaru/how-do-you-validate-unknown-in-typescript-without-a-schema-library-1a11": {
+    "ok": true,
+    "title": "How Do You Validate `unknown` in TypeScript Without a Schema Library? 🛡️",
+    "description": "Hoi hoi! 👋  I'm @nyaomaru, a frontend engineer who is obsessed with gamba. 😸🦐  Recently, I was...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F6yiq3jrghjauo4cocd84.gif",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-19"
+  },
   "https://dev.to/nyaomaru/learn-trapping-rain-water-top-k-frequent-and-selection-sort-with-step-by-step-visualization-in-dsa-1flg": {
     "ok": true,
     "title": "Learn Trapping Rain Water, Top K Frequent and Selection Sort with Step-by-Step Visualization in DSA View View 👀👀",
@@ -2822,6 +2838,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fg4m416qr7wllaruop3ii.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-21"
+  },
+  "https://dev.to/peter/someone-hacked-the-freezers-at-400-french-supermarkets-5flm": {
+    "ok": true,
+    "title": "Someone hacked the freezers at 400 French supermarkets",
+    "description": "Friends ask me some version of this a lot: how would a bad actor with super powerful AI actually hurt...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F008lxwyehzrvzvtgcu5x.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-19"
   },
   "https://dev.to/playfulprogramming/functional-languages-are-heavily-imperative-4c1": {
     "ok": true,

@@ -1,0 +1,308 @@
+﻿---
+title: "스키마 라이브러리 없이 TypeScript의 unknown 값을 검증하는 방법"
+description: "API 응답이나 JSON.parse 결과처럼 검증 전인 값은 unknown으로 받는 게 맞습니다. as 단언 대신 런타임 타입 가드를 조합해 값을 안전하게 좁히는 방법과, 스키마 라이브러리가 필요한 경우를 정리했습니다."
+date: "2026-10-14"
+published_at: "2026-10-19"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F6yiq3jrghjauo4cocd84.gif"
+coverAlt: "How Do You Validate `unknown` in TypeScript Without a Schema Library?"
+slug: "validate-unknown-in-typescript-without-schema-library"
+source_id: "devto-4839229"
+source_url: "https://dev.to/nyaomaru/how-do-you-validate-unknown-in-typescript-without-a-schema-library-1a11"
+source_title: "How Do You Validate `unknown` in TypeScript Without a Schema Library? 🛡️"
+source_author: "nyaomaru"
+source_published: "2026-10-14"
+---
+
+<LinkCard url="https://dev.to/nyaomaru/how-do-you-validate-unknown-in-typescript-without-a-schema-library-1a11" author="nyaomaru" date="2026-10-14" />
+
+## 개요
+
+API 응답, `JSON.parse` 결과, 로컬 스토리지 값, 메시지 페이로드, 서드파티 코드에서 넘어온 값. 이런 값은 실제로 확인하기 전까지 어떤 타입으로 다뤄야 할까요? 답은 간단합니다. `unknown`입니다.
+
+진짜 고민은 그다음입니다. `unknown`을 쓸 만한 타입으로 어떻게 안전하게 바꿀 것인가, 그리고 이걸 위해 매번 무거운 스키마 라이브러리를 들여야 하는가.
+
+프론트엔드 엔지니어 nyaomaru는 Dev.to에 올린 글에서 이 질문을 다룹니다. 직접 만든 타입 가드 툴킷 `is-kit`을 예로 들어, 작은 런타임 검사를 조합해 값을 좁혀 가는 방식을 소개합니다.
+
+[가이드 전문 보기 →](https://is-kit.dev/guides/validate-unknown-without-schema-library)
+
+## 본문
+
+### unknown은 제 역할을 하고 있다
+
+```ts
+declare const input: unknown;
+
+input.name;
+// Error
+```
+
+TypeScript는 `name`에 접근하지 못하게 막습니다. 처음엔 귀찮게 느껴지지만, 사실 컴파일러는 중요한 사실을 알려 주고 있습니다. "값은 있는데, 그게 뭔지는 아직 모른다."
+
+신뢰할 수 없는 경계에서 들어온 값이라면 딱 그 상태가 맞습니다. 애플리케이션이 `User`를 기대한다고 해서 HTTP 응답이 저절로 `User`가 되지는 않습니다. 파싱한 JSON도 마찬가지입니다.
+
+필자는 이렇게 정리합니다.
+
+> `unknown`은 타입 정보가 빠진 게 아니다. 아직 검증하지 않은 값을 정직하게 표현한 것이다.
+
+문제는 `unknown` 자체가 아니라, 그 값을 어떻게 믿을 수 있게 만드느냐입니다.
+
+![나무 손이 물음표를 들고 있는 모습](https://images.pexels.com/photos/10981242/pexels-photo-10981242.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Ann H](https://www.pexels.com/@ann-h-45017) on [Pexels](https://www.pexels.com/photo/wooden-hand-holding-question-mark-10981242/)*
+
+### 가장 쉬운 탈출구, as User의 함정
+
+가장 짧은 해결책은 타입 단언입니다.
+
+```ts
+type User = {
+  id: string;
+  name: string;
+};
+
+declare const input: unknown;
+
+const user = input as User;
+
+user.name.toUpperCase();
+```
+
+컴파일러는 만족합니다. 하지만 **실제로 검사한 건 아무것도 없습니다.** 아래 코드도 그대로 통과합니다.
+
+```ts
+const input = {
+  id: "user-1",
+  name: 123,
+} as unknown;
+
+const user = input as User;
+
+user.name.toUpperCase();
+// 💥 Runtime error
+```
+
+`as User`가 바꾸는 건 컴파일러의 믿음뿐입니다. 런타임 값을 들여다보지도 않고, 빠진 속성을 채워 주지도 않고, `123`을 문자열로 바꿔 주지도 않습니다. 런타임에서 값을 믿어야 하는 상황이라면 타입 단언은 검증이 아닙니다. 실제로 런타임 검사가 있어야 합니다.
+
+### 타입 가드는 런타임과 타입을 함께 잇는다
+
+`is-kit`으로는 가드를 이렇게 만듭니다.
+
+```ts
+import { isString, oneOfValues, struct } from "is-kit";
+
+const isUser = struct({
+  id: isString,
+  name: isString,
+  role: oneOfValues("admin", "member"),
+});
+```
+
+`unknown` 값을 그대로 넘기면 됩니다.
+
+```ts
+declare const input: unknown;
+
+if (isUser(input)) {
+  input.name.toUpperCase();
+
+  // input:
+  // Readonly<{
+  //   id: string;
+  //   name: string;
+  //   role: "admin" | "member";
+  // }>
+}
+```
+
+검사 하나가 두 가지 일을 합니다. 런타임에서는 값이 실제로 형태에 맞는지 확인하고, TypeScript에게는 검사를 통과한 값이 어떤 타입인지 알려 줍니다. 스키마를 따로 정의하지도, 타입 단언을 쓰지도 않습니다. 작은 런타임 조건(predicate)을 조합할 뿐입니다.
+
+### 형태가 복잡해져도 조합으로 해결한다
+
+실제 페이로드는 대개 조금 더 복잡합니다. 선택적인 프로필, null일 수 있는 소개글, 태그 목록 같은 것들이 붙습니다. 이때도 가드를 계속 조합하면 됩니다.
+
+```ts
+import {
+  arrayOf,
+  isString,
+  nullable,
+  oneOfValues,
+  optionalKey,
+  struct,
+} from "is-kit";
+
+const isProfile = struct({
+  displayName: isString,
+  bio: optionalKey(nullable(isString)),
+});
+
+const isUser = struct({
+  id: isString,
+  role: oneOfValues("admin", "member"),
+  profile: optionalKey(isProfile),
+  tags: arrayOf(isString),
+});
+```
+
+```ts
+isUser({
+  id: "user-1",
+  role: "member",
+  tags: ["typescript", "guards"],
+});
+// true
+
+isUser({
+  id: "user-1",
+  role: "owner",
+  tags: ["typescript"],
+});
+// false
+```
+
+조각 하나하나가 여전히 독립된 가드입니다. 따로 테스트할 수 있고, 다른 곳에서 재사용할 수 있고, 더 큰 가드 안에 넣을 수도 있습니다.
+
+여기서 짚고 넘어갈 차이가 있습니다. `optionalKey(...)`는 **속성 자체가 없어도 된다**는 뜻이고, `nullable(...)`은 **값이 null이어도 된다**는 뜻입니다. 런타임 계약이 서로 다르기 때문에 필자는 둘을 분리해서 쓰는 쪽을 선호합니다.
+
+### safeParse는 무엇을 더해 주나
+
+대부분은 가드를 바로 쓰는 것으로 충분합니다.
+
+```ts
+if (isUser(input)) {
+  renderUser(input);
+}
+```
+
+그런데 검증 결과 자체를 프로그램 흐름에 실어 보내고 싶을 때가 있습니다. 이럴 때 `safeParse`를 씁니다.
+
+```ts
+const result = safeParse(isUser, input);
+
+if (!result.valid) {
+  return { status: 400 as const };
+}
+
+return {
+  status: 200 as const,
+  user: result.value,
+};
+```
+
+`safeParse`는 `valid: true`와 값을 담은 결과, 또는 `valid: false`만 담은 결과를 돌려줍니다. 태그가 붙은 결과라서 평범한 분기문으로 타입을 좁힐 수 있습니다.
+
+더 중요한 건 `safeParse`가 **하지 않는** 일입니다. 값을 복제하지 않고, 강제 변환하지 않고, 새 객체를 만들지 않으며, 잘못된 데이터를 올바른 데이터로 바꾸지도 않습니다. 성공하면 가드가 통과시킨 바로 그 값을 그대로 돌려줍니다.
+
+| 방식 | 결과 형태 |
+| --- | --- |
+| 가드 | boolean + 타입 좁히기 |
+| `safeParse` | 태그된 결과 + 검증된 값 |
+
+런타임 규칙은 같고, 제어 흐름의 모양만 다릅니다.
+
+### JSON 경계는 더 좁게
+
+가장 흔한 경계는 JSON 파싱입니다. 문제는 `JSON.parse`가 `any`를 반환한다는 점입니다. 검증하기도 전에 안전하지 않은 값이 코드 곳곳으로 퍼질 수 있습니다.
+
+`safeJsonParse`를 쓰면 경계를 작게 유지할 수 있습니다.
+
+```ts
+import { safeJsonParse } from "is-kit";
+
+declare const body: string;
+
+const result = safeJsonParse(body, isUser);
+
+if (!result.valid) {
+  return { status: 400 as const };
+}
+
+renderUser(result.value);
+```
+
+흐름은 이렇습니다.
+
+```text
+JSON text
+   ↓
+decode
+   ↓
+unknown
+   ↓
+guard
+   ↓
+validated value
+```
+
+JSON 문법이 잘못됐든 가드를 통과하지 못했든 결과는 똑같이 `valid: false`입니다. 통과시키려고 값을 억지로 바꾸는 일도 없습니다. 안전하지 않은 부분이 디코딩 경계 안에만 머무른다는 게 이 방식의 장점입니다.
+
+### 추가 키를 허용할 것인가
+
+객체 경계에는 또 하나의 설계 선택이 따라옵니다. `username`과 `password`만 기대하는데 `admin: true`가 같이 들어오면 받아 줘야 할까요?
+
+`struct`는 기본적으로 추가 키를 허용합니다. API 응답에는 이쪽이 편할 때가 많습니다. 서버가 새 필드를 추가해도 예전 클라이언트가 깨지지 않기 때문입니다.
+
+닫힌 형태가 꼭 필요하다면 `exact` 옵션을 켭니다.
+
+```ts
+const isCredentials = struct(
+  {
+    username: isString,
+    password: isString,
+  },
+  { exact: true },
+);
+
+isCredentials({
+  username: "Neko",
+  password: "secret",
+});
+// true
+
+isCredentials({
+  username: "Neko",
+  password: "secret",
+  admin: true,
+});
+// false
+```
+
+어느 쪽이 항상 낫다는 얘기가 아닙니다. 경계마다 실제로 원하는 계약을 코드로 드러내야 한다는 얘기입니다.
+
+### 그럼 스키마 라이브러리는 필요 없나
+
+필요합니다. 경우에 따라서는 반드시 필요합니다.
+
+타입 가드 툴킷과 스키마 라이브러리는 일부 겹치지만, 푸는 문제가 똑같지는 않습니다. 다음과 같은 요구가 있다면 스키마 라이브러리가 더 맞습니다.
+
+- 필드 경로가 담긴 구조화된 검증 에러
+- 여러 검증 오류를 한 번에 수집
+- 강제 변환(coercion)과 기본값
+- 데이터 변환(transformation)
+- 스키마에서 타입이나 외부 산출물 생성
+- 폼·API 프레임워크와의 깊은 통합
+
+`is-kit`이 던지는 질문은 훨씬 좁습니다. "이 값이 이 런타임 조건을 만족하는가? 만족한다면 TypeScript는 이 값을 어디까지 좁힐 수 있는가?"
+
+| 접근 방식 | 잘 맞는 상황 |
+| --- | --- |
+| 인라인 `typeof` 검사 | 한 군데서 쓰는 작은 조건 |
+| 타입 가드 | 재사용 가능한 boolean 검증과 타입 좁히기 |
+| 스키마 라이브러리 | 풍부한 검증, 변환, 스키마 중심 워크플로 |
+
+그래서 필자는 "타입 가드와 스키마 라이브러리 중 뭐가 이기나"보다 "이 경계를 해결하는 가장 작은 검증 모델은 무엇인가"를 묻는 게 더 쓸모 있다고 말합니다.
+
+### 정리
+
+출발점은 `unknown` 값 하나였습니다. `as User`라는 지름길은 TypeScript의 믿음만 바꿀 뿐, 런타임 신뢰를 만들어 주지 않습니다.
+
+런타임 가드를 쓰면 `unknown` → 런타임 검사 → 좁혀진 값이라는 흐름이 생깁니다. 결과 객체가 필요하면 그 사이에 `safeParse`를 끼워 `valid: true`와 값, 또는 `valid: false`를 받으면 됩니다.
+
+숨은 변환도 없고, 검사한 척하는 단언도 없습니다. TypeScript도 이해할 수 있는 작은 런타임 규칙만 남습니다.
+
+- [가이드 전문 보기 →](https://is-kit.dev/guides/validate-unknown-without-schema-library)
+- [is-kit GitHub 저장소 보기 →](https://github.com/nyaomaru/is-kit)
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
