@@ -4,7 +4,7 @@ description: "API 응답이나 JSON.parse 결과처럼 검증 전인 값은 unkn
 date: "2026-10-14"
 published_at: "2026-10-19"
 category: "news"
-tags: []
+tags: ["typescript","javascript","webdev","programming","tutorial"]
 cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F6yiq3jrghjauo4cocd84.gif"
 coverAlt: "How Do You Validate `unknown` in TypeScript Without a Schema Library?"
 slug: "validate-unknown-in-typescript-without-schema-library"
@@ -82,7 +82,7 @@ user.name.toUpperCase();
 // 💥 Runtime error
 ```
 
-`as User`가 바꾸는 건 컴파일러의 믿음뿐입니다. 런타임 값을 들여다보지도 않고, 빠진 속성을 채워 주지도 않고, `123`을 문자열로 바꿔 주지도 않습니다. 런타임에서 값을 믿어야 하는 상황이라면 타입 단언은 검증이 아닙니다. 실제로 런타임 검사가 있어야 합니다.
+`as User`가 바꾸는 건 컴파일러의 믿음뿐입니다. 런타임 값을 들여다보지도 않고, 빠진 속성을 채워 주지도 않고, `123`을 문자열로 바꿔 주지도 않습니다. 런타임에서 값을 믿어야 한다면 단언으로는 부족하고, 실제 검사가 필요합니다.
 
 ### 타입 가드는 런타임과 타입을 함께 잇는다
 
@@ -273,7 +273,7 @@ isCredentials({
 
 필요합니다. 경우에 따라서는 반드시 필요합니다.
 
-타입 가드 툴킷과 스키마 라이브러리는 일부 겹치지만, 푸는 문제가 똑같지는 않습니다. 다음과 같은 요구가 있다면 스키마 라이브러리가 더 맞습니다.
+타입 가드 툴킷과 스키마 라이브러리는 일부 겹치지만, 푸는 문제가 똑같지는 않습니다. 아래 같은 게 필요하다면 스키마 라이브러리 쪽이 낫습니다.
 
 - 필드 경로가 담긴 구조화된 검증 에러
 - 여러 검증 오류를 한 번에 수집
