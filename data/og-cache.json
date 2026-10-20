@@ -1655,6 +1655,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-19"
   },
+  "https://dev.to/gramli/fine-tuning-qwen3-8b-with-tinker-from-50-to-76-accuracy-and-burning-through-my-budget-48mh": {
+    "ok": true,
+    "title": "Fine-Tuning Qwen3-8B with Tinker: From 50% to 76% Accuracy, and Burning Through My Budget",
+    "description": "This is a submission for the Hacktoberfest Open-Source AI Challenge Week 2: Side Hustle  Oktoberfest?...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F31hxytlggz1f83c6zhct.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-20"
+  },
   "https://dev.to/gramli/how-i-smashed-a-bug-in-a-shared-authentication-library-33fm": {
     "ok": true,
     "title": "How I Smashed a Bug in a Shared Authentication Library",
@@ -3014,6 +3022,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Feulsjeuse6wn9bho0g8d.gif",
     "siteName": "DEV Community",
     "fetchedAt": "2026-10-09"
+  },
+  "https://dev.to/sizzlebop/what-i-actually-learn-when-i-build-with-ai-1074": {
+    "ok": true,
+    "title": "What I Actually Learn When I Build With AI",
+    "description": "I've spent entire nights building something with AI, gotten a bunch of features working, and then...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F2atagf3xnyj2fwx6qtho.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-20"
   },
   "https://dev.to/smtahosin/bash-isnt-a-programming-language-its-a-text-substitution-engine-5eml": {
     "ok": true,
