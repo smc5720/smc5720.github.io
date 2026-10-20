@@ -4,7 +4,7 @@ description: "백엔드 개발자 Daniel Balcarek이 Tinker로 Qwen3-8B를 파�
 date: "2026-10-18"
 published_at: "2026-10-20"
 category: "news"
-tags: []
+tags: ["ai","llm","opensource","python","news"]
 slug: "fine-tuning-qwen3-8b-with-tinker-complexity-scorer"
 cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F31hxytlggz1f83c6zhct.jpg"
 coverAlt: "Fine-Tuning Qwen3-8B with Tinker: From 50% to 76% Accuracy, and Burning Through My Budget"
@@ -88,7 +88,7 @@ Python을 거의 쓰지 않던 작성자는 ChatGPT의 도움을 받아 환경�
 
 바로 Sol을 멈추고 확인해 보니, 학습 데이터만 만드는 게 아니라 백그라운드에서 모델 학습까지 돌리고 있었습니다. `deepseek-ai/DeepSeek-V3.1`, `moonshotai/Kimi-K2.6`, `Qwen/Qwen3.5-397B-A17B` 등 여러 모델로 세션 18개가 열려 있었습니다. 멈췄을 때 남은 Tinker 잔액은 **$2.11**이었습니다. 작성자는 AI 에이전트에게 유료 서비스 접근 권한을 줄 때 조심해야 한다는 교훈을 얻었다고 적었습니다.
 
-이후에는 방식을 바꿨습니다. thinking effort를 medium으로 둔 Luna로 한 번에 200개씩 만들게 하고, 매번 다른 유형의 프롬프트에 초점을 맞춰 직접 열 번 실행했습니다. 여기에 앞서 Sol이 만든 500개를 더했습니다. 직접 돌린 이유는 또다시 에이전트에게 예산을 맡기고 싶지 않았기 때문이며, 처음부터 Luna를 썼어야 했고 Sol은 이 작업에 과했다고 돌아봤습니다.
+이후에는 방식을 바꿨습니다. thinking effort를 medium으로 둔 Luna로 한 번에 200개씩 만들게 하고, 매번 다른 유형의 프롬프트에 초점을 맞춰 직접 열 번 실행했습니다. 여기에 앞서 Sol이 만든 500개를 더했습니다. 에이전트에게 다시 예산을 맡기고 싶지 않아서 직접 돌렸다고 합니다. 처음부터 Luna를 썼어야 했고, Sol은 이 작업에 과했다는 게 작성자의 회고입니다.
 
 2,500개로 학습을 마친 최종 모델의 정확도는 **76%** 였습니다. 같은 평가셋에서 50%였던 원본 대비 26%p 오른 수치입니다.
 
@@ -110,7 +110,7 @@ Python을 거의 쓰지 않던 작성자는 ChatGPT의 도움을 받아 환경�
 | 1.00 | Very hard | 10/10 | 100% |
 | **합계** | | **38/50** | **76%** |
 
-틀린 12개는 모두 정답과 한 단계 차이였습니다. 틀려도 크게 빗나가지는 않았다는 뜻입니다. 500개에서 2,500개로 늘렸을 때의 향상(74% → 76%)은 50개 중 한 개를 더 맞힌 정도라 의미 있는 결론을 내리기엔 너무 작다고 작성자는 설명했습니다. 결국 데이터 양보다 품질, 그리고 평가 방식이 중요하다는 게 그의 정리입니다.
+틀린 12개는 모두 정답과 한 단계 차이였습니다. 틀려도 크게 빗나가지는 않았다는 뜻입니다. 500개에서 2,500개로 늘렸을 때의 향상(74% → 76%)은 50개 중 한 개를 더 맞힌 정도라 의미 있는 결론을 내리기엔 너무 작다고 작성자는 설명했습니다. 데이터를 얼마나 모으느냐보다 품질과 평가 방식이 더 중요했다는 얘기입니다.
 
 네 모델의 정확도 비교는 아래와 같습니다.
 
