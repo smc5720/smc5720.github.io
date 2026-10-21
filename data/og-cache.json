@@ -471,6 +471,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/dailycontext/memory-isnt-learning-why-ai-agents-keep-making-the-same-mistakes-cpc": {
+    "ok": true,
+    "title": "Memory Isn’t Learning: Why AI Agents Keep Making the Same Mistakes",
+    "description": "Have you ever told your AI agent something important, only to realize a few conversations later that...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F91efzweikljl6q02lhwm.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-21"
+  },
   "https://dev.to/dailycontext/one-weekend-3000-open-source-ai-projects-3g65": {
     "ok": true,
     "title": "One Weekend: 3,000 Open-Source AI Projects",
@@ -542,6 +550,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Frumst0xc49qx50hr0zjp.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-23"
+  },
+  "https://dev.to/dannwaneri/bank-alerts-to-a-day-book-with-a-local-gemma-21dl": {
+    "ok": true,
+    "title": "Bank alerts to a day-book, with a local Gemma",
+    "description": "This is a submission for the Hacktoberfest Open-Source AI Challenge Week 2: Side Hustle          ...",
+    "image": "https://dev-to-uploads.s3.amazonaws.com/uploads/articles/3otvb2z646ytpt1hl2rv.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-21"
   },
   "https://dev.to/dannwaneri/devtos-dashboard-cant-count-its-own-posts-3fci": {
     "ok": true,
@@ -1046,6 +1062,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ftum9bejx0l3cghun1wlg.jpg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/dj29/10-prompting-techniques-my-deep-learning-exam-taught-me-that-i-actually-use-now-43h0": {
+    "ok": true,
+    "title": "10 Prompting Techniques My Deep Learning Exam Taught Me (That I Actually Use Now)",
+    "description": "You already use prompting every day.  You just don't know the names of what you're doing.  Every time...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F9jlghfmkd6eo2usgc88g.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-21"
   },
   "https://dev.to/dj29/5-devto-features-i-wish-existed-3-im-genuinely-relieved-they-dont-3b8n": {
     "ok": true,
@@ -2134,6 +2158,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fs3naos2gu55mg9na6jui.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-29"
+  },
+  "https://dev.to/james_anderson_h/somewhere-coding-stopped-being-allowed-to-be-fun-14pe": {
+    "ok": true,
+    "title": "Somewhere, Coding Stopped Being Allowed to Be Fun",
+    "description": "Somewhere in the last couple of years, a strange feeling crept in, and I don't think I'm the only one...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F0rk0d4thuda339yatkf9.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-21"
   },
   "https://dev.to/james_anderson_h/the-quiet-weight-of-working-in-tech-in-the-ai-era-551g": {
     "ok": true,
