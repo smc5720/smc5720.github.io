@@ -1,0 +1,232 @@
+﻿---
+title: "is-kit, GitHub 스타 100개 돌파 — 50개 이후 무엇이 달라졌나"
+description: "TypeScript 타입 가드 라이브러리 is-kit이 GitHub 스타 100개를 넘겼습니다. 50개 이후 추가된 API, 더 엄격해진 동작, 그리고 Effect의 타입 추론 버그를 드러낸 실제 사례를 정리했습니다."
+date: "2026-10-21"
+published_at: "2026-10-22"
+slug: "is-kit-reached-100-stars-whats-changed-since-50"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fdl5sbp292yypl6esr2xw.gif"
+coverAlt: "is-kit Reached 100 Stars ⭐🎉 Here’s What Changed Since 50"
+source_id: "devto-4858037"
+source_url: "https://dev.to/nyaomaru/is-kit-reached-100-stars-heres-what-changed-since-50-49pf"
+source_title: "is-kit Reached 100 Stars ⭐🎉 Here’s What Changed Since 50"
+source_author: "nyaomaru"
+source_published: "2026-10-21"
+---
+
+<LinkCard url="https://dev.to/nyaomaru/is-kit-reached-100-stars-heres-what-changed-since-50-49pf" author="nyaomaru" date="2026-10-21" />
+
+## 개요
+
+TypeScript 타입 가드 라이브러리 [`is-kit`](https://github.com/nyaomaru/is-kit)이 GitHub 스타 100개를 넘겼습니다. 메인테이너 nyaomaru는 스타 50개 때 사용자 10만 명 이상인 프로덕션 TypeScript 애플리케이션에서 이 라이브러리를 어떻게 쓰는지 소개한 적이 있습니다.
+
+[이전 글: is-kit 스타 50개, 프로덕션 사용기 보기 →](https://dev.to/nyaomaru/is-kit-reached-50-stars-heres-how-we-use-it-in-production-2i5b)
+
+이번 글에서 작성자는 같은 이야기를 반복하지 않고 그 뒤에 바뀐 것들을 정리했습니다. 새 API가 들어왔고, 기존 API는 더 엄격해졌습니다. 작성자 본인이 관리하는 다른 오픈소스에서도 쓰기 시작했고, 실제 사용 사례 하나는 [`Effect`](https://github.com/Effect-TS/effect)의 타입 추론 엣지 케이스를 드러내기까지 했습니다.
+
+![is-kit 100 stars](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/daotzurpsdocaj5u57pf.png)
+
+## 스타 50개 때 보여주고 싶었던 것
+
+당시 작성자가 강조한 점은 `is-kit`이 장난감 프로젝트가 아니라 실제 프로덕션에서 쓰이고 있다는 사실이었습니다.
+
+그 애플리케이션에는 아래와 같은 런타임 검사가 곳곳에 반복됐습니다.
+
+```ts
+typeof value === "string";
+typeof value === "number";
+value === null || value === undefined;
+```
+
+HTTP 에러, 리터럴 유니온, 배열, API 응답 값, 플레인 객체 등을 검사하는 커다란 사용자 정의 타입 가드도 여럿 있었습니다.
+
+작성자가 의미를 둔 부분은 코드가 짧아졌다는 점이 아니었습니다. 이 검사들이 **재사용 가능한 하나의 형태**를 갖게 됐다는 점이었습니다. 작은 가드를 조합할 수 있고, 라이브러리와 기능 코드 사이에 애플리케이션 전용 헬퍼를 둘 수 있으며, 그 결과물이 TypeScript의 일반적인 제어 흐름 안에서 그대로 동작합니다. 이 방향은 지금도 그대로입니다.
+
+## 새로 추가된 API
+
+### 속성 단위 정제: refineKey · refineDefinedKey · refineIndex
+
+작성자가 자주 부딪힌 상황은 이랬습니다.
+
+> 이미 믿을 만한 타입 가드가 있다. 그걸 속성 하나에만 적용하고 싶다.
+
+예를 들어 문자열 검사는 `isString`으로 이미 할 수 있는데, 이번에는 "이 객체에 `name` 속성이 있고, 그 값이 문자열이다"를 표현하고 싶은 경우입니다.
+
+간단해 보이지만 따져 보면 경우가 여러 가지입니다. 필수 속성과 선택 속성은 다르고, 배열 인덱스와 객체 속성도 다릅니다. 선택 속성이 정의돼 있다고 확인된 경우와 여전히 선택 속성인 경우는 좁혀지는 타입도 달라야 합니다.
+
+그래서 `is-kit`은 세 가지 헬퍼를 추가했습니다.
+
+- `refineKey`
+- `refineDefinedKey`
+- `refineIndex`
+
+이미 검증된 타입 가드를 속성이나 배열 요소 단위로 끌어올린다는 개념입니다.
+
+```ts
+import { isString, refineKey } from "is-kit";
+
+const hasStringName = refineKey("name", isString);
+```
+
+이렇게 하면 문자열 가드를 다른 커스텀 술어 안에서 다시 작성할 필요 없이 한 단계 깊은 곳에서 재사용할 수 있습니다. 작성자는 거대한 검증기 하나를 만들지 말고, 일반 TypeScript 코드에서 재사용할 수 있는 작은 검사를 쌓자는 `is-kit`의 설계 원칙과 맞닿아 있는 API라고 설명합니다.
+
+### 완전성을 검사하는 discriminatedUnion
+
+50개 이후 가장 큰 변화는 `v1.15.0`에서 들어온 구별된 유니온(discriminated union) API입니다.
+
+```ts
+type Result = { ok: true; value: string } | { ok: false; error: string };
+```
+
+이 타입을 런타임에 검증하는 것 자체는 어렵지 않습니다. `ok`를 확인하고 해당 필드를 검사하면 됩니다. 문제는 **검증기가 유니온 전체를 빠짐없이 다루는지를 TypeScript가 확인해 줄 수 있느냐**입니다. `discriminatedUnion`은 이 질문에 답하려고 만든 API입니다.
+
+```ts
+import { discriminatedUnion, isString, oneOfValues, typedStruct } from "is-kit";
+
+type Result = { ok: true; value: string } | { ok: false; error: string };
+
+const resultUnion = discriminatedUnion<Result>();
+
+export const isResult = resultUnion("ok", [true, false], {
+  true: typedStruct<Extract<Result, { ok: true }>>()({
+    ok: oneOfValues(true),
+    value: isString,
+  }),
+  false: typedStruct<Extract<Result, { ok: false }>>()({
+    ok: oneOfValues(false),
+    error: isString,
+  }),
+});
+```
+
+빌더는 컴파일 시점에 다음 항목을 확인합니다.
+
+- 빠진 판별자 분기
+- 불필요하게 추가된 분기
+- 호환되지 않는 분기 가드
+- 불완전한 판별자 튜플
+
+유니온 타입이 바뀌었는데 가드가 그대로 남아 조용히 불완전해지는 일을 막겠다는 겁니다. 작성자는 손으로 작성한 타입 가드가 위험해지는 가장 흔한 경로로 이런 어긋남(drift)을 꼽습니다. 타입은 바뀌는데 런타임 가드는 그대로이고, 컴파일러는 보통 둘이 어긋났다는 사실을 알려주지 못합니다.
+
+## 더 엄격해진 기존 동작
+
+50개에서 100개 사이의 작업이 모두 새 기능은 아니었습니다. 상당 부분은 기존 동작을 더 정확하게 다듬는 일이었습니다. 최근 릴리스에서 손본 부분은 다음과 같습니다.
+
+- `recordOf`의 리터럴 키 좁히기
+- 네이티브 `Error` 브랜드 검사
+- 이터레이터를 재정의한 배열에 대한 가드
+- `struct`의 정확한(exact) 검증
+- 심볼 키를 쓰는 struct 스키마
+- 크로스 렐름(cross-realm) struct 스키마
+
+패키지 수준 테스트도 늘었습니다. 이제 배포된 패키지가 ESM과 CommonJS 두 방식의 TypeScript 사용 환경에서 제대로 동작하는지 확인하고, `Deno`와 `JSR` 환경에 대한 스모크 테스트도 돌립니다. 코드 예제로 보여주기엔 심심한 작업이지만, 작은 라이브러리일수록 특이한 JavaScript·TypeScript 환경에서 올바르게 동작하는지 확인하는 과정이 중요하다고 작성자는 말합니다.
+
+## 다른 오픈소스에서도 자연스럽게
+
+작성자는 본인이 관리하는 다른 오픈소스에서도 `is-kit`을 쓰기 시작했습니다. 체인지로그 도구인 [`changelog-bot`](https://github.com/nyaomaru/changelog-bot)에서는 런타임 검사마다 따로 헬퍼를 만드는 대신 `define`으로 작은 술어를 재사용하고 조합합니다. 단순화한 예시는 이렇습니다.
+
+```ts
+import { define, oneOfValues } from "is-kit";
+
+const CHANGELOG_SECTIONS = ["Added", "Changed", "Fixed", "Removed"] as const;
+
+const isChangelogSection = define<(typeof CHANGELOG_SECTIONS)[number]>(
+  oneOfValues(CHANGELOG_SECTIONS),
+);
+```
+
+작성자에게 달라진 점은 "여기서 내 라이브러리를 써야지"라는 생각을 더는 하지 않는다는 것입니다. 필요한 가드를 그냥 꺼내 씁니다. 라이브러리가 스스로를 시연하는 데모처럼 느껴지지 않을 때 비로소 메인테이너에게도 쓸모 있어진다는 이야기입니다.
+
+## Effect의 타입 추론 버그를 드러낸 사례
+
+최근 가장 흥미로웠던 일로 작성자는 이 사례를 꼽습니다. 한 `is-kit` 사용자가 Effect의 `catchIf`에 타입 가드를 넘겼는데, 정제 함수의 형태는 개념적으로 이랬습니다.
+
+```ts
+(error: unknown): error is SomeError => ...
+```
+
+`is-kit`에서는 지극히 평범한 형태입니다. 애초에 `unknown`에서 출발하도록 설계한 라이브러리이기 때문입니다. 그런데 `Effect.catchIf`와 함께 쓰면 이 정제 함수가 제네릭 추론에 예상치 못한 영향을 줬고, 에러 채널이 `unknown`으로 넓어질 수 있었습니다.
+
+이 보고는 Effect 쪽 PR로 이어졌고 병합됐습니다.
+
+[Effect PR #9252 보기 →](https://github.com/Effect-TS/effect/pull/9252)
+
+원래 타입 정의는 대략 `Predicate.Refinement<E, EB>` 형태였고, 수정 후에는 `Predicate.Refinement<NoInfer<E>, EB>`로 바뀌었습니다. 핵심은 **정제 함수의 입력 타입이 `Effect`가 이미 정해 둔 에러 타입을 다시 정의하지 못하게 막는 것**입니다.
+
+PR에는 아래와 같은 경우를 검증하는 타입 테스트도 추가됐습니다.
+
+```ts
+const result = Effect.catchIf(
+  mixedEffect,
+  (e: unknown): e is AiError => e instanceof AiError,
+  () => Effect.succeed("ok"),
+);
+```
+
+수정 전에는 정제 함수의 입력이 추론에 끼어들어 에러 채널을 넓힐 수 있었습니다. `NoInfer`를 적용한 뒤에는 원래 에러 타입이 기준으로 유지됩니다. `Channel`과 `Stream`에도 같은 패턴의 수정이 들어갔습니다. 이 이슈는 Bluesky에서도 언급됐습니다.
+
+[Bluesky 게시물 보기 →](https://bsky.app/profile/evadeva.bsky.social/post/3mxwiqfeo3s2j)
+
+작성자는 이 버그를 `is-kit`만 따로 테스트해서는 절대 찾지 못했을 것이라고 말합니다. `is-kit`이 Effect를 망가뜨린 것도, Effect가 이상한 동작을 한 것도 아닙니다. 제네릭 API와 일부러 입력을 넓게 잡은 정제 함수 사이의 미묘한 TypeScript 추론 상호작용이었고, 라이브러리끼리 실제 코드에서 만날 때 비로소 드러나는 종류의 엣지 케이스였습니다.
+
+## is-kit이 하려는 일과 하지 않으려는 일
+
+50개와 100개 사이에 작성자는 `is-kit`이 **무엇이 아닌지**도 더 분명히 설명할 수 있게 됐습니다.
+
+- 모든 스키마 라이브러리를 대체하려는 게 아닙니다.
+- 모든 런타임 값을 스키마 중심 워크플로로 바꾸려는 게 아닙니다.
+- TypeScript의 일반적인 제어 흐름을 감추려는 게 아닙니다.
+
+핵심 질문은 여전히 작습니다.
+
+> "이 `unknown` 값이 이 분기에 안전하게 들어갈 수 있는가?"
+
+풍부한 검증 에러 메시지, 값 변환, 폼 검증, 여러 시스템이 공유하는 계약이 필요하다면 `Zod`, `Valibot`, `ArkType` 같은 도구가 맞을 수 있다고 작성자는 인정합니다. 반면 이미 평범한 TypeScript 코드가 있고, 재사용할 타입 좁히기 함수만 필요하다면 그때 `is-kit`이 쓸모 있기를 바란다고 말합니다.
+
+```ts
+if (isUser(value)) {
+  value.id;
+}
+
+if (isHttpClientError(error)) {
+  // Handle HTTP client errors
+}
+
+items.filter(isString);
+
+result.catch(isHttpClientError);
+
+const isMaybeNumber = nullish(isNumber);
+```
+
+작은 런타임 판단을 평범한 함수와 평범한 TypeScript로 처리하겠다는 방향입니다.
+
+## 스타 100개가 의미하는 것
+
+![밤하늘의 별을 향해 뻗은 손](https://images.pexels.com/photos/9710152/pexels-photo-9710152.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Marea Pante](https://www.pexels.com/@marea-pante) on [Pexels](https://www.pexels.com/photo/hands-and-stars-on-night-sky-9710152/)*
+
+작성자는 스타 100개가 큰 숫자는 아니라고 말합니다. 스타는 벤치마크도 아니고 정확성을 증명하지도 않으며, 모든 TypeScript 프로젝트가 `is-kit`을 설치해야 한다는 뜻도 아닙니다.
+
+그래도 달라진 점이 있습니다. 사람들이 저장소에 별만 누르는 게 아니라 실제로 라이브러리를 쓰고, 질문하고, 엣지 케이스를 찾고, 버그를 보고합니다. 다른 검증 방식과 비교하고, 다른 TypeScript 라이브러리와 함께 쓰면서 작성자가 끝났다고 생각한 API를 다시 고민하게 만듭니다. 작성자에게는 숫자보다 이쪽이 훨씬 값지다고 합니다.
+
+50개 이후의 변화를 작성자는 이렇게 정리합니다.
+
+- 새 API 추가
+- 기존 API를 더 엄격하게 정비
+- 런타임 엣지 케이스 수정
+- 패키지 호환성 테스트 강화
+- 다른 오픈소스에서 자연스럽게 사용
+- 혼자서는 얻을 수 없는 외부 피드백 확보
+- `unknown` 기반 정제 함수가 Effect의 추론 엣지 케이스를 드러내는 데 기여
+
+작성자가 가장 마음에 들어 하는 건 마지막 항목입니다. 목표는 처음부터 `README` 안에서만 그럴듯해 보이는 라이브러리가 아니라, 재사용 가능한 런타임 타입 좁히기가 실제 TypeScript 코드 안에서 자연스럽게 동작하게 만드는 것이었고, 이제 그 모습이 작성자의 저장소 밖에서도 보이기 시작했다는 설명입니다.
+
+작고 조합 가능한 타입 가드가 본인의 TypeScript 스타일과 맞는다면 한번 써 보라는 말로 글을 마무리합니다.
+
+[is-kit GitHub 저장소 보기 →](https://github.com/nyaomaru/is-kit)
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

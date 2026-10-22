@@ -1,0 +1,229 @@
+﻿---
+title: "dev.to 피드가 늘 같은 주제뿐이라면: 오픈 모델로 만든 주간 다이제스트 'devto-digest'"
+description: "태그를 119개나 팔로우했지만 피드는 오히려 시끄러워졌다는 개발자 Thomas Bonnet이, 오픈 웨이트 모델 mistral-small로 한 줄 요약을 붙여 주간 이메일로 보내주는 오픈소스 도구 devto-digest를 공개했습니다. 파이프라인 구조와 개발 중 겪은 시행착오를 정리했습니다."
+slug: "devto-digest-open-model-weekly-digest"
+date: "2026-10-21"
+published_at: "2026-10-22"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fmgs6l9c0sd1b4wf64t06.png"
+coverAlt: "Stuck in the same dev.to topics? An open model fixed it."
+source_id: "devto-4882857"
+source_url: "https://dev.to/thomasbnt/stuck-in-the-same-devto-topics-an-open-model-fixed-it-4mbc"
+source_title: "Stuck in the same dev.to topics? An open model fixed it."
+source_author: "Thomas Bonnet"
+source_published: "2026-10-21"
+---
+
+<LinkCard url="https://dev.to/thomasbnt/stuck-in-the-same-devto-topics-an-open-model-fixed-it-4mbc" author="Thomas Bonnet" date="2026-10-21" />
+
+## 개요
+
+개발자 Thomas Bonnet이 dev.to 계정을 읽어 매주 한 번 추천 글 모음을 이메일로 보내주는 오픈소스 스크립트 **devto-digest**를 공개했습니다. Hacktoberfest 오픈소스 AI 챌린지 3주 차('Slow and Steady') 출품작입니다.
+
+만들게 된 계기는 단순합니다. 그는 dev.to에서 태그를 119개나 팔로우하고 있었는데, 피드가 좋아지기는커녕 더 시끄러워졌다고 합니다. 매일 이미 아는 내용의 글 수백 개를 넘기면서도, 팔로우하지 않은 태그에 있던 정말 중요한 글 한 편은 놓치기 일쑤였습니다.
+
+각 글에 붙는 한 줄 요약은 오픈 웨이트 모델 `mistral-small-latest`가 씁니다. 나머지는 의존성 하나짜리 순수 Node.js 코드입니다. 대시보드도, 계정도, 서버도 없습니다.
+
+## 다이제스트는 어떻게 생겼나
+
+이메일은 두 섹션으로 나뉩니다.
+
+- **For you**: 팔로우하는 태그에서 고른 베스트 글
+- **Discover**: 내 관심사 *바깥*에서 인기를 끈 글
+
+글 하나는 카드 한 장입니다. 커버 이미지, 제목, 태그 두 개, 모델이 쓴 한 줄 요약(핵심 단어는 굵게), 작성자가 들어갑니다. 그게 전부입니다.
+
+![라이트 테마(왼쪽)와 다크 테마(오른쪽)로 나란히 표시된 다이제스트 이메일. For you 섹션에 Docker 동작 원리를 다룬 글 카드가 있고, 커버 이미지와 #docker, #linux 태그, 핵심어가 굵게 표시된 요약, 작성자가 보인다](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/mmp9554bvcjpf9l918jf.png)
+
+직접 써보고 싶다면 자신의 계정으로 바로 돌려볼 수 있습니다. dry-run 모드는 다이제스트를 출력하고 로컬 미리보기 파일만 만들 뿐, 메일은 보내지 않습니다.
+
+```bash
+git clone https://github.com/thomasbnt/your-devto-digest.git
+cd your-devto-digest
+yarn install
+cp .env.example .env
+```
+
+`.env`에 dev.to API 키를 넣은 뒤 아래 명령을 실행하면 됩니다.
+
+```bash
+yarn dry-run
+```
+
+[GitHub 저장소 보기 →](https://github.com/thomasbnt/your-devto-digest)
+
+## 동작 방식
+
+### 매일 모으고, 매주 고른다
+
+- **매일** 후보 글을 모아 점수를 매깁니다. 점수는 '반응 수 + 댓글 수 × 2'에 최신성 감쇠를 완만하게 적용한 값입니다. 매일 돌리기 때문에 수요일에 정점을 찍은 글도 월요일까지 후보 풀에 남아 있습니다.
+- **일주일에 한 번** 풀에서 두 섹션을 뽑은 뒤, 고른 글이 아직 살아 있는지 API로 **한 번 더 확인**합니다. 삭제됐거나 비공개로 바뀐 글은 빼고 다음 순위 글로 채웁니다.
+- 팔로우한 태그에는 희소성에 따라 가중치를 줍니다. `htmx` 같은 틈새 태그가 `discuss`보다 높게 평가됩니다.
+- 실행은 GitHub Actions cron으로 해도 되고, 내 PC의 일반 cron으로 해도 됩니다.
+
+### 요약은 Mistral 오픈 모델이 쓴다
+
+요약 문장은 `mistral-small-latest`가 Mistral의 호스팅 API로 생성합니다. 앱은 OpenAI 호환 `/chat/completions` 엔드포인트라면 어디든 붙을 수 있어서, 모델이나 공급자를 바꾸려면 `config.json`의 값 두 개만 고치면 됩니다.
+
+```json
+{
+  "llm": {
+    "baseUrl": "https://api.mistral.ai/v1",
+    "model": "mistral-small-latest"
+  }
+}
+```
+
+형식이 같으니 `baseUrl`을 로컬 Ollama로 돌려도 똑같이 동작할 것으로 보이지만, 로컬 모델은 아직 직접 벤치마크해보지 않았다고 작성자는 밝혔습니다.
+
+실제 다이제스트에 들어간 요약 예시는 이렇습니다. Tinker로 Qwen3-8B를 파인튜닝한 경험을 다룬 글에 붙은 카드 문구입니다.
+
+```text
+Explains how **fine-tuning Qwen3-8B** with Tinker boosted accuracy and cut **API costs** for a Complexity Scorer tool.
+```
+
+규칙은 한 문장, 최대 25단어, 굵은 핵심 구절 2~4개입니다. 훑어보는 독자도 2초 안에 요점을 잡게 하려는 것입니다.
+
+### 남의 글을 LLM에 넣을 때의 안전장치
+
+프롬프트는 따옴표와 URL 사용을 금지하고, 글 본문 전체를 신뢰할 수 없는 데이터로 다루라고 지시합니다. 특히 **본문 안에 있는 지시는 절대 따르지 말라**고 못 박아 둡니다. 낯선 사람이 쓴 텍스트를 LLM에 그대로 넣는 구조이므로, 제목이 "ignore previous instructions"인 글이 들어와도 요약만 해야지 그 지시를 따라서는 안 된다는 설명입니다. 요약문은 이메일에 들어가기 전에 HTML 이스케이프도 거칩니다. 모델이 탈취되더라도 마크업을 끼워 넣을 수 없게 한 것입니다.
+
+### GitHub Actions로 돌리기
+
+매일 수집과 매주 발송은 GitHub Actions cron이 맡습니다. 실행 사이 상태는 `state.json`에 담아 Actions 캐시에 보관하고, 한 번 실행하는 데 2분이 채 걸리지 않습니다. Actions 탭의 "Run workflow" 버튼으로 수동 실행할 수도 있는데, 세 가지 모드 중 하나를 고릅니다.
+
+- `collect`: 후보 풀만 새로 고침
+- `run`: 매일 cron과 동일하게 동작
+- `force-send`: 오늘 이미 발송했더라도 지금 바로 다이제스트 발송
+
+![devto-digest의 GitHub Actions 실행 목록. 초록색으로 성공한 실행 다섯 건이 모두 2분 안에 끝났다](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/9pp3dhownhqe1art3ju0.png)
+
+아래는 핵심만 남긴 워크플로입니다. 저장소에 있는 [최신 파일](https://github.com/thomasbnt/your-devto-digest/blob/main/.github/workflows/digest.yml)은 글을 쓴 뒤 바뀌었을 수 있으니 복사하기 전에 확인하라고 작성자는 당부합니다. `.github/workflows/digest.yml`로 복사하고 키를 저장소 시크릿으로 등록하면 끝입니다. 잡은 두 개로 나눴습니다. `collect`는 매일 풀을 갱신하고, `send`는 지정한 `sendDay`에만 메일을 보냅니다. 이렇게 나눠 두면 실행 그래프에서 어디서 멈췄는지 바로 보입니다.
+
+```yaml
+name: devto-digest
+
+on:
+  schedule:
+    - cron: '0 7 * * *' # daily, 07:00 UTC
+  workflow_dispatch:
+    inputs:
+      command:
+        type: choice
+        options: [collect, run, force-send]
+        default: collect
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: corepack enable
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: yarn
+      - run: yarn install --immutable
+
+      # state.json keeps the candidate pool and the articles already sent
+      - uses: actions/cache/restore@v6
+        with:
+          path: state.json
+          key: devto-digest-state-${{ github.run_id }}-collect
+          restore-keys: devto-digest-state-
+
+      - run: node app.js collect
+        env:
+          DEVTO_API_KEY: ${{ secrets.DEVTO_API_KEY }}
+
+      - if: always()
+        uses: actions/cache/save@v6
+        with:
+          path: state.json
+          key: devto-digest-state-${{ github.run_id }}-collect
+
+  send:
+    needs: collect
+    if: ${{ needs.collect.result == 'success' && inputs.command != 'collect' }}
+    runs-on: ubuntu-latest
+    steps:
+      # same checkout, Node, install and cache restore steps as above
+
+      # force-send sends now; otherwise only on sendDay, once a day
+      - run: node app.js "$COMMAND"
+        env:
+          COMMAND: ${{ inputs.command == 'force-send' && 'send' || 'send-if-due' }}
+          DEVTO_API_KEY: ${{ secrets.DEVTO_API_KEY }}
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          MAIL_FROM: ${{ secrets.MAIL_FROM }}
+          MAIL_TO: ${{ secrets.MAIL_TO }}
+
+      - if: always()
+        uses: actions/cache/save@v6
+        with:
+          path: state.json
+          key: devto-digest-state-${{ github.run_id }}-send
+```
+
+시크릿은 코드에 전혀 드러나지 않고, 로그에서도 GitHub이 가려줍니다. 처음에는 `collect`로 dev.to 키가 제대로 동작하는지만 확인해보라고 권합니다.
+
+### 데이터는 공개 API에서
+
+dev.to는 오픈소스 플랫폼인 Forem 위에서 돌아가고, [Forem API는 공개돼 있습니다](https://developers.forem.com/api/v1). 다이제스트 전체가 `GET /api/articles`와 `GET /api/follows/tags` 두 엔드포인트만으로 만들어졌습니다. 스크래핑도, 별도 허가도 필요 없습니다.
+
+### 접근성은 테스트로 강제한다
+
+이메일은 메일 클라이언트의 테마를 따릅니다. 기본은 밝은 팔레트, 클라이언트가 요청하면 어두운 팔레트입니다. 순백색은 어디에도 쓰지 않아서 색을 반전하는 클라이언트에서도 읽기 편합니다. 태그 알약 색까지 포함해 모든 글자·배경 조합이 **4.5:1 대비(WCAG AA)**를 넘어야 하고, 하나라도 못 미치면 테스트가 실패합니다. 태그는 항상 `#tag` 형태로 글자를 함께 적어서, 색은 장식일 뿐 유일한 정보 전달 수단이 되지 않게 했습니다.
+
+## 만들면서 부딪힌 네 가지 문제
+
+![덮개를 반쯤 닫은 노트북 화면에 빈 포스트잇이 빼곡히 붙어 있는 모습](https://images.pexels.com/photos/6991825/pexels-photo-6991825.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [DS stories](https://www.pexels.com/photo/an-arrangement-of-blank-sticky-notes-covering-the-screen-of-a-partially-closed-laptop-6991825/) on [Pexels](https://www.pexels.com/photo/an-arrangement-of-blank-sticky-notes-covering-the-screen-of-a-partially-closed-laptop-6991825/)*
+
+### Discover 섹션이 거의 비어 있었다
+
+팔로우 태그가 119개다 보니, 후보 글 약 2,150편 가운데 팔로우 태그가 하나도 없는 글은 31편뿐이었고, 그중 반응 20개 이상인 글은 2편에 불과했습니다. 관심사가 사이트 전체를 덮고 있으니 '관심사 바깥'을 찾기가 어려웠던 것입니다. 그래서 `discoveryMaxOverlap` 옵션을 추가해 Discover 글이 팔로우 태그 하나까지는 겹쳐도 되게 했습니다. 완전히 바깥에 있는 글은 여전히 우선순위가 높습니다.
+
+### dev.to API의 함정
+
+복수형 `tags=` 파라미터를 쓰면 `top=` 값이 조용히 무시됩니다. 이번 주 글을 요청했다고 생각했는데 3,000일 전 글이 돌아왔다고 합니다. 기간 조건을 제대로 지키는 건 단수형 `tag=`뿐입니다.
+
+### 첫 실행이 2분 동안 멈췄다
+
+태그가 119개면 요청도 119번입니다. dev.to는 HTTP 429로 응답했습니다. 지금은 요청 간격을 500ms씩 두고 `Retry-After` 헤더를 따르도록 고쳤습니다.
+
+### 테스트가 못 잡은 걸 스크린샷이 잡았다
+
+화면 폭 411px 휴대폰에서 카드 텍스트가 가장자리를 24px 넘어갔습니다. 세로로 쌓인 셀에 `width: 100%`와 패딩이 함께 걸려 있었기 때문입니다. 대비, 이스케이프, 태그 개수 테스트는 있었지만 이 문제는 어떤 테스트로도 잡을 수 없었고, 실제 브라우저에서 실제 이메일을 렌더링해보고서야 발견했습니다.
+
+## 다음에 만들고 싶은 것
+
+작성자가 가장 해보고 싶은 기능은 실제로 클릭한 글을 학습해 그 태그를 다음 순위 계산에 반영하는 것입니다. 다만 클릭을 기록하려면 작은 리다이렉트 서버가 필요한데, 지금까지 서버 없이 돌아가던 프로젝트로서는 큰 변화입니다. 그래서 설계만 README의 "Ideas for later"에 적어두고 일부러 구현하지 않았다고 합니다. 기여는 언제든 환영한다고 덧붙였습니다.
+
+## 왜 '오픈'이 중요했나
+
+작성자는 구성 요소가 열려 있었기에 가능했던 점을 네 가지로 꼽습니다. 닫힌 API였다면 하나하나가 더 어려웠을 것이라는 설명입니다.
+
+- **종속 없음, 값 두 개만 바꾸면 끝.** OpenAI 호환 엔드포인트면 어떤 오픈 웨이트 모델이든 쓸 수 있습니다. 오늘은 Mistral 호스팅 API, 내일은 로컬 Ollama나 OpenRouter 모델로 `baseUrl`과 `model`만 바꾸면 됩니다. 닫힌 API였다면 특정 업체의 SDK와 요금 체계에 묶였을 것입니다.
+- **공개 데이터, 스크래핑 없음.** Forem의 공개 API만으로 전체를 만들었습니다.
+- **모든 것을 들여다볼 수 있음.** 프롬프트, 파싱, 대체 로직이 전부 저장소에 있고 모델 가중치도 공개돼 있습니다. 오후 한나절이면 전체를 읽을 수 있고, 또 한나절이면 고칠 수 있습니다.
+- **AI가 단일 장애 지점이 아님.** 모델이 내려가 있거나 키가 없어도 dev.to 자체 설명을 넣어 메일은 그대로 나갑니다. 모델은 다이제스트를 더 좋게 만들 뿐, 받을지 말지를 결정하지 않습니다.
+
+한계도 함께 밝혔습니다. 기본 설정은 Mistral 호스팅 API를 호출하므로 그때 글 본문이 내 컴퓨터 밖으로 나갑니다. 로컬 Ollama로 바꾸면 모든 처리가 노트북 안에서 끝나겠지만, 앞서 말했듯 로컬 모델은 아직 검증하지 않았습니다.
+
+## 게으름의 보상
+
+설정은 처음 한 번, 몇 분이면 끝납니다. 그 뒤로 들이는 노력은 0입니다. 작업은 GitHub Actions에서 알아서 2분 안에 돌고, 월요일마다 끝없는 피드 대신 이메일 한 통이 옵니다. 본문의 스크린샷도 팔로우 태그 119개가 걸린 작성자 본인 계정의 실제 다이제스트입니다.
+
+작성자는 이 도구 덕분에 이미 아는 글을 넘기는 수고도, 팔로우하지 않은 태그에 숨어 있던 좋은 글을 놓쳤다는 찜찜함도 덜었다고 말합니다. 태그를 많이 팔로우하는 사람이라면 직접 써보고 Discover 섹션에 어떤 글이 올라오는지 알려달라고 요청했습니다. 제대로 만들었는지 가장 자신 없는 부분이 바로 거기라고 합니다.
+
+이 프로젝트는 챌린지의 'Best Use of GitHub Copilot' 부문에 출품됐습니다. 해당 부문에서 GitHub Actions를 이용한 프로젝트 자동화를 평가 항목으로 두고 있는데, 매일 수집·매주 발송·수동 실행·강제 발송까지 파이프라인 전체가 GitHub Actions 위에서 돌아갑니다. 작성자는 글 말미에 "이 프로젝트는 사람이 만들었고, 설계 과정에서 AI의 도움을 받았다"고 밝혔습니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
