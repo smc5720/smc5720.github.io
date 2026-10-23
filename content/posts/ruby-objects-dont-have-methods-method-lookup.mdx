@@ -1,0 +1,214 @@
+﻿---
+title: "루비 객체에는 메서드가 없다 — 메서드 탐색은 실제로 어떻게 동작할까 (In Ruby, Objects Don't Have Methods)"
+description: "CRuby 내부에서 객체는 상태와 클래스 포인터만 갖고, 메서드는 전부 클래스에 있습니다. 숨은 특이 클래스(eigenclass), '클래스 메서드'의 정체, 메서드 탐색 순서, 태그 포인터 최적화를 차례로 정리했습니다."
+date: "2026-10-21"
+published_at: "2026-10-23"
+slug: "ruby-objects-dont-have-methods-method-lookup"
+category: "news"
+tags: ["ruby", "programming", "webdev", "oop"]
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fiili.io%2FnMfrPx1.png"
+coverAlt: "In Ruby, Objects Don't Have Methods. How Method Lookup Actually Works."
+source_id: "devto-4825930"
+source_url: "https://dev.to/smtahosin/in-ruby-objects-dont-have-methods-how-method-lookup-actually-works-31g9"
+source_title: "In Ruby, Objects Don't Have Methods. How Method Lookup Actually Works."
+source_author: "S M Tahosin"
+source_published: "2026-10-21"
+---
+
+<LinkCard url="https://dev.to/smtahosin/in-ruby-objects-dont-have-methods-how-method-lookup-actually-works-31g9" author="S M Tahosin" date="2026-10-21" />
+
+## 개요
+
+객체지향을 설명할 때 흔히 "객체는 데이터와 메서드를 하나로 묶은 단위"라고 말합니다. 루비에서는 여기에 "모든 것은 객체다(Everything is an object)"라는 말이 따라붙습니다. 그래서 문자열에 `.upcase`를 호출하면 그 문자열이 `upcase`를 갖고 있다고 여기기 쉽습니다.
+
+S M Tahosin은 Dev.to에 올린 글에서 이 생각이 틀렸다고 지적합니다. CRuby(MRI)의 C 소스 수준에서 보면 **루비 객체에는 메서드가 하나도 없습니다.** 객체가 들고 있는 것은 인스턴스 변수, 내부 플래그, 그리고 다른 구조체를 가리키는 포인터뿐입니다. 메서드 코드도, 메서드 테이블도 없습니다.
+
+그러면 메서드는 어디에 있고, `user.greet`를 호출했을 때 루비는 무엇을 실행할지 어떻게 알아낼까요? 글쓴이는 메서드 테이블, 숨겨진 **특이 클래스(eigenclass)**, 조상 체인(ancestors chain) 세 가지로 이 질문에 답합니다.
+
+## 상태는 객체에, 메서드는 클래스에
+
+간단한 클래스부터 보겠습니다.
+
+```ruby
+class User
+  def initialize(name, email)
+    @name = name
+    @email = email
+  end
+
+  def greet
+    "Hello, I am #{@name}"
+  end
+end
+
+user = User.new("Alice", "alice@example.com")
+```
+
+`User.new`를 실행하면 가상 머신은 힙에 `RObject`라는 구조체를 할당합니다. 여기에 들어가는 것은 두 가지입니다.
+
+1. 인스턴스 변수 배열: `@name`에는 `"Alice"`, `@email`에는 `"alice@example.com"`
+2. `User` 클래스 객체를 가리키는 내부 포인터 `klass`
+
+`greet` 메서드는 `user` 안 어디에도 없습니다.
+
+![Ruby Object Memory: Heap Object RObject vs Class Object RClass](https://iili.io/nMKodIp.png)
+
+루비의 메서드는 모두 **클래스**(내부적으로는 `RClass`)에 있습니다. `User` 클래스는 `m_tbl`이라는 해시 테이블, 곧 메서드 테이블을 갖고 있습니다. `def greet`를 정의하면 루비는 `:greet` 심볼과 컴파일된 바이트코드를 짝지어 이 테이블에 기록합니다.
+
+`user.greet`를 호출하면 다음 순서로 진행됩니다.
+
+1. 루비는 `user` 내부를 뒤지지 않습니다.
+2. `user`의 `klass` 포인터를 따라 `User` 클래스로 갑니다.
+3. `User`의 `m_tbl`에서 `:greet`를 찾습니다.
+4. 찾은 메서드를 `self = user`인 상태로 실행합니다.
+
+메모리를 아낄 수 있는 것도 이 구조 덕분입니다. `User` 객체를 10만 개 만들어도 메서드 테이블은 `User` 안에 하나만 있고, 10만 개 객체가 모두 이를 공유합니다. 각 인스턴스는 자기 인스턴스 변수만 들고 있으면 됩니다.
+
+## 객체 하나에만 붙인 메서드는 어디에 있나
+
+루비에서는 특정 객체 하나에만 메서드를 추가할 수 있습니다. 같은 클래스의 다른 인스턴스는 영향을 받지 않습니다.
+
+```ruby
+str1 = "hello"
+str2 = "world"
+
+def str1.shout
+  upcase + "!!!"
+end
+
+str1.shout #=> "HELLO!!!"
+str2.shout #=> NoMethodError: undefined method 'shout' for "world":String
+```
+
+여기서 의문이 생깁니다. 객체는 메서드를 가질 수 없으니 `:shout`가 `str1` 안에 있을 수는 없습니다. 그렇다고 `String`에 있다면 `str2`에서도 호출할 수 있어야 합니다. 그럼 `shout`는 대체 어디에 있을까요?
+
+루비는 **눈에 보이지 않는 클래스를 그 자리에서 새로 만들어** 이 문제를 풉니다.
+
+![Defining a Singleton Method: The Hidden Eigenclass](https://iili.io/nMKo3QI.png)
+
+`str1`에 메서드를 정의하는 순간 루비는 이름 없는 숨은 클래스를 만듭니다. 이를 **eigenclass**라고 부르며, 공식 명칭은 **싱글턴 클래스(singleton class)**입니다. 이어서 루비는 다음 작업을 합니다.
+
+1. `str1`의 `klass` 포인터를 새 싱글턴 클래스(`#<Class:str1>`)로 바꿔 연결합니다.
+2. 싱글턴 클래스의 상위 클래스(superclass)를 `String`으로 설정합니다.
+3. `:shout` 메서드를 싱글턴 클래스의 메서드 테이블에 넣습니다.
+
+`str1.shout`를 호출하면 루비는 `klass` 포인터를 따라 `#<Class:str1>`로 가서 `:shout`를 찾아 실행합니다. `str1.upcase`를 호출하면 `#<Class:str1>`에서 `:upcase`를 찾지 못하고, superclass 포인터를 따라 `String`으로 올라가 그곳에서 찾아 실행합니다.
+
+일반 코드에서는 싱글턴 클래스가 거의 드러나지 않습니다. `str1.class`도 여전히 `String`을 돌려줍니다. 하지만 리플렉션 메서드로 확인해 보면 분명히 존재합니다.
+
+```ruby
+str1.singleton_class
+#=> #<Class:#<String:0x00007fffa80c2180>>
+
+str1.singleton_methods
+#=> [:shout]
+```
+
+## '클래스 메서드'라는 것은 없다
+
+싱글턴 클래스를 이해하면 루비에서 가장 널리 퍼진 오해 하나가 풀립니다. 루비에는 **'클래스 메서드'가 따로 존재하지 않습니다.**
+
+```ruby
+class Post
+  def self.recent
+    # query recent posts
+  end
+end
+```
+
+튜토리얼에서는 보통 이 코드를 "Post에 클래스 메서드를 정의한다"고 설명합니다. Java나 C++에서는 정적(static) 메서드가 별도의 언어 구성 요소입니다. 하지만 루비에서 `Post`는 특별한 존재가 아니라 **그냥 객체**이고, `Class` 클래스의 인스턴스일 뿐입니다.
+
+```ruby
+Post.class
+#=> Class
+```
+
+`Post`가 객체이므로 `def Post.recent`나 `def self.recent`를 쓰는 것은 `def str1.shout`와 똑같은 일입니다. 객체 하나에 **싱글턴 메서드**를 정의하는 것입니다.
+
+![Class Methods Are Just Singleton Methods on Class Objects](https://iili.io/nMKoq4n.png)
+
+`:recent` 메서드는 `Post`에도, `Class`에도 없습니다. `Post` 전용 싱글턴 클래스인 `#<Class:Post>`에 들어 있습니다.
+
+결국 루비에는 인스턴스 메서드만 있습니다. 흔히 '클래스 메서드'라고 부르는 것은 클래스 객체의 싱글턴 클래스에 들어 있는 인스턴스 메서드입니다. 언어 전체가 이 규칙 하나로 돌아갑니다.
+
+## 메서드 탐색 순서
+
+`receiver.message`를 실행하면 루비는 정해진 순서대로 코드를 찾습니다. 아무 데나 뒤지지 않고 **조상 체인(ancestors chain)**이라는 고정된 사다리를 따라 올라가며, 가장 먼저 찾은 메서드를 바로 실행합니다.
+
+![The Ruby Method Lookup Ladder](https://iili.io/nMKoKBt.png)
+
+탐색 순서는 다음과 같습니다.
+
+1. **수신 객체의 싱글턴 클래스**: 싱글턴 메서드가 있으면 가장 먼저 확인합니다.
+2. **싱글턴 클래스에 prepend한 모듈**: `prepend`로 추가한 모듈은 싱글턴 클래스보다 앞에 놓입니다.
+3. **수신 객체의 클래스**: 일반 인스턴스 메서드가 있는 곳입니다.
+4. **클래스에 prepend한 모듈**: 클래스에 `prepend`한 모듈의 메서드는 클래스 자신의 메서드보다 우선합니다.
+5. **클래스에 include한 모듈**: `include`한 모듈은 계층에서 클래스 바로 위에 끼어 들어갑니다.
+6. **상위 클래스와 그 모듈들**: 부모 클래스로 올라가 prepend한 모듈, 자기 메서드, include한 모듈 순서로 다시 확인합니다.
+7. **Object, Kernel, BasicObject**: 거의 모든 루비 객체가 공유하는 최상위 조상입니다.
+
+### 끝까지 못 찾으면
+
+`BasicObject`까지 올라가도 메서드가 없으면 루비는 곧바로 에러를 내지 않습니다. 처음 수신 객체로 돌아와 1단계부터 다시 탐색을 시작합니다. 이번에는 **`method_missing`**이라는 이름의 메서드를 찾습니다.
+
+`Kernel`에 `NoMethodError`를 발생시키는 기본 `method_missing`이 들어 있으므로, 중간의 모듈이나 클래스가 이를 가로채지 않을 때만 프로그램이 멈춥니다.
+
+이렇게 두 번 탐색하는 구조 덕분에 ActiveRecord의 동적 파인더부터 OpenStruct까지, 루비의 유명한 메타프로그래밍 라이브러리들이 동작할 수 있습니다.
+
+## 모든 것이 객체인데도 빠른 이유: 태그 포인터
+
+숫자, 불리언, nil까지 모두 메서드를 가진 객체라면 단순한 산술 연산에도 힙 메모리를 할당해야 하지 않을까요?
+
+```ruby
+total = 0
+1_000_000.times { |i| total += i }
+```
+
+이 코드가 힙에 `RObject` 구조체를 100만 개 만들까요? CRuby에서는 그렇지 않습니다. **태그 포인터(Tagged Pointer)**, 다른 이름으로 즉시값(Immediate Value)이라는 내부 최적화가 있기 때문입니다.
+
+![CRuby Tagged Pointers: Immediate Values](https://iili.io/nMKonYG.png)
+
+64비트 운영체제에서 메모리 주소는 8바이트 단위로 정렬됩니다. 그래서 유효한 힙 포인터의 하위 3비트는 항상 `000`입니다.
+
+CRuby는 이 쓰이지 않는 비트를 활용합니다. 64비트 값이 작은 정수(`Fixnum`)를 나타낼 때는 정수를 왼쪽으로 1비트 시프트하고 최하위 비트를 `1`로 설정합니다.
+
+```plaintext
+value = (integer << 1) | 1
+```
+
+가상 머신은 최하위 비트가 `1`인 값을 보면 "이건 힙 포인터가 아니라 정수 값 그 자체"라고 판단합니다.
+
+싱글턴 값에도 고정된 비트 패턴을 예약해 둡니다.
+
+- `false`는 `0x00`
+- `nil`은 `0x08`
+- `true`는 `0x14`
+
+`42.even?`를 호출하면 루비는 힙 블록을 들여다보지 않습니다. 태그 포인터임을 알아채고 `Integer` 클래스의 메서드 테이블에서 메서드를 찾아 실행합니다. 메모리를 한 바이트도 할당하지 않으니 가비지 컬렉션 부담도 없습니다.
+
+"모든 것은 객체"라는 개념을 그대로 지키면서도 기본 타입 수준의 연산 효율을 얻는 셈입니다.
+
+## 정리: 관점을 바꾸면 보이는 것
+
+글쓴이는 루비 객체 모델이 복잡해 보여도 실제로는 아주 단순하다며 다섯 가지로 정리합니다.
+
+1. **객체는 상태와 내부 `klass` 포인터만 갖습니다.** 메서드는 갖지 않습니다.
+2. **클래스는 메서드와 내부 `super` 포인터를 갖습니다.** 인스턴스 상태는 갖지 않습니다.
+3. **싱글턴 메서드는 보이지 않는 싱글턴 클래스에 있고**, 이 클래스는 탐색 체인에 자연스럽게 끼어 들어갑니다.
+4. **클래스 메서드는 클래스 객체의 싱글턴 메서드입니다.** 클래스도 객체이기 때문입니다.
+5. **태그 포인터 덕분에** 순수한 객체 의미론을 지키면서도 성능을 잃지 않습니다.
+
+이렇게 보면 루비 메타프로그래밍은 더 이상 흑마법처럼 느껴지지 않습니다. `class_eval`, `instance_eval`, `prepend`, 싱글턴 클래스 모두 하나의 일관된 규칙을 따르는, 동작을 예측할 수 있는 도구가 됩니다.
+
+### 더 읽을거리
+
+글쓴이가 참고 자료로 소개한 문서와 책입니다.
+
+- [Ruby Core Documentation: Class and Object](https://docs.ruby-lang.org/en/master/Class.html)
+- [Ruby Core Documentation: Object#singleton_class](https://docs.ruby-lang.org/en/master/Object.html#method-i-singleton_class)
+- [Pat Shaughnessy: Ruby Under a Microscope](https://patshaughnessy.net/ruby-under-a-microscope): MRI C 구조체 심층 분석
+- [Paolo Perrotta: Metaprogramming Ruby 2](https://pragprog.com/titles/ppmetr2/metaprogramming-ruby-2/): 루비 객체 모델을 다룬 대표 입문서
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

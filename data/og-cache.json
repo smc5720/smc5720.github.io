@@ -39,6 +39,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-21"
   },
+  "https://dev.to/adamthedeveloper/dont-be-a-proxy-between-me-and-your-ai-mcn": {
+    "ok": true,
+    "title": "Don't Be a Proxy Between Me and Your AI",
+    "description": "I've had this conversation more times than I'd like to admit.  I raise a technical question in a...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fobwbf432qy2unuy63rod.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-23"
+  },
   "https://dev.to/adamthedeveloper/go-doesnt-force-clean-architecture-thats-your-job-116": {
     "ok": true,
     "title": "Go Doesn't Force Clean Architecture. That's Your Job.",
@@ -1767,6 +1775,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-25"
   },
+  "https://dev.to/harsh2644/ai-made-coding-cheaper-so-why-is-building-software-still-so-expensive-59m": {
+    "ok": true,
+    "title": "AI Made Coding Cheaper. So Why Is Building Software Still So Expensive?",
+    "description": "I can generate a full authentication flow with a database schema, API routes, and unit tests in under...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F9oofpl3pmjs6z6obwdy3.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-23"
+  },
   "https://dev.to/harsh2644/deepseek-is-running-inside-your-favorite-ai-tool-and-nobody-told-you-5g47": {
     "ok": true,
     "title": "DeepSeek Is Running Inside Your Favorite AI Tool – And Nobody Told You",
@@ -2318,6 +2334,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fc2sj1zjour931gewisl1.jpeg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-31"
+  },
+  "https://dev.to/julies1/how-to-publish-posts-via-the-devto-api-2fkd": {
+    "ok": true,
+    "title": "How to publish posts via the dev.to API",
+    "description": "Every time I copied a post into the dev.to editor, added tags and cleaned up the formatting, I'd...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fjsadvpil02x9ic3u2hc7.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-23"
   },
   "https://dev.to/julies1/the-minimum-you-need-to-know-about-github-actions-6p7": {
     "ok": true,
@@ -3094,6 +3118,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fiili.io%2FnMqxol9.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-10-13"
+  },
+  "https://dev.to/smtahosin/in-ruby-objects-dont-have-methods-how-method-lookup-actually-works-31g9": {
+    "ok": true,
+    "title": "In Ruby, Objects Don't Have Methods. How Method Lookup Actually Works.",
+    "description": "A visual deep dive into Ruby's object model under the hood. Why objects store state but zero methods, how hidden eigenclasses work, and the real method lookup path.",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fiili.io%2FnMfrPx1.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-23"
   },
   "https://dev.to/smtahosin/pointers-arent-arrows-how-c-and-c-actually-talk-to-hardware-9d6": {
     "ok": true,
