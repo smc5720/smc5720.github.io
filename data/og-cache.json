@@ -719,6 +719,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-10-17"
   },
+  "https://dev.to/devengers/dev-opportunity-radar-22-50k-basis-fellowship-perplexity-ai-research-fellowship-and-fc-4806": {
+    "ok": true,
+    "title": "Dev Opportunity Radar #22: $50K Basis Fellowship, Perplexity AI Research Fellowship, and FC Barcelona Analytics Hackathon",
+    "description": "TL;DR  Welcome back to Dev Opportunity Radar!  This is a weekly series where I share opportunities,...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fnkr4pyevncepf1nth6r2.jpeg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-24"
+  },
   "https://dev.to/devengers/dev-opportunity-radar-3-neo-scholars-a-2m-ai-challenge-and-an-85k-ai-fellowship-cjf": {
     "ok": true,
     "title": "Dev Opportunity Radar #3: Neo Scholars, a $2M AI Challenge, and an $85K AI Fellowship",
@@ -3087,6 +3095,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/sizzlebop/i-built-a-new-tab-extension-for-dev-4kmm": {
+    "ok": true,
+    "title": "I Built a New Tab Extension for DEV",
+    "description": "I spend a lot of time on DEV these days. Reading posts, finding interesting projects, participating...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fy9dafjoya96jo2natv7r.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-24"
+  },
   "https://dev.to/sizzlebop/turn-your-github-contribution-graph-into-an-ascii-city-ic5": {
     "ok": true,
     "title": "Turn Your GitHub Contribution Graph Into an ASCII City",
@@ -3134,6 +3150,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fi.imgur.com%2FvG94Gtq.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-26"
+  },
+  "https://dev.to/smtahosin/rails-magic-isnt-magic-how-a-request-actually-travels-through-rails-5gc5": {
+    "ok": true,
+    "title": "\"Rails Magic\" Isn't Magic. How a Request Actually Travels Through Rails.",
+    "description": "A visual, 10-minute deep dive into how Ruby on Rails actually runs under the hood. From Rack middlewares and Zeitwerk autoloading to ActiveRecord schema reflection and the view_assigns bridge.",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fiili.io%2FnMfvY57.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-24"
   },
   "https://dev.to/smtahosin/why-your-typescript-code-still-crashes-in-production-2bf4": {
     "ok": true,

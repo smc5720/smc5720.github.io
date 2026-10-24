@@ -1,0 +1,291 @@
+﻿---
+title: "'레일즈 마법'은 마법이 아니다: 요청 하나가 Rails를 지나가는 길"
+description: "Puma와 Rack 미들웨어부터 ActiveRecord 스키마 리플렉션, view_assigns, Zeitwerk, 커넥션 풀, Strong Parameters까지 요청 흐름을 따라가며 Rails 내부 동작을 정리했습니다. 'Rails 마법'으로 불리는 동작은 모두 평범한 Ruby 메타프로그래밍과 파이프라인 설계로 이뤄져 있습니다."
+date: "2026-10-19"
+published_at: "2026-10-24"
+category: "news"
+tags: ["rails", "ruby", "webdev", "architecture"]
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fiili.io%2FnMfvY57.png"
+coverAlt: "\"Rails Magic\" Isn't Magic. How a Request Actually Travels Through Rails."
+slug: "rails-magic-isnt-magic-request-lifecycle"
+source_id: "devto-4825958"
+source_url: "https://dev.to/smtahosin/rails-magic-isnt-magic-how-a-request-actually-travels-through-rails-5gc5"
+source_title: "\"Rails Magic\" Isn't Magic. How a Request Actually Travels Through Rails."
+source_author: "S M Tahosin"
+source_published: "2026-10-19"
+---
+
+<LinkCard url="https://dev.to/smtahosin/rails-magic-isnt-magic-how-a-request-actually-travels-through-rails-5gc5" author="S M Tahosin" date="2026-10-19" />
+
+## 개요
+
+Ruby on Rails 얘기가 나오면 금방 "마법"이라는 말이 따라 나옵니다. 제너레이터 하나만 돌려도 테이블이 생깁니다. 모델 클래스를 비워 둬도 컬럼을 전부 알고 있습니다. 컨트롤러에서 만든 인스턴스 변수는 뷰에서 그대로 보이고, `require` 한 줄 없이 다른 파일의 클래스도 불러 씁니다.
+
+처음 접하는 사람에게는 신기하게 보이고, 회의적인 사람에게는 문제가 생겼을 때 들여다볼 수 없는 블랙박스로 보입니다. 하지만 Dev.to 작성자 S M Tahosin은 Rails에 마법은 없다고 말합니다. 이런 관례는 전부 평범한 Ruby 메타프로그래밍과 객체지향 패턴, 그리고 20년 넘게 대형 서비스를 받쳐 온 파이프라인 구조로 만들어졌다는 설명입니다.
+
+작성자는 HTTP 요청이 서버 소켓에 도착한 순간부터 미들웨어와 라우터, 모델, 뷰를 거쳐 응답으로 나가기까지 과정을 차례대로 짚습니다. 이 글도 같은 순서로 정리했습니다.
+
+## 요청이 컨트롤러에 닿기까지
+
+### Puma와 Rack 인터페이스
+
+Rails 코드가 실행되기 전에 요청은 먼저 겹겹이 쌓인 계층을 통과합니다. 작성자는 이 구조를 **Request Onion**(요청 양파)이라고 부릅니다.
+
+가장 바깥에는 보통 Puma 웹 서버가 있습니다. Puma는 TCP 소켓으로 들어온 HTTP 요청을 받아 헤더와 본문을 파싱한 뒤, **Rack environment**(`env`)라는 평범한 Ruby 해시로 감쌉니다. 그리고 Ruby 웹 생태계의 공통 규약인 **Rack 인터페이스**에 맞춰 이 해시를 Rails에 넘깁니다.
+
+```plaintext
+[HTTP Request] ──> Puma Web Server ──> call(env) ──> [Rack Middleware Stack] ──> [ActionDispatch Router]
+```
+
+Rack 애플리케이션의 조건은 놀라울 만큼 단순합니다. `call(env)`에 응답하고, 아래 세 가지를 담은 배열을 돌려주는 Ruby 객체면 됩니다.
+
+1. HTTP 상태 코드 정수 (예: `200`)
+2. 응답 헤더 해시
+3. 순회 가능한 본문 스트림
+
+![The Anatomy of a Rails Request: Puma, Rack Middlewares, ActionDispatch Router, Controller, and View](https://iili.io/nMKGGCF.png)
+
+### 20개 넘는 미들웨어 층
+
+Puma가 `Rails.application.call(env)`를 호출해도 요청은 바로 컨트롤러로 가지 않습니다. 기본으로 들어 있는 Rack 미들웨어 20여 개를 차례로 지나갑니다. 미들웨어는 양파 껍질처럼 다음 미들웨어를 감싸는 구조입니다. 대표적인 것만 보면 다음과 같습니다.
+
+- **`ActionDispatch::HostAuthorization`**: `Host` 헤더를 허용된 호스트 목록과 비교해 DNS 리바인딩 공격을 막습니다.
+- **`ActionDispatch::SSL`**: HTTPS로 리다이렉트하고 Strict-Transport-Security 헤더를 붙입니다.
+- **`Rack::Sendfile`**: 상황에 따라 정적 파일 전송을 Nginx 같은 리버스 프록시에 맡깁니다.
+- **`ActionDispatch::Cookies`와 `CookieStore`**: 서명된 세션 쿠키의 HMAC 서명을 검증해 변조를 막고, 복호화한 세션 데이터를 메모리에 올립니다.
+- **`ActionDispatch::ShowExceptions`**: 안쪽에서 처리되지 않은 예외를 잡아 HTML 에러 페이지나 JSON 진단 정보로 바꿉니다.
+
+### 라우터 Journey
+
+미들웨어를 모두 통과한 요청은 Rails 라우팅 엔진인 **ActionDispatch::Journey**에 도착합니다. Journey는 부팅할 때 `config/routes.rb`를 읽어 결정적인(deterministic) 라우팅 트리로 컴파일해 둡니다. 요청이 오면 HTTP 메서드(`GET`)와 경로(`/articles/42`)를 맞춰 보고, 파라미터(`id: "42"`)를 뽑아낸 다음 `ArticlesController#show`로 호출을 보냅니다.
+
+## 선언하지 않은 컬럼을 모델이 아는 이유
+
+컨트롤러에서 이런 쿼리를 실행한다고 해 봅시다.
+
+```ruby
+class ArticlesController < ApplicationController
+  def show
+    @article = Article.find(params[:id])
+  end
+end
+```
+
+모델 파일 `app/models/article.rb`는 이렇게 비어 있습니다.
+
+```ruby
+class Article < ApplicationRecord
+end
+```
+
+`attr_accessor :title`도, `property :body, String`도, 모델 디렉터리 안의 스키마 정의도 없습니다. 그런데 `article.title`, `article.body`, `article.published?`가 모두 문제없이 동작합니다. 작성자는 그 비결로 **동적 스키마 리플렉션**(Dynamic Schema Reflection)을 꼽습니다.
+
+![Why ActiveRecord Never Declares Columns: Schema introspection and GeneratedAttributeMethods module](https://iili.io/nMKGMEg.png)
+
+앱이 부팅되거나 코드에서 `Article`을 처음 참조하는 순간, ActiveRecord는 아래 순서로 움직입니다.
+
+1. **DB 카탈로그 조회**: 데이터베이스 어댑터로 접속해 카탈로그를 읽습니다. PostgreSQL이라면 `information_schema.columns`를 조회하고, SQLite라면 `PRAGMA table_info(articles)`를 실행합니다.
+2. **스키마 수집**: 컬럼 이름, 데이터 타입, NULL 허용 여부, 기본값을 데이터베이스에서 직접 가져옵니다.
+3. **모듈 생성**: 메서드를 `Article`에 바로 붙이지 않고, `GeneratedAttributeMethods`라는 내부 모듈을 따로 만듭니다.
+4. **getter·setter 생성**: 컬럼마다 메서드 정의를 이 모듈 안에 평가해 넣습니다.
+
+```ruby
+# Conceptual representation of what ActiveRecord generates internally:
+module GeneratedAttributeMethods
+  def title
+    _read_attribute('title')
+  end
+
+  def title=(value)
+    _write_attribute('title', value)
+  end
+
+  def title?
+    _query_attribute('title')
+  end
+end
+```
+
+5. **모듈 포함**: 완성한 `GeneratedAttributeMethods`를 `Article`에 include합니다.
+
+메서드가 클래스 본체가 아니라 포함된 모듈에 있기 때문에, 모델에서 `def title`을 직접 정의하고 `super`를 호출해 포맷만 덧붙여도 ActiveRecord의 내부 저장 방식은 깨지지 않습니다.
+
+결국 데이터 모델의 기준은 데이터베이스 하나뿐입니다. Rails가 그 정보를 Ruby 메서드 테이블에 동적으로 옮겨 주기 때문에, 마이그레이션과 클래스 선언을 손으로 맞출 필요가 없습니다.
+
+## 컨트롤러 변수가 뷰에 보이는 이유
+
+다른 언어에서 넘어온 개발자가 가장 의아해하는 부분은 아마 이것입니다.
+
+```ruby
+# app/controllers/articles_controller.rb
+class ArticlesController < ApplicationController
+  def show
+    @article = Article.find(params[:id])
+    @comments = @article.comments
+  end
+end
+```
+
+```erb
+<!-- app/views/articles/show.html.erb -->
+<h1><%= @article.title %></h1>
+<p><%= @article.body %></p>
+```
+
+일반적인 객체지향에서 인스턴스 변수는 그 객체에만 속합니다. `ArticlesController` 인스턴스의 `@article`을 `ActionView::Base` 인스턴스가 볼 방법은 없습니다. 두 객체는 클래스도 다르고 생성 시점도 다릅니다. 둘을 잇는 다리는 **`view_assigns`** 메서드입니다.
+
+![The Magic of @instance_variables in Views: The view_assigns extraction and injection bridge](https://iili.io/nMKGV4a.png)
+
+액션 실행이 끝나면 Rails는 렌더링을 시작하면서 다음 단계를 밟습니다.
+
+1. **상태 추출**: 컨트롤러가 `view_assigns`를 호출합니다. 이 메서드는 컨트롤러 객체의 인스턴스 변수를 훑어 `@_response`, `@_request` 같은 Rails 내부 변수를 걸러내고, 나머지를 평범한 해시로 만듭니다.
+
+```ruby
+# What view_assigns returns:
+{
+  "article" => #<Article id: 42, title: "Rails Internals">,
+  "comments" => [#<Comment id: 1>, #<Comment id: 2>]
+}
+```
+
+2. **뷰 컨텍스트 생성**: 템플릿을 렌더링할 `ActionView::Base` 객체를 새로 만듭니다.
+3. **변수 주입**: 해시를 돌면서 Ruby 리플렉션 메서드로 키와 값을 새 뷰 인스턴스에 그대로 심습니다.
+
+```ruby
+assigns.each do |key, value|
+  view.instance_variable_set("@#{key}", value)
+end
+```
+
+4. **ERB 컴파일**: ERB 템플릿의 HTML과 Ruby 태그를 순수 Ruby 메서드로 컴파일한 뒤, 뷰 인스턴스 컨텍스트에서 실행합니다.
+
+이제 뷰 인스턴스에도 같은 `@article`과 `@comments`가 있으니 템플릿은 자연스럽게 값을 읽습니다. 객체 경계를 넘는 마법처럼 보였던 동작은 `instance_variable_set`으로 해시를 넘겨주는 과정을 자동화한 것에 불과합니다.
+
+## Zeitwerk: `require`를 쓰지 않아도 되는 이유
+
+순수 Ruby에서는 다른 파일의 클래스를 쓰려면 먼저 불러와야 합니다.
+
+```ruby
+require_relative "../services/payment_processor"
+```
+
+Rails에서는 아무 곳에서나 `PaymentProcessor.charge(user)`라고 쓰면 끝입니다. 예전 Rails는 Ruby의 `const_missing` 콜백에 자체 로직을 걸어 이 기능을 구현했습니다. 하지만 순환 의존성으로 인한 데드락, 스레드 안전성 문제, 헷갈리는 로드 순서 버그가 끊이지 않았습니다. 그래서 최신 Rails는 Ruby 전용 오토로딩 엔진인 **Zeitwerk**를 도입했습니다.
+
+![Zeitwerk Autoloading: Development on-demand reloading vs Production eager loading](https://iili.io/nMKGhYv.png)
+
+Zeitwerk의 규칙은 하나입니다. **파일 경로가 상수 이름과 정확히 일치해야 합니다.**
+
+- 상수 `User` → `app/models/user.rb`
+- 상수 `Users::AccountNotifier` → `app/services/users/account_notifier.rb`
+
+### 개발 환경: 재시작 없는 즉시 반영
+
+개발 환경에서는 서버를 띄워도 애플리케이션 파일을 거의 메모리에 올리지 않습니다. 코드가 처음 보는 상수, 예를 들어 `User`를 만나면 Zeitwerk가 조회를 가로채 이름을 `app/models/user.rb`로 바꾸고 그때 파일을 불러옵니다.
+
+여기에 파일 시스템 감시기가 붙어 있습니다. 에디터에서 파일을 고치면 Zeitwerk가 해당 상수를 메모리에서 내립니다. 브라우저를 새로 고치면 Rails가 디스크에서 파일을 다시 읽기 때문에, Puma를 재시작하거나 컴파일을 기다릴 필요가 없습니다.
+
+### 운영 환경: Eager Loading과 Copy-on-Write
+
+운영 환경에서는 필요할 때 불러오는 오토로딩을 아예 끕니다. 대신 부팅 단계에서 **eager load**를 실행해, Puma가 워커 프로세스를 띄우기 전에 `app/` 아래 모든 클래스, 모듈, 템플릿을 메모리에 올립니다. 작성자는 두 가지 이점을 듭니다.
+
+1. **런타임 디스크 I/O 제로**: 요청을 처리하는 도중 파일을 찾거나 읽느라 CPU를 쓰지 않습니다.
+2. **Copy-on-Write(CoW) 메모리 절약**: 클래스가 모두 마스터 프로세스에 올라간 다음 fork가 일어나므로, 워커들이 같은 물리 메모리 페이지를 공유합니다. 워커 5개짜리 Rails 앱은 인스턴스 5개를 따로 띄울 때보다 메모리를 훨씬 적게 씁니다.
+
+## 동시 요청과 커넥션 풀
+
+Puma는 멀티스레드 서버입니다. 워커 프로세스마다 보통 3~5개의 스레드 풀을 두고, 스레드 하나가 HTTP 요청 하나를 동시에 처리합니다. 만약 두 스레드가 같은 PostgreSQL TCP 연결에 SQL을 동시에 쓰면 프로토콜 스트림이 뒤섞여 소켓이 망가집니다. ActiveRecord는 이 문제를 **커넥션 풀**로 해결합니다.
+
+![ActiveRecord Connection Pool Architecture: Puma Worker Threads checking out connections from ConnectionPool](https://iili.io/nMKGjvR.png)
+
+작성자는 커넥션 풀을 스레드 안전한 "임대 사무소"에 비유합니다.
+
+1. **체크아웃**: 스레드 1이 `Article.find(42)`를 실행하면 `ConnectionPool`에 연결을 요청합니다.
+2. **스레드 고정**: 풀은 남는 연결을 스레드 1에 배정하고, 스레드 로컬 저장소에 묶어 둡니다.
+3. **쿼리 실행**: 스레드 1은 자기 전용 연결로 SQL을 안전하게 실행합니다.
+4. **체크인**: 요청이 끝나 Rack 응답이 컨트롤러를 빠져나가면, 바깥쪽 미들웨어(`ActiveRecord::Rack::ConnectionManagement` 또는 executor 훅)가 연결을 풀에 돌려줍니다. 기다리던 다른 스레드가 이 연결을 쓸 수 있습니다.
+
+### 풀 크기 공식
+
+이 구조를 알면 Rails 운영에서 자주 터지는 `ActiveRecord::ConnectionTimeoutError`를 피할 수 있습니다. 풀 크기는 `config/database.yml`에서 정합니다.
+
+```yaml
+production:
+  adapter: postgresql
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+```
+
+Puma 스레드가 10개인데 풀 크기가 5라면, 여섯 번째로 동시에 들어온 스레드는 연결이 빌 때까지 최대 5초를 기다리다가 타임아웃 에러를 냅니다. 작성자는 풀 크기를 Puma의 `max_threads`와 같거나 조금 크게 잡아야 모든 스레드가 경합 없이 쿼리를 실행할 수 있다고 정리합니다.
+
+## Strong Parameters: 대량 할당 공격 막기
+
+작성자는 **Strong Parameters**를 Rails 역사에서 손꼽히게 중요한 보안 개선으로 봅니다. 초기 Rails에서는 이런 코드를 흔히 썼습니다.
+
+```ruby
+# ❌ The old, dangerous way:
+def create
+  @user = User.create(params[:user])
+end
+```
+
+이 코드는 **대량 할당 공격**(Mass Assignment Attack)에 그대로 노출됩니다. 공격자가 의도하지 않은 속성을 POST 요청에 끼워 넣을 수 있기 때문입니다.
+
+```json
+{
+  "user": {
+    "name": "Attacker",
+    "email": "attacker@evil.com",
+    "admin": true
+  }
+}
+```
+
+ActiveRecord가 해시 키를 DB 컬럼에 그대로 대응시켰기 때문에, 폼 데이터에 `"admin": true`만 붙이면 관리자 권한을 얻을 수 있었습니다. 지금의 Rails는 들어오는 파라미터를 모두 `ActionController::Parameters`로 감쌉니다.
+
+![Strong Parameters Pipeline: Raw untrusted payload filtered through require and permit before database insertion](https://iili.io/nMKGwpp.png)
+
+`ActionController::Parameters` 인스턴스에는 기본으로 `permitted: false` 플래그가 붙어 있습니다. 허용되지 않은 파라미터 객체를 `User.create(params[:user])`처럼 쓰기 메서드에 바로 넘기면, ActiveRecord가 호출을 막고 `ActiveModel::ForbiddenAttributesError`를 던집니다. 데이터를 저장하려면 허용할 속성을 직접 적어야 합니다.
+
+```ruby
+private
+
+def user_params
+  params.require(:user).permit(:name, :email)
+end
+```
+
+검사는 두 단계로 진행됩니다.
+
+1. **`require(:user)`**: 페이로드에 `:user` 키가 있는지 확인합니다. 없으면 `ActionController::ParameterMissing`을 던지고, 400 Bad Request 응답이 자동으로 나갑니다.
+2. **`permit(:name, :email)`**: 키를 하나씩 확인해 `:admin`, `:account_balance` 같은 허용되지 않은 속성을 빼고, `permitted: true`로 표시한 새 Parameters 인스턴스를 돌려줍니다.
+
+이렇게 걸러지고 명시적으로 허용된 데이터만 DB 계층에 닿습니다.
+
+## 마법이 아니라 설계
+
+![회색 금속 철로](https://images.pexels.com/photos/746352/pexels-photo-746352.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Francesco Paggiaro](https://www.pexels.com/@francesco-paggiaro) on [Pexels](https://www.pexels.com/photo/gray-metal-railway-746352/)*
+
+작성자는 사람들이 "Rails 마법"이라고 부르는 것이 사실 Rails가 보일러플레이트를 너무 잘 숨겨서 내부 구조가 보이지 않는 상태일 뿐이라고 말합니다. 앞에서 본 내용을 한 줄씩 정리하면 이렇습니다.
+
+| 동작 | 실제 정체 |
+| --- | --- |
+| Request Onion | 공통 Ruby 인터페이스를 따르는 Rack 미들웨어 체인 |
+| ActiveRecord 스키마 리플렉션 | DB 카탈로그 조회 + 런타임 모듈 포함 |
+| 컨트롤러 → 뷰 변수 전달 | `view_assigns`를 이용한 해시 자동 할당 |
+| Zeitwerk 오토로딩 | 상수 이름과 경로의 엄격한 대응 + 운영 환경 eager loading |
+| 커넥션 풀 | Puma 동시성 모델에 맞춘 스레드 안전 연결 임대 |
+| Strong Parameters | 대량 할당 공격을 막는 파라미터 필터링 |
+
+이 구조를 이해하고 나면 Rails는 예측할 수 없는 속임수가 아닙니다. 원래 설계 의도대로, 저수준 배관 작업에 발목 잡히지 않고 기능 개발에 집중하게 해 주는 잘 만든 프레임워크로 보이게 된다는 것이 작성자의 결론입니다.
+
+작성자가 참고 자료로 남긴 링크는 다음과 같습니다.
+
+- [Ruby on Rails Official Guides: Rails on Rack](https://guides.rubyonrails.org/rails_on_rack.html)
+- [Ruby on Rails Official Guides: Autoloading and Reloading Constants (Zeitwerk)](https://guides.rubyonrails.org/autoloading_and_reloading_constants.html)
+- [Ruby on Rails Official Guides: Action Controller Overview & Strong Parameters](https://guides.rubyonrails.org/action_controller_overview.html#strong-parameters)
+- [ActiveRecord Source Code: ConnectionPool Architecture](https://github.com/rails/rails/blob/main/activerecord/lib/active_record/connection_adapters/abstract/connection_pool.rb)
+- [Aaron Patterson: How ActiveRecord Finds Your Attributes](https://tenderlovemaking.com/)
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
