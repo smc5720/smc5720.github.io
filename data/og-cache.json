@@ -1103,6 +1103,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-10-07"
   },
+  "https://dev.to/dj29/im-not-on-the-dev-team-i-still-debugged-their-missing-badges-from-public-code-and-my-first-test-18oo": {
+    "ok": true,
+    "title": "I'm Not on the DEV Team. I Still Debugged Their Missing Badges From Public Code. (And My First Test Was Wrong.)",
+    "description": "I’m not on the DEV team. I don’t have an admin panel, production database access, or internal Slack....",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fu93kz0lmzx5azbphc6x9.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-25"
+  },
   "https://dev.to/dj29/the-optimization-that-was-too-good-why-our-push-notifications-only-worked-when-you-werent-looking-2f4d": {
     "ok": true,
     "title": "The Optimization That Was Too Good: Why Our Push Notifications Only Worked When You Weren't Looking",
@@ -3031,6 +3039,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/sanidhya_at_mlh/5-steps-on-how-to-not-loose-at-a-hackathon-3hd1": {
+    "ok": true,
+    "title": "5 Steps on How to not loose at a hackathon?",
+    "description": "In 1999, ten developers gathered to work on cryptographic frameworks, IPv6, and IPsec for OpenBSD, in...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fd6b30tt1bm9hvh7rq3e7.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-25"
+  },
   "https://dev.to/sarvar_04/i-built-a-15-landing-page-about-mumbais-soul-food-1l78": {
     "ok": true,
     "title": "I Built a ₹15 Landing Page About Mumbai's Soul Food",
@@ -3102,6 +3118,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fy9dafjoya96jo2natv7r.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-10-24"
+  },
+  "https://dev.to/sizzlebop/the-terminal-made-me-a-better-developer-and-not-for-the-reasons-i-expected-nn6": {
+    "ok": true,
+    "title": "The Terminal Made Me a Better Developer (And Not for the Reasons I Expected)",
+    "description": "When I first started using the terminal, sure, it was useful. I could navigate around directories,...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F2npcw4qxhctxwterj2l1.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-25"
   },
   "https://dev.to/sizzlebop/turn-your-github-contribution-graph-into-an-ascii-city-ic5": {
     "ok": true,
