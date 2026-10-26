@@ -447,6 +447,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/cyclopt_dimitrisk/your-agents-retry-bug-isnt-an-ai-problem-its-a-distributed-systems-problem-with-an-llm-on-top-1i6k": {
+    "ok": true,
+    "title": "Your agent's retry bug isn't an AI problem. It's a distributed-systems problem with an LLM on top.",
+    "description": "Most agent demos have a happy path: the model picks a tool, the tool returns 200, the agent moves on....",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fiqdssmxk1srgbl586mox.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-26"
+  },
   "https://dev.to/dailycontext/building-better-agents-through-end-to-end-evals-pgh": {
     "ok": true,
     "title": "Building Better Agents through End-to-End Evals",
@@ -1487,6 +1495,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-03"
   },
+  "https://dev.to/gde/stress-testing-gemini-4-argon-building-a-3d-flutter-kart-game-in-15-prompts-with-zero-assets-55ha": {
+    "ok": true,
+    "title": "Stress-Testing Gemini 4 Argon: Building a 3D Flutter Kart Game in 15 Prompts with Zero Assets",
+    "description": "Most AI coding benchmarks test standard web apps or CRUD dashboards. Frontier models can already...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fk0qg7ezbe64odcwhfdb8.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-26"
+  },
   "https://dev.to/gde/teaching-claude-code-to-paint-a-stateful-image-editing-skill-built-on-geminis-interactions-api-17g": {
     "ok": true,
     "title": "Teaching Claude Code to Paint: A Stateful Image-Editing Skill Built on Gemini's Interactions API and MCP",
@@ -1542,6 +1558,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ft5n5mb93970styfkp236.jpeg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-23"
+  },
+  "https://dev.to/georgekobaidze/i-earned-a-seat-at-github-universe-itll-stay-empty-and-thats-not-fair-3d7k": {
+    "ok": true,
+    "title": "I Earned a Seat at GitHub Universe. It'll Stay Empty, and That's Not Fair",
+    "description": "Why Am I Writing This?   I'm writing this to show how unfair the world we live in can be,...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F5ofbuqqo9pzzeizx3l7s.jpeg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-26"
   },
   "https://dev.to/georgekobaidze/i-turned-my-github-profile-into-a-cyberpunk-console-with-a-city-built-from-my-contributions-h4c": {
     "ok": true,
@@ -2054,6 +2078,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ffo6fvkund71op449a51n.jpg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/hubedav/im-building-a-hiring-platform-that-starts-with-people-not-job-descriptions-ha6": {
+    "ok": true,
+    "title": "I'm Building a Hiring Platform That Starts With People, Not Job Descriptions",
+    "description": "A founder's note about the problem, the experiment, and what I'm trying to learn.",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fao1ebk5ggulg8teggae7.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-26"
   },
   "https://dev.to/hubedav/the-job-market-is-absolutely-disgusting-im-doing-something-about-it-21gf": {
     "ok": true,
