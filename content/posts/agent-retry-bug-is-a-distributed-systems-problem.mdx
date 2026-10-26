@@ -5,7 +5,7 @@ date: "2026-10-19"
 published_at: "2026-10-26"
 slug: "agent-retry-bug-is-a-distributed-systems-problem"
 category: "news"
-tags: []
+tags: ["ai","llm","backend","programming","news"]
 cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fiqdssmxk1srgbl586mox.png"
 coverAlt: "Your agent's retry bug isn't an AI problem. It's a distributed-systems problem with an LLM on top."
 source_id: "devto-4875822"
@@ -34,7 +34,7 @@ Dimitris Kyrkos는 바로 이 지점에서 올바른 판단이 잘못된 결과�
 3. 그 순간 네트워크가 잠깐 끊깁니다. 에이전트 쪽 HTTP 클라이언트는 타임아웃 에러를 냅니다.
 4. 에이전트 입장에서는 호출이 실패했고, 결제 서비스 입장에서는 성공했습니다. 에이전트 루프는 에러를 보고 가장 자연스러운 선택, 즉 재시도를 합니다.
 
-결과적으로 고객은 환불을 두 번 받습니다. 모델은 올바른 동작을 올바른 인자로 골랐지만 결과는 틀렸습니다.
+결국 고객은 환불을 두 번 받습니다. 모델은 올바른 동작을 올바른 인자로 골랐지만 결과는 틀렸습니다.
 
 ### 다섯 가지 실패 패턴
 
