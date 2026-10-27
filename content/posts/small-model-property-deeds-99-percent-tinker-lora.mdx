@@ -1,0 +1,267 @@
+﻿---
+title: "작은 모델이 1.15달러 학습으로 부동산 등기 판독 정확도를 10%에서 99.6%까지 올렸다"
+description: "Qwen3-8B에 Tinker LoRA 학습을 1.15달러어치 돌려 토지 경계 서술 판독 정확도를 10%에서 99.6%로 끌어올린 DeedReader 프로젝트입니다. 확신이 서지 않는 답은 지어내지 않고 '이 줄을 확인하라'고 표시합니다."
+date: "2026-10-25"
+published_at: "2026-10-27"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ft3b1to37tqk917uggnoj.png"
+coverAlt: "A small, not-so-smart model went from 10% to 99.6% at reading property deeds for $1.15, and it says 'check this line' instead of bluffing"
+slug: "small-model-property-deeds-99-percent-tinker-lora"
+source_id: "devto-4916473"
+source_url: "https://dev.to/advikdivekar/a-small-not-so-smart-model-went-from-10-to-996-at-reading-property-deeds-for-115-and-it-says-490k"
+source_title: "A small, not-so-smart model went from 10% to 99.6% at reading property deeds for $1.15, and it says 'check this line' instead of bluffing"
+source_author: "Advik Divekar"
+source_published: "2026-10-25"
+---
+
+<LinkCard url="https://dev.to/advikdivekar/a-small-not-so-smart-model-went-from-10-to-996-at-reading-property-deeds-for-115-and-it-says-490k" author="Advik Divekar" date="2026-10-25" />
+
+## 개요
+
+부동산 등기에는 토지 경계가 글로 적혀 있습니다. 예를 들어 "N 86°29' E, 103.2 feet" 같은 문장이 줄줄이 이어집니다. 서술을 따라 필지를 한 바퀴 돌면 출발점으로 돌아와야 정상입니다. 그런데 숫자 하나만 틀려도 27피트(약 8m)나 어긋난 곳에서 끝납니다. 직원이 `130.2`를 `103.2`로 잘못 쳤을 수도 있고, 스캔 이미지가 번졌을 수도 있고, 글을 읽은 AI가 숫자를 지어냈을 수도 있습니다. 그래도 도면은 멀쩡해 보이니, 측량팀이 현장에 나가기 전까지는 아무도 모릅니다.
+
+개발자 Advik Divekar가 만든 **DeedReader**는 이런 등기 문장을 읽어 필지를 위성 지도 위에 그려 줍니다. 계산이 맞지 않으면 그림을 그리지 않습니다. 대신 결과에 **NEEDS HUMAN REVIEW** 표시를 붙여 문제가 된 줄을 짚고, 숫자를 한 자리씩 바꿔 보며 필지가 닫히는 수정안을 찾아냅니다. 위 예시라면 `103.2 → 130.2`를 제안합니다.
+
+핵심 수치는 이렇습니다. 소형 모델 Qwen3-8B에 Tinker로 LoRA 학습을 한 번 했더니, 등기를 정확히 읽어낸 비율이 **10%(60건 중 6건)에서 99.6%(3,000건 중 2,988건, 95% 신뢰구간 99.3–99.8%)** 로 올랐습니다. 최종 모델 학습비는 **1.15달러**, 학습 시간은 16분입니다. 베이스라인과 평가까지 모두 합친 프로젝트 전체 비용도 약 **3.80달러**에 그쳤습니다. 이 글은 Hacktoberfest 오픈소스 AI 챌린지 3주 차(주제: Slow and Steady) 출품작입니다.
+
+[데모 영상 보기 →](https://youtu.be/S-m8AZUy7a8)
+
+![DeedReader plots a parcel on real satellite imagery. Click a sentence and its side lights up.](https://raw.githubusercontent.com/advikdivekar/deed/main/docs/screens/03-studio-map.png)
+
+## 본문
+
+### 숫자 하나가 전부를 망치는 일
+
+토지의 법적 경계 서술(legal description)은 대략 이런 식으로 쓰여 있습니다.
+
+> *Commencing at a cedar post at the corner of Tract 7, thence S 46°30′11″ W 1,011.25 feet to a corner post, thence along a curve to the right, R = 757.19 feet, to a point in the center of the road…*
+
+누군가는 이 문장을 도면으로 옮겨야 합니다. 방위각을 하나하나 변환하고, 곡선 구간까지 포함해 모든 변을 그린 다음, 도형이 닫히는지 확인하고 면적을 구합니다. 측량사나 권원 조사원(title abstractor), 법률 보조원이 하는 일이고, 등기 한 건에 **15~30분**이 걸립니다.
+
+작성자가 더 심각하게 보는 문제는 시간이 아닙니다. 틀린 숫자 하나가 이후 작업을 전부 오염시키는데도 도면은 그럴듯해 보인다는 점입니다. 작성자는 "도구가 틀리는 것"보다 "도구가 틀리고도 말하지 않는 것"을 진짜 위험으로 꼽습니다.
+
+기존 방법과 비교하면 이렇습니다.
+
+| 방법 | 얻는 것 | 한계 |
+|---|---|---|
+| 수작업 | 믿을 수 있는 도면 | 건당 15~30분 |
+| 정규식 파서 | 즉시, 무료 | `N 41°00' E`처럼 깔끔한 표기만 처리. 1800년대 문체나 글자로 쓴 숫자는 못 읽음 |
+| 학습 안 한 오픈 모델 | 지저분한 문장도 읽음 | 정확도 **10%**, 60건 중 5건은 틀리고도 경고 없음 |
+| **DeedReader** | 몇 초 만에 지도 위에 닫힌 필지 | 맞지 않으면 **NEEDS HUMAN REVIEW**와 함께 문제 줄을 짚어 줌 |
+
+### 붙여넣고, 훑어보고, 승인한다
+
+DeedReader의 사용 흐름은 "paste, glance, approve" 세 단계입니다.
+
+- 등기 문장을 넣으면 실제 방위와 거리대로 **위성 지도 위에 필지**를 그립니다.
+- **에이커, 제곱피트, 둘레, 폐합비(closure ratio)** 를 바로 계산합니다.
+- 문장을 클릭하면 지도에서 해당 변이 강조되고, 변을 클릭하면 해당 문장이 강조됩니다.
+- CAD용 **DXF**, GIS용 **GeoJSON**, **SVG**로 내보낼 수 있습니다.
+- 계산이 맞지 않는 등기는 **절대 맞는 것처럼 그리지 않습니다.**
+- 내려받은 어댑터로 **완전히 오프라인**에서 돌아갑니다.
+
+데모에서는 학습 때 본 적 없는 등기에 대해 파인튜닝 모델이 실제로 낸 출력을 재생하고, 안전 검사는 브라우저에서 실시간으로 돌립니다. 깔끔한 등기를 넣으면 모든 검사를 통과하고, 폐합 정밀도 1:290만에 면적 43.44에이커라는 결과가 나옵니다.
+
+![All checks pass: a closed 8-sided parcel with two curves, 43.44 acres, ready to export](https://raw.githubusercontent.com/advikdivekar/deed/main/docs/screens/03b-studio-drawing.png)
+
+"Simulate a misread" 버튼을 누르면 숫자 하나를 일부러 망가뜨립니다. 서로 독립된 검사 세 개가 동시에 실패하고, 배너가 빨갛게 바뀌며 문제의 줄을 가리킵니다.
+
+![A misread caught: misclosure 900 ft, the number isn't in its clause, an independent reader disagrees](https://raw.githubusercontent.com/advikdivekar/deed/main/docs/screens/04-misread-caught.png)
+
+![By hand vs DeedReader](https://raw.githubusercontent.com/advikdivekar/deed/main/docs/screens/02-race.png)
+
+작성자는 이 프로젝트가 챌린지 주제에 맞는 이유를 토끼와 거북이에 빗댑니다. 거북이는 빨라서 이긴 게 아니라 어리석은 짓을 하지 않아서 이겼다는 것입니다. 작은 모델, 1달러어치 학습, 모든 숫자는 일반 코드가 계산하고, 빠르게 틀리느니 "모르겠다"고 답하는 구조입니다.
+
+소스 코드: [advikdivekar/deed (GitHub) →](https://github.com/advikdivekar/deed)
+
+### 원칙: 모델은 읽고, 판단은 코드가 한다
+
+![The model reads. Code decides.](https://raw.githubusercontent.com/advikdivekar/deed/main/docs/charts/architecture.png)
+
+언어 모델은 지저분한 문장을 잘 읽지만 산수 결과를 책임지지는 못합니다. 그래서 Qwen3-8B와 LoRA는 문장을 구조화된 측량 호출(call)로 바꾸는 일 하나만 맡습니다. 그 뒤의 폐합 계산, 면적, 단위 변환(피트, 체인, 폴, 바라, 링크), 도면 작성은 전부 테스트를 갖춘 일반 코드가 처리합니다.
+
+답을 확신 있게 보여 주려면 독립된 검사 다섯 개를 모두 통과해야 합니다.
+
+1. 출력이 파싱되는가
+2. 필지가 1:5,000 기준으로 닫히는가
+3. 모든 숫자가 **해당 문장 안에** 실제로 있는가
+4. "iron pin", "white oak" 같은 표지물이 그 문장의 단어로 뒷받침되는가
+5. 모델과 무관한 **두 번째 판독기**(정규식 파서)가 방위, 거리, 곡선 방향에서 같은 결과를 내는가
+
+### 정답을 먼저 만들고, 문장은 나중에
+
+라벨이 붙은 실제 등기 데이터는 공개된 게 없습니다. 작성자는 순서를 뒤집었습니다. 생성기가 방위와 거리를 이미 아는 **닫힌 다각형**을 먼저 만들고, 이를 여러 문체로 서술합니다. 기호 표기, 대시 표기, 글자로 쓴 숫자, 옛날식 체인·링크 단위, OCR로 손상된 텍스트 등이 섞이고, 지역권(easement), 등기부 번호, 엉뚱한 면적 수치 같은 방해 요소도 넣었습니다. 문장보다 정답이 먼저 있으니 라벨은 전부 정확합니다.
+
+여기에 일부러 **문체 하나**(모든 숫자를 글자로 쓰기)와 **단위 하나**(텍사스 바라, Texas varas)를 학습에서 뺐습니다. 처음 보는 입력 앞에서 모델이 어떻게 행동하는지 보려는 의도입니다.
+
+### 10%에서 99.6%까지, 1.15달러
+
+Qwen3-8B는 작은 모델입니다. 기본 상태에서는 등기가 뭔지도 모르고, 거대 LLM만큼 지식이 많지도 않습니다. 같은 모델, 같은 프롬프트, 같은 검사 조건에서 바뀐 것은 1.15달러어치 Tinker 학습뿐입니다. 작성자는 모든 걸 아는 모델이 필요한 게 아니라, 좁은 일 하나를 완벽히 해내는 모델이 필요했다고 말합니다.
+
+![Deeds read exactly right, before and after](https://raw.githubusercontent.com/advikdivekar/deed/main/docs/charts/before_after.png)
+
+| | 학습 전 Qwen3-8B | **Tinker LoRA** |
+|---|---|---|
+| 정확히 판독 | 6 / 60 (10%) | **2,988 / 3,000 (99.6%)** |
+| 사람 검토로 넘김 | 82% | **0.4%** |
+| 틀렸는데 경고 없음 | 5 / 60 | **2 / 3,000 (물리적 길이 기준 0)** |
+| 비용 | 해당 없음 | **$1.15** |
+
+목표는 좋은 숫자 자체가 아니라 "납득할 수 있는 최저 가격에서의 좋은 숫자"였다고 합니다. 비용을 줄인 방법은 다음과 같습니다.
+
+![The fine-tuning pipeline](https://raw.githubusercontent.com/advikdivekar/deed/main/docs/charts/finetune_pipeline.png)
+
+#### 1. 모델보다 출력부터 줄이기
+
+Tinker는 토큰 단위로 과금합니다. 처음 출력 형식은 JSON으로 등기 한 건당 **547토큰**이었습니다. 이를 호출 하나당 한 줄짜리 형식으로 바꿨습니다.
+
+```plaintext
+POB iron pin
+L N 41 0 0 E 121.9 ft | iron pin
+C N 3 45 22 E 366.15 ft R 944.33 ft L | stone
+```
+
+JSON 변환은 코드가 다시 해 줍니다. 결과는 **145토큰, 3.8배 축소**입니다. 학습, 평가, 로컬 추론 비용이 한꺼번에 줄고 추가 비용은 없습니다.
+
+![3.8x fewer tokens](https://raw.githubusercontent.com/advikdivekar/deed/main/docs/charts/token_compaction.png)
+
+#### 2. 가격을 비교하고 고르기
+
+백만 토큰당 학습 비용은 **Qwen3-8B가 0.44달러**, Qwen3.5-4B가 0.737달러였습니다. 작은 모델이 꼭 더 싼 것은 아닙니다. Qwen3-8B가 학습비도 싸고 성능도 충분했습니다.
+
+#### 3. 학습: rank-32 LoRA, 3에폭, 16분
+
+```python
+tc = await svc.create_lora_training_client_async(base_model="Qwen/Qwen3-8B", rank=32)
+
+# loss only on the answer tokens, never on the deed prose
+Datum(model_input=full[:-1],
+      loss_fn_inputs=dict(weights=[0.0]*(len(prompt)-1) + [1.0]*len(completion),
+                          target_tokens=full[1:]))
+
+fb = await tc.forward_backward_async(batch, loss_fn="cross_entropy")
+op = await tc.optim_step_async(AdamParams(learning_rate=lr_at(s), beta1=0.9, beta2=0.95, eps=1e-8))
+```
+
+학습 데이터는 **등기 2,300건**, 배치 크기 16, 최대 학습률 2e-4(워밍업 후 선형 감소)입니다. **429스텝에 약 260만 토큰**을 썼습니다. 손실은 답변 토큰에만 걸어서, 모델이 등기 문장을 외우지 않고 호출 형식을 쓰는 법을 배우게 했습니다. 스텝은 파이프라인으로 돌려 k번째 스텝 결과가 오기 전에 k+1번째를 미리 제출했습니다. 에폭마다 체크포인트를 저장했고, 예산 가드가 토큰 수로 작업 비용을 미리 계산해 한도의 절반을 넘길 작업은 아예 실행하지 않았습니다. 손실은 1스텝의 1,806에서 41스텝 무렵 0.1 아래로 떨어졌습니다.
+
+![Training loss across 3 epochs](https://raw.githubusercontent.com/advikdivekar/deed/main/docs/charts/training_loss.png)
+
+#### 4. 곡선이 꺾이는 지점 찾기
+
+데이터를 전부 넣고 기대하는 대신, 1에폭짜리 실험을 네 번 돌려 같은 검증용 등기 500건으로 채점했습니다.
+
+| 학습 등기 수 | 추정 비용 | 정확히 판독 | 틀렸는데 경고 없음 |
+|---|---|---|---|
+| 250 | $0.04 | 38.6% | 19 |
+| 500 | $0.08 | 92.6% | **0** |
+| **1,000** | **$0.17** | **99.4%** | **0** |
+| 2,000 | $0.34 | 99.6% | 0 |
+
+![Accuracy per dollar](https://raw.githubusercontent.com/advikdivekar/deed/main/docs/charts/learning_curve.png)
+
+**17센트로 99.4%** 를 얻었습니다. 작성자가 더 강조하는 건 마지막 열입니다. 250건과 500건 사이에서 모델이 *조용한* 실수를 멈춥니다. 정확도보다 이 변화가 모델을 믿어도 되는 시점이라는 설명입니다.
+
+#### 5. 우연이 아닌지 확인하기
+
+학습 전 모델과 파인튜닝 모델을 **같은 등기 60건**에 놓고 건별로 비교했습니다.
+
+| | 학습 전 | 파인튜닝 후 |
+|---|---|---|
+| 정확히 판독 | 6 / 60 (10%, 신뢰구간 4.7–20.1%) | **60 / 60** |
+| 틀렸는데 경고 없음 | 5 | **0** |
+| 이 모델만 맞힌 등기 | 0 | **54** |
+
+학습 전 모델이 맞힌 등기는 파인튜닝 모델도 모두 맞혔고, 나머지 54건은 파인튜닝 모델만 맞혔습니다. 대응 부호 검정(paired sign test) 결과 p값은 0.0001 미만입니다.
+
+본시험은 **새로 생성한 등기 3,000건**이었습니다. 검증기를 확정하기 전에 생성해 두고, 채점은 딱 한 번만 했습니다. 결과는 **2,988건 정답, 99.6%** 입니다.
+
+![Where all 3,000 deeds ended up](https://raw.githubusercontent.com/advikdivekar/deed/main/docs/charts/where_deeds_end_up.png)
+
+틀린 12건 중 **10건은 파싱과 폐합 검사만으로 걸러졌습니다.** 나머지 2건은 작성자의 생성기에 있던 모호함 때문입니다. 생성기가 `87 links`를 어떤 문체에서는 "87 link", 다른 문체에서는 "0.87 chain"으로 썼는데, 물리적으로는 같은 길이입니다. 물리적 길이로 따지면 경고 없이 틀린 답은 **0건**이고, 작성자는 두 수치를 모두 공개했습니다.
+
+#### 6. 새 문체·단위는 예시 150개면 충분
+
+학습에서 일부러 뺀 문체와 단위를 처음 모델에 제로샷으로 넣어 봤습니다.
+
+| 처음 보는 입력 | 정확히 판독 | 틀렸는데 경고 없음 |
+|---|---|---|
+| 글자로 쓴 숫자 | 85.6% | **0** (14.4%는 검토 요청) |
+| 텍사스 바라 | 전부 검토 요청 | **0** |
+
+바라 쪽 결과가 흥미롭습니다. 모델은 방위와 거리를 모두 정확히 읽었지만 단위를 처음 보는 토큰인 `var`로 적었고, 엄격한 디코더가 이를 거부했습니다. 그래서 **전부 검토 대상으로 넘어갔고, 틀린 답은 하나도 통과하지 못했습니다.** 예상 못 한 입력 앞에서 안전망이 제대로 작동한 셈입니다.
+
+작성자는 모델이 즉흥적으로 만든 표기를 디코더가 받아 주도록 고치지 않았습니다. 그건 테스트셋에 끼워 맞추는 일이라고 봤기 때문입니다. 대신 데이터로 해결했습니다. 각각 **예시 150개**를 추가해 재학습하고, **새로 생성한** 등기로 채점했습니다.
+
+| 새 테스트셋 | 건수 | 정확히 판독 | 틀렸는데 경고 없음 |
+|---|---|---|---|
+| 학습 분포 내 | 3,000 | **99.6%** | 2 (물리적 길이 기준 0) |
+| 글자로 쓴 숫자 | 250 | **99.6%** | 0 |
+| 바라 | 250 | **100%** | 0 |
+
+새 문체나 단위를 추가하는 데 예시 150개, 비용 1달러 미만이면 된다는 결과입니다.
+
+#### 7. 두 번째 평가부터는 공짜로
+
+평가 비용이 학습보다 더 컸습니다(평가 **1.35달러**, 학습 전체 2.46달러). 그래서 샘플링 결과를 전부 캐시에 저장하고 검사는 캐시에서 돌렸습니다. 검증기를 고친 뒤 3,000건을 다시 채점하는 비용은 **0달러**였습니다. Tinker로 등기 한 건을 처리하는 비용은 약 **0.00015달러**입니다.
+
+#### 8. 학습은 빌리고, 가중치는 가져온다
+
+작성자는 **369MB 어댑터**를 내려받아 4비트 Qwen3-8B 위에서 **MLX로 Apple GPU**에 올려 돌렸습니다.
+
+> **150건 중 150건 정확히 판독, 검토 요청 0건, 건당 중간값 7.5초.** M3 Pro, 18GB 메모리, 네트워크와 API 키 없이 실행.
+
+#### 전체 비용 내역
+
+![Where the $3.80 went](https://raw.githubusercontent.com/advikdivekar/deed/main/docs/charts/cost_breakdown.png)
+
+| 항목 | 추정 비용 |
+|---|---|
+| 베이스라인(학습 없음) | $0.11 |
+| 학습 곡선 실험 | $0.29 |
+| 첫 전체 학습 | $1.01 |
+| **최종 모델 (2,300건, 3에폭)** | **$1.15** |
+| 전체 평가 (4,000건 이상) | $1.35 |
+| **Tinker 사용 총액** | **약 $3.80** |
+
+*Tinker 정가 기준으로 토큰 수를 환산한 금액입니다.*
+
+### 작성자가 직접 밝힌 한계
+
+작성자는 한계도 수치와 함께 공개했습니다.
+
+- **등기 데이터는 생성한 것입니다.** 덕분에 정확한 라벨과 3,000건 규모의 새 테스트가 가능했습니다. 다음 단계는 실제 등기를 같은 파이프라인에 넣어 보는 것이고, 그래서 실제 사용 시에는 항상 사람이 승인 버튼을 눌러야 합니다.
+- **베이스라인은 공들여 다듬지 않은 기본 모델**이고, 비용을 아끼려고 60건으로만 채점했습니다. 그래서 같은 60건으로 파인튜닝 모델과 짝지어 비교하고 신뢰구간도 함께 제시했습니다.
+- **문장 단위 검사는 호출 사이의 `;`나 `thence`를 기준으로** 문장을 나눕니다. 이런 구조가 없으면 전체 텍스트 기준 검사로 넘어갑니다.
+- **곡선은 현(chord) 형식만** 지원합니다(현의 방위, 길이, 반지름, 방향). 편각(deflection angle)이나 측점·오프셋 서술은 아직 지원하지 않습니다.
+- **도면 작성 보조 도구일 뿐**, 면허를 가진 측량사를 대신하지 못합니다.
+
+개발 중 겪은 문제도 소개했습니다. 처음에는 검증기가 *완벽한* 답까지 오류로 표시했는데, 생성기의 정답 데이터로 돌려 보고서야 판독 버그 세 개를 고쳤습니다. 500건 학습 단계에서는 조용한 오류 두 개가 폐합 검사를 빠져나갔습니다. 하나는 분(arc-minute) 값이 빠진 경우였고, 다른 하나는 곡선 방향이 뒤집힌 경우였습니다. 독립된 두 번째 판독기를 만든 이유가 바로 이 두 건입니다.
+
+### 오픈 모델이어서 가능했던 것
+
+작성자는 폐쇄형 API가 프롬프트 입력창을 준다면, 오픈 가중치는 운전대를 준다고 표현합니다.
+
+- **프롬프트가 아니라 모델 자체를 바꿀 수 있었습니다.** 학습 안 한 소형 모델은 10%, 1달러짜리 LoRA는 99.6%였습니다.
+- **등기는 민감한 정보입니다.** 사람 이름, 필지, 담보 대출 내역이 들어 있습니다. 가중치가 파일이 있는 노트북에서 돌아가니 와이파이를 꺼도 작동합니다.
+- **사용량 과금이 없습니다.** 한 번 파인튜닝하고 나면 천 번째 등기를 처리하는 비용은 전기료뿐입니다.
+- **누구도 서비스를 종료시킬 수 없습니다.** 베이스 모델, 어댑터, 코드가 모두 디스크에 있습니다. 내년에 더 좋은 오픈 모델이 나오면 마이그레이션이 아니라 학습 한 번이면 됩니다.
+- **내부를 들여다볼 수 있었습니다.** 바라 단위 실패나 라벨 중복 문제는 모든 출력을 직접 확인할 수 있었기에 찾아냈습니다.
+
+작성자는 학습이 Tinker 서버에서 돌았지만 생성한 등기만 사용했다고 덧붙였습니다. 실제 개인의 토지 기록은 어디로도 보내지 않았고, 실행 단계에서는 노트북 밖으로 나가는 데이터가 없습니다.
+
+### Claude Code와 함께 만든 과정
+
+DeedReader는 Claude Code와 페어로 만들었습니다. 비용 추정이 들어간 작성 계획서에서 출발했고, 모든 학습 작업에 예산 가드를 걸었습니다.
+
+- API 코드를 쓰기 전에 Tinker 문서부터 읽었고, 모델을 붙이기 전에 폐합 계산 테스트를 먼저 작성했습니다.
+- 베이스라인 실험에서 기본 모델이 *표지물 이름*을 자주 틀린다는 사실이 드러났습니다. 폐합 검사로는 잡을 수 없는 오류라서, 문장 단위로 근거를 확인하는 검사를 새로 만들었습니다.
+- 검증기를 정답 데이터에 대고 직접 디버깅했고, 바라 단위가 실패했을 때는 우회 패치 대신 새 데이터로 실험을 돌려 해결했습니다.
+- 첫 작업부터 비용 기록을 계속 남겼습니다.
+
+작성자는 마지막으로 독자들에게 등기에서 본 가장 이상한 문구를 댓글로 남겨 달라고 요청했습니다. 본인이 꼽은 문구는 "to a white oak, thence along the run"이라고 합니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
