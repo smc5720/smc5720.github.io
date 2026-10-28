@@ -4,7 +4,7 @@ description: "Z80·8086 어셈블러를 다뤄 본 개발자가 WAT의 괄호 �
 date: "2026-10-25"
 published_at: "2026-10-28"
 category: "news"
-tags: []
+tags: ["webassembly","webdev","opensource","programming","news"]
 slug: "hexaw-wasm-text-format-instead-of-wat"
 cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fu8zgu8f4zouggzb33wqm.png"
 coverAlt: "HEXAW programming language for WebAssembly instead WAT"
@@ -31,14 +31,14 @@ HEXAW는 Dev.to의 'Hacktoberfest Open-Source AI Challenge Week 3: Slow and Stea
 
 WebAssembly를 보면서 그 감각을 다시 느낄 수 있겠다고 생각했지만, WAT는 그에게 '괄호 정글(parenthesis jungle)'이었습니다. 머릿속으로는 어셈블러 리스팅을 기대했는데 S-표현식이 나왔던 겁니다. 그래서 읽기 쉬운 니모닉과 레트로 어셈블러 느낌을 살린 새 텍스트 포맷을 직접 만들기로 했습니다.
 
-작성자는 HEXAW를 '사람 우선(human first)' 언어라고 소개합니다. 브라우저에서 WASM을 직접, 손으로 다루며 문제를 풀고 싶은 프로그래머가 대상입니다. 셸의 핵심은 어셈블러 토큰 옆에 16진수 코드를 나란히 보여 주는 것이고, WASM 내부에서 무슨 일이 일어나는지 깊이 이해하는 출발점으로 삼을 수 있다는 설명입니다.
+HEXAW는 그가 말하는 '사람 우선(human first)' 언어입니다. 브라우저에서 WASM을 직접, 손으로 다루며 문제를 풀고 싶은 프로그래머가 대상입니다. 셸의 핵심은 어셈블러 토큰 옆에 16진수 코드를 나란히 보여 주는 것이고, WASM 내부에서 무슨 일이 일어나는지 깊이 이해하는 출발점으로 삼을 수 있다는 설명입니다.
 
 ### CLI로 할 수 있는 일
 
 ![프로그래밍 코드 화면](https://images.pexels.com/photos/1102797/pexels-photo-1102797.png?auto=compress&cs=tinysrgb&h=650&w=940)
 *Photo by [Myburgh Roux](https://www.pexels.com/@myburgh-roux) on [Pexels](https://www.pexels.com/photo/programming-codes-screengrab-1102797/)*
 
-HEXAW CLI가 지원하는 기능은 다음과 같습니다.
+HEXAW CLI로는 이런 일을 할 수 있습니다.
 
 - HEXAW 소스를 `.wasm` 바이너리로 어셈블
 - 바이너리를 다시 읽기 쉬운 명령어로 덤프
@@ -180,7 +180,7 @@ AI ERROR
 
 작성자는 언어, 컴파일러 포크, 멘토의 학습 자료를 모두 직접 고칠 수 있고, MIT 라이선스라 다른 사람도 똑같이 고칠 수 있다고 강조합니다. 오픈 웨이트 모델을 고른 것도 나중에 직접 호스팅할 여지를 남기기 위해서입니다. 현재 멘토는 Groq의 호스팅 API를 쓰지만, 어셈블러와 디버거는 로컬에서 동작합니다.
 
-작성자는 이 프로젝트를 '게으름의 보상(The Lazy Payoff)'이라고 표현합니다. 바이트를 손으로 해석할 일이 줄고, 코드와 문서와 별도의 AI 채팅 창을 오가는 일도 줄어듭니다. 그 모든 걸 터미널 하나에 모으고 싶을 만큼 게으르지만, 어셈블리를 손에서 놓을 만큼 게으르지는 않다는 게 그의 말입니다.
+그는 이 프로젝트를 '게으름의 보상(The Lazy Payoff)'이라고 부릅니다. 바이트를 손으로 해석할 일이 줄고, 코드와 문서와 별도의 AI 채팅 창을 오가는 일도 줄어듭니다. 그 모든 걸 터미널 하나에 모으고 싶을 만큼 게으르지만, 어셈블리를 손에서 놓을 만큼 게으르지는 않다는 게 그의 말입니다.
 
 원문 서두에는 작성자가 키우는 늙은 고양이 Pitypang이 마지막 Enter를 누르는 장면을 담은 영상도 소개돼 있습니다.
 
