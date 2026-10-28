@@ -1,0 +1,191 @@
+﻿---
+title: "WAT 대신 HEXAW: 바이트가 보이는 WebAssembly 어셈블리 언어"
+description: "Z80·8086 어셈블러를 다뤄 본 개발자가 WAT의 괄호 문법 대신 쓸 수 있는 WebAssembly용 텍스트 포맷 HEXAW를 공개했습니다. 명령어 옆에 16진수 바이트를 보여 주고, 실행을 되감는 디버거와 AI 멘토를 함께 제공합니다."
+date: "2026-10-25"
+published_at: "2026-10-28"
+category: "news"
+tags: []
+slug: "hexaw-wasm-text-format-instead-of-wat"
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fu8zgu8f4zouggzb33wqm.png"
+coverAlt: "HEXAW programming language for WebAssembly instead WAT"
+source_id: "devto-4917658"
+source_url: "https://dev.to/pengeszikra/hexaw-a-lazy-wasm-text-format-5g5n"
+source_title: "HEXAW programming language for WebAssembly instead WAT"
+source_author: "Peter Vivo"
+source_published: "2026-10-25"
+---
+
+<LinkCard url="https://dev.to/pengeszikra/hexaw-a-lazy-wasm-text-format-5g5n" author="Peter Vivo" date="2026-10-25" />
+
+## 개요
+
+개발자 Peter Vivo가 WebAssembly(WASM)용 텍스트 포맷 **HEXAW**를 공개했습니다. 공식 텍스트 포맷인 WAT의 괄호 중첩 문법을 쓰지 않고, 예전 어셈블러처럼 짧은 니모닉(mnemonic)을 한 줄에 하나씩 쓰는 방식입니다. 셸에서는 명령어 바로 옆에 그 명령어가 변환된 16진수 바이트를 함께 보여 줍니다.
+
+HEXAW는 Dev.to의 'Hacktoberfest Open-Source AI Challenge Week 3: Slow and Steady' 출품작입니다. 작성자도 **아직 베타 단계**라서 문법과 도구가 계속 바뀌는 중이라고 밝혔습니다. 라이선스는 MIT입니다.
+
+## 본문
+
+### Z80의 기억에서 출발한 언어
+
+작성자는 예전에 헝가리의 Videoton TV Computer에서 Z80 어셈블리로 게임을 만든 경험이 있습니다. 명령어 하나를 입력하면 그게 정확히 어떤 바이트가 되는지 바로 보이던 그 감각이 그리웠다고 합니다.
+
+WebAssembly를 보면서 그 감각을 다시 느낄 수 있겠다고 생각했지만, WAT는 그에게 '괄호 정글(parenthesis jungle)'이었습니다. 머릿속으로는 어셈블러 리스팅을 기대했는데 S-표현식이 나왔던 겁니다. 그래서 읽기 쉬운 니모닉과 레트로 어셈블러 느낌을 살린 새 텍스트 포맷을 직접 만들기로 했습니다.
+
+작성자는 HEXAW를 '사람 우선(human first)' 언어라고 소개합니다. 브라우저에서 WASM을 직접, 손으로 다루며 문제를 풀고 싶은 프로그래머가 대상입니다. 셸의 핵심은 어셈블러 토큰 옆에 16진수 코드를 나란히 보여 주는 것이고, WASM 내부에서 무슨 일이 일어나는지 깊이 이해하는 출발점으로 삼을 수 있다는 설명입니다.
+
+### CLI로 할 수 있는 일
+
+![프로그래밍 코드 화면](https://images.pexels.com/photos/1102797/pexels-photo-1102797.png?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Myburgh Roux](https://www.pexels.com/@myburgh-roux) on [Pexels](https://www.pexels.com/photo/programming-codes-screengrab-1102797/)*
+
+HEXAW CLI가 지원하는 기능은 다음과 같습니다.
+
+- HEXAW 소스를 `.wasm` 바이너리로 어셈블
+- 바이너리를 다시 읽기 쉬운 명령어로 덤프
+- 코드를 한 단계씩 앞으로, 그리고 **뒤로도** 실행하는 디버거
+- 바이트를 봐도 이해가 안 될 때 질문할 수 있는 AI 멘토
+
+셸에는 SST에서 영감을 받은 `A` 모드도 있습니다. 명령어를 입력하고 Enter를 누르면 해당 16진수 바이트가 표시되고 커서가 다음 주소로 넘어갑니다. 빈 줄에서 Enter를 누르면 완성한 초안이 적용됩니다.
+
+### 설치와 실행
+
+npm 패키지로 배포되며 **Node.js 22.18 이상**이 필요합니다. 아래 예제 코드를 `factorial.hexaw`로 저장한 뒤 실행하면 됩니다.
+
+```sh
+npm install -g hexaw
+hexaw -i factorial.hexaw
+```
+
+AI 멘토를 쓰려면 [Groq API 키](https://console.groq.com/keys)가 있어야 합니다. 작업 디렉터리의 `.env` 파일에 키를 넣어 둡니다.
+
+```dotenv
+GROQ_API_KEY=your_groq_api_key
+```
+
+셸을 시작할 때 이 파일을 직접 지정해 불러옵니다. Linux/macOS에서는 다음과 같습니다.
+
+```sh
+node --env-file=.env "$(command -v hexaw)" -i factorial.hexaw
+```
+
+키가 없어도 어셈블, 덤프, 디버깅은 모두 됩니다. 키가 필요한 건 LLM 도움말뿐입니다.
+
+[저장소](https://github.com/Pengeszikra/hexaw)를 클론해서 쓸 수도 있습니다. `npm ci`를 실행하고 저장소 폴더에 `factorial.hexaw`를 저장한 다음 아래 명령을 실행합니다.
+
+```sh
+npm run shell -- factorial.hexaw
+```
+
+셸 안에서 다음을 입력하면 **5! = 120**을 계산하고, 마지막 실행 단계를 되돌립니다.
+
+```text
+CALL factorial 5
+G
+BACK
+```
+
+### 코드는 이렇게 생겼다
+
+팩토리얼을 계산하는 반복문 예제입니다.
+
+```text
+EXP "factorial" 0
+FN 0
+  PAR 0       ; n
+  RES
+  LOC 1       ; result
+
+  CONST 1
+  SET 1
+  BLOCK
+    LOOP
+      GET 0
+      EQZ
+      BRIF 1  ; leave the outer block when n = 0
+
+      GET 1
+      GET 0
+      MUL
+      SET 1
+
+      GET 0
+      CONST 1
+      SUB
+      SET 0
+      BR 0    ; repeat the loop
+    END
+  END
+  GET 1
+END
+```
+
+겉모습만 바뀌었을 뿐 WASM의 특성은 그대로입니다. 타입이 있는 스택, 로컬 변수, 구조화된 제어 흐름을 그대로 씁니다.
+
+덤프 결과에서는 주소, 바이트, 명령어가 한 줄에 나란히 표시됩니다.
+
+```text
+00000032 : 20 00 : GET 0
+00000034 : 45    : EQZ
+00000035 : 0D 01 : BRIF 1
+```
+
+### 접두사 하나로 타입 구분
+
+문법을 단순하게 만든 핵심은 타입 접두사입니다. 기본 숫자 타입은 `i32`이고, 다른 타입은 명령어 앞에 한 글자를 붙여 고릅니다.
+
+| 접두사 | 타입 | 예시 | 대응하는 WASM 명령어 |
+| --- | --- | --- | --- |
+| (없음) | i32 | `ADD` | `i32.add` |
+| `L` (long) | i64 | `LADD` | `i64.add` |
+| `F` (float) | f32 | `FADD` | `f32.add` |
+| `D` (double) | f64 | `DADD` | `f64.add` |
+
+작성자가 정한 원칙은 세 가지입니다. 니모닉에 숫자를 넣지 않고, 괄호를 쓰지 않고, 꼭 필요한 경우가 아니면 특수 문자도 쓰지 않습니다.
+
+비교를 위해 작성자는 WAT로 쓴 간단한 덧셈 함수도 함께 보여 줬습니다. 원문에는 "괄호 애호가 전용(for brace lovers only)"이라는 설명이 붙어 있습니다.
+
+```wat
+(module
+  (func (export "add") (param $first i32) (param $second i32) (result i32)
+    ;; Push the $first and $second parameter value on to the stack
+    local.get $first
+    local.get $second
+
+    ;; Pops the last two items off the stack, add them together, and
+    ;; pushes the result onto the stack
+    i32.add
+  )
+)
+```
+
+### 만든 방식과 AI 멘토
+
+![디지털 코드가 비치는 키보드](https://images.pexels.com/photos/37694202/pexels-photo-37694202.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Rafael Minguet Delgado](https://www.pexels.com/@rafael-minguet-delgado) on [Pexels](https://www.pexels.com/photo/illuminated-keyboard-with-digital-code-display-37694202/)*
+
+작성자는 Codex로 HEXAW를 만들었습니다. CLI는 직접 포크한 TypeScript인 `TS+|>`로 작성했고, 어셈블과 디버깅은 공용 엔진 하나가 맡습니다.
+
+AI 멘토는 Groq에서 호스팅하는 오픈 웨이트 모델 [gpt-oss-120b](https://console.groq.com/docs/model/openai/gpt-oss-120b)를 씁니다. 작성자의 이전 프로젝트 'Terminal Is Your Friend'에서 가져온 기능이고, 학습 자료를 HEXAW와 WASM 중심으로 바꿨습니다. 멘토는 실제 opcode 표와 함께 현재 코드, 어셈블 중인 초안, VM 상태, 최근 오류를 일부 잘라낸 스냅샷을 근거로 답합니다.
+
+셸을 시작하기 전에 `GROQ_API_KEY`를 설정해 두면 아래처럼 질문할 수 있습니다.
+
+```text
+// What does BRIF 1 mean here?
+AI ERROR
+```
+
+답변을 기다리는 동안에도 작업은 계속할 수 있습니다. 멘토가 제안한 코드는 사용자가 직접 입력하기 전까지 예시로만 남습니다.
+
+### 오픈소스로 공개한 이유
+
+작성자는 언어, 컴파일러 포크, 멘토의 학습 자료를 모두 직접 고칠 수 있고, MIT 라이선스라 다른 사람도 똑같이 고칠 수 있다고 강조합니다. 오픈 웨이트 모델을 고른 것도 나중에 직접 호스팅할 여지를 남기기 위해서입니다. 현재 멘토는 Groq의 호스팅 API를 쓰지만, 어셈블러와 디버거는 로컬에서 동작합니다.
+
+작성자는 이 프로젝트를 '게으름의 보상(The Lazy Payoff)'이라고 표현합니다. 바이트를 손으로 해석할 일이 줄고, 코드와 문서와 별도의 AI 채팅 창을 오가는 일도 줄어듭니다. 그 모든 걸 터미널 하나에 모으고 싶을 만큼 게으르지만, 어셈블리를 손에서 놓을 만큼 게으르지는 않다는 게 그의 말입니다.
+
+원문 서두에는 작성자가 키우는 늙은 고양이 Pitypang이 마지막 Enter를 누르는 장면을 담은 영상도 소개돼 있습니다.
+
+[YouTube 영상 보기 →](https://youtube.com/shorts/z2RBWrEc9fU)
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

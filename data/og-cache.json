@@ -1967,6 +1967,14 @@
     "siteName": "",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/he4rt/nao-precisa-ser-popular-pra-compartilhar-minha-historia-ate-berlim-1hbc": {
+    "ok": true,
+    "title": "Não precisa ser popular pra compartilhar: minha história até Berlim",
+    "description": "Hoje não venho escrever algo técnico ou teórico. Hoje vou contar pra vocês como a menina criada nas...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fktpoo7h81vw30ohujvmx.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-28"
+  },
   "https://dev.to/he4rt/programacao-criativa-vamos-desenhar-com-codigo-4a1": {
     "ok": true,
     "title": "Programação Criativa: Vamos desenhar com código?",
@@ -2991,6 +2999,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/pengeszikra/hexaw-a-lazy-wasm-text-format-5g5n": {
+    "ok": true,
+    "title": "HEXAW programming language for WebAssembly instead WAT",
+    "description": "This is a submission for the Hacktoberfest Open-Source AI Challenge Week 3: Slow and Steady          ...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fu8zgu8f4zouggzb33wqm.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-28"
+  },
   "https://dev.to/peter/gmail-please-let-me-hide-delegated-accounts-on-my-iphone-30e": {
     "ok": true,
     "title": "GMail, please let me hide delegated accounts on my iPhone",
@@ -3662,6 +3678,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fdn7qpeug3pgwjxowsm4i.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/xulingfeng/stratagems-32-the-ai-logged-a-withdrawal-p-took-it-as-proof-2jo2": {
+    "ok": true,
+    "title": "Stratagems #32: The AI Logged a Withdrawal. P Took It as Proof.",
+    "description": "Make empty what is already empty. Let doubt breed inside doubt. — The 36 Stratagems, The Empty Fort...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fsenpd6txz4k8ooplo6yj.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-28"
   },
   "https://dev.to/xulingfeng/two-weeks-in-a-15-year-qa-veteran-back-to-being-the-new-guy-39g3": {
     "ok": true,
