@@ -4,7 +4,7 @@ description: "답장이 필요 없을 메일을 예측해 7일 타이머에 걸�
 date: "2026-10-25"
 published_at: "2026-10-29"
 category: "news"
-tags: []
+tags: ["ai","llm","opensource","productivity","python","news"]
 cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ffw41tloy7yvhtkzh9237.png"
 coverAlt: "Let It Die: The Lazy Email Agent on TabPFN, Gemma and Temporal"
 slug: "let-it-die-lazy-email-agent-tabpfn-gemma-temporal"
@@ -35,7 +35,7 @@ Hacktoberfest 오픈소스 AI 챌린지 3주차(주제: Slow and Steady) 출품�
 - **낮은 우선순위 (중간 60%)**: 손대지 않고 다이제스트에 개수만 표시합니다.
 - **Let it die (하위 20%)**: Temporal의 내구성 타이머(durable timer)에 걸어 둡니다. 7일 안에 발신자가 후속 메일을 보내면 승격하고, 없으면 보관합니다.
 
-작성자는 핵심을 이렇게 표현합니다. 가장 빨리 끝나는 일은 시작조차 하지 않은 일이고, 단 어떤 일이 그런 일인지 가려낼 수만 있으면 된다는 것입니다.
+작성자의 말을 빌리면, 가장 빨리 끝나는 일은 아예 시작하지 않은 일입니다. 어떤 일이 그런 일인지 가려낼 수만 있다면요.
 
 ![Let It Die 실행 결과 — 확인 필요, 낮은 우선순위, 타이머 대기 메일 개수를 보여주는 터미널 화면](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/nojbw2bg4qendvviytez.png)
 
@@ -135,7 +135,7 @@ Enron 메일 파일명은 `1.`, `10.`처럼 마침표로 끝납니다. Windows�
 - **학습 과정이 없다.** TabPFN은 개인 메일함 정도의 작은 데이터에 학습 단계 없이 바로 맞춰집니다. 다만 작성자는 호스팅 API를 썼기 때문에 학습용 5,000행이 Prior Labs 서버로 전송됐다고 밝혔습니다. 공개 데이터인 Enron 메일이라 가능했던 선택이고, 개인 메일에 적용하려면 로컬 가중치를 쓰거나 이 점을 감수해야 합니다.
 - **누구나 수치를 재현할 수 있다.** 데이터는 공개돼 있고 코드는 저장소에 있습니다.
 
-호스팅 LLM과는 비교하지 않았기 때문에 요약 품질에서 오픈 모델이 낫다고 주장하지는 않는다고 덧붙였습니다. 이 프로젝트에서 오픈을 고른 이유는 프라이버시, 비용, 그리고 외부 서비스가 계속 살아 있어야 한다는 의존에서 벗어나는 것입니다.
+호스팅 LLM과는 비교하지 않았기 때문에 요약 품질에서 오픈 모델이 낫다고 주장하지는 않는다고 덧붙였습니다. 이 프로젝트에서 오픈을 택한 건 프라이버시와 비용 때문이고, 외부 서비스가 계속 살아 있기를 바랄 필요가 없다는 점도 컸습니다.
 
 ## 코드
 
