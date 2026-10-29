@@ -255,6 +255,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-10-14"
   },
+  "https://dev.to/annavi11arrea1/lessons-learned-wifi-server-disaster-16oc": {
+    "ok": true,
+    "title": "Lessons Learned: Wifi Server Disaster",
+    "description": "So there I was, figuring out how to set up all my social media for branded automated posting....",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fo6b4h9qh6ofysro1ujie.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-29"
+  },
   "https://dev.to/annavi11arrea1/server-access-logs-with-goaccess-333d": {
     "ok": true,
     "title": "👾 Server Access Logs with GoAccess",
@@ -2263,6 +2271,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-29"
   },
+  "https://dev.to/james_anderson_h/security-changed-with-ai-and-small-teams-are-falling-behind-5ebg": {
+    "ok": true,
+    "title": "Hours, Not Weeks: How AI Rewrote the Clock of Software Security",
+    "description": "The third week of October 2026 was a rough one for anyone who runs software on the internet.  Two...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Foffi501tybpph06jvbch.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-29"
+  },
   "https://dev.to/james_anderson_h/somewhere-coding-stopped-being-allowed-to-be-fun-14pe": {
     "ok": true,
     "title": "Somewhere, Coding Stopped Being Allowed to Be Fun",
@@ -2486,6 +2502,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fco4gfhxofczaypfm6mmx.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-28"
+  },
+  "https://dev.to/khushighosh/let-it-die-the-lazy-email-agent-on-tabpfn-gemma-and-temporal-10o0": {
+    "ok": true,
+    "title": "Let It Die: The Lazy Email Agent on TabPFN, Gemma and Temporal",
+    "description": "This is a submission for the Hacktoberfest Open-Source AI Challenge Week 3: Slow and Steady          ...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ffw41tloy7yvhtkzh9237.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-29"
   },
   "https://dev.to/klaudiagrz/celebrate-june-rituals-with-solstice-bingo-1al6": {
     "ok": true,
@@ -3606,6 +3630,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fuq3ff9pyplhva3x49y7z.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-20"
+  },
+  "https://dev.to/varshithvhegde/the-most-embarrassing-private-key-in-web-pki-history-f9b": {
+    "ok": true,
+    "title": "The Most Embarrassing Private Key in Web PKI History",
+    "description": "The strange thing about this incident is that the certificates looked normal.  They had familiar CA...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Filt5ikviyosme61jx21q.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-29"
   },
   "https://dev.to/virtualcoffee/virtual-coffee-needs-your-help-46ih": {
     "ok": true,

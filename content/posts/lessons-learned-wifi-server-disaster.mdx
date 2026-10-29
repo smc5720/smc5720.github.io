@@ -1,0 +1,82 @@
+﻿---
+title: "Wi-Fi에 물려 둔 서버가 멈춘 날 (Lessons Learned: Wifi Server Disaster)"
+description: "Wi-Fi로 운영하던 개인 서버가 갑자기 응답하지 않으면서 한 주니어 개발자가 겪은 2시간 장애 이야기입니다. 무료 모니터링 한도 소진, 미뤄 둔 스위치 설정, 점검 페이지 부재까지 그날 드러난 문제와 대응을 정리했습니다."
+date: "2026-10-28"
+published_at: "2026-10-29"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fo6b4h9qh6ofysro1ujie.png"
+coverAlt: "Lessons Learned: Wifi Server Disaster"
+slug: "lessons-learned-wifi-server-disaster"
+source_id: "devto-4931849"
+source_url: "https://dev.to/annavi11arrea1/lessons-learned-wifi-server-disaster-16oc"
+source_title: "Lessons Learned: Wifi Server Disaster"
+source_author: "Anna Villarreal"
+source_published: "2026-10-28"
+---
+
+<LinkCard url="https://dev.to/annavi11arrea1/lessons-learned-wifi-server-disaster-16oc" author="Anna Villarreal" date="2026-10-28" />
+
+## 개요
+
+주니어 개발자 Anna Villarreal은 집에서 직접 돌리던 서버가 어느 날 응답을 멈추는 일을 겪었습니다. 원인은 Wi-Fi였습니다. 처음에는 공부용으로 잠깐 띄워 둔 서버였는데, 어느새 실제 서비스를 맡게 됐고 네트워크는 여전히 무선 그대로였습니다.
+
+이 장애로 서비스가 계획 없이 2시간가량 멈췄습니다. 작성자는 그동안 미뤄 둔 네트워크 구성에 바로 착수하기로 했습니다.
+
+## 본문
+
+### 개인정보처리방침 링크를 찾다가 알게 된 장애
+
+일은 소셜 미디어 자동 포스팅을 준비하면서 시작됐습니다. Pinterest에서 일부 기능을 쓰려면 개인정보처리방침(privacy policy) 링크가 있어야 했고, 작성자는 자기 사이트에 있는 페이지를 쓰면 된다고 생각했습니다.
+
+그런데 링크를 가져오려고 사이트에 들어가자 처음 보는 오류가 떴습니다. 작성자 기억으로는 1003번 언저리의 오류 코드였고, 사이트는 아예 열리지 않았습니다.
+
+평소 기대던 Sentry를 열어 봤지만 무료 티어 한도를 이미 다 써서 업타임 모니터링도 꺼진 상태였습니다. 작성자는 이 상황을 "너무 안심하고 있었다(I got too cozy)"고 돌아봤습니다. 서버 자체는 켜져 있었고 겉으로는 멀쩡하게 돌아가는 것처럼 보였습니다. 조금 더 살펴보니 문제는 Wi-Fi 연결이었습니다.
+
+### 왜 서버가 Wi-Fi에 물려 있었나
+
+처음부터 운영 서버로 쓸 생각은 없었습니다. 이것저것 만져 보고 배우려고 띄워 둔 장비였는데, 일이 점점 커지면서 작게나마 실제 트래픽을 받는 서버가 됐습니다.
+
+서버 옆에는 아직 설정하지 않은 스위치가 두 대 있습니다. Juniper 한 대와 Cisco 한 대입니다. Juniper를 쓰면 돈이 들지 않지만, 작성자가 공부하던 쪽은 Cisco라서 어느 쪽으로 갈지 정하지 못했습니다. 네트워크 공부도 시작은 했지만 바빠서 진도를 못 냈고, 데스크톱까지 Wi-Fi로 돌릴 생각은 없었다고 합니다.
+
+물리적인 조건도 까다롭습니다.
+
+- 서버는 집 반대편, 다른 층에 있고 그 사이에 구조물이 많습니다.
+- 그쪽으로 내려가는 Cat6a 케이블은 두 가닥뿐입니다.
+- 그 방 하나에만 인터넷이 필요한 기기가 25대가 넘습니다.
+
+여기에 아직 다 설정하지 못한 오래된 대형 서버도 한 대 있습니다. 작성자는 스위치부터 올리고 싶었고, 그러다 보니 "핑계가 꼬리를 무는 상황"이 이어졌다고 털어놨습니다.
+
+### 장애 당일 한 일
+
+서버가 이미 멈춘 김에 작성자는 다음 작업을 했습니다.
+
+- 서버를 최신 상태로 전부 업데이트했습니다.
+- 절전 모드를 껐습니다.
+
+작성자도 이걸로 충분하지 않다는 건 알고 있습니다. 다음 날 혼자서 네트워크 구성을 시도해 스위치를 살려 볼 계획입니다. 도와줄 사람이 없으니 겁이 난다는 말도 덧붙였습니다.
+
+![lessons learned](https://images.pexels.com/photos/38918748/pexels-photo-38918748.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Ann H](https://www.pexels.com/@ann-h) on [Pexels](https://www.pexels.com/photo/lessons-learned-wooden-letter-blocks-background-38918748/)*
+
+### 이번 장애에서 얻은 교훈
+
+작성자가 정리한 내용은 이렇습니다.
+
+- **운영 서버를 무선 네트워크에 두면 안 됩니다.** 실험용으로 시작했더라도 실제 서비스를 맡는 순간 유선 연결이 필요합니다.
+- **모니터링이 꺼져 있으면 장애를 늦게 알게 됩니다.** 무료 한도가 끝나 업타임 감시가 멈춘 줄도 모르고 있었고, 다른 일을 하다가 우연히 장애를 발견했습니다.
+- **점검·장애용 안내 페이지가 필요합니다.** 서버가 내려갔을 때 보여 줄 리다이렉트 페이지가 있어야 한다는 걸 깨달았다고 합니다. 작성자는 "생각해 보면 기본적인 것"이라면서 자신은 혼자 일하는 주니어 개발자일 뿐이라고 웃어넘겼습니다.
+
+작성자는 장애를 수습하는 동안 "사이버보안 일을 하면 이런 기분일까" 싶었다고 합니다. 원래 계획에 없던 시스템 관리자 역할까지 떠안게 됐고, 자기가 만든 문제를 고치는 데 다른 일보다 시간을 더 쓰는 것 같다고도 했습니다.
+
+### 덧붙인 이야기
+
+작성자가 이 일을 배우자에게 설명하자, 배우자는 먼저 입을 다물지 못하더니 곧 웃음을 터뜨렸습니다. 마침 다음 날 "Wi-Fi를 좀 만져 볼 생각"이었다는 겁니다. 이번에는 작성자가 할 말을 잃었습니다.
+
+작성자는 적어도 재미있는 이야깃거리는 하나 생겼다며 글을 마무리했습니다.
+
+![danger](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/kn68vle1biyongqn8kn0.png)
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
