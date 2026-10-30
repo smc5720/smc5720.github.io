@@ -1,0 +1,75 @@
+﻿---
+title: "LLM이 사람보다 코드를 더 잘 짠다? 무엇을 더 잘한다는 걸까 (No Human Will Ever Write Code Better Than LLMs? Better at What?)"
+description: "'LLM보다 코드를 잘 짜는 사람은 앞으로 없다'는 트윗에 Daniel Nwaneri가 반론을 냈습니다. 그는 '더 낫다'는 말이 하나의 척도가 아니라 속도, 정확성, 유지보수성, 만들지 않는 판단으로 이어지는 위계라고 봅니다."
+date: "2026-10-29"
+published_at: "2026-10-30"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fyef0r2qscs29hbs0j5ba.jpg"
+coverAlt: "No Human Will Ever Write Code Better Than LLMs? Better at What?"
+slug: "no-human-will-ever-write-code-better-than-llms-better-at-what"
+source_id: "devto-4919957"
+source_url: "https://dev.to/dannwaneri/no-human-will-ever-write-code-better-than-llms-better-at-what-1dme"
+source_title: "No Human Will Ever Write Code Better Than LLMs? Better at What?"
+source_author: "Daniel Nwaneri"
+source_published: "2026-10-29"
+---
+
+<LinkCard url="https://dev.to/dannwaneri/no-human-will-ever-write-code-better-than-llms-better-at-what-1dme" author="Daniel Nwaneri" date="2026-10-29" />
+
+## 개요
+
+최근 "LLM보다 코드를 잘 짜는 사람은 앞으로 없다. 인정하고, 그만 버티고, 받아들여라"라는 트윗이 퍼졌습니다. 개발자 Daniel Nwaneri는 이 주장에 답글을 달았고, 그 내용을 글로 정리했습니다.
+
+그가 문제 삼은 건 '더 낫다(better)'라는 단어입니다. 우리는 이 말을 하나의 숫자처럼 다루지만, 무엇을 기준으로 재느냐에 따라 뜻이 완전히 달라진다는 겁니다.
+
+## 본문
+
+### 트윗에 단 답글
+
+Nwaneri가 남긴 답글의 요지는 이렇습니다.
+
+> 그 질문에는 '더 낫다'가 너무 많이 숨어 있습니다. LLM은 그럴듯하게 쓰도록 학습했지, 옳게 쓰도록 학습한 게 아닙니다. 얼마든지 우아하고 관용적이고 매끄러운 코드를 얻을 수 있지만, 정작 중요한 제약은 놓칠 수 있습니다. 기존 시스템, 팀의 패턴, 비즈니스 사정, 실패 모드, 아직 실제로 존재하지 않는 기능 같은 것들 말입니다.
+>
+> 시니어 엔지니어링은 코드를 '쓰는' 일만이 아닙니다. 쓰지 말아야 할 때를 아는 일입니다. 진짜 엣지 케이스와 아직 덜 익은 추상화를 알아보고, 더 단순하게 풀 수 있는 문제인지, 아예 풀 필요가 없는 문제인지 판단하는 일입니다. 이런 판단은 수치로 재기 어렵고, 프롬프트로 시키기 어렵고, 생성된 코드에서는 잘 드러나지도 않습니다.
+>
+> 그러니 LLM은 쓸 만한 도구일 수는 있어도, 실제 전문가 수준과는 거리가 멉니다.
+
+![사람의 손과 로봇 손이 마주한 흑백 사진](https://images.pexels.com/photos/8386422/pexels-photo-8386422.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Tara Winstead](https://www.pexels.com/@tara-winstead) on [Pexels](https://www.pexels.com/photo/black-and-white-photo-of-human-hand-and-robot-hand-8386422/)*
+
+### 1단계: 분당 줄 수
+
+가장 쉬운 기준은 생산성, 그러니까 분당 몇 줄을 쓰느냐입니다. 재기 쉽고 단순해서 발전하는 느낌을 줍니다. 그래서 이 지표를 밀어붙이는 힘도 큽니다.
+
+하지만 Nwaneri는 이게 결국 타이핑 속도를 잴 뿐이라고 말합니다. 줄 수가 많다고 프로그램이 나아지지는 않습니다. 틀린 코드 천 줄은 코드가 없는 것보다 나쁘고, 들여다보자마자 무너지는 코드 천 줄은 그보다 더 나쁩니다.
+
+### 2단계: 정확성
+
+그래서 다음 기준은 정확성입니다. 기능이 맞게 동작하고, 명세를 지키고, 테스트를 통과하는 코드죠. 분명 한 단계 올라선 기준이지만, 그는 이것만으로는 부족하다고 봅니다.
+
+진짜 악몽은 LLM이 만든 코드가 잘 돌아가다가 어느 순간 안 돌아가는데, 왜 그런지 이해할 수 없을 때 찾아옵니다. 그가 든 예시는 이렇습니다. 그럴듯해 보이는 코드가 운영 환경까지 올라갔는데, 모델이 결제 처리 함수에 `retry_on_timeout` 데코레이터를 붙여 놓았습니다. 이 데코레이터는 예외를 잡아 `WARNING` 로그를 남긴 뒤 `None`을 반환합니다. 뒤쪽 코드는 이 `None`을 0원짜리 결제 성공으로 읽습니다. 결제 파이프라인이 거래를 조용히 버리고, 고객은 주문한 물건을 공짜로 받게 됩니다.
+
+실제로 이런 상황을 실험한 사례도 있습니다. Gramli는 [To Retry or Not to Retry](https://dev.to/gramli/to-retry-or-not-to-retry-that-is-the-question-1j2l)에서 결제 요청이 Retry-After 헤더와 함께 503을 반환하고, 멱등성 키(idempotency key)는 없는 시나리오를 테스트했습니다. 모델 8개 가운데 대부분이 헤더를 따라 재시도하라고 답했고, 재시도하면 안 된다고 답한 모델은 두 개뿐이었습니다.
+
+왜 이런 일이 생길까요. HumanLayer의 Dex는 발표 "Harness Engineering Is Not Enough and Why Software Factories Fail"에서 그 이유를 설명합니다. 코딩 벤치마크 상당수는 모델에게 통과/실패로만 보상을 줍니다. 테스트가 통과하면 모델이 이기고, 설계가 나빠도 감점은 없습니다. 그래서 모델은 try/catch를 덧대거나 타입 캐스팅을 넣는 법을 익힙니다. 그렇게 하면 테스트가 통과하니까요.
+
+### 3단계: 유지보수성
+
+완벽하게 돌아가지만 손댈 수 없는 소프트웨어도 있습니다. Nwaneri는 이걸 레거시 코드라고 부르고, 우리가 원하는 것과 정반대라고 말합니다. 고통 없이 바꿀 수 있어야 한다는 거죠.
+
+그래서 다음 기준은 유지보수성입니다. 읽기 쉽고 단순해서 다른 사람이 사무실에 불을 지르고 싶어지지 않는 코드, 시간이 지나도 깨지지 않는 코드입니다. 이런 코드는 새 요구사항이 들어와도 무너지지 않고 바뀝니다.
+
+### 4단계: 만들지 않는 판단
+
+그가 가장 높이 치는 기준은 '지혜'입니다. "아니, 그건 하지 말자"라고 말할 수 있게 해 주는 '더 나음'입니다. 적지만 꼭 필요한 만큼만 있어서 더 나은 코드죠.
+
+Nwaneri는 코드를 부채(liability)로 봅니다. 최소한으로 유지해야 하는 대상이라는 겁니다. 이 기준은 실천하기가 가장 어렵습니다. 압박에도, 예산에도, 좋은 아이디어가 있다고 믿는 이해관계자에게도 "아니요"라고 말해야 하니까요. 대신 만들지 않아서 얻는 이득은 복리처럼 계속 불어납니다.
+
+### '더 낫다'는 하나가 아니다
+
+그의 결론은 '더 낫다'가 하나의 값이 아니라는 겁니다. 여러 기준이 위계를 이루고, 경험이 쌓일수록 기준도 바뀝니다. 분당 줄 수에서 정확성으로, 정확성에서 유지보수성으로, 그리고 마지막엔 만들지 않는 판단으로 옮겨 갑니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

@@ -1,0 +1,70 @@
+﻿---
+title: "DEV 포스트 공유 카드, 새 디자인으로 바뀌다 (Your DEV posts have a beautiful new share card)"
+description: "DEV가 포스트를 공유할 때 보이는 소셜 이미지를 새로 디자인했습니다. 제목 대신 글의 첫 문장을 인용 카드로 보여 주고, 프로필 브랜드 색상을 반영합니다."
+slug: "dev-posts-new-share-card"
+date: "2026-10-27"
+published_at: "2026-10-30"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fzayaadne36cbq4m0gftb.png"
+coverAlt: "Your DEV posts have a beautiful new share card ✨"
+source_id: "devto-4929664"
+source_url: "https://dev.to/devteam/your-dev-posts-have-a-beautiful-new-share-card-4be8"
+source_title: "Your DEV posts have a beautiful new share card ✨"
+source_author: "Jess Lee"
+source_published: "2026-10-27"
+---
+
+<LinkCard url="https://dev.to/devteam/your-dev-posts-have-a-beautiful-new-share-card-4be8" author="Jess Lee" date="2026-10-27" />
+
+## 개요
+
+DEV 포스트 링크를 공유하면 따라붙는 미리보기 이미지가 완전히 새로워졌습니다. DEV 팀의 Jess Lee가 지난주 작업한 풀 리퀘스트 [forem/forem#24071](https://github.com/forem/forem/pull/24071)이 프로덕션에 반영됐습니다.
+
+가장 큰 변화는 카드에 글 제목 대신 **본문 첫 부분**이 들어간다는 점입니다. 링크를 펼쳐 보여 주는 서비스 대부분이 이미 제목을 따로 표시하니, 같은 정보를 두 번 보여 줄 필요가 없다는 판단입니다.
+
+[GitHub PR 보기 →](https://github.com/forem/forem/pull/24071)
+
+## 무엇이 바뀌었나
+
+### 첫 문장을 보여 주는 인용 카드
+
+![before and after](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/ntvzj7cvzioc0ipgrkju.png)
+
+이제 모든 포스트에 인용 카드가 붙습니다. 그라데이션 배경 위에 작은 브라우저 창 모양 프레임을 두고, 그 안에 글의 도입부를 넣는 구성입니다. 아래쪽에는 프로필 사진, 이름, 게시일, 읽는 시간이 들어갑니다.
+
+Jess Lee는 글쓴이의 목소리가 가장 잘 드러나는 곳이 첫 문장이라고 설명합니다. 공유된 링크를 본 사람이 가장 먼저 그 문장을 마주하게 하려는 의도입니다.
+
+### 프로필 색상에 맞춘 배경
+
+카드 색은 프로필에 브랜드 색상을 지정해 두었다면 그 색을 따릅니다. 따로 지정하지 않았다면 DEV가 준비한 네 가지 팔레트 중 하나가 쓰입니다. 공유된 포스트가 한 화면에 여러 개 모여 있어도 단조롭지 않게 보이도록 한 장치입니다.
+
+### 어디서 공유해도 이미지 하나로
+
+카드 이미지는 한 장뿐이고, 링크가 공유되는 모든 플랫폼에서 같은 이미지가 펼쳐집니다. 위아래 여백을 넉넉하게 잡아 두었기 때문에, X처럼 플랫폼이 이미지 위에 자체 라벨을 덧씌우는 경우에도 이름과 세부 정보가 가려지지 않습니다.
+
+## 함께 손본 부분
+
+작업하는 김에 몇 가지 세부 사항도 다듬었습니다.
+
+- 이름에 `@`나 `%`가 들어 있어도 불필요한 백슬래시 없이 깔끔하게 표시됩니다.
+- 𝓯𝓪𝓷𝓬𝔂 𝓽𝓮𝔁𝓽처럼 장식용 유니코드 문자로 쓴 이름도 제대로 렌더링됩니다.
+- 읽는 시간이나 첫 문장이 바뀌면 이미지도 새로 생성됩니다. 글을 수정한 뒤에도 카드가 최신 상태로 유지됩니다.
+
+리뷰와 머지는 DEV 공동 창업자 [Ben](https://dev.to/ben)이 맡았습니다.
+
+## DEV 소셜 이미지의 지난 이력
+
+DEV가 소셜 이미지를 자동으로 만들기 시작한 건 2018년입니다. 당시 Ben이 그 생성 방식을 글로 정리한 적이 있습니다.
+
+[How dev.to dynamically generates social images 보기 →](https://dev.to/ben/how-devto-dynamically-generates-social-images--2c2n)
+
+2023년 8월에는 Ben이 ImageMagick을 이용해 이미지 생성을 자체 인프라로 옮겼습니다([#19949](https://github.com/forem/forem/pull/19826)). 외부 서비스에 맡기던 작업을 직접 호스팅하면서 비용을 크게 줄였고, 이번 리디자인도 그 기반 위에서 진행했습니다.
+
+## 직접 확인해 보려면
+
+커버 이미지가 없는 포스트를 하나 공유해 보면 새 카드를 바로 확인할 수 있습니다. Jess Lee는 X에서 [@thepracticaldev](https://x.com/thepracticaldev)나 본인 계정 [@jessleenyc](https://x.com/jessleenyc)를 태그해 달라고 요청했습니다. 이름이 이상하게 보이거나 인용문이 어색한 위치에서 잘리는 등 문제가 있으면 원문 댓글로 알려 달라고 덧붙였습니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

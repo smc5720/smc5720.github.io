@@ -303,6 +303,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-10-02"
   },
+  "https://dev.to/aws-builders/mcp-token-cost-i-cut-my-mcp-server-from-15-tools-to-4-cek": {
+    "ok": true,
+    "title": "MCP Token Cost: I Cut My MCP Server From 15 Tools to 4",
+    "description": "I rebuilt a real AWS cost-triage MCP server from 15 tools to 4. Same account, same question, 7 tool calls down to 2, schemas 88% smaller.",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F4qgkbjxhfzhet61ya4m0.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-30"
+  },
   "https://dev.to/aws-heroes/you-dont-3d-print-a-house-you-print-your-tools-2h00": {
     "ok": true,
     "title": "You don't 3D print a house. You print your tools.",
@@ -638,6 +646,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Flnzuca87fkfm3mn4pd1x.jpg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/dannwaneri/no-human-will-ever-write-code-better-than-llms-better-at-what-1dme": {
+    "ok": true,
+    "title": "No Human Will Ever Write Code Better Than LLMs? Better at What?",
+    "description": "A tweet went around saying: \"No human will ever write code better than LLMs. Accept this fact, stop...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fyef0r2qscs29hbs0j5ba.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-30"
   },
   "https://dev.to/dannwaneri/someone-else-pays-for-your-ai-access-5149": {
     "ok": true,
@@ -1118,6 +1134,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ftum9bejx0l3cghun1wlg.jpg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/devteam/your-dev-posts-have-a-beautiful-new-share-card-4be8": {
+    "ok": true,
+    "title": "Your DEV posts have a beautiful new share card ✨",
+    "description": "The image that shows up when you share a DEV post just got a brand-new look!  I got to work on...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fzayaadne36cbq4m0gftb.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-30"
   },
   "https://dev.to/dj29/10-prompting-techniques-my-deep-learning-exam-taught-me-that-i-actually-use-now-43h0": {
     "ok": true,
@@ -2934,6 +2958,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fsergei-parfenov.com%2Fassets%2Fai-generated-tests-can-make-coding-agents-worse.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-16"
+  },
+  "https://dev.to/p0rt/last-witness-an-ai-detective-for-a-dead-1999-website-graded-on-its-ghosts-4bbe": {
+    "ok": true,
+    "title": "Last Witness: an AI detective for a dead 1999 website, graded on its ghosts",
+    "description": "This is a submission for the Hacktoberfest Open-Source AI Challenge Week 4: Ghost in the Machine    ...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fp0rt.github.io%2Flast-witness%2Fmedia%2Fcover.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-30"
   },
   "https://dev.to/p0rt/the-model-scored-30-the-harness-scored-100-which-one-did-you-benchmark-3mp4": {
     "ok": true,

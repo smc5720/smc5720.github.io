@@ -1,0 +1,173 @@
+﻿---
+title: "MCP 서버 도구 15개를 4개로 줄였더니 — 토큰 비용과 호출 횟수가 함께 줄었다"
+description: "한 개발자가 AWS 비용 점검용 MCP 서버를 도구 15개에서 4개로 다시 만들었습니다. 같은 계정에 같은 질문을 던졌을 때 도구 호출은 7회에서 2회로, 도구 스키마 크기는 88% 줄었습니다."
+date: "2026-10-26"
+published_at: "2026-10-30"
+category: "news"
+tags: ["mcp", "aws", "ai", "discuss"]
+cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F4qgkbjxhfzhet61ya4m0.png"
+coverAlt: "MCP Token Cost: I Cut My MCP Server From 15 Tools to 4"
+slug: "mcp-token-cost-cut-mcp-server-15-tools-to-4"
+source_id: "devto-4883971"
+source_url: "https://dev.to/aws-builders/mcp-token-cost-i-cut-my-mcp-server-from-15-tools-to-4-cek"
+source_title: "MCP Token Cost: I Cut My MCP Server From 15 Tools to 4"
+source_author: "Sarvar Nadaf"
+source_published: "2026-10-26"
+---
+
+<LinkCard url="https://dev.to/aws-builders/mcp-token-cost-i-cut-my-mcp-server-from-15-tools-to-4-cek" author="Sarvar Nadaf" date="2026-10-26" />
+
+## 개요
+
+GitHub 공식 MCP 서버는 질문을 하나도 받기 전에 도구 정의 93개를 불러옵니다. 여기에만 약 55,000 토큰이 들어갑니다. 컨텍스트 창이 200K라면 에이전트가 일을 시작하기도 전에 4분의 1 넘게 써버리는 셈입니다.
+
+AWS 커뮤니티 빌더 Sarvar Nadaf는 직접 재보기로 했습니다. 먼저 흔히들 만드는 방식대로 AWS MCP 서버를 하나 만들어 Kiro에 연결하고 "이 계정에서 돈이 새는 곳이 어디야?"라고 물었습니다. 답이 나오기까지 도구를 **7번** 호출했습니다. 다음으로 AWS가 공개한 도구 설계 가이드를 따라 같은 서버를 다시 만들었습니다. 같은 계정에 같은 질문을 던지자 호출은 **2번**으로 끝났습니다. 도구는 15개에서 4개가 됐고 도구 스키마는 88% 작아졌습니다.
+
+두 버전의 코드는 한 저장소에 함께 올라가 있어 차이를 직접 비교해볼 수 있습니다.
+
+[GitHub 저장소 보기 →](https://github.com/simplynadaf/aws-lean-mcp)
+
+## 본문
+
+### MCP 서버가 에이전트를 망치는 두 가지 방식
+
+AWS는 2026년 7월 [MCP tool design: Practical approaches and tradeoffs](https://aws.amazon.com/blogs/machine-learning/mcp-tool-design-practical-approaches-and-tradeoffs/)라는 글에서 문제를 두 가지로 정리했습니다. 두 문제는 서로를 키웁니다.
+
+**비대화(Bloat).** 도구 정의는 모델이 쓰든 안 쓰든 매번 컨텍스트에 실립니다. 스키마 하나가 550~1,400 토큰이니 도구가 50개면 작업 전에 이미 30,000~70,000 토큰이 나갑니다. MCP 서버를 5~10개 설치한 일반적인 Claude Code 세션은 [첫 프롬프트를 입력하기 전에 50,000~67,000 토큰을 소모한다](https://getunblocked.com/blog/mcp-token-budget-autopsy/)는 분석도 있습니다. 이 비용은 대화가 한 턴 오갈 때마다 다시 붙습니다.
+
+**혼동(Confusion).** 컨텍스트가 차고 `describe_volumes`, `describe_addresses`, `describe_snapshots`처럼 이름도 역할도 비슷한 도구가 늘어나면 모델은 엉뚱한 도구를 고릅니다. 파라미터를 잘못 넘겨 빈 결과를 받고 다시 시도합니다. 재시도할 때마다 토큰이 더 쌓입니다. 비대화가 혼동을 부르고 혼동이 다시 비대화를 부르는 악순환입니다.
+
+뿌리는 같습니다. API 엔드포인트 하나하나를 도구로 감싸 30개쯤 내보내는 방식입니다. 빠짐없어 보이지만 함정이라고 저자는 말합니다.
+
+![나무 위에 'TOKEN'이라고 놓인 스크래블 타일](https://images.pexels.com/photos/30901563/pexels-photo-30901563.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Markus Winkler](https://www.pexels.com/photo/scrabble-tiles-spelling-token-on-wooden-surface-30901563/) on [Pexels](https://www.pexels.com/photo/scrabble-tiles-spelling-token-on-wooden-surface-30901563/)*
+
+### v1: 일부러 잘못 만든 15개짜리 서버
+
+`server_v1_bloated.py`는 실제로 많이들 배포하는 모습 그대로 만들었습니다. boto3 호출 하나를 얇게 감싼 도구가 15개입니다.
+
+```python
+@mcp.tool()
+def describe_volumes() -> dict:
+    """Describe Amazon EBS volumes in the account for the configured region.
+
+    This tool calls the EC2 DescribeVolumes API and returns the complete
+    response payload for every EBS volume it can see. Use this tool when you
+    need to inspect block storage devices, their attachment state, size in
+    GiB, volume type (gp2, gp3, io1, io2, st1, sc1, standard), encryption
+    status, IOPS, throughput, the Availability Zone, creation timestamp, and
+    the list of tags. A volume whose State field is 'available' is not
+    attached to any instance and may be wasted spend...
+    """
+    return ec2.describe_volumes(Filters=_DEMO_FILTER)
+```
+
+위 docstring도 글에 싣느라 줄인 것이고, 저장소에 있는 원본은 더 깁니다. 이 코드에는 문제가 세 가지 있습니다.
+
+- 긴 docstring이 호출할 때마다 컨텍스트에 실립니다.
+- boto3 응답 40개 필드를 통째로 돌려줍니다. 에이전트가 읽지도 않을 필드까지 받으니 응답도 비대해집니다.
+- "돈이 새는 곳"을 찾으려면 에이전트가 볼륨, 탄력적 IP, 스냅샷, 로드 밸런서를 차례로 조회하고 결과를 직접 엮어야 합니다.
+
+실제로 Kiro에서 질문하자 에이전트는 `get_caller_identity`, `describe_volumes`, `describe_addresses`, `describe_snapshots`, `describe_instances`, `describe_nat_gateways`, `describe_load_balancers`를 하나씩 호출했습니다. 답은 나왔지만 이것저것 더듬어 찾는 과정이었습니다.
+
+### v2: 다섯 가지를 고쳐 4개로
+
+`server_v2_lean.py`의 기능은 v1과 똑같습니다. 읽기 전용 점검 항목도, 대상 계정도, 찾아내는 결과도 같습니다. 다른 점은 AWS 가이드를 단계별로 적용했다는 것뿐입니다.
+
+**1. 결과 단위로 도구 묶기.** 얇은 래퍼 15개를 지우고, 업무 하나를 끝까지 처리하는 도구 4개를 만들었습니다. 대표가 `find_waste`입니다.
+
+```python
+@mcp.tool()
+def find_waste(scope: Literal["account", "region", "service"] = "account",
+               detail: bool = False) -> dict:
+    """Find wasted AWS spend in one call. Returns each finding with 5 decision
+    fields (id, kind, size/ip, why, region). Set detail=True for the full blob.
+    """
+```
+
+도구가 내부에서 점검을 모두 돌리고 결과만 돌려주므로 질문 하나에 호출 한 번이면 됩니다.
+
+**2. 스키마로 입력 제한하기.** `scope`는 자유 텍스트가 아니라 `Literal` 타입입니다. 모델이 엉뚱한 값을 넣을 수 없고 무엇을 넣을지 추측할 필요도 없습니다. AWS Prescriptive Guidance는 도구당 파라미터를 [8개 안팎 이하](https://docs.aws.amazon.com/prescriptive-guidance/latest/mcp-strategies/)로 두라고 권하는데, 여기서는 도구마다 2개뿐입니다.
+
+**3. 응답 줄이기.** `find_waste`는 기본으로 판단에 필요한 필드 다섯 개만 돌려줍니다. 전체 데이터가 정말 필요할 때만 `detail=True`를 넘깁니다. Anthropic도 MCP 코드 실행 가이드에서 같은 이야기를 합니다. 결과를 모델에 넘기기 전에 걸러서, 에이전트가 만 줄이 아니라 다섯 줄만 읽게 하라는 것입니다.
+
+```python
+if not detail:
+    keep = ("id", "kind", "size_gib", "public_ip", "why", "region", "source_volume")
+    findings = [{k: v for k, v in f.items() if k in keep} for f in findings]
+```
+
+**4. 허용값은 필요할 때만 보여주기.** 쓸 수 있는 값을 도구 설명마다 다 적지 않고, 작은 `describe_scope()` 도구로 따로 뺐습니다. 에이전트는 입력값을 확인해야 할 때만 이 도구를 부릅니다. Anthropic은 정의를 필요할 때만 불러오는 Tool Search 방식으로 토큰을 최대 85% 줄였다고 밝힌 바 있습니다.
+
+**5. 쓸모 있는 오류 메시지.** scope 값이 틀리면 "no results" 대신 `"scope must be one of: account, region, service"`를 돌려줍니다. 앞의 메시지로는 모델이 스스로 고칠 수 있지만, "결과 없음"만 받으면 재시도를 반복하게 됩니다.
+
+같은 질문에 v2 서버는 `find_waste`를 한 번 부르고, 이어서 `estimate_savings`로 비용을 계산했습니다. 호출은 두 번이었습니다.
+
+### 결과 비교
+
+같은 읽기 전용 에이전트로 us-east-1의 실제 AWS 계정에 같은 질문을 던졌습니다. 아래 숫자는 모두 실제 실행을 녹화하며 얻은 값입니다.
+
+| 지표 | v1 (비대) | v2 (경량) | 변화 |
+|------|-----------|-----------|------|
+| 노출 도구 수 | 15 | 4 | -73% |
+| 도구 설명 크기 (문자 수, 스키마 토큰의 근사치) | 7,898 | 897 | -88% |
+| 답까지의 도구 호출 | 7 | 2 | -71% |
+| 찾아낸 리소스 | ID 3개 | 같은 3개 | 동일 |
+| 실제 Price List API 기반 금액 | 예 | 예 | 동일 |
+| 변경 작업 시도 | 없음 | 없음 | 읽기 전용 유지 |
+
+두 버전이 찾아낸 낭비 리소스는 같았습니다.
+
+- `vol-0c85bd44ef6f9c19d`: 어디에도 연결되지 않은 8GiB gp2 볼륨. 월 약 0.80달러.
+- `snap-0e8e4ff717cead51e`: 원본 없이 남은 8GiB 스냅샷. 월 약 0.40달러.
+- `eipalloc-000992c9956cfaaa5`: 연결되지 않은 탄력적 IP. 가격 도구에서 확인된 요금을 받지 못하자 에이전트는 금액을 짐작하지 않고 "not verified"로 표시했습니다. 저자가 일부러 넣은 동작입니다.
+
+비용으로 바꿔보면 이렇습니다. v1의 정의 7,898자는 입력 토큰 약 2,000개, v2의 897자는 약 225개입니다. 이 차이가 매 턴 반복됩니다. 입력 토큰 100만 개당 3달러인 Claude Sonnet 기준으로는 호출 한 번에 1센트도 안 되는 금액입니다. 그런데 이 값에 턴 수, 에이전트 수, 개발자 수가 곱해지고, 실제 운영 환경은 도구가 15개가 아니라 90개를 넘습니다. 데모에서는 반올림 오차 수준이던 금액이 팀 단위로 가면 예산 항목이 된다는 게 저자의 설명입니다.
+
+### 컨텍스트 사용률은 거의 안 변했다
+
+저자는 이 부분을 솔직하게 털어놓습니다. 작은 데모에서 Kiro `/context`로 본 도구 예산은 1.1%에서 0.8%로 줄었을 뿐입니다. 200K 창에 비하면 작은 도구 15개도 여전히 작고, 두 에이전트 모두 공용 가격 조회 서버가 예산 대부분을 차지했기 때문입니다.
+
+그래서 "72%에서 8%로" 같은 극적인 수치를 자기 데모 결과처럼 보여주지 않겠다고 밝혔습니다. 직접 재서 녹화한 수치는 표에 있는 숫자, 즉 호출 7회에서 2회, 도구 15개에서 4개, 스키마 88% 축소입니다.
+
+55,000 토큰짜리 GitHub 서버나 "[에이전트가 행동하기 전에 컨텍스트의 72%가 소진된다](https://milvus.io/blog/is-mcp-dead-cli-and-skills-for-ai-agents.md)" 같은 큰 숫자는 운영 규모에서 나온 업계 자료라고 따로 구분했습니다. 핵심은 방향입니다. 도구 15개에서 0.3%를 아끼는 설계 원칙이 도구 90개 이상인 환경에서는 20% 이상을 아낍니다.
+
+### AWS 공식 서버도 도구가 적다
+
+AWS가 관리하는 공식 AWS MCP Server는 AWS 전체를 다루면서도 도구가 8개 정도입니다. 2026년 7월에는 `call_aws` 도구를 폐기하고 `run_script` 하나로 합쳐 범위를 더 좁혔습니다. 문서에도 "프롬프트에서 특정 도구 이름을 언급하지 말고, 에이전트가 알맞은 도구를 고르게 하라"고 적혀 있습니다.
+
+결과 단위로 묶은 작은 도구 세트에 필요할 때만 불러오는 컨텍스트를 더하는 방식은 AWS가 대표 서버를 만들 때 쓰는 방식이라고 저자는 설명합니다.
+
+### 직접 따라해보기
+
+두 서버 모두 저장소에 들어 있습니다.
+
+```bash
+git clone https://github.com/simplynadaf/aws-lean-mcp.git
+cd aws-lean-mcp
+```
+
+에이전트 없이도 차이를 확인할 수 있습니다.
+
+```bash
+python3 scripts/smoke_test.py
+# 15 -> 4 tools, 897 vs 7898 description chars (88% fewer), real IDs from both servers
+```
+
+그다음 두 서버를 각각 Kiro에 연결하고 같은 프롬프트로 A/B 테스트를 하면 됩니다. 에이전트 JSON 설정과 읽기 전용 IAM 가이드도 저장소에 있습니다. 서버는 `Describe`, `Get`, `List` 계열 API만 호출하고, 코드에 쓰기 작업은 하나도 없습니다.
+
+점검할 리소스가 필요하면 `scripts/create-demo-resources.sh`를 실행하면 됩니다. 비용이 적게 드는 낭비 리소스를 태그를 붙여 몇 개 만들어주고, 정리 스크립트를 돌리면 전부 삭제됩니다.
+
+### 직접 만들어보고 알게 된 것 세 가지
+
+**docstring이 곧 스키마다.** FastMCP에서는 Python docstring과 타입 힌트가 그대로 모델이 보는 도구 정의가 됩니다. 그러니 도구를 하나 작성할 때마다 코드 수준에서 비대하게 갈지 가볍게 갈지를 정하게 됩니다. 세 문단짜리 docstring은 호출할 때마다 세 문단이 실린다는 뜻입니다.
+
+**도구를 나누면 스키마가 오히려 작아질 수 있다.** 직관과 반대입니다. 하지만 두꺼운 설명에 들어 있던 허용값을 `describe_scope()` 같은 별도 도구로 빼면 매 턴 보내는 양이 줄어듭니다. 대신 그 정보가 정말 필요할 때 왕복이 한 번 늘어납니다.
+
+**응답 비대화가 문제의 절반인데 아무도 말하지 않는다.** 다들 도구 정의 크기는 세면서 도구가 돌려주는 두꺼운 JSON은 세지 않습니다. 필드 50개 대신 5개만 기본으로 돌려주는 것이 가장 싸게 얻는 개선이고, 그 효과는 호출마다 쌓입니다.
+
+저자는 MCP 서버를 더 늘릴 게 아니라 지금 쓰는 서버를 제대로 만들면 된다고 정리했습니다. 독자에게는 가장 자주 쓰는 MCP 서버를 열어 도구가 몇 개인지 세어보라고 권합니다. 10개 미만인지, 30개를 넘었는지 확인해보라는 것입니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
