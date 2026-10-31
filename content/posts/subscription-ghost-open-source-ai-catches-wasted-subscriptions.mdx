@@ -1,0 +1,149 @@
+﻿---
+title: "안 보는 프라임 비디오에 1,499루피 낼 뻔했다 — 오픈소스 AI가 잡아낸 '유령 구독'"
+description: "인도 개발자 Sarvar Nadaf가 TabPFN과 Gemma 3로 새는 구독료를 찾아주는 로컬 앱 'Subscription Ghost'를 만들었습니다. 예시 사용자의 구독 9개에서 연간 29,056루피의 낭비를 찾아냈고, 은행 계정 연동 없이 내 컴퓨터에서만 돌아갑니다."
+date: "2026-10-29"
+published_at: "2026-10-31"
+category: "news"
+tags: ["devchallenge", "hf26challenge", "ai", "discuss"]
+cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fkq60c74xtu4fymx64ek2.png"
+coverAlt: "I Almost Paid ₹1,499 for Prime Video I Never Use. An Open-Source AI Model Caught It."
+slug: "subscription-ghost-open-source-ai-catches-wasted-subscriptions"
+source_id: "devto-4938623"
+source_url: "https://dev.to/sarvar_04/i-almost-paid-1499-for-prime-video-i-never-use-an-open-source-ai-model-caught-it-1egm"
+source_title: "I Almost Paid ₹1,499 for Prime Video I Never Use. An Open-Source AI Model Caught It."
+source_author: "Sarvar Nadaf"
+source_published: "2026-10-29"
+---
+
+<LinkCard url="https://dev.to/sarvar_04/i-almost-paid-1499-for-prime-video-i-never-use-an-open-source-ai-model-caught-it-1egm" author="Sarvar Nadaf" date="2026-10-29" />
+
+## 개요
+
+인도 개발자 Sarvar Nadaf는 통신사 요금제(Airtel Black)에 딸려 온 아마존 프라임 1년 무료 혜택이 끝나자 정가 1,499루피를 그대로 청구받을 뻔했습니다. 정작 프라임 비디오는 한 번도 본 적이 없었습니다. 그가 프라임을 쓰는 이유는 무료 배송 하나뿐이었고, 배송 혜택만 주는 'Prime Shopping Edition'은 연 399루피입니다. 쓰지도 않는 기능 때문에 해마다 1,100루피가 빠져나가고 있었던 셈입니다.
+
+이 경험을 계기로 그는 **Subscription Ghost**를 만들었습니다. 구독 목록을 넣으면 어떤 구독이 돈을 새게 만드는 '유령'인지 예측하고, 구독마다 할 일 하나와 돌려받을 금액을 알려 주는 앱입니다. Hacktoberfest 오픈소스 AI 챌린지 4주 차(주제: Ghost in the Machine) 출품작이고, 모든 처리는 사용자 컴퓨터 안에서 무료로 끝납니다. 은행 로그인 정보는 요구하지 않습니다.
+
+## 본문
+
+### 싼 프린터와 비싼 잉크
+
+작성자는 대학 시절부터 궁금한 게 있었습니다. 왜 프린터는 거의 공짜이고, 게임기는 손해를 보면서 팔고, 커피 머신은 선물처럼 싼가. 몇 년이 지나서야 답을 알았다고 합니다. 진짜 상품은 기계가 아니라 잉크, 게임, 캡슐, 멤버십이었습니다. 기계는 끝없이 날아올 청구서에 가입시키는 미끼였던 거죠.
+
+요즘은 이 미끼가 구독입니다. 앱은 무료로 받고 첫 달도 공짜지만, 수익은 사용자가 동의했다는 사실조차 잊은 뒤 매달 반복되는 소액 결제에서 나옵니다. 작성자는 이것을 가격 정책의 허점이 아니라 가격 정책 그 자체로 봤습니다. 그의 프라임 사례로 치면 1년 무료는 싼 프린터였고, 1,499루피 갱신이 잉크였습니다.
+
+![계산기와 서류](https://images.pexels.com/photos/7111490/pexels-photo-7111490.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Tara Winstead](https://www.pexels.com/@tara-winstead) on [Pexels](https://www.pexels.com/photo/black-calculator-beside-white-papers-7111490/)*
+
+### 유령은 네 종류
+
+Subscription Ghost는 새는 구독을 네 가지로 나눕니다.
+
+- **과잉 요금제(Over-tier)**: 묶음 상품 중 일부만 쓰는데, 더 싼 요금제로 충분한 경우. 작성자의 프라임이 여기에 해당하며 연 1,100루피입니다.
+- **방치(Abandoned)**: 1년치를 선결제해 놓고 발길을 끊은 경우. 새해에 끊은 헬스장이 대표적입니다. 작성자는 이런 사람이 80%라고 적었습니다.
+- **사용 중단(Dead)**: 돈은 내는데 거의 열지 않는 경우.
+- **가격 인상(Price crept)**: 가격이 슬그머니 올랐는데 알아채지 못한 경우.
+
+예시 사용자의 구독 9개를 분석해 보니 **연 29,056루피**가 새고 있었고, 앱은 구독마다 옮겨 갈 더 싼 요금제를 정확히 짚어 줬습니다.
+
+가장 큰 낭비는 의외였습니다. 사진이 40GB면 충분한 사람이 **iCloud+ 2TB 요금제에 연 8,988루피**를 내고 있었습니다. 연 900루피인 50GB 요금제로도 넉넉하니, 아무도 채우지 않는 저장 공간에 해마다 8,088루피를 버린 셈입니다. 2위는 헬스장(8,333루피)이었고, 이 프로젝트의 출발점인 프라임은 1,100루피로 한참 아래였습니다. 작성자는 작은 금액이 큰 금액을 가린다며, 그래서 명세서를 직접 훑는 것보다 순위를 매긴 예측이 낫다고 설명합니다.
+
+### 한 줄만 봐서는 안 보이는 중복 결제
+
+항목 하나하나만 봐서는 잡히지 않는 유령도 있습니다. **같은 기능에 두 번 이상 돈을 내는 경우**입니다. 예시 사용자는 아마존 프라임, YouTube Premium, Spotify를 모두 구독하는데, 셋 다 음악을 재생할 수 있습니다. 따로 보면 하나같이 멀쩡해 보이니 항목별 점검으로는 걸리지 않습니다.
+
+Subscription Ghost는 목록 전체를 한꺼번에 보고 음악 구독이 셋이라는 걸 찾아냅니다. 그리고 이미 내고 있는 다른 서비스에 묶여 있는 것 하나만 남기고 나머지 둘은 해지하라고 권합니다. 이 중복만 **연 5,376루피**입니다. 작성자는 기능이 실제로 겹칠 때만 표시하도록 기준을 일부러 보수적으로 잡았다고 했습니다. 실제로 앉아서 듣는 음악 서비스까지 끊으라고 하지는 않는다는 뜻입니다.
+
+같은 이유로, 무조건 "다 해지하세요"라고 외치지도 않습니다. 예시 목록에서도 구독 세 개는 **제값을 한다(worth it)** 고 표시했습니다. 작성자의 말대로 쓸모 있는 것까지 건드리는 도구는 믿을 수 없고, 결국 사용자가 닫아 버리게 됩니다.
+
+### 데모: 10초면 흐름이 보인다
+
+설치 없이 바로 써 볼 수 있고, 업로드되는 데이터도 없습니다: [Subscription Ghost 데모 →](https://simplynadaf.github.io/subscription-ghost/)
+
+처음 열면 예시 사용자의 구독 목록이 떠 있습니다. 카탈로그에서 서비스를 골라 내 구독을 추가할 수 있고, 가격은 자동으로 채워집니다. 유령 항목을 누르면 판정과 해결책이 나오고, "Stop this leak"를 누르면 새는 총액이 줄어듭니다.
+
+작성자는 헬스장 항목부터 눌러 보라고 권합니다. 1년치를 선결제하고 2월에 그만두면 8,333루피가 날아가지만, 월 결제였다면 안 가게 된 달부터 돈을 안 냈을 거라고 알려 줍니다. "Stop this leak"를 누르면 8,333루피가 새는 총액에서 회수 금액으로 옮겨 갑니다. 새는 곳을 보고, 한 줄로 이해하고, 막는 것. 앱이 하는 일은 이게 전부입니다.
+
+![Subscription Ghost ranking subscriptions worst first, each with a ghost badge, the rupees it wastes, and the exact cheaper plan](https://raw.githubusercontent.com/simplynadaf/subscription-ghost/main/docs/ui-hero.png)
+
+### 코드와 실행 방법
+
+[GitHub 저장소 보기 →](https://github.com/simplynadaf/subscription-ghost)
+
+GPU나 API 키 없이 일반 CPU에서 돌아갑니다.
+
+```bash
+# runs on a plain CPU, no GPU, no key
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+ollama pull gemma3:1b          # optional; falls back cleanly without it
+python scripts/build_dataset.py
+python scripts/validate.py     # asserts the whole pipeline end to end
+python run.py                  # http://127.0.0.1:8080
+```
+
+## 구조: 판단은 TabPFN, 글은 Gemma
+
+오픈 모델 두 개가 각자 한 가지 일만 맡고, 둘 다 CPU에서 돌아갑니다.
+
+![How it works: your subscriptions go into TabPFN which predicts the waste and ranks them, then Gemma writes the verdict and the exact cheaper plan, with a deterministic fallback](https://raw.githubusercontent.com/simplynadaf/subscription-ghost/main/docs/architecture.png)
+
+### TabPFN-v2가 판단한다
+
+Prior Labs가 공개한 표 형식 데이터용 파운데이션 모델 TabPFN-v2는 구독 정보를 담은 작은 표를 읽습니다. 표에는 요금, 사용 빈도, 구독 기간, 가격 인상 여부, 연간 선결제 여부가 들어갑니다. 모델은 forward pass 한 번으로 구독별 연간 낭비 금액을 예측하고 큰 순서대로 줄을 세웁니다. 작성자가 학습 루프를 따로 짤 필요는 없었습니다. 작은 표를 넣고 바로 예측을 받는 것이 TabPFN이 원래 잘하는 일이고, 공개된 v2 가중치를 써서 스택 전체를 오픈으로 유지했습니다. CPU에서 몇 초면 끝납니다.
+
+"N번 미만으로 쓰면 해지" 같은 규칙 목록을 쓰지 않은 것은 의도한 선택입니다. 현실이 기준선과 조금만 어긋나도 임계값은 무너집니다. 한 달에 두 번 여는 앱이 제값을 할 수도 있고, 습관처럼 매일 여는 앱이 이미 필요 이상으로 큰 요금제일 수도 있습니다. 모델은 깨지기 쉬운 기준선 하나가 아니라 표 전체에서 낭비의 패턴을 배웁니다. 우선순위를 정하는 도구에서 중요한 건 순서이기 때문에, 작성자는 금액 자체보다 순위의 정확도를 평가 기준으로 삼았습니다.
+
+### Gemma 3가 설명한다
+
+Ollama로 띄운 로컬 Gemma 3 모델은 판단 결과를 두 줄로 풀어 씁니다. 판정 한 줄, 할 일 한 줄입니다. 모델에는 실제 숫자를 건네고, 주어지지 않은 가격이나 수치는 지어내지 못하게 합니다. 출력된 루피 금액은 전부 입력값과 대조하고, 받은 적 없는 숫자가 섞인 문장은 지웁니다.
+
+### 가격은 카탈로그에서
+
+가격과 저렴한 대체 요금제는 모델이 아니라 실제 2026년 가격 카탈로그에서 가져옵니다. 아마존 프라임, 넷플릭스, JioHotstar, Spotify, 헬스장 멤버십 등이 들어 있습니다. 그래서 "연 399루피 Prime Shopping Edition으로 옮기세요"라는 안내가 환각이 아니라 실제로 있는 요금제가 됩니다.
+
+모델 가중치나 Ollama가 없을 때를 대비해 두 단계 모두 결정론적 폴백(deterministic fallback)을 갖췄습니다. 앱은 절대 멈추지 않고, 응답에 어느 경로로 처리했는지 표시합니다. 프런트엔드는 Tailwind와 GSAP로 만든 파일 하나짜리 페이지이고, 휴대폰·태블릿·데스크톱에서 모두 돌아가는 어두운 금융 앱 스타일입니다.
+
+### 성적표: 놓친 3개까지 공개
+
+예측 도구인 만큼 작성자는 성능을 그대로 공개했습니다. 구독 데이터의 75%로 TabPFN을 학습시키고, 모델이 본 적 없는 나머지 25%로 평가한 결과입니다.
+
+```plaintext
+scorecard (held-out, synthetic subscriptions)
+  engine:              tabpfn
+  mae_rupees:          523     # waste prediction lands within ~500 rupees
+  rank_correlation:    0.971   # the worst-first ORDER is strong
+  precision_at_k:      0.85    # of the 20 it flags most wasteful, 17 are truly top tier
+  rupees_captured_pct: 96      # its top flags capture 96% of the real rupee waste
+  missed:              3       # and it still MISSES 3 real ghosts
+```
+
+- 낭비 금액 예측 오차는 평균 약 523루피입니다.
+- 순위 상관계수는 0.971로, 낭비가 큰 순서는 잘 맞힙니다.
+- 낭비가 크다고 표시한 상위 20개 중 17개가 실제로도 상위권이었습니다.
+- 상위로 표시한 항목이 실제 낭비 금액의 96%를 잡아냈습니다.
+- 그래도 실제 유령 3개는 **놓쳤습니다.**
+
+작성자는 이 `missed: 3`이 가장 중요한 숫자라고 했습니다. Subscription Ghost는 정답을 내려 주는 도구가 아니라, 순서를 대체로 맞히지만 가끔 틀리는 우선순위 정리 도구라는 뜻입니다. "내가 몰래 안 쓰는 구독" 같은 공개 데이터셋은 없어서 학습 데이터는 합성 데이터이고, 그렇다고 명시했습니다. 다만 추론에 쓰는 가격은 실제 가격입니다.
+
+## 왜 오픈이어야 하나
+
+작성자의 답은 간단합니다. **새는 돈을 찾는 도구가 또 하나의 새는 구멍이 되면 안 된다**는 것입니다. 인기 있는 구독 관리 앱들은 은행 계좌 연동을 요구한 뒤 모든 거래를 계속 지켜보고, 상당수는 월 이용료까지 받습니다. 구독을 해지하려고 구독료를 내고, 잊어버린 결제를 찾으려고 금융 거래 내역 전체를 제3자에게 넘기는 모순이 생깁니다.
+
+Subscription Ghost는 공개 가중치로 TabPFN과 Gemma를 사용자 컴퓨터에서 돌리고, 비용은 0루피입니다. 사용자가 입력한 정보만 읽고 아무것도 업로드하지 않습니다. 은행 로그인도, 계정도, 청구서도 없습니다. 작성자는 데이터와 구독료가 곧 사업 모델인 폐쇄형 API는 이런 약속을 할 수 없다고 지적합니다.
+
+오픈이라서 가능한 일은 두 가지가 더 있습니다. 하나는 앞의 성적표처럼 놓친 결과까지 공개해 사용자가 얼마나 믿을지 직접 판단하게 하는 것입니다. 다른 하나는 모델 출력과 실제 숫자를 나란히 놓고 볼 수 있었기 때문에, 지어낸 수치를 지우는 규칙을 만들고 테스트까지 작성할 수 있었다는 점입니다. 닫힌 모델은 이렇게 들여다볼 수 없습니다.
+
+### 결국 '알아차리는' 기계
+
+작성자는 프로젝트를 만들면서 자기 프라임 요금을 다시 확인했고, 쇼핑 전용 요금제로 바꿀 계획이라고 밝혔습니다. 무료 체험, 자동 갱신, 이미 넘어선 요금제, 중복 결제는 모두 "매번 반복되는 소액 결제는 결국 눈에 안 들어온다"는 같은 가정에 기대고 있습니다. Subscription Ghost는 정반대에 건 도구입니다. 알아차리는 것만이 할 일인 작은 오픈 모델이 내 노트북에서 돌아가고, 주인도 없고 요금도 없습니다. 작성자의 표현으로는 기계 속 유령은 조용한 결제였고, 이 앱은 그 유령을 잡는 기계입니다.
+
+### 출품 부문
+
+- **Best Use of TabPFN**: TabPFN이 모든 구독을 연간 예상 낭비 금액으로 줄 세우는 것이 이 앱의 핵심이고, 학습에 쓰지 않은 데이터로 성능을 평가했습니다.
+- **Best Use of Gemma**: 로컬 Gemma 3가 판정과 할 일을 쓰고, 숫자를 지어내지 못하게 하는 규칙을 코드로 강제합니다.
+
+작성자는 이 챌린지 시리즈에서 이미 써 본 엔진 구조(공개 가중치 예측 모델 + 로컬 Gemma 작성기 + 결정론적 폴백)를 재사용했다고 밝혔습니다. 프로젝트, 저장소, 아이디어는 모두 새로 만들었고, 4주 차 기간 안에 처음부터 개발했다고 합니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

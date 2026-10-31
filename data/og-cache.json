@@ -1095,6 +1095,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-10-18"
   },
+  "https://dev.to/devteam/what-was-your-win-this-week-47ci": {
+    "ok": true,
+    "title": "What was your win this week?",
+    "description": "👋👋👋👋 Looking back on your week -- what was something you're proud of? All wins count -- big or small...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F8upd03ge8c0a414jq3ai.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-31"
+  },
   "https://dev.to/devteam/what-was-your-win-this-week-4jli": {
     "ok": true,
     "title": "What was your win this week?",
@@ -3183,6 +3191,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-10-25"
   },
+  "https://dev.to/sarvar_04/i-almost-paid-1499-for-prime-video-i-never-use-an-open-source-ai-model-caught-it-1egm": {
+    "ok": true,
+    "title": "I Almost Paid ₹1,499 for Prime Video I Never Use. An Open-Source AI Model Caught It.",
+    "description": "This is a submission for the Hacktoberfest Open-Source AI Challenge Week 4: Ghost in the Machine    ...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fkq60c74xtu4fymx64ek2.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-31"
+  },
   "https://dev.to/sarvar_04/i-built-a-15-landing-page-about-mumbais-soul-food-1l78": {
     "ok": true,
     "title": "I Built a ₹15 Landing Page About Mumbai's Soul Food",
@@ -3254,6 +3270,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fy9dafjoya96jo2natv7r.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-10-24"
+  },
+  "https://dev.to/sizzlebop/is-tech-actually-welcoming-to-beginners-or-do-we-just-say-it-is-3d6p": {
+    "ok": true,
+    "title": "Is Tech Actually Welcoming to Beginners, or Do We Just Say It Is?",
+    "description": "We hear it all the time in tech.  Everyone starts somewhere. There are no stupid questions. Don't be...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F3yc1pejankke91kwx544.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-31"
   },
   "https://dev.to/sizzlebop/the-terminal-made-me-a-better-developer-and-not-for-the-reasons-i-expected-nn6": {
     "ok": true,
@@ -3502,6 +3526,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2Fimjd4mru57oe573vb59y.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/sylwia-lask/yes-0-no-javascript-isnt-broken-14ob": {
+    "ok": true,
+    "title": "Yes, {} + [] = 0. No, JavaScript Isn’t Broken",
+    "description": "JavaScript is a legendary programming language. Created in the mid-1990s in just 10 days, it was born...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Folm3zyjvpymz88fwvzrw.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-10-31"
   },
   "https://dev.to/sylwia-lask/your-browser-can-do-what-5-ai-features-that-actually-work-1blb": {
     "ok": true,
