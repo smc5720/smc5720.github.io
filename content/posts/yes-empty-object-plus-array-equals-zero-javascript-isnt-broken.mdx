@@ -4,7 +4,7 @@ description: "빈 객체와 빈 배열을 더하면 0이 나오는 자바스크�
 date: "2026-10-29"
 published_at: "2026-10-31"
 category: "news"
-tags: []
+tags: ["javascript","webdev","programming","beginners","frontend"]
 slug: "yes-empty-object-plus-array-equals-zero-javascript-isnt-broken"
 cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Folm3zyjvpymz88fwvzrw.png"
 coverAlt: "Yes, {} + [] = 0. No, JavaScript Isn't Broken"
@@ -91,11 +91,11 @@ Number("");
 +[] // 0
 ```
 
-저자는 이 코드가 이렇게 멀쩡해 보이는 결과를 내는 언어를 달리 떠올리지 못하겠다고 했습니다. PHP였다면 아마 치명적 오류(fatal error)를 냈을 거라면서, PHP도 나름의 놀라운 동작이 많으니 너무 심하게 탓하진 말자고 덧붙였습니다.
+저자는 이런 코드에서 그럴듯한 결과가 나오는 언어는 자바스크립트 말고는 떠오르지 않는다고 했습니다. PHP였다면 아마 치명적 오류(fatal error)를 냈을 거라면서, PHP도 나름의 놀라운 동작이 많으니 너무 심하게 탓하진 말자고 덧붙였습니다.
 
 ## 맥락이 바뀌면 결과도 바뀐다
 
-중요한 점은 이 동작이 코드를 어떻게 파싱하느냐에 달려 있다는 것입니다.
+핵심은 이 동작이 코드를 어떻게 파싱하느냐에 달려 있다는 데 있습니다.
 
 ```javascript
 // 일반 스크립트에서 독립된 문장일 때
