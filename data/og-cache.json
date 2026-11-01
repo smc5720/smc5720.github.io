@@ -1199,6 +1199,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-26"
   },
+  "https://dev.to/dj29/we-need-to-talk-about-how-gross-modern-web-design-has-become-and-how-we-built-an-ai-to-catch-it-5gin": {
+    "ok": true,
+    "title": "We Need to Talk About How Gross Modern Web Design Has Become (And How We Built an AI to Catch It)",
+    "description": "Let me paint a picture I know you’ve experienced recently.  You’re trying to book a flight, buy...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fb61la8s368galmbcxahw.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-01"
+  },
   "https://dev.to/dumebii/has-the-audience-for-technical-articles-dropped-5ceh": {
     "ok": true,
     "title": "Has the audience for technical articles dropped?",
@@ -1798,6 +1806,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F31hxytlggz1f83c6zhct.jpg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-10-20"
+  },
+  "https://dev.to/gramli/ghost-in-the-shell-can-a-log-file-hijack-an-ai-3gk": {
+    "ok": true,
+    "title": "Ghost in the Shell: Can a Log File Hijack an AI?",
+    "description": "This week's Hacktoberfest theme is Ghost in the Machine. Unfortunately, I don't have enough time to...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F1ijzdipl8b0zzns8cduc.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-01"
   },
   "https://dev.to/gramli/how-i-smashed-a-bug-in-a-shared-authentication-library-33fm": {
     "ok": true,
@@ -2494,6 +2510,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2F8dbl7p43l6racd5q6joi.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/kenwalger/four-ways-a-test-can-lie-to-you-2ibf": {
+    "ok": true,
+    "title": "Four Ways a Test Can Lie to You",
+    "description": "Green and worthless: what verifying one small application taught me, when an AI agent wrote most of...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fjn2ygonhg2bm9uetvhqj.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-01"
   },
   "https://dev.to/kenwalger/i-pulled-nine-years-of-my-own-devto-data-the-numbers-were-not-what-i-expected-37ac": {
     "ok": true,

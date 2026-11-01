@@ -1,0 +1,96 @@
+﻿---
+title: "요즘 웹 디자인, 너무 지저분해졌다 — 다크 패턴을 잡아내는 AI 'OmniGuard'"
+description: "가짜 카운트다운, 숨은 수수료, 죄책감을 자극하는 거절 버튼 같은 다크 패턴을 화면 캡처와 Gemini로 실시간 탐지하는 오픈소스 크롬 확장 OmniGuard AI를 소개합니다."
+date: "2026-10-30"
+published_at: "2026-11-01"
+category: "news"
+tags: []
+slug: "omniguard-ai-dark-pattern-detector"
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fb61la8s368galmbcxahw.png"
+coverAlt: "We Need to Talk About How Gross Modern Web Design Has Become (And How We Built an AI to Catch It)"
+source_id: "devto-4646637"
+source_url: "https://dev.to/dj29/we-need-to-talk-about-how-gross-modern-web-design-has-become-and-how-we-built-an-ai-to-catch-it-5gin"
+source_title: "We Need to Talk About How Gross Modern Web Design Has Become (And How We Built an AI to Catch It)"
+source_author: "Dhruv Jani"
+source_published: "2026-10-30"
+---
+
+<LinkCard url="https://dev.to/dj29/we-need-to-talk-about-how-gross-modern-web-design-has-become-and-how-we-built-an-ai-to-catch-it-5gin" author="Dhruv Jani" date="2026-10-30" />
+
+## 개요
+
+항공권을 예매하거나 공연 티켓을 사거나 PDF 변환기 하나 받으려다 화면이 전쟁터로 바뀌는 경험은 누구나 해봤을 겁니다. "이 가격 남은 좌석 2석!"이라는 경고 문구가 뜨고, 새빨간 타이머가 05:00부터 줄어듭니다. 번쩍이는 "지금 다운로드" 버튼이 세 개나 있는데 그중 두 개는 악성코드로 이어진다는 걸 다들 압니다. 팝업을 닫으려 하면 "괜찮아요, 그냥 정가 내고 불행하게 살게요" 같은 버튼만 남아 있습니다.
+
+Dhruv Jani는 이걸 마케팅이 아니라 **기만적인 설계(deceptive engineering)**라고 부릅니다. 사용자를 속이거나 죄책감을 자극하거나 원하지 않는 행동을 강요하려고 일부러 만든 UI/UX, 흔히 말하는 **다크 패턴(Dark Patterns)**입니다. 웹을 만드는 사람이 개발자인 만큼, 웹이 사용자를 조종하는 상황을 그냥 두면 안 된다는 게 그의 생각입니다.
+
+그래서 그가 속한 [Tarkash Labs](https://github.com/Tarkash-Labs) 팀은 이런 패턴을 실시간으로 잡아내는 도구 **OmniGuard AI**를 만들었습니다.
+
+[YouTube 영상 보기 →](https://www.youtube.com/watch?v=vR4NOdhGkRE)
+
+1분짜리 데모 영상에서 가짜 타이머와 숨은 수수료를 실시간으로 잡아내는 모습을 볼 수 있습니다.
+
+## 어떻게 동작하나
+
+### 정적 차단 목록으로는 부족하다
+
+광고 차단기나 개인정보 보호 확장 프로그램은 대부분 정해진 차단 목록이나 CSS 선택자로 동작합니다. 그런데 요즘 다크 패턴은 동적으로 생성되고, 겉보기엔 평범한 DOM 요소입니다. 팀은 결국 사람이 화면을 보듯 웹을 직접 '보는' 도구가 필요하다고 판단했습니다.
+
+OmniGuard는 Manifest V3 기반 크롬 확장 프로그램이고, 뒤에서는 **FastAPI 백엔드**와 **Gemini 3.7 Flash**가 돌아갑니다. 처리 흐름은 세 단계입니다.
+
+**1. 눈 — React 18 + Vite 확장 프로그램**
+사용자가 "Scan"을 누르거나 스크롤 시 자동 스캔을 켜두면, 확장 프로그램이 현재 보이는 화면(viewport)을 강하게 압축한 일회성 스크린샷으로 찍습니다.
+
+**2. 두뇌 — FastAPI + Gemini 3.7 Flash**
+캡처한 이미지는 상태를 저장하지 않는(stateless) FastAPI 백엔드로 넘어갑니다. 여기서 Gemini 3.7 Flash의 멀티모달 기능으로 페이지의 시각적 맥락을 분석합니다. 코드를 읽는 데서 그치지 않고 UI가 실제로 어떻게 보이는지를 이해한다는 점이 핵심입니다.
+
+**3. 방패 — Shadow DOM 주입**
+Gemini가 다크 패턴을 찾으면 백엔드가 해당 요소의 정확한 좌표를 확장 프로그램으로 스트리밍합니다. 확장 프로그램은 페이지 위에 **Shadow DOM** 레이어를 얹고, 문제의 요소마다 빨갛게 빛나는 박스를 그립니다. Shadow DOM을 쓰기 때문에 확장 프로그램의 CSS가 원래 페이지 스타일과 섞이지 않습니다.
+
+## OmniGuard가 잡아내는 6가지 다크 패턴
+
+![스마트폰을 사용하는 사람의 손](https://images.pexels.com/photos/6964143/pexels-photo-6964143.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [cottonbro studio](https://www.pexels.com/@cottonbro) on [Pexels](https://www.pexels.com/photo/close-up-shot-of-a-person-using-smartphone-6964143/)*
+
+현재 OmniGuard는 시각적 기만을 여섯 가지 유형으로 나눠 탐지합니다.
+
+**1. 위장 클릭 (Disguised Clicks)**
+다른 기능인 척하는 버튼입니다. 광고나 악성코드로 연결되는 가짜 다운로드 버튼이 대표적입니다.
+![OmniGuard catching disguised clicks](https://raw.githubusercontent.com/Tarkash-Labs/OmniGuard/main/assets/disguised-clicks.png)
+
+**2. 컨펌셰이밍 (Confirmshaming)**
+구독을 거절하면 괜히 미안해지도록 죄책감을 담은 문구로 거절 버튼을 만드는 방식입니다.
+![OmniGuard catching Confirmshaming](https://raw.githubusercontent.com/Tarkash-Labs/OmniGuard/main/assets/confirmshaming.png)
+
+**3. 긴급성 함정 (Urgency Traps)**
+가짜 카운트다운이나 "얼마 안 남았다"는 식으로 희소성을 꾸며내는 메시지입니다.
+![OmniGuard catching urgency traps](https://raw.githubusercontent.com/Tarkash-Labs/OmniGuard/main/assets/urgency-trap.png)
+
+**4. 숨은 비용 (Hidden Costs / Drip Pricing)**
+결제 마지막 단계에서야 수수료나 별도 세금이 갑자기 붙는 경우입니다.
+![OmniGuard catching hidden costs](https://raw.githubusercontent.com/Tarkash-Labs/OmniGuard/main/assets/hidden-costs.png)
+
+**5. 장바구니 끼워넣기 (Sneak into Basket)**
+다운로드나 결제 과정에서 원치 않는 번들 소프트웨어나 보험이 미리 체크돼 있는 경우입니다.
+![OmniGuard catching sneak into basket](https://raw.githubusercontent.com/Tarkash-Labs/OmniGuard/main/assets/sneak-into-basket.png)
+
+**6. 강제 연장 (Forced Continuity)**
+"무료 체험"이라고 해놓고 공격적인 자동 갱신 조건은 깨알 같은 글씨 속에 숨겨둔 경우입니다.
+![OmniGuard catching forced continuity](https://raw.githubusercontent.com/Tarkash-Labs/OmniGuard/main/assets/forced-continuity.png)
+
+## DB 없는 프라이버시 설계
+
+브라우저 화면을 캡처하는 AI 확장 프로그램이라면 개인정보 문제가 가장 먼저 걸립니다. 팀은 사용자를 보호하겠다는 도구가 사용자 데이터를 위험하게 만들어서는 안 된다는 원칙을 처음부터 세웠다고 밝혔습니다.
+
+그래서 OmniGuard 백엔드는 **완전히 stateless**하게, DB 없이(zero-DB) 동작합니다. 화면 스크린샷은 Gemini가 처리하는 몇 밀리초 동안만 메모리에 머물고 곧바로 폐기됩니다. 저장도, 로깅도, 보관도 하지 않습니다.
+
+## 오픈소스로 공개
+
+프로젝트 전체가 오픈소스로 공개돼 있습니다. Manifest V3에서 탭 캡처를 어떻게 처리했는지, UI 좌표를 뽑아내려고 Gemini Flash에 어떤 프롬프트를 썼는지 궁금하다면 저장소에서 직접 확인할 수 있습니다.
+
+[GitHub 저장소 보기 →](https://github.com/Tarkash-Labs/OmniGuard)
+
+개발에는 Dhruv Jani와 함께 **Yug Vasava**(리드 개발)와 **Avadh Vaishnani**(리드 QA)가 참여했습니다. 팀은 탐지 성능을 계속 개선하는 중이며, 최근 겪은 가장 비윤리적이거나 짜증 났던 다크 패턴 사례를 댓글로 받아 OmniGuard 학습에 반영하겠다고 밝혔습니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
