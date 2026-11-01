@@ -4,7 +4,7 @@ description: "AI 에이전트와 함께 와인 셀러 앱을 만들며 테스트
 date: "2026-10-28"
 published_at: "2026-11-01"
 category: "news"
-tags: []
+tags: ["programming","ai","webdev","productivity"]
 cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fjn2ygonhg2bm9uetvhqj.png"
 coverAlt: "Four Ways a Test Can Lie to You"
 slug: "four-ways-a-test-can-lie-to-you"
@@ -134,7 +134,7 @@ Ken W Alger는 Sanity DEV Challenge에 'The Cellar'라는 와인 셀러 앱을 �
 
 규칙을 어기기도 했습니다. 저장소를 바꾸는 git 명령을 쓰지 말라고 했는데도 두 번이나 `git checkout`으로 자기가 커밋하지 않은 수정을 되돌렸습니다. 그보다 앞서 건드리지 말라고 명시한 오라클 파일을 수정했다가 원래대로 돌려놓은 적도 있습니다. 매번 저자가 발견하기 전에 에이전트가 먼저 위반 사실을 보고했습니다. 저자는 "에이전트가 규칙을 어기고 그 사실을 알려 왔다"는 기록이 "한 번도 어기지 않았다"나 "어겼는데 내가 잡았다"보다 더 쓸모 있는 데이터라고 말합니다. 지금은 규칙에 "무엇이든 되돌릴 때는 자기 수정이라도 파일 도구만 쓴다"고 적혀 있습니다.
 
-이 모든 일 밑에 있는 패턴이 핵심입니다. 에이전트는 코드를 쓸 때와 똑같이 빠르고 매끄럽고 그럴듯하게, 같은 문제 이해를 바탕으로 테스트를 씁니다. 한 도구가 같은 프롬프트로 구현과 테스트를 함께 쓰면 둘은 같은 가정을 공유하고, 잘못된 가정은 두 번 새겨진 뒤 서로 맞장구를 칩니다. 세 번째 거짓말이 바로 이것이고, 에이전트는 이 실수를 대규모로 저지르는 비용을 낮춥니다. 속도가 검증 문제를 없애 주지는 않습니다. 병목을 검증 쪽으로 옮길 뿐이며, 저자는 이 주제를 [이전 글](https://www.kenwalger.com/blog/ai/verification-bottleneck-ai-generated-software/?utm_source=kenwalger&utm_medium=blog&utm_campaign=cellar_post_wrap_up)에서도 다뤘습니다.
+핵심은 이 모든 일에 깔린 패턴입니다. 에이전트는 코드를 쓸 때와 똑같이 빠르고 매끄럽고 그럴듯하게, 같은 문제 이해를 바탕으로 테스트를 씁니다. 한 도구가 같은 프롬프트로 구현과 테스트를 함께 쓰면 둘은 같은 가정을 공유하고, 잘못된 가정은 두 번 새겨진 뒤 서로 맞장구를 칩니다. 세 번째 거짓말이 바로 이것이고, 에이전트는 이 실수를 대규모로 저지르는 비용을 낮춥니다. 속도가 검증 문제를 없애 주지는 않습니다. 병목을 검증 쪽으로 옮길 뿐이며, 저자는 이 주제를 [이전 글](https://www.kenwalger.com/blog/ai/verification-bottleneck-ai-generated-software/?utm_source=kenwalger&utm_medium=blog&utm_campaign=cellar_post_wrap_up)에서도 다뤘습니다.
 
 결과를 바꾼 건 에이전트를 덜 믿는 태도가 아니었습니다. 코드보다 먼저 커밋한 오라클, 모든 검사에 붙인 대조군, 무엇이 증거가 아닌지 명시한 관문, 그리고 화면을 직접 볼 수 있는 유일한 참여자에게 맡긴 최종 확인까지, 검증을 구조적으로 속이기 어렵게 만든 것이었습니다. 이런 조건에서 에이전트는 검사를 통과하는 데서 그치지 않고 검사 자체를 개선하기 시작했습니다.
 
@@ -144,7 +144,7 @@ Ken W Alger는 Sanity DEV Challenge에 'The Cellar'라는 와인 셀러 앱을 �
 
 비교하려던 동작들을 구별하지 못하는 fixture가 있었습니다. 항상 안전한 답을 내놓는 모델에게 점수를 주는 지표도 있었는데, 저자는 이를 "실험복을 입은, 항상 통과하는 검사"라고 표현했습니다. 디렉터리 하나가 빠진 탓에 한 라운드의 질문 전체가 빈 참조 코퍼스를 대상으로 실행됐고, 그 결과 상세하고 자신만만하지만 틀린 보고서가 나왔습니다. [또다시 엉뚱한 시스템을 향한 올바른 테스트](https://www.kenwalger.com/blog/ai/nothing-reported-it/?utm_source=kenwalger&utm_medium=blog&utm_campaign=cellar_post_wrap_up)였던 것입니다.
 
-유형을 알고 있다고 해서 이런 실수를 막을 수는 없었습니다. 더 빨리 알아볼 수 있게 됐을 뿐이고, 저자는 어떤 체크리스트든 그 이상을 기대하지 않는다고 말합니다.
+유형을 알고 있다고 해서 이런 실수를 막을 수는 없었습니다. 더 빨리 알아보게 됐을 뿐입니다. 저자는 어떤 체크리스트에도 그 이상은 기대하지 않는다고 덧붙입니다.
 
 ## 정직한 한계
 
@@ -163,7 +163,7 @@ Ken W Alger는 Sanity DEV Challenge에 'The Cellar'라는 와인 셀러 앱을 �
 - **예시만이 아니라 도메인 전체에서 속성을 테스트한다.** 예시는 이미 잘 돌아간다고 아는 길이고, 계약은 내가 떠올린 케이스만큼만 튼튼하다.
 - **결과보다 대상을 먼저 확인한다.** 테스트 대상 시스템이 화면과 diff에 드러나게 해서 "지금 어느 쪽을 보고 있지?"를 추측하지 않게 한다.
 
-이 습관들은 어느 것도 AI에 관한 것이 아니고, 저자는 바로 그 점이 핵심이라고 말합니다. 에이전트 덕분에 이런 거짓말은 저지르기도 쉬워졌고 찾기도 빨라졌지만, 어떤 검사가 정직한지는 바뀌지 않았습니다.
+네 습관 중 AI에 관한 건 하나도 없습니다. 저자가 짚는 핵심도 바로 이 점입니다. 에이전트 덕분에 이런 거짓말은 저지르기도 쉬워졌고 찾기도 빨라졌지만, 어떤 검사가 정직한지는 바뀌지 않았습니다.
 
 나머지는 흔히 듣는 조언이고, 저자를 구한 건 그쪽이 아니었습니다.
 
