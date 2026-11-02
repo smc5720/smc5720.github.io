@@ -487,6 +487,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-10-26"
   },
+  "https://dev.to/cyclopt_dimitrisk/your-secrets-dont-need-a-git-commit-to-leak-into-an-ai-tool-be2": {
+    "ok": true,
+    "title": "Your secrets don't need a git commit to leak into an AI tool",
+    "description": "Most of us have the \"don't commit secrets\" reflex drilled in. Pre-commit hooks, secret scanners in...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fxt2i8uqhs43rkydwpuhy.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-02"
+  },
   "https://dev.to/dailycontext/building-better-agents-through-end-to-end-evals-pgh": {
     "ok": true,
     "title": "Building Better Agents through End-to-End Evals",
@@ -3094,6 +3102,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fu8zgu8f4zouggzb33wqm.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-10-28"
+  },
+  "https://dev.to/pengeszikra/singularity-news-ccg-5ejk": {
+    "ok": true,
+    "title": "Singularity News :: CCG",
+    "description": "This is a submission for the Hacktoberfest Open-Source AI Challenge Week 4: Ghost in the Machine    ...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fyyh84oxpucdnmygo396v.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-02"
   },
   "https://dev.to/peter/gmail-please-let-me-hide-delegated-accounts-on-my-iphone-30e": {
     "ok": true,

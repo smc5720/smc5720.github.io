@@ -1,0 +1,83 @@
+﻿---
+title: "Singularity News :: CCG — 카드를 하나하나 인터뷰하는 AI 카드 게임"
+description: "Peter Vivo가 Hacktoberfest 오픈소스 AI 챌린지 마지막 주차에 제출한 PWA 카드 게임입니다. 빌드 도구 없이 순수 HTML로 만들었고, Gemma 4가 뉴스 티커와 캐릭터 인터뷰, 에필로그를 씁니다."
+date: "2026-10-31"
+published_at: "2026-11-02"
+category: "news"
+tags: []
+slug: "singularity-news-ccg-gemma-card-game"
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fyyh84oxpucdnmygo396v.png"
+coverAlt: "Singularity News :: CCG"
+source_id: "devto-4945564"
+source_url: "https://dev.to/pengeszikra/singularity-news-ccg-5ejk"
+source_title: "Singularity News :: CCG"
+source_author: "Peter Vivo"
+source_published: "2026-10-31"
+---
+
+<LinkCard url="https://dev.to/pengeszikra/singularity-news-ccg-5ejk" author="Peter Vivo" date="2026-10-31" />
+
+## 개요
+
+개발자 Peter Vivo가 Dev.to의 [Hacktoberfest Open-Source AI Challenge 4주차: Ghost in the Machine](https://dev.to/challenges/hacktoberfest-week4-2026-10-26) 출품작으로 카드 게임 'Singularity News :: CCG'를 공개했습니다. 작가는 CCG를 'Collective Card Game'의 약자로 씁니다.
+
+게임 안의 카드는 모두 붙잡고 인터뷰할 수 있습니다. 인터뷰 답변과 게임 속 뉴스, 마지막에 나오는 결말 기사는 AI가 씁니다. 빌드 도구 없이 순수 HTML로 만들었고 PWA로 배포했기 때문에 모바일에도 설치할 수 있습니다.
+
+## 본문
+
+### 할로윈 대신 '다가오는 미래'를 소재로
+
+작가는 다가오는 미래에 비하면 올해 할로윈은 빛이 많이 바랬다고 말합니다. 그래서 챌린지 마지막 주 작품의 배경을 자신이 연재하는 'Singularity News' 피드 세계관에서 가져왔습니다. 게임 소개도 가상의 편집자 'Mr. Slop'이 발표하는 형식입니다. 편집부가 엄선한 인물들을 인터뷰해서 얻은 지식을 가볍고 인터랙티브한 방식으로 나누겠다는 내용인데, 할로윈 대상 독자층을 끼워 넣은 탓에 결과가 나빠졌다는 비판은 단호히 부인한다는 농담도 덧붙였습니다.
+
+![Haunted Terminal](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/wq2ix5f2mufl39p6wn7b.png)
+
+등장인물과 뒷이야기도 모두 Singularity News 시리즈에서 나왔습니다. 작가는 이들이 실존 인물이나 다른 작품 속 인물과는 "당연히 전혀 관계없다"고 적었습니다. 시리즈는 [SN::0001](https://dev.to/pengeszikra/singularity-news-28p6), [SN::0010](https://dev.to/pengeszikra/singularity-news-0010-nhn), [SN::0011](https://dev.to/pengeszikra/singularity-news-0011-1ai0)에서 읽을 수 있습니다.
+
+![Halloween charactes of Singularity News word](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/l4d71vl32qlww9vpbzzo.png)
+
+### 이전 프로젝트에서 미완으로 남았던 카드 시스템
+
+카드 게임 시스템은 작가의 예전 프로젝트 [Flogons](https://dev.to/pengeszikra/javascript-great-again-the-voice-of-void-5fp6)에서 가져왔습니다. 그때는 시간이 부족해 게임을 끝까지 만들지 못했는데, 이번에 마무리했습니다. Flogons에서 쓴 CSS 기반 3D 렌더링과 순수 HTML 구조를 그대로 살렸고, 덕분에 빌드 과정 없이 개발할 수 있었다고 합니다.
+
+게임 구성은 다음과 같습니다.
+
+- **4인·7인 테이블**: 아직 온라인 멀티플레이어는 없어서 나머지 자리는 봇이 채웁니다.
+- **`Auto:on` 모드**: 새 카드 게임의 규칙을 익히기 싫은 사람을 위한 기능입니다. 켜 두면 게임이 혼자 진행되고, 플레이어는 영화 보듯 지켜보면 됩니다.
+- **카드 인터뷰**: 게임 중 언제든 아무 카드나 골라 인터뷰할 수 있습니다.
+- **결말 기사**: 게임이 끝나면 AI가 결말을 써 줍니다.
+
+### 데모와 코드
+
+- 데모: [singularity-news-ccg.vercel.app](https://singularity-news-ccg.vercel.app/)
+- CodePen: [CodePen에서 보기 →](https://codepen.io/editor/Omrega/pen/01a18f75-6d17-700c-8003-cd60c5253ed5)
+- 소스 코드: [github.com/Pengeszikra/singularity-news-ccg](https://github.com/Pengeszikra/singularity-news-ccg)
+
+작가는 개발하면서 가장 "무서웠던" 순간도 소개했습니다. Claude가 작가의 Pure HTML 연재 글 하나를 참고해 코드를 짰는데, 그 개념을 너무 진지하게 받아들인 나머지 이미지까지 `index.html` 안에 직접 박아 넣었다는 것입니다.
+
+![Image description](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/pvbcwmta950j7npxt6qx.png)
+
+### Gemma 4가 이야기를 쓰고 gpt-oss-120b가 뒤를 받친다
+
+![Stunning visualization of a black hole](https://images.pexels.com/photos/37149440/pexels-photo-37149440.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Adis Resic](https://www.pexels.com/@adis-resic) on [Pexels](https://www.pexels.com/photo/stunning-visualization-of-a-black-hole-37149440/)*
+
+게임의 주력 모델은 Gemini API로 호출하는 Gemma 4(`gemma-4-26b-a4b-it`)입니다. Gemma 4가 맡는 일은 다음과 같습니다.
+
+- Mr. Slop의 뉴스 티커
+- 캐릭터 인터뷰 답변
+- 첫 번째로 뒤집힌 카드가 들려주는 인트로
+- 플레이어가 모은 캐릭터로 엮는 마지막 에필로그 기사
+
+Groq에서 돌리는 gpt-oss-120b는 예비 모델입니다. 게임 안의 AI 전환 스위치로 직접 고를 수도 있습니다. 작가는 에이전트에게 준 프롬프트를 원래 쓴 헝가리어 그대로 [PROMPTS.md](https://github.com/Pengeszikra/singularity-news-ccg/blob/main/PROMPTS.md)에 모두 남겨 두었습니다.
+
+오픈 웨이트 모델을 고른 이유로는 자유도를 꼽았습니다. 같은 프롬프트가 지금은 Gemma 4와 gpt-oss-120b에서 똑같이 돌아가고, 나중에 토큰 비용을 줄이고 싶으면 게임을 다시 짜지 않고 로컬 모델로 옮길 수 있다는 설명입니다.
+
+### "Pure HTML + No Build System forever!!"
+
+작가는 이번 작업을 하며 예전에 쓴 [Vibe Archeologist](https://dev.to/pengeszikra/vibe-archeologist-from-z80-assembly-to-an-1859-mudbrick-house-and-beyond-46n5) 글을 다시 떠올렸다고 합니다. 2년 가까이 묵혀 둔 코드를 꺼내 요즘 유행하는 [slop coding](https://dev.to/pengeszikra/slop-coding-the-vibe-archeologist-strikes-again-35df) 방식으로 빠르게 완성했다는 것입니다.
+
+개발 전체를 '감독 의자'에 앉아서 진행했다고도 말합니다. 그렇게 나온 결과물은 처음부터 끝까지 실제로 플레이할 수 있고, 판마다 몇 가지 반전이 숨어 있는 게임이라는 게 작가의 설명입니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
