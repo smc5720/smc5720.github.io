@@ -1423,6 +1423,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-11"
   },
+  "https://dev.to/francistrdev/this-is-my-first-hacktoberfest-and-i-dont-know-what-to-feel-449f": {
+    "ok": true,
+    "title": "This is my first HacktoberFest, and I don't know what to feel.",
+    "description": "When reading this title, this may sound Netural...    Let me explain further. I do recommend reading...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fkdrg60peavzloceeysdp.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-03"
+  },
   "https://dev.to/francistrdev/why-you-still-need-a-website-portfolio-even-though-everyone-can-vibe-code-it-e63": {
     "ok": true,
     "title": "Why you still need a Website Portfolio, even though everyone can Vibe Code it.",
@@ -2086,6 +2094,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fot17ffvas98xbk9dak4b.jpeg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-10-27"
+  },
+  "https://dev.to/hemapriya_kanagala/dev-pet-corner-4-show-us-your-pets-55jh": {
+    "ok": true,
+    "title": "🐾 DEV Pet Corner #4: Show Us Your Pets!",
+    "description": "TL;DR  DEV Pet Corner is back for another Sunday! It's a weekly series where we take a little break...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fuonbff781lc6lq68fu5f.jpeg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-03"
   },
   "https://dev.to/hemapriya_kanagala/from-silent-reader-to-25-articles-what-3-months-on-dev-taught-me-ama-2b0j": {
     "ok": true,
@@ -3367,6 +3383,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-10-23"
   },
+  "https://dev.to/smtahosin/mqtt-doesnt-have-message-queues-inside-the-2-byte-protocol-powering-modern-iot-161": {
+    "ok": true,
+    "title": "MQTT Doesn't Have Message Queues. Inside the 2-Byte Protocol Powering Modern IoT.",
+    "description": "A visual, 10-minute architectural deep dive into MQTT. Learn how the 2-byte binary wire protocol, QoS 0/1/2 handshakes, topic trees, Last Will and Testament, and MQTT v5 Shared Subscriptions actually deliver IoT telemetry under the hood.",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fiili.io%2FnMfMShN.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-03"
+  },
   "https://dev.to/smtahosin/pointers-arent-arrows-how-c-and-c-actually-talk-to-hardware-9d6": {
     "ok": true,
     "title": "Pointers Aren't Arrows. How C and C++ Actually Talk to Hardware.",
@@ -3614,6 +3638,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F2hev0q7dznyfw5y4tr2l.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-10-12"
+  },
+  "https://dev.to/the_nortern_dev/every-app-eventually-becomes-a-dashboard-please-make-it-stop-37e9": {
+    "ok": true,
+    "title": "Every App Eventually Becomes a Dashboard. Please Make It Stop.",
+    "description": "Every good app starts with a lie.   “We’re going to keep this simple.”   I love that sentence.  So...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fbynqeuag4r77ltp1z3jo.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-03"
   },
   "https://dev.to/thepracticaldev/general-challenge-updates-moving-forward-5h39": {
     "ok": true,
