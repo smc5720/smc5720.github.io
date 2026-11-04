@@ -1,0 +1,157 @@
+﻿---
+title: "모든 코드베이스엔 '// DO NOT TOUCH' 파일이 있다 — 떠난 개발자의 유령을 불러내는 AI, GitSéance"
+description: "Dhruv Jani가 Hacktoberfest 4주차 챌린지에 낸 GitSéance는 Git 기록과 주석을 분석해 방치된 코드를 찾아내고, 원작자의 '유령'을 불러와 그 코드를 왜 그렇게 짰는지 설명하게 하는 오픈소스 AI 도구입니다. TabPFN, Gemma, SerpApi, ElevenLabs를 조합했습니다."
+date: "2026-10-31"
+published_at: "2026-11-04"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fezbb0xf5v8087ny2qes2.jpg"
+coverAlt: "Every Codebase Has a '// DO NOT TOUCH' File. I Built an AI Necromancer to Summon the Ghost of the Developer Who Wrote It"
+slug: "gitseance-ai-necromancer-legacy-code"
+source_id: "devto-4954082"
+source_url: "https://dev.to/dj29/every-codebase-has-a-do-not-touch-file-i-built-an-ai-necromancer-to-summon-the-ghost-of-the-2no5"
+source_title: "Every Codebase Has a '// DO NOT TOUCH' File. I Built an AI Necromancer to Summon the Ghost of the Developer Who Wrote It 💀🔮"
+source_author: "Dhruv Jani"
+source_published: "2026-10-31"
+---
+
+<LinkCard url="https://dev.to/dj29/every-codebase-has-a-do-not-touch-file-i-built-an-ai-necromancer-to-summon-the-ghost-of-the-2no5" author="Dhruv Jani" date="2026-10-31" />
+
+## 개요
+
+회사 레포든 오픈소스든 `// DO NOT TOUCH: NOBODY KNOWS WHY THIS WORKS` 같은 주석이 달린 파일이 하나쯤은 있습니다. 코드를 짠 사람이 떠나면 그 사람이 알던 맥락도 함께 사라지고, 의존성이 낡아가는 동안에도 다들 무서워서 손을 대지 못합니다.
+
+개발자 Dhruv Jani는 이 문제를 할로윈과 '죽은 자의 날(Día de los Muertos)' 콘셉트로 풀었습니다. Hacktoberfest 오픈소스 AI 챌린지 4주차(주제: Ghost in the Machine)에 낸 **GitSéance**는 레포에서 방치된 파일을 찾아내 '사망 위험도'를 매기고, 그 파일을 쓴 개발자의 '유령'을 불러 직접 대화하게 해 주는 도구입니다. 이름은 Git과 강령회(séance)를 합친 말입니다.
+
+단순한 린터가 아니라 역할이 나뉜 AI 에이전트 네 개가 함께 돌아가고, 결과물은 모두 초록색 형광 CRT 터미널 화면 안에 담깁니다.
+
+- 라이브 데모: [gitseance.onrender.com](https://gitseance.onrender.com)
+- GitHub: [JaniDhruv/GitSeance](https://github.com/JaniDhruv/GitSeance) (MIT 라이선스, 단위·통합 테스트 25개 CI 통과)
+
+## 본문
+
+### 네 명의 '강령술사' 에이전트
+
+GitSéance는 FastAPI가 조율하는 비동기 멀티 에이전트 파이프라인입니다. 각 에이전트가 맡은 일은 다음과 같습니다.
+
+| 에이전트 | 쓰는 기술 | 하는 일 |
+| --- | --- | --- |
+| 💀 Reaper(사신) | GitHub API, AST 분석 | 커밋 트리와 파일 구조를 훑어 버려진 코드, 작성자가 떠난 코드, `hack`·`black magic`·`do not touch` 같은 '공포 주석'이 붙은 코드를 찾는다 |
+| 📊 Oracle(예언자) | Prior Labs TabPFN-3.5 | 7차원 지표를 표 형태로 만들어 파일의 '사망 확률'을 계산한다 |
+| 🔮 Medium(영매) | Google Gemma (`gemma-4-26b-a4b-it`) | 떠난 작성자의 말투로 1인칭 고백, 후회, 현대화 방안을 생성한다 |
+| 🔍 Searcher(탐색자) | SerpApi | 2026년 기준 패키지 레지스트리와 보안 DB를 검색해 대체 라이브러리와 CVE를 찾는다 |
+
+이 위에 사용자가 직접 써볼 기능들이 올라갑니다.
+
+- **유령과 대화하기**: 특정 핵(hack)을 왜 넣었는지, 어떻게 안전하게 리팩터링할지 유령에게 실시간으로 물어볼 수 있습니다.
+- **목소리 입히기**: ElevenLabs 음성 합성으로 유령의 고백을 읽어주고, Web Audio API로 파형을 함께 그립니다. MP3로 내려받을 수도 있습니다.
+- **부검 증명서**: 사망 원인, 버스 팩터(bus factor), TabPFN 사망 점수를 적은 ASCII 사망 증명서를 발급합니다.
+- **CSV 내보내기**: 7차원 지표 데이터 전체를 CSV로 받아 직접 검증할 수 있습니다.
+- **README 배지**: `/api/badge/{owner}/{repo}.svg` 엔드포인트로 레포의 사망 점수 배지를 README에 붙일 수 있습니다.
+
+![The Séance Altar & Real-time AI Status](https://raw.githubusercontent.com/JaniDhruv/GitSeance/main/docs/screenshots/01-seance-altar-hero.jpg)
+*강령 제단 화면 — 에이전트 상태 표시, 프리셋 레포 목록, 실시간 로그가 CRT 대시보드에 함께 뜬다.*
+
+### 실제로 불러본 유령: flask-cache
+
+원문은 2010년 이후 손대지 않은 Python 2 캐싱 라이브러리 `thadeusb/flask-cache`를 예로 들었습니다. 라이브 앱에서 `🐍 flask-cache (Python 2 Fossil)` 프리셋을 누르면 같은 결과를 바로 볼 수 있습니다.
+
+1. Reaper가 `Makefile`을 **임상적 사망(Clinically Dead)** 상태로 표시합니다. 마지막 수정이 5,986일 전입니다.
+2. TabPFN-3.5가 변경 없음, 작성자 100% 이탈, 테스트 없음 같은 지표를 보고 **사망 확률 80%**로 예측합니다.
+3. Gemma가 원작자 Thadeus Burgess로 빙의해 말합니다. "나는 Thadeus Burgess의 남은 메아리다. 2010-08-30, 나는 'R-0.1'이라는 마지막 커밋을 남기고 어둠 속으로 떠났다."
+4. ElevenLabs가 이 고백을 'Roger — Ancient Architect' 목소리로 읽어줍니다. ([실제 녹음 듣기 →](https://github.com/JaniDhruv/GitSeance/raw/main/docs/audio/ghost-transmission-thadeus-makefile.mp3))
+5. SerpApi는 더 이상 권장되지 않는 `setup.py upload` 명령을 찾아내고 `build`, `twine`, `pyproject.toml`로 바꾸라고 제안합니다.
+
+이어서 유령과 대화를 나눌 수 있습니다.
+
+> **나:** 왜 twine 대신 setup.py upload를 썼나요?
+>
+> **유령:** 그땐 시간에 쫓겼지. 2026년에 당연하게 쓰는 라이브러리들이 그땐 없었고, 메모리도 넉넉하지 않았어. 그게 내가 할 수 있는 최선의 타협이었다네.
+>
+> **나:** 지금 이 Makefile을 고치거나 지우면 숨은 위험이 있나요?
+>
+> **유령:** 그 흉터를 봤군. 맞아, 릴리스 직전 새벽 2시에 넣은 핵이야. 그 주말에 리팩터링하겠다고 다짐했는데… 그 주말은 끝내 오지 않았지. 부디 나 대신 묻어 주게.
+
+![Conversational Ghost Séance Dialogue - Question 2](https://raw.githubusercontent.com/JaniDhruv/GitSeance/main/docs/screenshots/08-ghost-chat-dialogue-part2.jpg)
+*유령과의 대화 2턴 — 릴리스 전 새벽 2시에 넣은 임시 코드를 고백하는 장면.*
+
+마지막으로 '사망 증명서'를 출력하고 '부활 설계도'를 복사하면 아래와 같은 마이그레이션 단계가 나옵니다.
+
+```text
+REVIVAL BLUEPRINT FOR: Makefile
+Summary: Transmute this ancient ritual into a modern, declarative build system.
+Effort: rewrite
+
+STEPS:
+1. Transition from `setup.py` to a `pyproject.toml` configuration.
+2. Replace the manual upload commands with `twine` for secure distribution.
+3. Use the `build` module for generating distribution archives.
+4. Implement a modern test runner like `pytest` instead of the legacy `setup.py test`.
+```
+
+### TabPFN으로 '오래됐다'와 '죽었다'를 구분하기
+
+작성자는 규칙 기반 휴리스틱 대신 Prior Labs의 표 데이터용 파운데이션 모델 TabPFN-3.5를 골랐습니다. 파일마다 아래 7개 지표를 뽑아 모델에 넣습니다.
+
+```python
+feature_vector = {
+    "days_since_last_commit": m.days_since_last_commit,   # 마지막 커밋 후 경과일
+    "total_commits": m.total_commits,                     # 총 커밋 수
+    "unique_authors": m.unique_authors,                   # 작성자 수(버스 팩터)
+    "bug_fix_commit_ratio": m.bug_fix_commit_ratio,       # 버그 수정 커밋 비율
+    "lines_ratio": (m.lines_added + 1) / (m.lines_del + 1), # 추가/삭제 균형
+    "has_tests": 1 if m.has_tests else 0,                 # 테스트 존재 여부
+    "churn_velocity": m.churn_velocity,                   # 월간 변경 속도
+}
+```
+
+TabPFN은 참조 데이터를 문맥으로 받아 베이지안 추론을 합니다. 참조 데이터는 아카이브된 레포의 '죽은' 파일 25개와 `fastapi`, `pydantic`, `requests`에서 가져온 활발히 관리되는 모듈 25개, 총 50개로 보정했습니다.
+
+작성자가 강조하는 차이는 이렇습니다. `slugify.py`나 `crc32.py` 같은 수학 유틸리티는 1,100일 동안 수정이 없어도 버그 수정 비율이 0.02이고 테스트도 갖추고 있습니다. 단순 규칙이라면 '죽은 코드'로 찍겠지만, TabPFN은 이를 **안정된 상태(FROZEN / STABLE, 사망 확률 18%)**로 분류합니다. 반대로 180일밖에 안 됐어도 유일한 작성자가 떠났고 버그 수정 비율이 60%인 파일은 **고위험(78%)**으로 잡아냅니다.
+
+결과를 투명하게 보여주려고 CSV 내보내기를 넣었고, `tabpfn_predict_mortality`를 MCP(Model Context Protocol) 도구로 노출하는 서버(`backend/mcp_server.py`)도 만들어 Cursor, Claude Desktop, Copilot에서 바로 부를 수 있게 했습니다.
+
+### Gemma로 유령의 목소리 만들기
+
+영매 에이전트는 `google-genai` SDK로 Gemma를 호출합니다. 유령의 말은 Git 기록과 인라인 주석에 근거하도록 시스템 프롬프트로 묶어 두었습니다. 프롬프트는 유령에게 세 가지를 요구합니다. 그 코드를 그렇게 짠 이유(당시 제약과 기술 환경), 다르게 했어야 했던 점, 그리고 코드를 되살리거나 교체할 구체적인 방법입니다. 답변은 300단어 이내로 제한합니다.
+
+그 밖에 연동한 도구는 다음과 같습니다.
+
+- **SerpApi**: `requirements.txt`, `package.json`, `Gemfile`, `go.mod`를 파싱한 뒤 대체 패키지와 CVE 정보를 실시간으로 검색합니다.
+- **ElevenLabs**: `eleven_multilingual_v2` 모델로 음성을 만들고, 목소리 프리셋 5종(Roger, Sarah, Laura, Charlie, Aria)을 제공합니다. 기계식 키보드 소리와 낮은 공명음은 Web Audio API로 직접 합성했습니다.
+- **GitHub Copilot·Actions**: `.github/copilot-instructions.md`에 아키텍처를 설명해 두었고, `.github/prompts/`에 재사용 프롬프트 3개(`/resurrect-file`, `/tabpfn-mortality`, `/dep-modernize`)를 넣었습니다. Ubuntu·Windows CI, 배포 후 헬스 체크를 하는 CD, PR에서 공포 주석을 찾아 리뷰하는 워크플로도 있습니다.
+
+### 만들면서 부딪힌 문제 세 가지
+
+![Modern workspace with coding screens and keyboard](https://images.pexels.com/photos/34212896/pexels-photo-34212896.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Jakub Zerdzicki](https://www.pexels.com/@jakub-zerdzicki) on [Pexels](https://www.pexels.com/photo/modern-workspace-with-coding-screens-and-keyboard-34212896/)*
+
+**1. 생각이 너무 많은 유령.** Gemma를 처음 붙였을 때 API 응답이 자주 빈 문자열로 왔습니다. 원인은 추론 모드였습니다. 모델이 내부 사고 토큰(`part.thought = True`)을 길게 생성하다 출력 예산을 다 써버렸고, 사고 블록이 있으면 `response.text`가 `None`이 되기도 했습니다. 결국 `response.candidates[0].content.parts`를 직접 돌면서 사고 토큰을 걸러내고 실제 대사만 뽑는 추출기를 따로 만들었습니다.
+
+```python
+actual_parts = [
+    p.text for p in candidate.content.parts
+    if not getattr(p, "thought", False) and getattr(p, "text", None)
+]
+```
+
+**2. GitHub API 호출 한도.** 파일 50개의 커밋 기록을 훑으면 인증 없는 요청 한도(시간당 60회)를 30초도 안 돼서 다 씁니다. 작성자는 세 가지로 대응했습니다. `asyncio.gather`로 8개씩 묶어 병렬 처리하고, SVG·바이너리·락 파일은 건너뛰고, `flask-cache`, `jquery-color` 같은 예시 레포는 미리 떠 둔 스냅샷을 쓰게 해서 GitHub 토큰이 없는 사용자도 앱을 써볼 수 있게 했습니다.
+
+**3. Python 3.11의 f-string 역슬래시 제약.** SSE 스트리밍에서 JSON 페이로드를 f-string 안에서 바로 포맷하다가 `SyntaxError: f-string expression part cannot include a backslash`를 만났습니다. 메시지를 중간 버퍼에 먼저 직렬화한 뒤 `data: ...` 형식으로 내보내도록 고쳤습니다.
+
+### 왜 오픈 모델이어야 했나
+
+작성자는 챌린지가 던진 질문, 즉 "오픈 생태계라서 가능했던 게 무엇인가"에 네 가지로 답합니다.
+
+- **코드 유출 차단**: 사내 코드에는 비즈니스 로직과 기밀이 들어 있어서 외부 클라우드 API에 통째로 넘기기 어렵습니다. Gemma와 TabPFN-3.5는 가중치가 공개돼 있어 인터넷이 끊긴 환경에서도 돌릴 수 있습니다.
+- **재현 가능한 위험 평가**: 핵심 모듈에 "사망 위험 98%"라는 판정이 나오면 개발자는 이유를 알아야 합니다. 비공개 점수 체계는 모델 버전이 바뀔 때마다 조용히 달라질 수 있습니다.
+- **API 종료 걱정 없음**: 폐쇄형 서비스는 엔드포인트를 닫거나 가격을 올릴 수 있지만, 오픈 모델은 그런 영향을 받지 않습니다.
+- **사내 맞춤 튜닝**: 내부 커밋 기록, Jira 티켓, ADR로 Gemma를 파인튜닝하면 퇴사자의 지식을 조직의 기억으로 남길 수 있습니다.
+
+### 레거시를 대하는 태도
+
+원문은 이렇게 마무리합니다. 개발자들이 몇 달을 들여 만든 시스템도 몇 년 지나면 '레거시'라는 딱지가 붙어 버려집니다. 죽은 자의 날 전통에서 죽은 이는 기억되는 한 사라지지 않습니다. GitSéance가 10년 된 파일의 작성자를 불러내는 이유도 낡은 코드를 비웃으려는 게 아니라, 그 사람이 "메모리는 부족했고 마감은 빠듯했다. 그래도 제 역할은 했다. 이제 이렇게 이어가 달라"고 말할 기회를 주려는 데 있습니다. 작성자는 레거시 코드를 두려워하는 대신 그 뒤에 있는 사람의 노력을 존중하자는 것이 이 프로젝트의 정신이라고 말합니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

@@ -199,6 +199,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/anchildress1/one-last-post-and-a-proper-goodbye-53a2": {
+    "ok": true,
+    "title": "One Last Post, and a Proper Goodbye",
+    "description": "🦄 What does it mean to be a developer? Is it a hobby, a job, a passion, or some combination of all...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fvgz2izgjw1fw22jc0g0c.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-04"
+  },
   "https://dev.to/anchildress1/what-do-you-do-while-ai-codes-k8k": {
     "ok": true,
     "title": "What Do You Do While AI Codes?",
@@ -711,6 +719,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/deborahemeni1/i-built-a-3d-game-about-my-nigerian-childhood-and-im-not-a-game-developer-281g": {
+    "ok": true,
+    "title": "I built a 3D game about my Nigerian childhood (and I'm not a game developer)",
+    "description": "If you grew up in Nigeria, there is one sentence that can stop your heart in the middle of...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F3h9pza57hou2f27a7nhj.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-04"
+  },
   "https://dev.to/deeheber/not-all-ai-builders-are-doing-the-same-work-31m4": {
     "ok": true,
     "title": "Not All AI Builders Are Doing the Same Work",
@@ -1174,6 +1190,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Frpy1dtrrp60hfzhs2akt.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-15"
+  },
+  "https://dev.to/dj29/every-codebase-has-a-do-not-touch-file-i-built-an-ai-necromancer-to-summon-the-ghost-of-the-2no5": {
+    "ok": true,
+    "title": "Every Codebase Has a '// DO NOT TOUCH' File. I Built an AI Necromancer to Summon the Ghost of the Developer Who Wrote It 💀🔮",
+    "description": "This is a submission for the Hacktoberfest Open-Source AI Challenge Week 4: Ghost in the Machine    ...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fezbb0xf5v8087ny2qes2.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-04"
   },
   "https://dev.to/dj29/hacktoberfest-is-coming-to-nadiad-gujarat-official-mlh-meetup-at-ddu-15-oct-1dc4": {
     "ok": true,
