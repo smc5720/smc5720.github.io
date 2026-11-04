@@ -4,7 +4,7 @@ description: "Dhruv Jani가 Hacktoberfest 4주차 챌린지에 낸 GitSéance는
 date: "2026-10-31"
 published_at: "2026-11-04"
 category: "news"
-tags: []
+tags: ["ai","opensource","github","python","news"]
 cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fezbb0xf5v8087ny2qes2.jpg"
 coverAlt: "Every Codebase Has a '// DO NOT TOUCH' File. I Built an AI Necromancer to Summon the Ghost of the Developer Who Wrote It"
 slug: "gitseance-ai-necromancer-legacy-code"
@@ -115,7 +115,7 @@ TabPFN은 참조 데이터를 문맥으로 받아 베이지안 추론을 합니�
 
 영매 에이전트는 `google-genai` SDK로 Gemma를 호출합니다. 유령의 말은 Git 기록과 인라인 주석에 근거하도록 시스템 프롬프트로 묶어 두었습니다. 프롬프트는 유령에게 세 가지를 요구합니다. 그 코드를 그렇게 짠 이유(당시 제약과 기술 환경), 다르게 했어야 했던 점, 그리고 코드를 되살리거나 교체할 구체적인 방법입니다. 답변은 300단어 이내로 제한합니다.
 
-그 밖에 연동한 도구는 다음과 같습니다.
+다른 도구들도 곳곳에 연결돼 있습니다.
 
 - **SerpApi**: `requirements.txt`, `package.json`, `Gemfile`, `go.mod`를 파싱한 뒤 대체 패키지와 CVE 정보를 실시간으로 검색합니다.
 - **ElevenLabs**: `eleven_multilingual_v2` 모델로 음성을 만들고, 목소리 프리셋 5종(Roger, Sarah, Laura, Charlie, Aria)을 제공합니다. 기계식 키보드 소리와 낮은 공명음은 Web Audio API로 직접 합성했습니다.
@@ -150,7 +150,7 @@ actual_parts = [
 
 ### 레거시를 대하는 태도
 
-원문은 이렇게 마무리합니다. 개발자들이 몇 달을 들여 만든 시스템도 몇 년 지나면 '레거시'라는 딱지가 붙어 버려집니다. 죽은 자의 날 전통에서 죽은 이는 기억되는 한 사라지지 않습니다. GitSéance가 10년 된 파일의 작성자를 불러내는 이유도 낡은 코드를 비웃으려는 게 아니라, 그 사람이 "메모리는 부족했고 마감은 빠듯했다. 그래도 제 역할은 했다. 이제 이렇게 이어가 달라"고 말할 기회를 주려는 데 있습니다. 작성자는 레거시 코드를 두려워하는 대신 그 뒤에 있는 사람의 노력을 존중하자는 것이 이 프로젝트의 정신이라고 말합니다.
+원문은 이렇게 마무리합니다. 개발자들이 몇 달을 들여 만든 시스템도 몇 년 지나면 '레거시'라는 딱지가 붙어 버려집니다. 죽은 자의 날 전통에서 죽은 이는 기억되는 한 사라지지 않습니다. GitSéance가 10년 된 파일의 작성자를 불러내는 이유도 낡은 코드를 비웃으려는 게 아니라, 그 사람이 "메모리는 부족했고 마감은 빠듯했다. 그래도 제 역할은 했다. 이제 이렇게 이어가 달라"고 말할 기회를 주려는 데 있습니다. 레거시 코드를 두려워하기보다 그 뒤에 있던 사람의 노력을 존중하자는 것, 작성자가 말하는 이 프로젝트의 정신입니다.
 
 ---
 
