@@ -1023,6 +1023,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/devteam/thats-a-wrap-on-hacktoberfest-2026-148k": {
+    "ok": true,
+    "title": "That's a Wrap on Hacktoberfest 2026! 🎃👻",
+    "description": "Hacktoberfest 2026 wrapped up on October 31st! Thank you to everyone who built, hosted, mentored,...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F9j2yyb098hr9vwiu2xyr.webp",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-05"
+  },
   "https://dev.to/devteam/top-7-featured-dev-posts-of-the-week-1682": {
     "ok": true,
     "title": "Top 7 Featured DEV Posts of the Week",
@@ -1694,6 +1702,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fox7963esvydjbsiqboye.jpeg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-10-17"
+  },
+  "https://dev.to/georgekobaidze/scared-to-publish-your-first-technical-article-dont-be-ill-be-there-to-read-it-1gg2": {
+    "ok": true,
+    "title": "Scared to Publish Your First Technical Article? Don't Be. I'll Be There to Read It",
+    "description": "⚡ In a hurry? Skip straight to the rules ⚡           Don't Make the Same Mistake I Did   I have...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fsj3z3wne9uej05d24y0q.jpeg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-05"
   },
   "https://dev.to/georgekobaidze/show-me-the-article-youre-most-proud-of-and-ill-read-every-single-one-of-them-1l53": {
     "ok": true,
@@ -2759,6 +2775,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-24"
   },
+  "https://dev.to/maame-codes/lets-see-where-you-code-147": {
+    "ok": true,
+    "title": "Let's see where you code!",
+    "description": "I’ve been writing a lot about AWS lately, so let’s take a breather. This is my little corner of the...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F8w7rf58mqbwxnvnh2bqp.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-05"
+  },
   "https://dev.to/maame-codes/localhost-is-a-lie-everything-uni-missed-about-real-world-tech-66n": {
     "ok": true,
     "title": "'Localhost' is a Lie: Everything Uni Missed About Real-World Tech",
@@ -3038,6 +3062,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fsergei-parfenov.com%2Fassets%2Fai-generated-tests-can-make-coding-agents-worse.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-16"
+  },
+  "https://dev.to/p0rt/i-use-ai-what-should-i-teach-my-daughter-3efp": {
+    "ok": true,
+    "title": "My reflections on raising a daughter in the age of AI",
+    "description": "A developer and father reflects on AI, independent thinking, books, and the example we set for our children.",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fhaqxbjqjlz8rvyqrpvpa.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-05"
   },
   "https://dev.to/p0rt/last-witness-an-ai-detective-for-a-dead-1999-website-graded-on-its-ghosts-4bbe": {
     "ok": true,
@@ -3590,6 +3622,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fu6u8k29samaiiw35red7.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/sylwia-lask/were-building-ai-to-replace-ourselves-whats-the-plan-4oll": {
+    "ok": true,
+    "title": "We're Building AI to Replace Ourselves. What's the Plan?",
+    "description": "Weren't we supposed to be replaced by AI by now? Or at least work less? AI agents were supposed to...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fmsqofwuj23waq6n4qaof.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-05"
   },
   "https://dev.to/sylwia-lask/what-if-your-ai-agent-never-had-to-leave-the-browser-demo--5g": {
     "ok": true,
