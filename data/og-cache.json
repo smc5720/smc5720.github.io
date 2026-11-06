@@ -631,6 +631,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/dannwaneri/dont-write-markdown-files-for-your-coding-agent-write-scripts-j00": {
+    "ok": true,
+    "title": "Don't Write Markdown Files for Your Coding Agent. Write Scripts.",
+    "description": "If you want agents to do what you want, you need to learn how to box them into deterministic actions....",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F701t0c2zifz0n0n7667t.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-06"
+  },
   "https://dev.to/dannwaneri/has-sloan-flagged-your-article-lately-1gmh": {
     "ok": true,
     "title": "Has Sloan Flagged Your Article Lately?",
@@ -958,6 +966,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F6slfo9r42iclob37v6hl.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/devteam/congrats-to-the-kaggle-benchmarking-challenge-winners-2moh": {
+    "ok": true,
+    "title": "Congrats to the Kaggle Benchmarking Challenge Winners!",
+    "description": "A few weeks ago we teamed up with Kaggle to ask a deceptively simple question: how do you actually...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fig8gi4bw1h7vk0z76krk.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-06"
   },
   "https://dev.to/devteam/fixing-delicate-cache-mismatches-in-a-brownfield-spa-a-pragmatic-solution-dk9": {
     "ok": true,
@@ -1518,6 +1534,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fh43gl7gigubj7unbkkaz.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-23"
+  },
+  "https://dev.to/gde/crows-moths-and-makefiles-how-300-megabytes-of-crow-dna-explains-why-a-20-kilobyte-scar-file-36a": {
+    "ok": true,
+    "title": "Crows, Moths, and Makefiles: How 300 Megabytes of Crow DNA Explains Why a 20-Kilobyte Scar File Outsmarts a Terabyte LLM",
+    "description": "Why do New Caledonian crows bend wire into hooks with zero training while a trillion-parameter LLM flies straight into the same production bug zapper? How Anthony Zador's Genomic Bottleneck explains what 'instinct' really is in AI coding agents.",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fp24lnbmzkhrdluxod8g5.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-06"
   },
   "https://dev.to/gde/dart-313-primary-constructors-blocsignal-boilerplate-free-reactive-architecture-5fll": {
     "ok": true,
@@ -3038,6 +3062,22 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fwkg82y5x1irq337p6yc5.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-30"
+  },
+  "https://dev.to/nyaomaru/meet-necoz-small-simple-useful-ppo": {
+    "ok": true,
+    "title": "Meet Necoz! 😸 Small. Simple. Useful.",
+    "description": "Hoi hoi! 👋  I'm @nyaomaru, a frontend engineer who loves TypeScript and cats! 😸  Today, I have some...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fxk1od80qev2aceo6uua4.gif",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-06"
+  },
+  "https://dev.to/nyaomaru/trick-or-type-guard-surviving-unknown-with-is-kit-4oc2": {
+    "ok": true,
+    "title": "Trick or Type Guard? Surviving `unknown` with is-kit 🎃",
+    "description": "Hoi hoi! 👋  I'm @nyaomaru, a frontend engineer who is scared of horror things 🙀  Happy Halloween!...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fedxqob3qk61zkrn9sudb.gif",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-06"
   },
   "https://dev.to/nyaomaru/typescript-compiler-api-preserving-child-node-narrowing-in-reusable-type-guards-4pgh": {
     "ok": true,

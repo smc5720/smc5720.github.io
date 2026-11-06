@@ -1,0 +1,83 @@
+﻿---
+title: "코딩 에이전트에게 마크다운 문서 대신 스크립트를 주라 (Don't Write Markdown Files for Your Coding Agent. Write Scripts.)"
+description: "코딩 에이전트를 원하는 대로 움직이게 하려면 마크다운 규칙 문서를 늘리기보다, 통과와 실패가 분명한 스크립트·훅·CI 검사로 바꿔야 한다는 주장입니다. 필자는 직접 겪은 사례를 근거로 듭니다."
+date: "2026-11-05"
+published_at: "2026-11-06"
+category: "news"
+tags: []
+slug: "dont-write-markdown-files-for-your-coding-agent-write-scripts"
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F701t0c2zifz0n0n7667t.jpg"
+coverAlt: "Don't Write Markdown Files for Your Coding Agent. Write Scripts."
+source_id: "devto-4948394"
+source_url: "https://dev.to/dannwaneri/dont-write-markdown-files-for-your-coding-agent-write-scripts-j00"
+source_title: "Don't Write Markdown Files for Your Coding Agent. Write Scripts."
+source_author: "Daniel Nwaneri"
+source_published: "2026-11-05"
+---
+
+<LinkCard url="https://dev.to/dannwaneri/dont-write-markdown-files-for-your-coding-agent-write-scripts-j00" author="Daniel Nwaneri" date="2026-11-05" />
+
+## 개요
+
+코딩 에이전트에게 일을 맡기는 팀이 늘면서 `AGENTS.md`, `CLAUDE.md`, 스타일 가이드, 런북 같은 마크다운 문서도 함께 쌓이고 있습니다. Daniel Nwaneri는 Dev.to에 올린 글에서 이런 흐름이 중간에 멈춘 해법이라고 지적합니다. 그가 보기에 마크다운 문서는 제약이 아니라 권고일 뿐입니다.
+
+그래서 필자의 결론은 간단합니다. 에이전트가 같은 일을 매번 같은 방식으로 하길 원한다면 문서를 더 쓰지 말고 스크립트를 쓰라는 것입니다.
+
+## 본문
+
+### 에이전트는 원래 '탐색하는' 도구다
+
+필자는 지금의 코딩 에이전트가 탐색적이고 열린 작업에 맞게 설계됐다고 봅니다. 모호한 프롬프트를 받으면 그럴듯한 패치를 만들고, 테스트를 돌리고, 몇 번 반복합니다. 프로토타입이나 처음부터 새로 만드는 작업이라면 이 방식이 잘 맞습니다.
+
+문제는 신뢰성이 필요할 때입니다. 같은 명령이 매번 같은 결과를 내야 하거나, 파일 20개에 같은 리팩터링을 적용해야 하거나, 배포 절차를 정해진 순서대로 밟아야 할 때가 그렇습니다. 이런 상황에서는 모호한 프롬프트도, "문서를 읽어 보라"는 지시도 오히려 위험 요소가 됩니다.
+
+![맥북 키보드 클로즈업](https://images.pexels.com/photos/136320/pexels-photo-136320.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Digital Buggu](https://www.pexels.com/photo/macbook-pro-close-up-photo-136320/) on [Pexels](https://www.pexels.com/photo/macbook-pro-close-up-photo-136320/)*
+
+### 문서가 많을수록 에이전트는 '판단'하려 든다
+
+에이전트는 문서를 읽고 요약하고 인용할 수 있습니다. "문서를 읽었고 최대한 따르겠다"고 답하기도 합니다. 하지만 문서 속 지시는 대부분 해석이 필요합니다.
+
+- "저장소의 기존 로깅 컨벤션을 따를 것" — 어떤 컨벤션이고, 어디에 있는가?
+- "함수는 작게 유지할 것" — 얼마나 작아야 하는가?
+- "푸시 전에 테스트를 돌릴 것" — 어떤 테스트를, 어떤 명령으로, 어떤 환경에서?
+
+에이전트는 이 모든 내용을 처리하고, 서로 부딪치는 지시 사이에서 균형을 잡고, 결국 판단을 내려야 합니다. 필자는 바로 이 판단 단계에서 에이전트가 엇나간다고 말합니다. 예를 들어 "문서에는 snake_case를 쓰라고 돼 있지만 이 파일은 camelCase다. 문서가 오래됐나 보다" 같은 식입니다. 에이전트는 도우려는 것이지만, 결과가 결정적이지는 않습니다.
+
+### 선호를 '실행 가능한 동작'으로 바꾸기
+
+결정적인 동작에는 판단이 끼어들 틈이 없습니다. 필자는 이렇게 바꾸자고 제안합니다.
+
+- "문서를 읽고 코딩 스타일을 따르라" → `./scripts/lint.sh`, `./scripts/format.sh`, `./scripts/test.sh` 실행
+- "리팩터링을 하라" → `ast-grep`, `jscodeshift`, `sed` 같은 도구로 변환 적용
+
+에이전트는 스크립트를 돌리고 통과 또는 실패라는 결과만 받습니다. 실패하면 정확한 에러 메시지가 나오니 해석하거나 추측할 거리가 없습니다. 어떤 파일을 고칠지도 에이전트가 정하지 않습니다. 스크립트가 처음부터 그렇게 설계돼 있기 때문입니다.
+
+필자는 이를 "에이전트에게 내 취향을 가르치는 방식"에서 "내 취향을 결정적인 동작으로 옮기는 방식"으로 넘어가는 패러다임 전환이라고 부릅니다. 마크다운 문서는 실행할 수 없지만 스크립트, 체크리스트, Makefile 타깃, GitHub Action은 실행할 수 있습니다. `make setup`, `make lint`, `make test`, `make build`가 갖춰져 있다면 에이전트는 팀의 코딩 철학을 이해할 필요가 없습니다. `make lint`를 돌리고 결과에 반응하면 그만입니다.
+
+이것이 에이전트를 단순하게 만들자는 뜻은 아닙니다. 필자가 강조하는 건 환경에서 모호함을 없애는 일입니다. 에이전트는 여전히 실패 원인을 읽고, 고치고, 테스트를 다시 돌릴 수 있습니다. 다만 상자 밖으로는 나가지 못합니다. 그 상자는 통과 아니면 실패로 끝나는 명령들로 이뤄져 있습니다.
+
+### 직접 겪은 두 가지 사례
+
+**문장 길이 규칙.** 필자는 AI 모델의 답변이 읽기 어렵다고 느껴, 항공기 정비 매뉴얼용 평이한 영어 표준인 ASD-STE100을 에이전트의 마크다운 규칙에 넣었습니다. 그중 "문장은 20단어 이하로 쓴다"는 규칙을 스크립트로 옮기면 `MAX_SENTENCE = 20` 한 줄이 됩니다. 에이전트가 한 세션에서 작성한 답변 10개에 이 스크립트를 돌렸더니 9개가 걸렸습니다. 다만 답변을 다 쓴 뒤에야 위반을 찾아냈는데, 미리 실행하도록 강제하는 장치가 없었기 때문입니다. 그래서 필자는 이 스크립트를 훅(hook)에 넣었습니다.
+
+**Forem에 보낸 수정.** 필자는 Ruby를 쓰지 않고 로컬에 Ruby를 설치하지도 않은 채 Forem에 수정 사항을 보냈습니다. 테스트 머신 역할은 CI가 맡았습니다. 수정 코드와 테스트는 코딩 어시스턴트가 작성했는데, 첫 실행이 실패했고 원인은 코드가 아닌 테스트 쪽에 있었습니다. 이 결과는 어시스턴트가 자기 작업을 어떻게 평가하든 상관없이 나왔습니다. 반면 쓰이지 않는 코드 한 줄은 CI를 그대로 통과했고, 리뷰어만 그 줄을 잡아냈습니다. 필자는 이렇게 정리합니다. 검사는 자신이 테스트하는 범위만 가둘 수 있다고요.
+
+관련 글: [I Don't Write Ruby. A Fix I Sent Is Now in Forem.](https://dev.to/dannwaneri/i-dont-write-ruby-a-fix-i-sent-is-now-in-forem-13c5)
+
+![타자기에 끼워진 흰 종이](https://images.pexels.com/photos/4106621/pexels-photo-4106621.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Markus Winkler](https://www.pexels.com/photo/vintage-typewriter-with-white-paper-4106621/) on [Pexels](https://www.pexels.com/photo/vintage-typewriter-with-white-paper-4106621/)*
+
+### 권고가 아니라 계약으로
+
+필자가 내놓는 실천 지침은 이렇습니다.
+
+- "잊지 말고 ~해 달라"는 요청은 명령으로 만든다.
+- "우리는 ~를 선호한다"는 문장은 검사로 만든다.
+- "푸시 전에 ~할 것"이라는 규칙은 pre-push 훅으로 만든다.
+
+에이전트는 로컬 훅을 건너뛸 수 있습니다. 그래서 필수 CI 잡과, 에이전트에게 수정 권한이 없는 머지 게이트로 한 번 더 막아야 한다고 필자는 덧붙입니다. 검사가 실패하면 에이전트는 고쳐서 다시 돌리면 됩니다. 이렇게 해야 에이전트를 결정적인 순서 안에 가둘 수 있습니다. 필자의 표현을 빌리면 이것은 권고가 아니라 계약(contract)이고, 에이전트는 검사를 통과하지 못한 작업을 내보낼 수 없습니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

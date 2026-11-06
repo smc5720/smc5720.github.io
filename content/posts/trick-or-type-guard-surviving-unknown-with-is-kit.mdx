@@ -1,0 +1,271 @@
+﻿---
+title: "Trick or Type Guard? is-kit으로 `unknown` 다루기 🎃"
+description: "TypeScript의 `unknown` 값을 is-kit의 작은 타입 가드로 검증하는 방법을 핼러윈 이야기로 풀었습니다. `struct`, `or`, `safeParse` 사용법과 `as any`가 왜 위험한지 함께 다룹니다."
+slug: "trick-or-type-guard-surviving-unknown-with-is-kit"
+date: "2026-10-31"
+published_at: "2026-11-06"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fedxqob3qk61zkrn9sudb.gif"
+coverAlt: "Trick or Type Guard? Surviving `unknown` with is-kit 🎃"
+source_id: "devto-4916522"
+source_url: "https://dev.to/nyaomaru/trick-or-type-guard-surviving-unknown-with-is-kit-4oc2"
+source_title: "Trick or Type Guard? Surviving `unknown` with is-kit 🎃"
+source_author: "nyaomaru"
+source_published: "2026-10-31"
+---
+
+<LinkCard url="https://dev.to/nyaomaru/trick-or-type-guard-surviving-unknown-with-is-kit-4oc2" author="nyaomaru" date="2026-10-31" />
+
+## 개요
+
+프론트엔드 엔지니어 nyaomaru가 핼러윈을 맞아 TypeScript의 `unknown` 타입을 다루는 법을 괴담처럼 풀어냈습니다. 좀비, 호박, 사탕 바구니, 흡혈귀가 차례로 등장하고, 각 장면마다 타입 안전성 관련 교훈이 하나씩 붙습니다.
+
+중심에는 작성자가 직접 만든 타입 가드 라이브러리 [is-kit](https://github.com/nyaomaru/is-kit)이 있습니다. 작은 가드를 여러 개 만들고 조합해서 다시 쓴다는 게 이 라이브러리의 생각입니다. 글은 `unknown`을 안전하게 좁히는 방법과, `as any`가 왜 진짜 괴물인지를 보여 주며 끝납니다.
+
+![halloween is-kit](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/6q34apw47hkutthxpbdk.gif)
+
+## 본문
+
+### 🧟 `unknown`은 "아직 확인하지 않은 값"이다
+
+무덤에서 정체를 알 수 없는 무언가가 기어 나옵니다.
+
+```ts
+const creature: unknown = JSON.parse('{"message":"BRAAAINS!"}');
+```
+
+속성에 바로 접근하려 하면 TypeScript가 막습니다.
+
+```ts
+console.log(creature.message);
+// ❌ 'creature' is of type 'unknown'.
+```
+
+`creature`가 좀비인지 유령인지, 아니면 귀여운 고양이인지 아직 아무도 모르기 때문입니다. **`unknown`은 값을 아직 검증하지 않았다는 뜻**입니다. `any`와 달리 아무 속성에나 접근하도록 놔두지 않는데, 작성자는 오히려 이 점이 좋다고 말합니다.
+
+간단한 경우부터 보겠습니다.
+
+```ts
+import { isString } from "is-kit";
+
+const voice: unknown = JSON.parse('"BRAAAINS!"');
+
+if (isString(voice)) {
+  console.log(voice.toUpperCase());
+  // BRAAAINS!
+}
+```
+
+물론 이 정도라면 `typeof voice === 'string'`로도 충분합니다. 한 번만 검사할 때는 그 방법도 전혀 문제없습니다. 차이는 검사할 대상이 커지고 복잡해질 때 드러납니다.
+
+### 🎃 중첩 객체는 `struct`로 검사한다
+
+이번에는 사탕이 가득 들었다는 커다란 호박이 등장합니다. 다만 속에 정확히 뭐가 들었는지는 아무도 모릅니다.
+
+![trick or treat 호박 장식](https://images.pexels.com/photos/5420896/pexels-photo-5420896.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Kaboompics](https://kaboompics.com/) on [Pexels](https://www.pexels.com/photo/ornamental-pumpkins-and-a-sign-trick-or-treat-on-a-board-5420896/)*
+
+```ts
+const pumpkin: unknown = JSON.parse(`{
+  "name": "Big Pumpkin",
+  "candies": ["Chocolate", "Lollipop", "Cookie"],
+  "spookyLevel": 99,
+  "keeper": {
+    "name": "cat",
+    "friendly": true
+  },
+  "secret": "Meow!"
+}`);
+```
+
+여기서도 `pumpkin.candies`에 바로 접근하면 같은 에러가 납니다. 꺼내기 전에 내용물부터 확인해야 합니다. is-kit에서는 `struct`로 작은 가드를 묶어 호박 전용 가드를 만듭니다.
+
+```ts
+import {
+  arrayOf,
+  isBoolean,
+  isNumber,
+  isString,
+  optionalKey,
+  struct,
+} from "is-kit";
+
+const isPumpkin = struct({
+  name: isString,
+  candies: arrayOf(isString),
+  spookyLevel: isNumber,
+  keeper: struct({
+    name: isString,
+    friendly: isBoolean,
+  }),
+  secret: optionalKey(isString),
+});
+```
+
+각 가드가 맡은 일은 다음과 같습니다.
+
+- `isString`: 문자열인지 확인
+- `isNumber`: 유한한 숫자(finite number)인지 확인
+- `arrayOf(isString)`: 문자열 배열인지 확인
+- `struct`: 중첩된 객체 구조 확인
+- `optionalKey`: 해당 속성이 없어도 통과
+
+만든 가드는 `safeParse`에 넘겨서 씁니다.
+
+```ts
+import { safeParse } from "is-kit";
+
+const result = safeParse(isPumpkin, pumpkin);
+
+if (result.valid) {
+  console.log(result.value.candies);
+  // ['Chocolate', 'Lollipop', 'Cookie']
+
+  console.log(result.value.keeper.name);
+  // cat 😸
+}
+```
+
+검증에 성공하면 `result.value`에는 가드에서 추론한 타입이 붙습니다. 실패하면 어떻게 될까요?
+
+```ts
+const cursedPumpkin = {
+  name: "Cursed Pumpkin",
+  candies: "100 candies",
+  spookyLevel: 99,
+  keeper: {
+    name: "cat",
+    friendly: true,
+  },
+};
+
+const result = safeParse(isPumpkin, cursedPumpkin);
+
+console.log(result);
+// { valid: false }
+```
+
+`candies`가 배열이 아니라 문자열이라서 가드가 저주받은 호박을 걸러 냈습니다.
+
+여기서 작성자가 강조하는 점이 두 가지 있습니다.
+
+- **`safeParse`는 잘못된 값을 고치거나 변환하지 않습니다.** 가드를 통과했는지만 알려 줍니다.
+- `struct`는 기본적으로 정의하지 않은 속성이 더 있어도 허용합니다. 추가로 붙은 열거 가능한 문자열 키(own enumerable string keys)까지 막으려면 `{ exact: true }` 옵션을 씁니다.
+
+### 🍬 여러 타입을 받으려면 `or`로 조합한다
+
+초인종이 울리고 누군가 정체불명의 선물을 건넵니다. 사탕일 수도 있고, 거미가 가득 든 상자일 수도 있습니다.
+
+```ts
+function receiveGift(): unknown {
+  return Math.random() > 0.5 ? "Chocolate" : { spiders: 100 };
+}
+
+const gift: unknown = receiveGift();
+```
+
+이번에는 문자열이든 숫자든 받아 주고 싶습니다. 이럴 때 `or`로 가드 두 개를 합칩니다.
+
+```ts
+import { isNumber, isString, or } from "is-kit";
+
+const isTreat = or(isString, isNumber);
+
+function trickOrTreat(gift: unknown) {
+  if (isTreat(gift)) {
+    // gift: string | number
+    return `🍬 Treat: ${gift}`;
+  }
+
+  return "👻 Trick!";
+}
+```
+
+```ts
+trickOrTreat("Chocolate");
+// 🍬 Treat: Chocolate
+
+trickOrTreat(100);
+// 🍬 Treat: 100
+
+trickOrTreat({ spiders: 100 });
+// 👻 Trick!
+```
+
+작성자가 is-kit에서 가장 좋아하는 부분이 바로 이것입니다. 거대한 검증기 하나를 짤 필요 없이 작은 가드를 만들어 조합하고, 필요한 곳에서 다시 쓰면 됩니다. 작성자는 이를 "작은 가드, 단순한 조합, 쓸모 있는 타입 좁히기(Small guards. Simple composition. Useful TypeScript narrowing.)"라고 정리합니다.
+
+### 🧛 최종 보스: 흡혈귀 `any`
+
+불이 꺼지고 문이 열리더니 최종 보스 **카운트 애니(Count Any)** 가 나타납니다. TypeScript가 아무것도 검사하지 못하게 만드는 능력을 가진 흡혈귀입니다.
+
+```ts
+const visitor: unknown = JSON.parse('{"name":666}');
+```
+
+원래라면 TypeScript가 검증 전 속성 접근을 막아 줍니다. 그런데 `as any`라는 저주를 걸면 얘기가 달라집니다.
+
+```ts
+const vampire = visitor as any;
+
+// The vampire ignores type safety!
+console.log(vampire.name.toUpperCase());
+```
+
+컴파일 에러는 나지 않습니다. 하지만 실행하면 이렇게 됩니다.
+
+```text
+TypeError: vampire.name.toUpperCase is not a function
+```
+
+`as any`는 숫자를 문자열로 바꿔 주지 않았습니다. TypeScript가 검사를 멈추게 했을 뿐입니다. 작동한다는 증거 없이도 연산을 허용한다는 점이 `any`가 위험한 이유입니다.
+
+`unknown`은 다르게 동작합니다.
+
+```ts
+const visitor: unknown = JSON.parse('{"name":666}');
+
+console.log(visitor.name.toUpperCase());
+// ❌ TypeScript stops us!
+```
+
+값을 확인하기 전까지는 한 발짝도 나가지 못하게 막습니다. 흡혈귀를 물리치는 방법은 역시 타입 가드입니다.
+
+```ts
+import { isString, struct } from "is-kit";
+
+const isFriendlyGuest = struct({
+  name: isString,
+});
+
+if (isFriendlyGuest(visitor)) {
+  console.log(visitor.name.toUpperCase());
+} else {
+  console.log("🧄 Not tonight, Count Any!");
+}
+```
+
+정확히는 이번에 들어온 저주받은 값 하나를 거부한 것입니다. 타입 가드는 런타임의 실제 값을 확인하지만, 타입 단언(type assertion)은 TypeScript가 그 값을 어떻게 믿을지만 바꿉니다.
+
+작성자는 한 가지를 더 짚습니다. **`unknown`도 `any`도 런타임 값을 바꾸지 않습니다.** 둘 다 TypeScript의 타입일 뿐이고, 차이는 값을 검증하기 전에 컴파일러가 무엇을 허용하느냐에 있습니다. 신뢰할 수 없는 데이터에 보통 `unknown`이 더 안전한 이유가 여기에 있습니다.
+
+### 😸 정리: 괴물별 교훈
+
+| 괴물 | TypeScript 교훈 |
+| --- | --- |
+| 🧟 Unknown Living Dead | `unknown`은 검사하지 않은 연산을 막는다 |
+| 🎃 Big Pumpkin | `struct`로 객체 구조를 검증한다 |
+| 🍬 Trick or Treat | `or`로 재사용 가능한 타입 가드를 조합한다 |
+| 🧛 Count Any | `any`는 일반적인 타입 검사를 건너뛴다 |
+
+작성자는 `any`가 늘 나쁜 것은 아니라고 덧붙입니다. 레거시 코드나 까다로운 외부 연동을 다룰 때는 쓸모가 있습니다. 다만 API 응답이나 파싱한 JSON처럼 믿을 수 없는 값은 검증이 끝날 때까지 `unknown`으로 두는 편이 대체로 훨씬 안전하다는 것이 작성자의 입장입니다. is-kit은 그 검사를 조합하고 재사용하기 쉽게 만들어 줍니다.
+
+더 알아보고 싶다면 공식 가이드 [How to Validate unknown in TypeScript Without a Schema Library](https://is-kit.dev/guides/validate-unknown-without-schema-library)를 참고하면 됩니다. 라이브러리 저장소는 아래 링크에서 볼 수 있습니다.
+
+[is-kit GitHub 저장소 보기 →](https://github.com/nyaomaru/is-kit)
+
+작성자의 마지막 한마디는 이렇습니다. **"진짜 괴물은 `unknown`이 아니라, 검사하지 않은 `any`다."** 🧛
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
