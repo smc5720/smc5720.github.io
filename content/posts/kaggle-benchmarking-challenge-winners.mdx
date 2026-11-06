@@ -4,7 +4,7 @@ description: "DEV와 Kaggle이 함께 연 벤치마킹 챌린지의 우승작 �
 date: "2026-11-05"
 published_at: "2026-11-06"
 category: "news"
-tags: []
+tags: ["ai","llm","google","news"]
 cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fig8gi4bw1h7vk0z76krk.png"
 coverAlt: "Congrats to the Kaggle Benchmarking Challenge Winners!"
 slug: "kaggle-benchmarking-challenge-winners"
@@ -31,7 +31,7 @@ DEV가 [Kaggle](https://www.kaggle.com)과 함께 진행한 [Kaggle 벤치마킹
 - 스페인의 위변조 방지 송장 장부 제도인 VeriFactu에서 [해시 입력값을 규격대로 재현하는지, 아니면 지어내는지](https://dev.to/guillermovs/spec-hash-or-guess-can-llms-keep-spains-tamper-proof-invoice-ledger-2kdb)
 - 신뢰할 수 없는 문서 속에 숨겨 둔 가짜 "공식 메모"에 [소형 로컬 모델이 휘둘리지 않는지](https://dev.to/emalia/480-cases-240-evil-twins-442)
 
-DEV 팀은 출품작 대부분이 작성자가 이미 어렵다고 알고 있던 구체적인 문제에서 출발했다는 점을 짚었습니다. 좋은 평가는 바로 그런 지점에서 나온다는 설명입니다. 새 모델이 나올 때마다 이 벤치마크를 계속 돌려 달라는 당부도 덧붙였습니다.
+DEV 팀은 출품작 대부분이 작성자가 이미 어렵다고 알고 있던 구체적인 문제에서 출발했다는 점을 짚었습니다. 좋은 평가는 대개 그런 데서 나온다는 얘기입니다. 새 모델이 나올 때마다 이 벤치마크를 계속 돌려 달라는 당부도 덧붙였습니다.
 
 ## 우승작 다섯 편
 
@@ -50,7 +50,7 @@ jonathansolvesstuff는 최신 모델 19개에 질문 하나를 던졌습니다. 
 
 [원문 보기 →](https://dev.to/nazar-boyko/the-models-read-the-release-notes-i-measured-the-runtime-gei)
 
-nazar-boyko는 PHP 배열과 Go 고루틴의 메모리 사용량에 관한 통념이 어느새 사실과 달라졌다는 점을 발견했습니다. 그래서 두 언어를 각각 네 버전씩 직접 측정해 실제 수치를 얻은 뒤, 같은 질문을 모델 12개에 물었습니다.
+nazar-boyko는 PHP 배열과 Go 고루틴의 메모리 사용량에 관한 통념이 어느새 사실과 달라졌다는 점을 발견했습니다. 두 언어를 각각 네 버전씩 직접 측정해 실제 수치를 얻은 뒤, 같은 질문을 모델 12개에 물었습니다.
 
 성능이 좋은 모델은 관련 릴리스 노트를 정확히 인용했지만, 그 내용을 엉뚱한 상황에 적용했습니다. 대부분의 모델은 틀린 답을 내면서도 확신도를 높게 보고했습니다.
 
@@ -66,7 +66,7 @@ rustam335는 모델 10개에게 Blender의 특정 버전 네 가지에 맞는 �
 
 [원문 보기 →](https://dev.to/kaichen_dev/would-todays-ai-have-caught-ariane-5-i-rebuilt-26-of-historys-costliest-bugs-to-find-out-5d8m)
 
-kaichen_dev는 역사상 가장 비싼 소프트웨어 실패 26건을 작은 코드 샘플로 재구성했습니다. 그리고 모델 13개에게 이 코드가 아직 배포 전이라고 가정하고 리뷰를 맡겼습니다.
+kaichen_dev는 역사상 가장 비싼 소프트웨어 실패 26건을 작은 코드 샘플로 재구성한 뒤, 아직 배포 전인 코드라고 가정하고 모델 13개에게 리뷰를 맡겼습니다.
 
 모델은 거의 매번 문제가 있다고 지적했지만, 이유가 틀린 경우가 많았습니다. 데이터베이스를 전혀 쓰지 않는 코드에서 SQL 인젝션을 찾아낸 사례도 있었습니다. 작성자는 각 사례를 위장한 버전과 이미 수정된 버전도 함께 넣었습니다. 유명한 버그를 외워서 알아보기만 하는 모델, 멀쩡한 코드에도 경보를 울리는 모델을 걸러내기 위해서입니다.
 

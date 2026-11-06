@@ -5,7 +5,7 @@ slug: "trick-or-type-guard-surviving-unknown-with-is-kit"
 date: "2026-10-31"
 published_at: "2026-11-06"
 category: "news"
-tags: []
+tags: ["typescript","javascript","frontend","opensource","tutorial"]
 cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fedxqob3qk61zkrn9sudb.gif"
 coverAlt: "Trick or Type Guard? Surviving `unknown` with is-kit 🎃"
 source_id: "devto-4916522"
@@ -21,7 +21,7 @@ source_published: "2026-10-31"
 
 프론트엔드 엔지니어 nyaomaru가 핼러윈을 맞아 TypeScript의 `unknown` 타입을 다루는 법을 괴담처럼 풀어냈습니다. 좀비, 호박, 사탕 바구니, 흡혈귀가 차례로 등장하고, 각 장면마다 타입 안전성 관련 교훈이 하나씩 붙습니다.
 
-중심에는 작성자가 직접 만든 타입 가드 라이브러리 [is-kit](https://github.com/nyaomaru/is-kit)이 있습니다. 작은 가드를 여러 개 만들고 조합해서 다시 쓴다는 게 이 라이브러리의 생각입니다. 글은 `unknown`을 안전하게 좁히는 방법과, `as any`가 왜 진짜 괴물인지를 보여 주며 끝납니다.
+중심에는 작성자가 직접 만든 타입 가드 라이브러리 [is-kit](https://github.com/nyaomaru/is-kit)이 있습니다. 작은 가드를 여러 개 만들고 조합해서 다시 쓴다는 게 이 라이브러리의 기본 발상입니다. 글은 `unknown`을 안전하게 좁히는 방법과, `as any`가 왜 진짜 괴물인지를 보여 주며 끝납니다.
 
 ![halloween is-kit](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/6q34apw47hkutthxpbdk.gif)
 
@@ -247,7 +247,7 @@ if (isFriendlyGuest(visitor)) {
 
 정확히는 이번에 들어온 저주받은 값 하나를 거부한 것입니다. 타입 가드는 런타임의 실제 값을 확인하지만, 타입 단언(type assertion)은 TypeScript가 그 값을 어떻게 믿을지만 바꿉니다.
 
-작성자는 한 가지를 더 짚습니다. **`unknown`도 `any`도 런타임 값을 바꾸지 않습니다.** 둘 다 TypeScript의 타입일 뿐이고, 차이는 값을 검증하기 전에 컴파일러가 무엇을 허용하느냐에 있습니다. 신뢰할 수 없는 데이터에 보통 `unknown`이 더 안전한 이유가 여기에 있습니다.
+작성자는 한 가지를 더 짚습니다. **`unknown`도 `any`도 런타임 값을 바꾸지 않습니다.** 둘 다 TypeScript의 타입일 뿐이고, 차이는 값을 검증하기 전에 컴파일러가 무엇을 허용하느냐에 있습니다. 신뢰할 수 없는 데이터에 보통 `unknown`을 권하는 것도 그래서입니다.
 
 ### 😸 정리: 괴물별 교훈
 
@@ -258,7 +258,7 @@ if (isFriendlyGuest(visitor)) {
 | 🍬 Trick or Treat | `or`로 재사용 가능한 타입 가드를 조합한다 |
 | 🧛 Count Any | `any`는 일반적인 타입 검사를 건너뛴다 |
 
-작성자는 `any`가 늘 나쁜 것은 아니라고 덧붙입니다. 레거시 코드나 까다로운 외부 연동을 다룰 때는 쓸모가 있습니다. 다만 API 응답이나 파싱한 JSON처럼 믿을 수 없는 값은 검증이 끝날 때까지 `unknown`으로 두는 편이 대체로 훨씬 안전하다는 것이 작성자의 입장입니다. is-kit은 그 검사를 조합하고 재사용하기 쉽게 만들어 줍니다.
+작성자는 `any`가 늘 나쁜 것은 아니라고 덧붙입니다. 레거시 코드나 까다로운 외부 연동을 다룰 때는 쓸모가 있습니다. 다만 API 응답이나 파싱한 JSON처럼 믿을 수 없는 값이라면, 검증이 끝날 때까지 `unknown`으로 두는 편이 대체로 훨씬 안전하다고 봅니다. is-kit은 그 검사를 조합하고 재사용하기 쉽게 만들어 줍니다.
 
 더 알아보고 싶다면 공식 가이드 [How to Validate unknown in TypeScript Without a Schema Library](https://is-kit.dev/guides/validate-unknown-without-schema-library)를 참고하면 됩니다. 라이브러리 저장소는 아래 링크에서 볼 수 있습니다.
 
