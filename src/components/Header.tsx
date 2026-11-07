@@ -46,7 +46,7 @@ export function Header() {
         {/* ── 워드마크 + 태그라인 ── */}
         <Link href="/" className="hdr-mark" aria-label="홈으로">
           <span className="hdr-mark-name">RicoCheese</span>
-          <span className="hdr-tagline">기술 뉴스와 기록</span>
+          <span className="hdr-tagline">기술 뉴스와 개발 기록</span>
         </Link>
 
         <div className="hdr-right">

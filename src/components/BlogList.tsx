@@ -369,7 +369,7 @@ export function BlogList({ posts, years, tags }: Props) {
         aria-expanded={tabletSheetOpen}
         onClick={() => setTabletSheetOpen((v) => !v)}
       >
-        태그 · 연도 필터 {tabletSheetOpen ? "▴" : "▾"}
+        태그·연도 필터 {tabletSheetOpen ? "▴" : "▾"}
       </button>
     </>
   );
@@ -397,7 +397,7 @@ export function BlogList({ posts, years, tags }: Props) {
                 <input
                   type="search"
                   aria-label="글 검색"
-                  placeholder="제목 · 설명 · 태그 검색"
+                  placeholder="제목, 설명, 태그 검색"
                   value={localSearch}
                   onChange={(e) => {
                     setLocalSearch(e.target.value);
@@ -430,7 +430,7 @@ export function BlogList({ posts, years, tags }: Props) {
                 ))}
               </div>
 
-              <div className="blog-seg" role="group" aria-label="뷰 전환">
+              <div className="blog-seg" role="group" aria-label="보기 방식 변경">
                 {(
                   [
                     ["grid", "Grid"],
@@ -512,7 +512,7 @@ export function BlogList({ posts, years, tags }: Props) {
                     </button>
                   )
                 )}
-                <span className="blog-pagination-size">{PAGE_SIZE}편 / 페이지</span>
+                <span className="blog-pagination-size">페이지당 {PAGE_SIZE}편</span>
               </div>
 
               <div className="blog-pagination-numbers blog-pagination-numbers--compact">

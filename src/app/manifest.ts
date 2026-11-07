@@ -6,7 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "RicoCheese's Blog",
     short_name: 'RicoCheese',
-    description: '기술 뉴스를 모으고, 가끔 직접 쓰는 개인 블로그.',
+    description: '기술 뉴스를 모으고 가끔 직접 글을 쓰는 블로그.',
     start_url: '/',
     display: 'standalone',
     theme_color: '#0c0c0d',

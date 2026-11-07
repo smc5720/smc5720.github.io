@@ -20,7 +20,7 @@ export function PrevNextCards({ prev, next }: Props) {
         </Link>
       ) : (
         <div className="pnc-placeholder" aria-hidden="true">
-          이전 글 없음 (가장 오래된 글)
+          이전 글이 없습니다. 가장 오래된 글입니다.
         </div>
       )}
 
@@ -34,7 +34,7 @@ export function PrevNextCards({ prev, next }: Props) {
         </Link>
       ) : (
         <div className="pnc-placeholder" aria-hidden="true">
-          다음 글 없음 (가장 최근 글)
+          다음 글이 없습니다. 가장 최근 글입니다.
         </div>
       )}
     </div>

@@ -6,7 +6,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "404 — 페이지를 찾을 수 없습니다",
-  description: "요청한 페이지가 존재하지 않습니다.",
+  description: "요청한 페이지를 찾을 수 없습니다.",
 };
 
 // Build hash: static export에는 런타임이 없어 고정 플레이스홀더로 둔다.
@@ -24,7 +24,7 @@ export default function NotFound() {
         <div className="nf-status">
           <div className="nf-status-left">
             <span className="nf-status-chip">ERROR</span>
-            <span>라우트를 찾지 못했습니다</span>
+            <span>요청한 경로를 찾을 수 없습니다.</span>
             <span>404</span>
           </div>
           <div>{BUILD_HASH}</div>
@@ -39,13 +39,13 @@ export default function NotFound() {
 
           <div style={{ display: "flex", flexDirection: "column", gap: 18, maxWidth: 560 }}>
             <h1 style={{ margin: 0, fontSize: 34, lineHeight: 1.3, fontWeight: 700, letterSpacing: "-.03em", color: "var(--color-fg-strong)" }}>
-              이 주소에는 글이 없습니다
+              이 주소에 해당하는 글이 없습니다
               <span style={{ color: "var(--color-accent)" }}>.</span>
             </h1>
 
             <p style={{ margin: 0, fontSize: 16, lineHeight: 1.75, color: "var(--color-fg-muted)" }}>
-              주소가 바뀌었거나 글이 지워졌을 수 있습니다. 제목을 기억한다면 목록에서 검색하는
-              편이 빠릅니다.
+              주소가 변경되었거나 글이 삭제되었을 수 있습니다. 제목을 알고 있다면 글 목록에서 검색해
+              보세요.
             </p>
 
             {/* Pathname display — Client Component (usePathname requires client) */}
@@ -76,7 +76,7 @@ export default function NotFound() {
               }}
             >
               <div style={{ fontSize: 14, fontWeight: 600, color: "var(--color-fg-muted)" }}>
-                최근 글에서 찾아보기
+                최근 글에서 찾아보세요
               </div>
               <Link href="/blog" className="arrow-link">
                 <span>전체 글</span>

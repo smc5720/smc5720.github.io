@@ -166,7 +166,7 @@ export async function LinkCard({ url, title, author, date }: LinkCardProps) {
           <span className="link-card-fallback-meta">
             {og.siteName || domain}
             <span aria-hidden="true"> · </span>
-            {og.description || "설명 없음"}
+            {og.description || "설명이 없습니다."}
           </span>
         </span>
         <span className="link-card-fallback-arrow" aria-hidden="true">

@@ -7,7 +7,7 @@ import type { PostMeta } from "@/types/post";
 
 export const metadata = {
   title: "About",
-  description: "RicoCheese — Backend Engineer. 코드, 회고, 릴리스 노트를 기록하는 기술 블로그.",
+  description: "RicoCheese — Backend Engineer. 개발 기록과 회고, 릴리스 노트를 남기는 기술 블로그.",
 };
 
 // ──────────────────────────────────────────────────────────────
@@ -31,32 +31,32 @@ const NOW_ITEMS: Array<{
   {
     bucket: "Building",
     status: "active",
-    title: "개인 토이 프로젝트를 하나씩 만들어 가는 중",
-    body: "업무에서 반복적인 작업을 마주칠 때마다 자동화 아이디어가 쌓입니다. 그 중 몇 가지를 개인 프로젝트로 꺼내 직접 만들어보고 있습니다. 이 블로그도 그 중 하나입니다.",
+    title: "개인 프로젝트를 하나씩 만들고 있습니다",
+    body: "업무 중 반복되는 작업을 만날 때마다 자동화 아이디어를 떠올립니다. 그중 몇 가지는 개인 프로젝트로 직접 만들어 보고 있습니다. 이 블로그도 그중 하나입니다.",
   },
   {
     bucket: "Writing",
     status: "active",
-    title: "개발하며 새로 알게 된 것, 또는 관심 가는 이슈",
-    body: "개발하면서 새로 알게 된 것, 또는 관심 가는 사회 이슈를 가져와서 씁니다. 잘 쓰는 것보다 꾸준히 쓰는 게 먼저입니다.",
+    title: "개발하며 알게 된 것과 관심 있는 이슈를 기록합니다",
+    body: "개발하면서 새롭게 알게 된 내용이나 관심 있게 지켜보는 사회 이슈를 글로 정리합니다. 완성도에 신경 쓰기보다 꾸준히 기록하는 데 집중하고 있습니다.",
   },
   {
     bucket: "Learning",
     status: "planned",
-    title: "Harness 엔지니어링 공부 중",
-    body: "CI/CD 파이프라인 고도화에 관심이 생겨 Harness를 파고들고 있습니다. 배포 자동화와 릴리스 관리를 더 잘하고 싶은 마음에서 시작했습니다.",
+    title: "Harness를 공부하고 있습니다",
+    body: "CI/CD 파이프라인을 개선하는 데 관심이 생겨 Harness를 공부하고 있습니다. 배포 자동화와 릴리스 관리를 더 잘해보고 싶어 시작했습니다.",
   },
   {
     bucket: "Automating",
     status: "planned",
-    title: "반복을 발견하면 자동화부터 생각한다",
-    body: "업무든 일상이든 같은 일을 두 번 하면 어떻게 줄일 수 있을지 먼저 생각합니다.",
+    title: "반복되는 일은 자동화할 방법부터 찾습니다",
+    body: "업무든 일상이든 같은 일을 반복하게 되면 더 간단하게 처리할 방법이 있는지 먼저 살펴봅니다.",
   },
   {
     bucket: "Resting",
     status: "hold",
-    title: "쉴 땐 그냥 집에 늘어져 있기",
-    body: "쉴 땐 그냥 집에 늘어져 있는 걸 좋아합니다.",
+    title: "쉬는 날에는 집에서 느긋하게 보냅니다",
+    body: "쉬는 날에는 특별한 계획 없이 집에서 편하게 보내는 걸 좋아합니다.",
   },
 ];
 
@@ -64,43 +64,43 @@ const INTERESTS = [
   {
     tag: "AUTOMATION",
     color: "var(--color-accent-text)",
-    title: "반복을 발견하면 자동화부터 생각한다",
-    body: "업무든 일상이든 같은 일을 두 번 하면 어떻게 줄일 수 있을지 먼저 생각합니다. 작은 스크립트 하나가 하루의 리듬을 바꾼다고 믿습니다.",
+    title: "반복되는 일은 자동화할 방법부터 찾습니다",
+    body: "업무든 일상이든 반복되는 일을 보면 줄일 방법부터 생각합니다. 간단한 스크립트 하나만으로도 번거로운 작업을 꽤 줄일 수 있습니다.",
     refs: ["automation", "scripting", "tools"],
   },
   {
     tag: "CONCURRENCY",
     color: "var(--color-cat-news)",
-    title: "동시성과 분산 락",
-    body: "대규모 트래픽 환경에서 동시 요청을 어떻게 제어할 것인가. Redis 분산 락, Cache Stampede 방지 같은 문제를 실무에서 자주 마주치고, 그럴수록 더 깊이 파고들게 됩니다.",
+    title: "동시성 제어와 분산 락",
+    body: "여러 요청이 동시에 들어오는 상황을 어떻게 처리할지에 관심이 많습니다. Redis 분산 락이나 Cache Stampede 방지처럼 실무에서 마주친 문제를 하나씩 살펴보고 있습니다.",
     refs: ["concurrency", "redis", "distributed-systems"],
   },
   {
     tag: "OBSERVABILITY",
     color: "var(--color-cat-release)",
     title: "모니터링과 관측 가능성",
-    body: "시스템이 지금 어떤 상태인지 눈으로 볼 수 있어야 합니다. OpenTelemetry, Grafana, 메트릭/트레이스 파이프라인 구성에 관심이 많습니다.",
+    body: "시스템 상태를 파악하고 문제를 빠르게 찾을 수 있는 환경에 관심이 있습니다. OpenTelemetry와 Grafana를 비롯해 메트릭·트레이스 수집 환경을 살펴보고 있습니다.",
     refs: ["opentelemetry", "grafana", "observability"],
   },
   {
     tag: "CI/CD",
     color: "var(--color-cat-dev)",
     title: "배포 파이프라인 설계",
-    body: "Jenkins, GitHub Actions, 그리고 요즘은 Harness까지. 릴리스가 두렵지 않은 파이프라인을 만드는 게 목표입니다. 자동화가 가장 빛나는 순간입니다.",
+    body: "Jenkins와 GitHub Actions를 사용해 왔고, 최근에는 Harness도 공부하고 있습니다. 배포 과정에서 반복되는 작업과 실수를 줄일 수 있는 파이프라인을 만드는 데 관심이 있습니다.",
     refs: ["cicd", "harness", "devops"],
   },
   {
     tag: "PERFORMANCE",
     color: "var(--color-accent-text)",
-    title: "SQL 튜닝과 응답 속도",
-    body: "쿼리 하나가 DB 전체 부하를 바꿉니다. 슬로우 쿼리를 잡고 인덱스를 설계하는 과정이 퍼즐 같아서 좋습니다.",
+    title: "SQL 튜닝과 응답 속도 개선",
+    body: "쿼리 하나가 서비스 응답 속도와 DB 부하에 영향을 주는 점이 흥미롭습니다. 슬로우 쿼리를 확인하고 인덱스를 조정하면서 원인을 찾아가는 과정을 좋아합니다.",
     refs: ["sql", "performance", "mysql"],
   },
   {
     tag: "WRITING",
     color: "var(--color-cat-dev)",
-    title: "쓰면서 생각하기",
-    body: "글이 사고를 따라가는 게 아니라, 글이 사고를 압축한다고 생각합니다. 그래서 메모는 항상 글의 형태로 남깁니다.",
+    title: "글을 쓰며 생각 정리하기",
+    body: "글로 정리하다 보면 생각도 함께 정리됩니다. 그래서 떠오른 내용은 짧게라도 문장으로 남겨두려고 합니다.",
     refs: ["writing", "retro"],
   },
 ];
@@ -210,7 +210,7 @@ function ProfileCard() {
             RicoCheese
           </div>
           <div style={{ fontSize: 14, color: "var(--color-fg-muted)", marginTop: 4 }}>
-            Backend Engineer · 블로그 운영
+            Backend Engineer · 개인 블로그 운영
           </div>
         </div>
 
@@ -359,8 +359,8 @@ export default async function AboutPage() {
 
             <h1 className="blog-head-title">소개</h1>
             <p className="blog-head-lede">
-              서울에서 Java·Spring Boot로 백엔드를 만듭니다. 이 페이지는 지금 하는 일과 즐겨 쓰는
-              도구, 그리고 어디서 더 볼 수 있는지를 정리해 둔 자리입니다.
+              서울에서 Java와 Spring Boot로 백엔드를 개발하고 있습니다. 현재 하는 일과 주로 사용하는
+              도구, 다른 활동을 볼 수 있는 곳을 정리했습니다.
             </p>
           </div>
         </div>
@@ -374,18 +374,18 @@ export default async function AboutPage() {
           <div style={{ display: "flex", flexDirection: "column", gap: 20, maxWidth: 720 }}>
             <SectionHead num="01" title="Intro" />
             <p style={{ margin: 0, fontSize: 17, lineHeight: 1.85, color: "var(--color-fg-body)" }}>
-              안녕하세요, <strong>RicoCheese</strong>입니다. 서울에서 일하는 백엔드 엔지니어이고,{" "}
-              <strong>Java / Spring Boot</strong>를 주력으로 게임 업계 대형 서비스 백엔드를
-              개발하고 있습니다. 이 블로그는 제가 일하면서 배운 것, 만들어 본 것, 가끔은 실패한
-              것을 정리해두는 작업실 일지입니다.
+              안녕하세요. <strong>RicoCheese</strong>입니다. 서울에서 백엔드 엔지니어로 일하고 있으며,{" "}
+              <strong>Java / Spring Boot</strong>를 주로 사용해 게임 서비스의 백엔드를 개발하고
+              있습니다. 이 블로그는 업무에서 배운 것, 직접 만들어 본 것, 가끔은 실패한 것까지 정리해
+              두는 작업실 일지입니다.
             </p>
             <p style={{ margin: 0, fontSize: 17, lineHeight: 1.85, color: "var(--color-fg-body)" }}>
-              반복 작업을 발견하면 자연스럽게 자동화로 해결하려 합니다. 좋은 도구를 만드는 일은
-              결국 동료의 시간을 줄여주는 일이고, 그게 제가 이 직업에서 가장 좋아하는 부분입니다.
+              반복되는 작업을 보면 자동화할 방법부터 생각합니다. 직접 만든 도구가 동료들의 시간을
+              조금이라도 아껴줄 때 가장 큰 보람을 느낍니다.
             </p>
             <p style={{ margin: 0, fontSize: 17, lineHeight: 1.85, color: "var(--color-fg-body)" }}>
-              글을 쓰는 이유는 단순합니다 — 한 달 뒤의 제가 검색해서 도움을 받기 위해서입니다.
-              그렇게 쓰다 보니 가끔은 다른 분에게도 닿더라고요. 그게 부수적인 즐거움입니다.
+              글을 쓰는 가장 큰 이유는 나중에 제가 다시 찾아보기 위해서입니다. 기록을 쌓다 보니 다른
+              분들에게도 도움이 되는 경우가 있었고, 그 점도 글을 계속 쓰게 하는 이유 중 하나입니다.
             </p>
           </div>
         </div>
@@ -396,7 +396,7 @@ export default async function AboutPage() {
         <SectionHead
           num="02"
           title="Now"
-          right={<span>최종 갱신 2026-09-03</span>}
+          right={<span>마지막 업데이트 2026-09-03</span>}
         />
         <div className="now-grid">
           {NOW_ITEMS.map((it, i) => (
@@ -404,7 +404,6 @@ export default async function AboutPage() {
           ))}
         </div>
         <p className="small" style={{ marginTop: 16 }}>
-          이 형식은{" "}
           <a
             className="link"
             href="https://nownownow.com"
@@ -414,7 +413,7 @@ export default async function AboutPage() {
           >
             now page
           </a>{" "}
-          관행을 따릅니다 — 한 달 단위로 정리합니다.
+          형식을 참고해 한 달에 한 번씩 근황을 정리합니다.
         </p>
       </section>
 
@@ -472,9 +471,9 @@ export default async function AboutPage() {
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             <SectionHead num="06" title="Colophon" />
             <p className="about-quote">
-              좋은 도구를 만드는 일은 결국{" "}
-              <span className="home-hero-em">동료의 시간을 줄여주는 일</span>이다. 그게 내가 이
-              직업에서 가장 좋아하는 부분.
+              좋은 도구를 만들어{" "}
+              <span className="home-hero-em">동료의 시간을 아끼는 일</span>. 제가 개발을 하면서
+              가장 보람을 느끼는 부분입니다.
             </p>
           </div>
 
@@ -512,7 +511,7 @@ export default async function AboutPage() {
         </div>
 
         <p style={{ marginTop: 12, fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--color-fg-subtle)" }}>
-          출처: Umami 공개 대시보드. 방문 수치는 15분 간격으로 갱신됩니다.
+          Umami 공개 대시보드 기준이며, 방문 수치는 15분마다 갱신됩니다.
         </p>
       </section>
 

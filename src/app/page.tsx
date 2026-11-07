@@ -45,14 +45,14 @@ export default function HomePage() {
         <div className="frame">
           <div className="home-hero-inner">
             <h1 className="home-hero-title">
-              매일의 기술 뉴스를 모으고,
+              매일 기술 뉴스를 모으고,
               <br />
-              가끔 직접 쓴다.
+              가끔은 직접 글을 씁니다.
             </h1>
             <p className="home-hero-lead">
-              <span className="home-hero-em">인프라</span>와{" "}
-              <span className="home-hero-em">오픈소스</span>, 그리고{" "}
-              <span className="home-hero-em">개발 조직</span>에 관한 글을 남기는 개인
+              <span className="home-hero-em">인프라</span>,{" "}
+              <span className="home-hero-em">오픈소스</span>,{" "}
+              <span className="home-hero-em">개발 조직</span>에 관한 이야기를 기록하는
               블로그입니다.
             </p>
             <div className="home-hero-actions">
@@ -74,8 +74,8 @@ export default function HomePage() {
         <div className="home-column frame">
           {posts.length === 0 ? (
             <div className="home-empty">
-              <p className="home-empty-title">아직 작성된 글이 없습니다.</p>
-              <p className="home-empty-desc">content/posts/ 에 .mdx 파일을 추가하세요</p>
+              <p className="home-empty-title">아직 등록된 글이 없습니다.</p>
+              <p className="home-empty-desc">content/posts/에 .mdx 파일을 추가하면 글이 표시됩니다.</p>
             </div>
           ) : (
             <>
@@ -163,8 +163,8 @@ export default function HomePage() {
               <div className="home-principle">
                 <div className="home-principle-label">운영 원칙</div>
                 <p className="home-principle-text">
-                  매일 수집되는 뉴스는 기록이고, 직접 쓴 글은 기준이다. 이 블로그는 그
-                  둘을 같은 자리에 둔다.
+                  매일 모으는 뉴스는 기록이고, 직접 쓴 글은 기준입니다. 이 블로그는 그
+                  둘을 한자리에 둡니다.
                 </p>
               </div>
 
