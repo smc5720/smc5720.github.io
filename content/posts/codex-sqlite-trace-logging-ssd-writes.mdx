@@ -4,7 +4,7 @@ description: "Codex CLI의 로그 DB가 TRACE 레벨 로그를 쉬지 않고 기
 date: "2026-11-02"
 published_at: "2026-11-07"
 category: "news"
-tags: []
+tags: ["ai","openai","database","devops","news"]
 slug: "codex-sqlite-trace-logging-ssd-writes"
 cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fuwumzuicrzyp2slqdp54.png"
 coverAlt: "Codex Was Torching Your SSD and Nobody Noticed for Months"
@@ -73,7 +73,7 @@ Codex 로그 DB는 진단 정보를 일정량만 보관하도록 설계됐습니
 
 ### 1. TRACE가 기본으로 켜져 있었다
 
-TRACE는 디버깅할 때 직접 켜는 레벨이지, 몇 시간씩 쓰는 도구의 기본값으로 둘 레벨이 아닙니다. 보고에 따르면 Codex는 피드백용 로깅 싱크를 TRACE 레벨로 초기화했습니다. 그 결과 평범한 작업 하나하나가 대량의 진단 데이터로 바뀌었습니다.
+TRACE는 디버깅할 때 직접 켜는 레벨이지, 몇 시간씩 쓰는 도구의 기본값으로 둘 레벨이 아닙니다. 보고에 따르면 Codex는 피드백용 로깅 싱크를 TRACE 레벨로 초기화했습니다. 그러다 보니 평범한 작업 하나하나가 대량의 진단 데이터로 바뀌었습니다.
 
 ### 2. `RUST_LOG=warn`이 제대로 먹히지 않았다
 
@@ -114,9 +114,9 @@ SQLite는 보통 WAL(write-ahead logging) 모드를 씁니다. 단순하게 정�
 
 SSD는 작은 페이지 단위로 쓰지만 지울 때는 훨씬 큰 블록 단위로 지웁니다. 블록 일부만 바뀌면 컨트롤러는 새 데이터를 다른 위치에 쓰고, 기존 데이터를 무효 처리한 뒤, 나중에 유효한 페이지를 옮기고 블록을 지웁니다. 이것이 가비지 컬렉션입니다. 특정 영역만 먼저 닳지 않도록 쓰기 위치를 분산하는 웨어 레벨링도 함께 돌아갑니다.
 
-둘 다 필요한 기능이지만, 결과적으로 플래시 메모리에는 운영체제가 요청한 것보다 더 많은 물리적 쓰기가 일어날 수 있습니다. 이 비율을 쓰기 증폭 계수(write amplification factor)라고 부릅니다. 값은 드라이브, 여유 공간, 작업 패턴, 컨트롤러에 따라 다릅니다. 이번 사례에서는 실제 증폭 배율을 측정하지 않았으므로, 추정한 물리적 마모량을 정확한 수치로 받아들이면 안 됩니다.
+둘 다 필요한 기능이긴 한데, 그 탓에 플래시 메모리에는 운영체제가 요청한 것보다 더 많은 물리적 쓰기가 일어날 수 있습니다. 이 비율을 쓰기 증폭 계수(write amplification factor)라고 부릅니다. 값은 드라이브, 여유 공간, 작업 패턴, 컨트롤러에 따라 다릅니다. 이번 사례에서는 실제 증폭 배율을 측정하지 않았으므로, 추정한 물리적 마모량을 정확한 수치로 받아들이면 안 됩니다.
 
-원문은 방향성만큼은 분명하다고 말합니다. 작고 무작위적인 쓰기가 끊임없이 반복되는 작업은 SSD가 가장 힘들어하는 유형 중 하나입니다.
+그래도 방향만큼은 분명합니다. 작고 무작위적인 쓰기가 끊임없이 반복되는 작업은 SSD가 가장 힘들어하는 유형 중 하나입니다.
 
 ## 640TB면 위험한가
 
