@@ -895,6 +895,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/devteam/an-update-on-the-hacktoberfest-open-source-ai-challenge-ghost-in-the-machine-winners-44bp": {
+    "ok": true,
+    "title": "An Update on the Hacktoberfest Open-Source AI Challenge: Ghost in the Machine Winners",
+    "description": "Hey all, we have a quick update for everyone who participated in the Hacktoberfest Open-Source AI...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Frhtnbaz5elh8xcpmie86.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-07"
+  },
   "https://dev.to/devteam/congrats-to-the-dev-weekend-challenge-dog-days-edition-winners-300g": {
     "ok": true,
     "title": "Congrats to the DEV Weekend Challenge: Dog Days Edition Winners!",
@@ -1126,6 +1134,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F2opg07psqe8nnzs5kk1l.jpg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/devteam/what-was-your-win-this-week-28dh": {
+    "ok": true,
+    "title": "What was your win this week?",
+    "description": "👋👋👋👋 Looking back on your week -- what was something you're proud of? All wins count -- big or small...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fkj5tyulak1xdbx8ga5ob.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-07"
   },
   "https://dev.to/devteam/what-was-your-win-this-week-2hcb": {
     "ok": true,
@@ -1942,6 +1958,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2Fxts8vd42clj4mtf7mliy.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/gramli/webmcp-attack-lab-can-an-e-shop-hijack-your-ai-agent-4oe5": {
+    "ok": true,
+    "title": "WebMCP Attack Lab: Can an E-Shop Hijack Your AI Agent?",
+    "description": "WebMCP is a proposed web standard that, at least to me, looks very promising. I already played around...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fv7lgr9ne1q8nrb0kchad.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-07"
   },
   "https://dev.to/hadil/from-rank-6000000-to-26000-15-years-1040-leetcode-problems-and-a-surprise-package-that-43e2": {
     "ok": true,
@@ -3839,6 +3863,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/varshithvhegde/codex-was-torching-your-ssd-and-nobody-noticed-for-months-4c5h": {
+    "ok": true,
+    "title": "Codex Was Torching Your SSD and Nobody Noticed for Months",
+    "description": "Your Codex log file looked fine. Your SSD counters did not.   The file was small.  That was...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fuwumzuicrzyp2slqdp54.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-07"
+  },
   "https://dev.to/varshithvhegde/i-built-a-chat-app-that-rewrites-its-own-ui-in-real-time-21m5": {
     "ok": true,
     "title": "I Built a Chat App That Rewrites Its Own UI in Real Time",
@@ -3926,6 +3958,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ffs2okw5d4za2fq1v81yw.jpg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-19"
+  },
+  "https://dev.to/xulingfeng/an-ai-testing-presentation-became-the-final-push-for-organizational-change-at-my-company-12ag": {
+    "ok": true,
+    "title": "An AI Testing Presentation Became the Final Push for Organizational Change at My Company",
+    "description": "From a multi-agent testing experiment to a broader discussion about how engineering teams should...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fixx20m4903kd4gqasfhz.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-07"
   },
   "https://dev.to/xulingfeng/back-from-wudang-mountain-the-book-is-under-review-2o3b": {
     "ok": true,
