@@ -1,0 +1,198 @@
+﻿---
+title: "AWS·Azure·GCP·오픈소스를 한 번에 전환하는 시스템 디자인 시각화 사이트 'System Design Explainer'"
+description: "실제 서비스 36개의 아키텍처를 다이어그램으로 보여주고, 같은 구조를 클릭 한 번으로 AWS·GCP·Azure·오픈소스 서비스명으로 바꿔 보여주는 오픈소스 학습 사이트가 공개됐습니다. 요청이 컴포넌트를 거쳐 가는 과정을 단계별로 재생하는 기능도 있습니다."
+date: "2026-11-02"
+published_at: "2026-11-08"
+category: "news"
+tags: []
+slug: "system-design-explainer-multi-cloud-visual-reference"
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F31ijp8806lrw0lbpfmkd.png"
+coverAlt: "I Built a Visual System Design Reference — Switch Any Architecture Between AWS, Azure, GCP & Open Source"
+source_id: "devto-4964878"
+source_url: "https://dev.to/amananandrai/i-built-a-visual-system-design-reference-switch-any-architecture-between-aws-azure-gcp-open-55og"
+source_title: "I Built a Visual System Design Reference — Switch Any Architecture Between AWS, Azure, GCP & Open Source"
+source_author: "amananandrai"
+source_published: "2026-11-02"
+---
+
+<LinkCard url="https://dev.to/amananandrai/i-built-a-visual-system-design-reference-switch-any-architecture-between-aws-azure-gcp-open-55og" author="amananandrai" date="2026-11-02" />
+
+## 개요
+
+유튜브는 영상 업로드를 어떻게 처리할까요? 우버는 승객과 기사를 실시간으로 어떻게 연결할까요? 이런 질문에 다이어그램으로 답하는 사이트가 나왔습니다. 개발자 amananandrai가 공개한 **System Design Explainer**입니다.
+
+이 사이트는 실제 서비스의 아키텍처를 다이어그램으로 그려 보여주고, 같은 구조를 **범용(Generic), AWS, Google Cloud, Azure, 오픈소스** 다섯 가지 관점으로 바꿔 볼 수 있게 했습니다. 요청 하나가 어떤 컴포넌트를 거치는지 한 단계씩 따라가는 워크스루 기능도 들어 있습니다.
+
+- 사이트: [system-design-explainer.vercel.app](https://system-design-explainer.vercel.app/)
+- GitHub: [amananandrai/system-design-explainer](https://github.com/amananandrai/system-design-explainer)
+
+![System Design Explainer home page](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/omg41k9frmqynels17lx.png)
+
+## 만든 이유
+
+![Before: 47 tabs of scattered diagrams. After: one map for every system](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/dj6vgaqrub37p3d8habe.png)
+
+작성자는 시스템 디자인 글과 면접 대비 영상을 보며 공부할 때 늘 같은 문제에 부딪혔다고 말합니다.
+
+- **다이어그램이 정적이다.** 박스는 보이는데, 요청이 그 사이를 실제로 어떻게 흘러가는지는 알 수 없다.
+- **특정 벤더 용어에 묶여 있다.** AWS 다이어그램은 S3·SQS·DynamoDB로, GCP 다이어그램은 Cloud Storage·Pub/Sub·Bigtable로 적혀 있어서 머릿속으로 계속 번역해야 한다.
+- **자료가 흩어져 있다.** 북마크, 노션 페이지, 스크린샷에 나뉘어 있었다.
+
+그래서 직접 갖고 싶던 레퍼런스를 만들기로 했습니다. 처음에는 공부용 개인 프로젝트였습니다. 아키텍처를 그리고, 단계별로 쪼개고, 각 컴포넌트를 클라우드마다 대응시키려면 구조를 정확히 이해해야 했기 때문입니다. 만들다 보니 면접을 준비하는 사람이나 실무에서 설계하는 사람에게도 쓸모가 있겠다고 판단해 공개했다고 합니다.
+
+## 어떤 사이트인가
+
+![YouTube architecture page with the diagram on the left and requirements on the right](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/lljlqu3v6k8sk5l8j2gx.png)
+
+시스템마다 페이지 하나가 있고, 자동으로 배치된 아키텍처 다이어그램 옆에 다음 내용을 정리해 둡니다.
+
+- 요구사항, API, 용량 추정
+- 데이터 모델
+- 요청 흐름 워크스루
+- 병목 지점, 확장 방법, 추가 기능
+
+글을 쓴 시점 기준으로 **시스템 36개, 컴포넌트 36개, 개념 27개**가 올라와 있습니다.
+
+## 주요 기능
+
+### 클릭 한 번으로 클라우드 전환
+
+![Same architecture, new outfit: the same service mascot dressed up for Generic, AWS, GCP, Azure and Open source](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/mlt6o66ydr31stobidr0.png)
+
+작성자가 가장 공들인 기능입니다. 모든 아키텍처를 범용, AWS, Google Cloud, Azure, 오픈소스 가운데 하나로 바꿔 표시할 수 있습니다. "오브젝트 스토리지 → 큐 → 워커 → CDN" 같은 흐름이 선택한 스택의 실제 서비스 이름으로 즉시 바뀝니다. 아래는 유튜브 설계를 다섯 가지로 전환하는 모습입니다.
+
+![YouTube architecture switching between Generic, AWS, GCP, Azure and Open source](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/8h6li1y8eu1icon8dnwu.gif)
+
+예를 들어 오브젝트 스토리지는 **Amazon S3**, **Cloud Storage**, **Azure Blob Storage**, **MinIO**로 바뀌고, 이벤트 스트림은 **Amazon MSK**, **Pub/Sub**, **Azure Event Hubs**, **Apache Kafka**로 바뀝니다. 박스와 화살표는 그대로이고 이름만 달라집니다. 벤더 중립으로 설명해야 하는 면접에도, 특정 클라우드에 묶인 실무에도 쓸 수 있다는 게 작성자의 설명입니다.
+
+### 요청을 한 단계씩 따라가는 워크스루
+
+![A little envelope request hopping from Client to Load balancer to API gateway to Upload service to Object storage](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/qw0fxzcyrn075jv349wz.png)
+
+다이어그램을 보기만 하는 데서 그치지 않고, 영상 업로드·좌석 예매·결제·단축 URL 생성 같은 요청을 단계별로 재생할 수 있습니다. 단계마다 무슨 일이 일어나는지, 어느 컴포넌트가 담당하는지 강조해 보여줍니다. 배치(layout)보다 흐름(flow)을 익히게 하려는 의도입니다.
+
+유튜브에 영상을 올릴 때의 흐름입니다.
+
+![Walkthrough: uploading a video on YouTube, step by step](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/z9it50jdoq0pgl1s589r.gif)
+
+인도의 영화 예매 서비스 BookMyShow에서 좌석을 예매하는 흐름입니다. 좌석 임시 점유(seat hold)와 멱등성 키(idempotency key)가 어떻게 동작하는지 볼 수 있습니다.
+
+![Walkthrough: booking seats on BookMyShow](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/t7epj9ecxnvt27ggkufd.gif)
+
+워크스루는 클라우드 전환과 함께 쓸 수 있어서, 같은 요청을 AWS·GCP·Azure 서비스 위에서 각각 따라가 볼 수 있습니다. 원문에 실린 다른 예시도 옮깁니다.
+
+**단축 URL 생성 (URL shortener)**
+
+![Walkthrough: creating a short link](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/swuukpnhbdm4p4s8v7v1.gif)
+
+**카드 결제 (payment gateway)**
+
+![Walkthrough: charging a card through a payment gateway](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/fg0vfh9zloet077jdnic.gif)
+
+**우버 차량 호출 (AWS)**
+
+![Walkthrough: requesting an Uber ride on AWS](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/uadk7ulqt36zeiueaijw.gif)
+
+**왓츠앱 메시지 전송 (GCP)**
+
+![Walkthrough: sending a WhatsApp message on GCP](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/21i8rnj268gd215lo8xy.gif)
+
+**아마존 결제 거절 후 사가 보상 처리 (Azure)**
+
+![Walkthrough: Amazon checkout with a declined payment and compensation on Azure](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/axtm8t59uy2m17rynvdr.gif)
+
+### 컴포넌트별 상세 페이지
+
+로드 밸런서, 캐시, 큐, 데이터베이스, CDN 같은 구성 요소마다 별도 페이지가 있습니다. 각 페이지에는 클라우드별 선택지, 자주 하는 실수, 그 컴포넌트를 쓰는 시스템 목록이 정리돼 있습니다.
+
+![Components page: each building block mapped across AWS, GCP, Azure and open source](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/uwj6d2u1u2fc4wgwcrf7.png)
+
+![In-memory cache component: when to use it, pitfalls and options by provider](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/t4n75kz3xvrh21gy0jtp.png)
+
+### 설계 패턴 학습
+
+![Cute mascots explaining caching, sharding, idempotency and fan-out](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/uin8z7e9u1y8vutyvzue.png)
+
+캐싱, 샤딩, 팬아웃, 사가, 멱등성, 일관된 해싱, 레이트 리밋, 지리 공간 인덱싱, 웹소켓, CDC(change data capture) 같은 핵심 개념을 따로 설명하고, 이 개념이 실제로 쓰인 설계 페이지로 연결합니다. 상당수 개념 페이지에는 단계별로 넘겨 볼 수 있는 작은 다이어그램도 있습니다.
+
+![Idempotency concept page with a step-through example](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/qqugs5tde2b8i44oe49d.png)
+
+### 검색과 다크 모드
+
+`Ctrl K`를 누르면 시스템·컴포넌트·개념을 바로 검색할 수 있고, 다크 모드도 지원합니다.
+
+![Search palette showing results for "pay"](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/4t4dznz1ies71a6dcts4.png)
+
+![Uber architecture in dark mode](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/cbaa93wy4b2280lja072.png)
+
+## 학습 경로와 수록 시스템
+
+어디서 시작할지 모르는 사람을 위해 학습 경로도 준비했습니다. 각 경로는 앞 단계에서 익힌 패턴을 바탕으로 다음 단계를 쌓는 구조이고, 진행 상황은 브라우저에 저장됩니다.
+
+![Learning paths: Foundations, Real-time systems, Media at scale, Money & bookings](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/4qvt2rky0r2p67c4cnoo.png)
+
+| 난이도 | 경로 | 시스템 |
+|---|---|---|
+| 🟢 입문 | **Foundations** | URL shortener → Pastebin → API rate limiter → Search autocomplete |
+| 🟡 중급 | **Real-time systems** | WhatsApp → WebSockets at scale → Live sports scores → Uber |
+| 🔴 고급 | **Media at scale** | Instagram → Twitter / X → YouTube → Netflix |
+| 🔴 고급 | **Money & bookings** | BookMyShow → Amazon → Payment gateway → Buy now, pay later |
+
+전체 목록은 카테고리, 난이도, 개념별로 걸러 볼 수 있습니다.
+
+![All systems catalogue with category, level and concept filters](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/nj7pb2ffkf1wz4mxm7jl.png)
+
+- **미디어·소셜:** YouTube, Netflix, Instagram, Twitter / X, WhatsApp, Quora, LinkedIn, 실시간 스포츠 스코어
+- **모빌리티·물류:** Uber, Google Maps, Zomato(음식 배달), Porter, 렌터카, 기사 예약·차량 관리
+- **커머스·핀테크:** Amazon, 결제 게이트웨이, BNPL(선구매 후결제), 주식 중개
+- **예약·마켓플레이스:** BookMyShow, MakeMyTrip, Airbnb, 항공권 예약, NoBroker, Urban Company, Practo, AstroTalk, 미팅 스케줄러
+- **기본 구성 요소:** URL shortener, Pastebin, API rate limiter, 검색 자동완성, 웹 크롤러, Dropbox, 대규모 웹소켓, 화상 통화(WebRTC), Redis Cluster
+
+글로벌 서비스와 함께 BookMyShow, Zomato, NoBroker, Practo처럼 인도에서 많이 쓰는 서비스를 일부러 넣었다고 합니다. 인도 면접에서 자주 나오지만 다른 곳에서는 거의 다루지 않는 주제라서입니다.
+
+## 누구에게 쓸모가 있나
+
+작성자는 다음 네 부류를 꼽았습니다.
+
+- **면접 준비생:** 설계를 처음부터 끝까지 설명하는 연습을 하고, 시스템마다 반복되는 패턴을 확인할 수 있습니다.
+- **현업 엔지니어:** 한 클라우드에서 익숙한 설계를 다른 클라우드 서비스로 옮겨 볼 수 있습니다.
+- **학생·입문자:** Foundations 경로부터 차근차근 시작하면 됩니다.
+- **호기심 많은 사람:** 영화 좌석에서 '예매' 버튼을 누르면 무슨 일이 생기는지 직접 볼 수 있습니다.
+
+## 기술 스택
+
+- **Next.js (static export):** 사이트 전체가 정적 파일이며 Vercel에 배포
+- **React Flow + ELK:** 자동 배치되고 확대·축소되는 아키텍처 다이어그램
+- **Tailwind CSS:** 다크 모드를 포함한 스타일링
+- **Zod:** 시스템마다 타입이 지정된 콘텐츠 파일을 스키마로 검증. 새 설계를 추가할 때 UI 코드보다 데이터 작성이 대부분을 차지
+
+## 만들면서 배운 점
+
+![Built to learn, shared to help: a mascot in a graduation cap watering a growing diagram plant](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/il2cs7yr8bywmp17souz.png)
+
+작성자는 읽기만 할 때보다 훨씬 많은 것을 배웠다며 세 가지를 정리했습니다.
+
+- **모든 단계를 직접 그려 봐야 시스템을 제대로 이해한다.** 워크스루를 쓰려고 하자 모르던 부분이 바로 드러났다.
+- **클라우드들은 생각보다 비슷하다.** AWS·GCP·Azure·오픈소스의 컴포넌트를 대응시켜 보면 밑에 깔린 패턴은 같고 이름만 다르다.
+- **패턴은 어디서나 반복된다.** 멱등성은 결제·예매·차량 매칭에, 팬아웃은 트위터·인스타그램·링크드인에 나온다. 이걸 눈으로 보니 비로소 감이 왔다.
+
+## 기여 방법
+
+![Come build it with me: star the repo, raise issues, send PRs, share ideas](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/tefw1v9smwtq2p2tgjbc.png)
+
+작성자는 이 프로젝트가 커뮤니티 자료로 자라길 바란다며 참여를 요청했습니다. GitHub 저장소에 스타를 누르거나, 추가할 시스템을 제안하거나, 다이어그램 오류·잘못된 클라우드 대응·버그를 [이슈](https://github.com/amananandrai/system-design-explainer/issues)로 알려 달라고 했습니다. 새 시스템, 워크스루 개선, 컴포넌트 수정, UI 개선 PR도 환영한다고 밝혔습니다.
+
+새 시스템을 추가하려면 `src/content/systems/`에 파일을 만들고 `systems/index.ts`에 등록한 뒤, `src/types/schema.ts`의 스키마를 따르고 `npm run validate`로 검증하면 됩니다. 로컬 실행 방법은 다음과 같습니다.
+
+```bash
+git clone https://github.com/amananandrai/system-design-explainer.git
+cd system-design-explainer
+npm install
+npm run dev   # http://localhost:3000
+```
+
+![Thanks for reading! The mascots bouncing with party hats](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/75tgpa7gkhkxetm5w4j0.gif)
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
