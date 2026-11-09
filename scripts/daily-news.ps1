@@ -13,6 +13,8 @@ $ErrorActionPreference = "Stop"
 # UTF-8 for console and file I/O (required when running as a scheduled task)
 [Console]::InputEncoding  = [System.Text.Encoding]::UTF8
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+# Encoding for strings piped into native commands (claude -p reads the prompt from stdin)
+$OutputEncoding = [System.Text.Encoding]::UTF8
 
 $ProjectRoot = Split-Path -Parent $PSScriptRoot
 $LogDir  = Join-Path $ProjectRoot "logs"
@@ -74,7 +76,9 @@ $articleData
 === END ===
 "@
 
-    $raw = claude -p $prompt --dangerously-skip-permissions 2>&1 | Out-String
+    # Pipe via stdin: long articles passed as an argument exceed Windows' ~32K
+    # command-line limit ("파일 이름이나 확장명이 너무 깁니다").
+    $raw = $prompt | claude -p --dangerously-skip-permissions 2>&1 | Out-String
     $raw = $raw.Trim()
 
     # Fallback: detect files claude wrote via Write tool (e.g. when --dangerously-skip-permissions auto-approved)
