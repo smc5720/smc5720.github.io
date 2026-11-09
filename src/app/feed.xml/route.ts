@@ -11,7 +11,7 @@ export async function GET() {
 
   const feed = new Feed({
     title: "RicoCheese's Blog",
-    description: '개발, 회고, 뉴스, 그리고 일상을 기록하는 블로그',
+    description: '개발과 회고, 기술 뉴스와 일상을 기록하는 블로그',
     id: BASE_URL,
     link: BASE_URL,
     language: 'ko',

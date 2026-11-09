@@ -23,7 +23,7 @@ export function Footer() {
         <div className="ft-brand">
           <div className="ft-brand-name">RicoCheese</div>
           <p className="ft-brand-desc">
-            기술 뉴스를 모으고, 가끔 직접 쓰는 개인 블로그.
+            기술 뉴스를 모으고 가끔 직접 글을 쓰는 블로그.
           </p>
         </div>
 

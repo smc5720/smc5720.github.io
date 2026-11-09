@@ -156,7 +156,7 @@ export function TableOfContents() {
         <summary className="toc-collapse-summary">
           <span className="toc-collapse-summary-label">
             <span className="toc-title">목차</span>
-            <span>{sectionCount}개 절</span>
+            <span>{sectionCount}개 항목</span>
           </span>
           <span className="toc-collapse-toggle-closed" aria-hidden="true">
             펼치기 ▾

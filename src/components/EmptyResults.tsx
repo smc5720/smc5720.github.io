@@ -23,18 +23,18 @@ export function EmptyResults({ search, activeCat, activeTag, activeYear, onReset
   if (activeTag) conditions.push(`태그 #${activeTag}`);
 
   const title = search
-    ? `"${search}"에 해당하는 글이 없습니다`
+    ? `"${search}" 검색 결과가 없습니다`
     : activeTag
-    ? `#${activeTag}에 해당하는 글이 없습니다`
+    ? `#${activeTag} 태그가 붙은 글이 없습니다`
     : hasFilter
     ? "조건에 맞는 글이 없습니다"
-    : "아직 발행된 글이 없습니다";
+    : "아직 공개된 글이 없습니다";
 
   const description = hasFilter
     ? activeTag
-      ? `${conditions.join(" · ")} 조건이 걸려 있습니다. 태그를 해제하면 결과가 늘어날 수 있습니다.`
-      : `${conditions.join(" · ")} 조건에 맞는 글이 없습니다. 조건을 바꾸거나 초기화해 보세요.`
-    : "content/posts/ 에 .mdx 파일을 추가하면 이곳에 표시됩니다.";
+      ? `${conditions.join(" · ")} 조건이 적용되어 있습니다. 태그를 해제하면 더 많은 글을 볼 수 있습니다.`
+      : `${conditions.join(" · ")} 조건에 맞는 글이 없습니다. 필터를 바꾸거나 초기화해 보세요.`
+    : "content/posts/에 .mdx 파일을 추가하면 이곳에 표시됩니다.";
 
   return (
     <div className="blog-empty">

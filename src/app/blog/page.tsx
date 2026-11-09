@@ -4,7 +4,7 @@ import { BlogList } from "@/components/BlogList";
 
 export const metadata = {
   title: "Blog",
-  description: "모든 글 목록",
+  description: "개발 기록과 기술 뉴스를 모아둔 글 목록",
 };
 
 export default function BlogPage() {
@@ -29,8 +29,8 @@ export default function BlogPage() {
 
             <h1 className="blog-head-title">글 목록</h1>
             <p className="blog-head-lede">
-              매일 수집한 뉴스와 직접 쓴 글을 함께 둡니다. 태그와 연도로 좁히거나, 제목·설명·태그를
-              검색하세요.
+              기술 뉴스와 직접 작성한 글을 모아두었습니다. 태그와 연도로 필터링하거나 제목, 설명, 태그로
+              검색할 수 있습니다.
             </p>
           </div>
         </div>
