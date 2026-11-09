@@ -2591,6 +2591,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-10-16"
   },
+  "https://dev.to/johnnylemonny/one-markdown-file-can-hijack-your-ai-coding-agent-the-hidden-cost-of-blindly-trusting-agentsmd-167n": {
+    "ok": true,
+    "title": "One Markdown File Can Hijack Your AI Coding Agent: The Hidden Cost of Blindly Trusting AGENTS.md",
+    "description": "How a single AGENTS.md or CLAUDE.md file in your Downloads folder or a pull request can silently hijack your AI coding agent, steal OAuth tokens, and execute shell commands—plus how to lock down your local workflow.",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fgp9mzlfxjcl32v27828r.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-09"
+  },
   "https://dev.to/jon_at_backboardio/internmaxxing-vs-old-man-shakes-fist-at-cloud-5bnd": {
     "ok": true,
     "title": "Internmaxxing vs. Old Man Shakes Fist at Cloud",
@@ -2646,6 +2654,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F7fbmudzx3podwa2jiz2l.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-27"
+  },
+  "https://dev.to/kenwalger/plan-stamping-for-software-4ein": {
+    "ok": true,
+    "title": "Plan Stamping, for Software",
+    "description": "Other professions worked out what a signature has to mean. We're about to need their answer.  A few...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F2zo9qu20538eija6ia4c.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-09"
   },
   "https://dev.to/kenwalger/the-kitchen-doesnt-care-about-your-excuses-i10": {
     "ok": true,
@@ -3046,6 +3062,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fbi4ugkmc4dqyw40guuvv.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-31"
+  },
+  "https://dev.to/necoz/necoz-has-a-new-home-on-dev-3454": {
+    "ok": true,
+    "title": "Necoz Has a New Home on DEV! 🐈🎉",
+    "description": "Hoi hoi! 👋  A little update from Necoz! 😸  We've created our own organization here on DEV!          ...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F4e22zmzbxuhu45eirnzb.gif",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-09"
   },
   "https://dev.to/nfrankel/ai-assisted-genealogy-9cn": {
     "ok": true,
