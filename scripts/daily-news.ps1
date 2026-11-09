@@ -111,6 +111,21 @@ $articleData
     return $false
 }
 
+# Native git failures don't throw in PowerShell, so check exit codes explicitly.
+# Rebase onto origin first: a commit pushed from elsewhere made every push
+# non-fast-forward on 2026-11-08/09 while the log still said "push complete".
+function Push-Main {
+    git pull --rebase --autostash origin main 2>&1 | ForEach-Object { Log "  $_" }
+    if ($LASTEXITCODE -ne 0) {
+        $code = $LASTEXITCODE
+        git rebase --abort 2>&1 | Out-Null
+        throw "git pull --rebase failed (exit $code)"
+    }
+    git push origin main 2>&1 | ForEach-Object { Log "  $_" }
+    if ($LASTEXITCODE -ne 0) { throw "git push failed (exit $LASTEXITCODE)" }
+    Log "push complete"
+}
+
 Set-Location $ProjectRoot
 Log "=== daily news automation start ==="
 
@@ -211,8 +226,8 @@ if ($created -gt 0) {
         if ($staged) {
             $date = Get-Date -Format "yyyy-MM-dd"
             git commit -m "content: 뉴스 포스트 자동 추가 ($date)"
-            git push origin main
-            Log "push complete"
+            if ($LASTEXITCODE -ne 0) { throw "git commit failed (exit $LASTEXITCODE)" }
+            Push-Main
         } else {
             Log "nothing staged to commit"
         }
