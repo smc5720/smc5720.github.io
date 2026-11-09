@@ -4,7 +4,7 @@ description: "작업 디렉터리의 AGENTS.md나 CLAUDE.md 파일 하나만으�
 date: "2026-11-05"
 published_at: "2026-11-09"
 category: "news"
-tags: []
+tags: ["ai","security","llm","programming","news"]
 cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fgp9mzlfxjcl32v27828r.jpg"
 coverAlt: "One Markdown File Can Hijack Your AI Coding Agent: The Hidden Cost of Blindly Trusting AGENTS.md"
 slug: "agents-md-hijack-ai-coding-agent"
@@ -208,9 +208,9 @@ CLAUDE.md                         @your-org/security-team @your-org/staff-engine
 
 ## 정리
 
-`AGENTS.md` 탈취 사례는 AI 기반 개발에서 위협 모델을 어떻게 세워야 하는지 다시 생각하게 만듭니다. 자율 에이전트가 작업 디렉터리의 지침 파일을 읽고 그대로 따르는 데에는 패치할 CVE가 없습니다.
+`AGENTS.md` 탈취 사례는 AI 기반 개발에서 위협 모델을 어떻게 세워야 하는지 다시 생각하게 만듭니다. 자율 에이전트가 작업 디렉터리의 지침 파일을 읽고 그대로 따르는 건 원래 그렇게 만들어진 동작이라, 패치할 CVE도 없습니다.
 
-원문 작성자는 수동적인 텍스트와 실행 코드의 경계가 사라졌다고 말합니다. 브라우저가 `~/Downloads`에 떨어뜨린 파일이든 PR에서 수정된 파일이든, 코딩 에이전트의 컨텍스트 윈도우에 들어가는 모든 파일은 내 머신에서 돌아가는 셸 스크립트와 똑같이 다뤄야 한다는 것입니다. 제로 트러스트 격리, 코드 리뷰, 최소 권한 원칙을 똑같이 적용해야 합니다.
+원문 작성자는 수동적인 텍스트와 실행 코드의 경계가 사라졌다고 말합니다. 브라우저가 `~/Downloads`에 떨어뜨린 파일이든 PR에서 수정된 파일이든, 코딩 에이전트의 컨텍스트 윈도우에 들어가는 모든 파일은 내 머신에서 돌아가는 셸 스크립트와 똑같이 다뤄야 한다는 겁니다. 제로 트러스트 격리, 코드 리뷰, 최소 권한 원칙도 그대로 적용해서요.
 
 ### 참고 자료
 
