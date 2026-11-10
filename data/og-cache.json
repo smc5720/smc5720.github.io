@@ -559,6 +559,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-10-13"
   },
+  "https://dev.to/dailycontext/our-looping-factory-cut-dev-page-load-time-by-75-and-counting-1hnf": {
+    "ok": true,
+    "title": "Our Looping Factory Cut DEV Page Load Time by 75% and Counting",
+    "description": "A month ago, an average web request on DEV took about 70 milliseconds inside Rails, with P99 response...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Flcwp10ptnojbvt20v0y7.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-10"
+  },
   "https://dev.to/dailycontext/pragmatism-in-an-age-of-infinite-code-and-unavoidable-bottlenecks-1bkd": {
     "ok": true,
     "title": "Pragmatism in an Age of Infinite Code and Unavoidable Bottlenecks",
@@ -886,6 +894,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fcfgwreq46hbidooqrwlp.jpg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/devengers/the-c-trilogy-how-dennis-ritchie-bjarne-stroustrup-and-anders-hejlsberg-built-the-modern-world-1onp": {
+    "ok": true,
+    "title": "The C Trilogy: How Dennis Ritchie, Bjarne Stroustrup, and Anders Hejlsberg Built the Modern World 🏛️",
+    "description": "Almost every piece of software running on Earth today traces back to three people trying to solve the...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F7pm0ebl6iiy3scfns030.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-10"
   },
   "https://dev.to/devengers/two-devs-and-a-copilot-created-classifierai-a-prototype-chrome-extension-that-automatically-4fge": {
     "ok": true,
@@ -1407,6 +1423,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/francistrdev/how-do-you-truly-stand-out-in-tech-478a": {
+    "ok": true,
+    "title": "How do you truly stand out in Tech?",
+    "description": "I am not going to lie to you, the market has been rough out there. There are layoffs across different...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fluszw2338am8lh3sl1tu.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-10"
+  },
   "https://dev.to/francistrdev/how-long-does-it-take-for-you-to-write-a-devto-article-49m1": {
     "ok": true,
     "title": "How long does it take for you to write a dev.to article?",
@@ -1726,6 +1750,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ft5n5mb93970styfkp236.jpeg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-23"
+  },
+  "https://dev.to/georgekobaidze/engines-off-my-2026-hackathon-run-is-over-2ho8": {
+    "ok": true,
+    "title": "Engine Off: My 2026 Hackathon Run Is Over",
+    "description": "There's a moment after a race when you turn the engine off and everything goes quiet. That's where I...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F0t7m12wml50etrn4hgoz.jpeg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-10"
   },
   "https://dev.to/georgekobaidze/i-earned-a-seat-at-github-universe-itll-stay-empty-and-thats-not-fair-3d7k": {
     "ok": true,
@@ -2198,6 +2230,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fuonbff781lc6lq68fu5f.jpeg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-11-03"
+  },
+  "https://dev.to/hemapriya_kanagala/dev-pet-corner-5-show-us-your-pets-dao": {
+    "ok": true,
+    "title": "🐾 DEV Pet Corner #5: Show Us Your Pets!",
+    "description": "TL;DR  DEV Pet Corner is back for another Sunday! It's a weekly series where we take a little break...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Flgcga1jqp8w5pfzmt9r5.jpeg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-10"
   },
   "https://dev.to/hemapriya_kanagala/from-silent-reader-to-25-articles-what-3-months-on-dev-taught-me-ama-2b0j": {
     "ok": true,

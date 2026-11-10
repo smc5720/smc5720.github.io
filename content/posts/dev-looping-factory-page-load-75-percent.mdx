@@ -1,0 +1,93 @@
+﻿---
+title: "루프 공장으로 DEV 페이지 응답 시간을 75% 줄였다 (Our Looping Factory Cut DEV Page Load Time by 75%)"
+description: "DEV(Forem)는 자율 에이전트 루프로 구성한 '소프트웨어 공장'을 돌려 Rails 평균 응답 시간을 70ms에서 16ms로 줄였습니다. 한 달 동안 머지된 PR 475개 가운데 351개는 사람 손을 거치지 않은 자동 루프에서 나왔습니다."
+date: "2026-11-09"
+published_at: "2026-11-10"
+slug: "dev-looping-factory-page-load-75-percent"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Flcwp10ptnojbvt20v0y7.jpg"
+coverAlt: "Our Looping Factory Cut DEV Page Load Time by 75% and Counting"
+source_id: "devto-4977112"
+source_url: "https://dev.to/dailycontext/our-looping-factory-cut-dev-page-load-time-by-75-and-counting-1hnf"
+source_title: "Our Looping Factory Cut DEV Page Load Time by 75% and Counting"
+source_author: "Ben Halpern"
+source_published: "2026-11-09"
+---
+
+<LinkCard url="https://dev.to/dailycontext/our-looping-factory-cut-dev-page-load-time-by-75-and-counting-1hnf" author="Ben Halpern" date="2026-11-09" />
+
+## 개요
+
+한 달 전만 해도 [DEV](https://dev.to/)의 웹 요청 하나는 Rails 안에서 평균 70ms쯤 걸렸고, P99 응답 시간은 1초를 넘길 때가 많았습니다. 지금은 Better Stack에서 하루 약 30만 건을 샘플링해 보면 **평균 16ms**까지 내려왔습니다.
+
+세부 수치도 고르게 줄었습니다. 요청당 데이터베이스 시간은 39ms에서 12ms 밑으로, 뷰 렌더링은 12ms에서 2.6ms로, Redis 시간은 7ms에서 1.3ms로 떨어졌습니다. 최근 30일 동안 [Forem](https://github.com/forem/forem) 저장소에 머지된 PR은 475개입니다.
+
+DEV 공동 창업자 Ben Halpern은 이 성과가 사람이 일상 작업에서 한 발 물러나 **자율 에이전트 루프로 돌아가는 '소프트웨어 공장'**을 세운 덕분이라고 설명합니다.
+
+![DEV performance data](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/h7xg9nikr3u2hqzkth0q.png)
+
+## 본문
+
+### 10년 묵은 성능 문제, 왜 늘 뒤로 밀렸나
+
+성능 개선은 서비스 확장과 사용자 경험에 꼭 필요하지만, 당장 처리할 다른 일에 밀려 우선순위를 잡기 어렵습니다. 이번 개선으로 간헐적인 속도 저하가 사라졌고 트래픽이 몰리는 시간대에도 버틸 수 있게 됐습니다. Halpern은 "10년 치 고통을 해결했다(a solve for a decade's worth of pain)"고 표현합니다.
+
+그는 에이전트 개발 초기에 대부분이 빠지는 함정도 짚습니다. 직접 코드를 치지 않으니 생산성이 오른 것 같지만, 실제로는 대시보드와 터미널 사이를 오가는 '사람 미들웨어'가 된다는 것입니다. 프롬프트를 조금씩 고치고, 불안정한 CI를 지켜보고, diff를 오후 내내 승인만 하게 됩니다. 손으로 코딩하지는 않지만 깊이 있는 엔지니어링을 하는 것도 아닌 상태, 그의 말로는 "맥박이 뛰는 API 엔드포인트"입니다.
+
+이 함정에서 빠져나오는 데 몇 주가 걸렸습니다. 팀은 [OpenHands](https://github.com/All-Hands-AI/OpenHands)와 ACP(Agent Client Protocol) 위에 자율 루프를 만들고 고치기를 반복했습니다. 목표는 DEV를 빠르게 만드는 데서 그치지 않았습니다. 체계적인 유지보수 작업과, 사람의 감각이 필요한 창의적인 작업을 떼어 놓는 것이었습니다.
+
+### 코드베이스는 건물이 아니라 정원
+
+Halpern은 앞선 글 [Design for Churn](https://dev.to/dailycontext/design-for-churn-5c6h)에서 코드베이스가 점점 건물보다 정원에 가까워진다고 주장했습니다. 코드 작성 비용이 비쌀 때는 오래 버티는 코드가 곧 투자 대비 효과였습니다. 하지만 다시 쓰는 비용이 싸지면 투자는 잘 바뀌지 않는 쪽, 즉 흙과 화단과 물길로 옮겨 갑니다. 경계에 튼튼한 계약(contract)과 스키마, 테스트를 두면 그 안의 코드는 계속 갈아엎어도 뿌리가 흔들리지 않습니다.
+
+10월 초까지는 이 '정원 손질'을 에이전트와 대화형으로 했습니다. PR 31개로 평균 지연 시간을 70ms에서 50ms로 줄였지만, 쿼리를 점검할 때마다 직접 세션을 열고 맥락을 붙여 넣고 브랜치를 끝까지 챙겨야 했습니다.
+
+10월 19일, 팀은 상시 가동하는 자체 호스팅 OpenHands 허브를 세우고 이런 습관을 폐쇄 루프 시스템으로 바꿨습니다. 그 뒤로 Forem에 머지된 PR은 444개입니다.
+
+- 자율 루프가 만든 PR: 351개
+  - 성능 개선 172개
+  - 테스트 스위트 속도 개선 93개
+  - Rust 네이티브 재작성 32개
+  - 의존성 업그레이드 29개
+  - 프로덕션 오류 수정 20개
+  - 이슈에서 바로 만든 PR 5개
+- Halpern이 직접 진행한 PR: 93개
+
+### 공장을 만들며 거쳐 간 시행착오
+
+![A roller coaster at sunset](https://images.pexels.com/photos/10849654/pexels-photo-10849654.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Samsmakr](https://www.pexels.com/@samsmakr) on [Pexels](https://www.pexels.com/photo/a-roller-coaster-at-sunset-10849654/)*
+
+"앱을 빠르게 만들어라"라고 적은 크론 잡 하나로 소프트웨어 공장이 돌아가지는 않습니다. 팀은 대여섯 번 구성을 바꿨고, 매번 이전 버전이 실패하는 모습을 보고 다음 구성을 만들었습니다.
+
+**코드 읽기에서 실시간 텔레메트리로.** 초기 `perf-loop`는 Ruby 파일을 읽고 병목을 추측했습니다. 결과는 그래프를 거의 움직이지 못하는 미세 최적화였습니다. 전환점은 Better Stack의 ClickHouse 스팬과 읽기 전용 Postgres 게이트웨이(`forem-db-query`)를 사전 스냅샷에 연결한 일이었습니다. 개인정보 보호 장치도 함께 씌웠습니다. 에이전트가 파일을 고치기 전에 실제 순차 스캔, 쓰이지 않는 인덱스, 엔드포인트별 연산량을 보게 되자 모든 PR은 실제 트래픽 기준으로 효과를 입증해야 했습니다.
+
+**단일 모델에서 여러 모델 계열을 쓰는 라우터로.** 처음에는 Claude Opus 5.5(`claude-acp`) 하나만 쓰면서 macOS 키체인에서 OAuth 토큰을 동기화했습니다. 할당량 한도와 토큰 갱신 충돌을 겪은 뒤에는 세 업체 모델을 오가는 라우터를 만들었습니다. Claude Opus 5.5, OpenAI의 `codex-acp`(GPT-6.1 Sol), Antigravity CLI(`agy`)로 붙인 Google Gemini 4 Argon입니다. Gemini는 처음에 리버스 WebSocket으로 Halpern의 Mac에 터널링했다가 이후 리눅스에 직접 설치해 Medium 추론 수준으로 돌렸습니다. 각 루프는 라운드 로빈으로 모델을 돌려 쓰고 쿨다운은 최대 8시간입니다. PR 수정이 실패하면 다른 모델 계열로 넘어갑니다.
+
+**공유 체크아웃에서 격리된 워크트리로.** 컨테이너 하나에서 루프 8개를 동시에 돌리자 Git과 리눅스의 날카로운 부분이 전부 드러났습니다. 병렬 fetch가 `git gc` 충돌을 일으켰고, 부팅이 중간에 죽으면 `.gitconfig.lock`이 남았으며, 좀비 프로세스가 쌓이다가 `tini`를 PID 1로 넣고서야 정리됐습니다. 결국 모든 실행을 detached HEAD 상태의 git 워크트리로 옮기고, 락 파일이 남으면 스스로 정리하게 했습니다. 크론 앞단에는 결정론적인 Python 게이트를 둬서, 대기열이 꽉 차 있으면 토큰을 하나도 쓰지 않고 2초 만에 종료합니다.
+
+**루프 하나에서 전문 화단 여러 개로.** 쉬운 SQL 개선 거리가 바닥나자 작업을 서로 겹치지 않는 루프로 나눴습니다. 루프는 평일 낮(미국 동부 시간 오전 7시~오후 7시)에 10분 간격으로 돌고, 주말에는 그 4분의 1 빈도로 돕니다. PR 상태 확인은 5분, 10분, 20분, 40분으로 간격을 늘려 가며 합니다.
+
+- **`perf-loop`**: ActiveRecord 쿼리, Redis 캐싱, 뷰 partial을 다룹니다. 열려 있는 PR끼리 작업 범주가 겹치지 않게 관리합니다.
+- **`rust-loop`**: 자주 실행되는 Ruby 코드를 `magnus`로 `gems/forem_native`에 옮깁니다. 미리 컴파일한 바이너리가 충돌하지 않도록 열린 PR은 한 번에 하나만 허용하고, 입력 1,000개로 기존 구현과 결과를 비교하는 차등(differential) 테스트로 검증합니다.
+- **`test-loop`**: Knapsack RSpec 샤드 30개를 분석해 `FactoryBot` 낭비와 느린 시스템 테스트를 줄입니다.
+- **`error-loop`, `deps-loop`**: 타임아웃, 원인이 모호한 버그, 의미 없는 패치 업데이트는 엄격한 필터로 걸러냅니다.
+- **`github-pr-reviewer`, `pr-merge-loop`**: 다른 모델 계열이 두 번째 시각으로 변경 영향 범위(blast radius)를 점검합니다. 위험도가 낮은 성능·테스트 PR은 CI를 통과하면 자동으로 머지합니다.
+
+### 반복 작업은 루프에, 사람은 맞춤 작업에
+
+Halpern은 진짜 성과가 475개라는 PR 숫자나 16ms라는 응답 시간이 아니라, 나머지 93개 PR에서 나왔다고 말합니다.
+
+아침마다 순차 스캔을 찾거나 스택 트레이스를 이 탭 저 탭으로 옮기지 않아도 되니 깊이 있는 작업에 쓸 여유가 생겼습니다. 루프가 쿼리와 테스트를 다듬는 동안 그는 대화형 세션으로 다음 작업을 진행했습니다.
+
+- 홈 피드 구조 재설계: 타기팅 버킷, 게시물 연령 다양성 가중치, 재방문 시 유지되는(sticky) 설정 추가
+- 네 단계에 걸친 JavaScript 전달 방식 현대화: `application.js` 71%, `base.js` 55% 축소
+- L1 로컬 Redis 캐시 구축
+- 시스템 전체를 지켜보는 관측성(observability) 확장 기능 제작
+
+Halpern은 이 시스템을 가꾸면서 효과가 큰 일에 집중하게 되자, 사람이 AI 사이에서 메시지만 나르는 '고기 라우터(meat router)' 같은 어정쩡한 단계를 마침내 벗어난 느낌이라고 말합니다. 기존 시스템을 개선하는 일(brownfield)과 새로 만드는 일(greenfield)을 적절히 나눠 맡기고, 더 생산적이고 창의적으로 일할 도구가 이미 갖춰졌다는 것이 그의 결론입니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

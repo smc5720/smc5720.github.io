@@ -1,0 +1,209 @@
+﻿---
+title: "C 삼부작: 데니스 리치, 비야네 스트롭스트룹, 아네르스 헤일스베르가 만든 현대 소프트웨어"
+description: "C, C++, C#은 메모리를 망가뜨리지 않고 큰 프로그램을 짜는 문제를 각자 다른 방식으로 풀었습니다. 세 언어가 나온 배경과 설계 철학, 그리고 2026년에도 여전히 쓰이는 이유를 정리했습니다."
+date: "2026-11-09"
+published_at: "2026-11-10"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F7pm0ebl6iiy3scfns030.png"
+coverAlt: "The C Trilogy: How Dennis Ritchie, Bjarne Stroustrup, and Anders Hejlsberg Built the Modern World"
+slug: "c-trilogy-ritchie-stroustrup-hejlsberg"
+source_id: "devto-4998424"
+source_url: "https://dev.to/devengers/the-c-trilogy-how-dennis-ritchie-bjarne-stroustrup-and-anders-hejlsberg-built-the-modern-world-1onp"
+source_title: "The C Trilogy: How Dennis Ritchie, Bjarne Stroustrup, and Anders Hejlsberg Built the Modern World 🏛️"
+source_author: "Dhruv Jani"
+source_published: "2026-11-09"
+---
+
+<LinkCard url="https://dev.to/devengers/the-c-trilogy-how-dennis-ritchie-bjarne-stroustrup-and-anders-hejlsberg-built-the-modern-world-1onp" author="Dhruv Jani" date="2026-11-09" />
+
+## 개요
+
+노트북을 켜고 브라우저를 열거나 3D 게임을 돌리거나 카드 결제를 하면, 그 뒤에서는 세 사람이 남긴 코드가 돌아갑니다. **데니스 리치(Dennis Ritchie)**, **비야네 스트롭스트룹(Bjarne Stroustrup)**, **아네르스 헤일스베르(Anders Hejlsberg)**입니다.
+
+세 사람이 붙잡은 문제는 같았습니다. 크고 복잡한 프로그램을 짜면서 메모리를 실수로 망가뜨리지 않으려면 어떻게 해야 하느냐는 것이었죠. 그 답으로 나온 언어가 **C**, **C++**, **C#**입니다.
+
+Dev.to 작성자 Dhruv Jani는 이 세 언어가 왜 생겼는지, 언어의 방향을 바꾼 소송은 무엇이었는지, 그리고 세 언어가 지금도 현역인 이유를 짚었습니다.
+
+## 1막: 데니스 리치와 C (1972)
+
+### 어셈블리를 매번 다시 쓰던 시절
+
+1970년대 초 벨 연구소에서 운영체제를 만든다는 건 어셈블리를 직접 짠다는 뜻이었습니다. 연구소에 새 컴퓨터가 들어오면 기존 코드를 거의 처음부터 다시 써야 했습니다.
+
+데니스 리치가 원한 건 실용적인 언어였습니다. 구조화된 코드처럼 읽히면서도 하드웨어 레지스터에 그대로 대응하는 언어. 그렇게 나온 게 **C**입니다.
+
+![Dennis Ritchie at Bell Labs](https://upload.wikimedia.org/wikipedia/commons/2/23/Dennis_Ritchie_2011.jpg)
+
+### 원칙: "프로그래머를 믿어라"
+
+C의 전제는 하나입니다. **프로그래머는 자기가 뭘 하는지 안다.**
+
+메모리 블록을 가져와 4,000번째 바이트를 덮어쓰라고 하면, C는 그 버퍼가 내 것인지 확인하지 않습니다. 커널이 뻗을지도 따지지 않습니다. 시킨 대로 실행할 뿐입니다.
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+
+// Act I: Raw Power. You ask for memory, you clean it up.
+int main() {
+    int count = 3;
+    
+    // Grabbing raw bytes from RAM
+    int *scores = (int *)malloc(count * sizeof(int));
+    if (scores == NULL) return 1;
+
+    scores[0] = 95;
+    scores[1] = 88;
+    scores[2] = 100;
+
+    for (int i = 0; i < count; i++) {
+        printf("Score %d: %d\n", i + 1, scores[i]);
+    }
+
+    // Forget this line? That RAM is leaked until the process exits.
+    free(scores);
+    return 0;
+}
+```
+
+### 장점과 대가
+
+C는 CPU 명령어로 거의 1대1로 컴파일됩니다. 그래서 현대 컴퓨팅의 바닥이 됐습니다. 리눅스 커널, Windows, macOS, Git, PostgreSQL, 파이썬의 C 런타임이 모두 C 위에 서 있습니다.
+
+* **장점:** 순수한 실행 속도. 런타임 부담이 없고, 지금까지 만들어진 프로세서 대부분에서 돌아갑니다.
+* **대가:** `free`를 잊으면 **메모리 누수**, 배열 끝을 한 바이트만 넘어 읽어도 **세그멘테이션 폴트**.
+
+![Segfault Meme](https://i.giphy.com/13HgwGsXF0aiGY.gif)
+
+## 2막: 비야네 스트롭스트룹과 C++ (1985)
+
+### C로는 감당이 안 되던 규모
+
+1980년대 중반이 되자 소프트웨어 규모가 C를 넘어섰습니다. 분산 시뮬레이션, 네트워크 스위처, 그래픽 데스크톱 앱을 절차형 C로 짜려면 서로 연결되지 않은 구조체와 함수 포인터 수천 개를 관리해야 했습니다. 포인터를 느슨하게 다루기엔 코드베이스가 너무 커졌습니다.
+
+같은 벨 연구소에 있던 스트롭스트룹은 Simula의 객체지향 구조가 마음에 들었지만, 속도는 C만큼 나와야 했습니다. 추상화와 속도 중 하나를 고르고 싶지 않았던 그는 **C with Classes**를 만들었고, 이 언어가 **C++**가 됩니다.
+
+![Bjarne Stroustrup](https://upload.wikimedia.org/wikipedia/commons/d/da/BjarneStroustrup.jpg)
+
+### 원칙: "제로 비용 추상화"
+
+스트롭스트룹은 엄격한 설계 원칙을 지켰습니다.
+
+> *"쓰지 않는 기능에는 비용을 치르지 않는다. 그리고 쓰는 기능은 손으로 직접 짜도 이보다 낫게 만들 수 없다."*
+> (What you don't use, you don't pay for. And further: What you do use, you couldn't hand code any better.)
+
+C++는 클래스, 상속, 연산자 오버로딩, 템플릿을 들여왔습니다. 그러면서도 백그라운드 런타임이나 가비지 컬렉터는 넣지 않았습니다.
+
+대신 나온 개념이 **RAII**(Resource Acquisition Is Initialization)입니다. 객체가 자기 자원을 소유하고, 객체가 스코프(`{ }`)를 벗어나는 순간 소멸자가 호출되어 메모리를 바로 정리합니다.
+
+```cpp
+#include <iostream>
+#include <vector>
+
+// Act II: Zero-Cost RAII.
+// No malloc. No free. No manual pointer bookkeeping.
+int main() {
+    // std::vector allocates its internal buffer on the heap automatically
+    std::vector<int> scores = {95, 88, 100};
+
+    for (size_t i = 0; i < scores.size(); ++i) {
+        std::cout << "Score " << (i + 1) << ": " << scores[i] << "\n";
+    }
+
+    // No free() needed. 
+    // When 'scores' leaves this closing brace, its destructor cleans up the memory.
+    return 0;
+}
+```
+
+### 장점과 대가
+
+C++는 **1밀리초가 아쉬운 분야**의 표준이 됐습니다. 언리얼 엔진 같은 AAA 게임 엔진, Chromium·WebKit 같은 브라우저 렌더링 엔진, 초단타 금융 거래, 항공우주 소프트웨어가 대표적입니다.
+
+* **장점:** 고수준 객체지향 패턴을 쓰면서도 C 수준의 성능이 나옵니다.
+* **대가:** 언어가 너무 큽니다. 템플릿, 다중 상속, 이동 시맨틱스가 얽히면 컴파일러 오류 메시지가 고대 주문서처럼 보이기도 합니다.
+
+![Confused Reading Code](https://i.giphy.com/DHqth0hVQoIzS.gif)
+
+## 3막: 아네르스 헤일스베르와 C# (2000)
+
+### 자바 소송에서 시작된 언어
+
+1990년대 후반, 마이크로소프트는 자바 때문에 골치를 앓고 있었습니다. 마이크로소프트는 Windows 전용 기능을 덧붙인 자체 구현체 **Visual J++**를 배포했고, 썬 마이크로시스템즈는 계약 위반으로 소송을 걸었습니다.
+
+소송이 합의로 끝난 뒤 마이크로소프트는 자바를 접고 새 언어를 처음부터 만들기로 했습니다. 이 일을 맡은 사람이 터보 파스칼과 델파이를 만든 컴파일러 엔지니어 **아네르스 헤일스베르**입니다. 프로젝트 이름은 "COOL"(C-like Object Oriented Language)이었고, 2000년에 **C#**이라는 이름으로 공개됐습니다.
+
+![Anders Hejlsberg](https://upload.wikimedia.org/wikipedia/commons/e/ef/Anders_Hejlsberg.jpg)
+
+### 원칙: "개발 생산성과 안전"
+
+헤일스베르는 개발자가 겪는 마찰을 줄이는 데 집중했습니다. 메모리 관리는 런타임에 맡기고, 엔지니어는 기능 개발에만 신경 쓰게 하자는 생각이었습니다.
+
+C#은 깔끔한 C 계열 문법에 **CLR**(Common Language Runtime)과 **가비지 컬렉터(GC)**를 붙였습니다. 메모리는 필요할 때 할당되고, 쓰지 않는 객체는 백그라운드에서 수거됩니다.
+
+최신 C#의 최상위 문(top-level statements)을 쓰면 `class Program`이나 `static void Main` 같은 형식적인 코드도 필요 없습니다.
+
+```csharp
+// Act III: Pure Productivity (Modern C# Top-Level Statements)
+// No boilerplate class wrappers. Just write code.
+
+var scores = new List<int> { 95, 88, 100 };
+
+for (int i = 0; i < scores.Count; i++)
+{
+    Console.WriteLine($"Score {i + 1}: {scores[i]}");
+}
+
+// Zero memory bookkeeping. The Garbage Collector handles cleanup.
+```
+
+### 속도가 필요하면 안전장치를 풀 수 있다
+
+C#을 느린 엔터프라이즈 언어로 여기는 개발자가 아직 많습니다. 작성자는 최근의 C# 내부를 들여다보지 않았기 때문이라고 말합니다. 정말 속도가 필요할 때는 안전장치를 내려놓을 수 있습니다.
+
+1. **`unsafe` 키워드:** 포인터 연산이 필요하면 `unsafe` 블록 안에서 C처럼 메모리 주소를 직접 다룰 수 있습니다.
+2. **`Span<T>`와 `Memory<T>`:** 배열, 문자열, 네이티브 메모리 버퍼를 힙에 1바이트도 할당하지 않고 잘라 쓸 수 있습니다.
+
+작성자는 이 조합 덕분에 최신 .NET이 TechEmpower 웹 벤치마크에서 Go, Rust와 자주 엎치락뒤치락한다고 설명합니다.
+
+### 장점과 대가
+
+오픈소스로 바뀐 **.NET**과 어디서나 쓰이는 **유니티(Unity)** 엔진 덕분에, C#은 가장 실용적인 범용 언어 중 하나로 자리 잡았습니다.
+
+* **장점:** 빨리 짤 수 있고, 기본적으로 메모리 안전하며, 크로스 플랫폼 런타임이 뒤를 받칩니다.
+* **대가:** 런타임 자체가 차지하는 메모리, 콜드 스타트 때의 JIT 컴파일 워밍업, 임시 객체를 수백만 개씩 마구 만들 때 생기는 GC 지연.
+
+![Jeremiah Johnson Nod](https://i.giphy.com/NHh7D7qR0LTSDtfu8p.gif)
+
+## 세 언어 한눈에 비교
+
+| 항목 | C (1972) | C++ (1985) | C# (2000) |
+| :--- | :--- | :--- | :--- |
+| **만든 사람** | 데니스 리치 | 비야네 스트롭스트룹 | 아네르스 헤일스베르 |
+| **메모리 관리** | 수동 (`malloc`/`free`) | RAII로 자동 (`std::vector`, 스마트 포인터) | 가비지 컬렉터 (+ `Span<T>`, `unsafe` 포인터) |
+| **안전성** | 낮음 (쉽게 죽음) | 최신 RAII를 쓰면 높음 (안 쓰면 재앙) | 매우 높음 (기본적으로 메모리 안전) |
+| **속도** | 🚀 하드웨어 그대로의 속도 | 🚀 하드웨어 그대로의 속도 | ⚡ 매우 빠름 (최신 .NET은 최적화가 많이 됨) |
+| **주 용도** | 운영체제, 드라이버, 소형 칩 | 게임 엔진(언리얼), 브라우저, 금융 거래 | 웹 API, 엔터프라이즈 클라우드, 유니티 게임 |
+
+## 지금도 세 언어가 현역인 이유
+
+C 계열 언어가 곧 사라진다는 예측은 수십 년째 나왔습니다.
+
+* "Rust가 C와 C++를 대체할 것이다."
+* "Go가 C#을 대체할 것이다."
+* "파이썬이 전부 대체할 것이다."
+
+그런데 2026년 현재도 상황은 이렇습니다.
+
+* **C**는 안드로이드 폰 30억 대의 커널과 클라우드 하이퍼바이저 대부분을 돌립니다.
+* **C++**는 언리얼 엔진 5, NVIDIA의 연산 스택, 로컬 LLM 런타임(`llama.cpp`)을 떠받칩니다.
+* **C#**은 수백만 개의 상용 웹 백엔드를 돌리고, 유니티를 앞세워 인디 게임 개발의 기본 언어 자리를 지키고 있습니다.
+
+작성자는 세 사람의 몫을 이렇게 정리합니다. 데니스 리치는 철(iron)을, 비야네 스트롭스트룹은 추상화를, 아네르스 헤일스베르는 개발자 편의성을 줬다는 겁니다. 그리고 50년이 지난 지금, 세 언어는 더 이상 서로 경쟁하지 않습니다. 각자 스택의 다른 층을 하나씩 차지했을 뿐입니다.
+
+글 말미에서 작성자는 독자에게 묻습니다. 내일 새 프로젝트를 시작하는데 셋 중 하나만 고를 수 있다면, C, C++, C# 중 무엇을 집겠느냐고요.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
