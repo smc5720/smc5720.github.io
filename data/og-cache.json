@@ -1583,6 +1583,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-23"
   },
+  "https://dev.to/gde/building-railpulse-ai-deploying-an-open-source-railway-dispatch-agent-with-gemma-and-google-cloud-2b9g": {
+    "ok": true,
+    "title": "Building RailPulse AI: Deploying an Open-Source Railway Dispatch Agent with Gemma and Google Cloud Run",
+    "description": "Author: Robina Mirbahar AI/ML Google Developer Expert (GDE) | Google Cloud Champion Innovator GitHub...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fraw.githubusercontent.com%2FRobinaMirbahar%2Frailpulse-gemma-cloudrun%2Fmain%2Fassets%2Frailpulse_banner_v2.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-11"
+  },
   "https://dev.to/gde/crows-moths-and-makefiles-how-300-megabytes-of-crow-dna-explains-why-a-20-kilobyte-scar-file-36a": {
     "ok": true,
     "title": "Crows, Moths, and Makefiles: How 300 Megabytes of Crow DNA Explains Why a 20-Kilobyte Scar File Outsmarts a Terabyte LLM",
@@ -2182,6 +2190,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F1u0lfbde3oracspfkmuh.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/he4rt/trocar-de-provedor-nao-deveria-ser-uma-dor-de-cabeca-50ee": {
+    "ok": true,
+    "title": "Trocar de provedor não deveria ser uma dor de cabeça",
+    "description": "Se você já trabalhou ou trabalha em startups, em um fluxo rápido de desenvolvimento de produto ou até...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F5t380u5l0r4uezqilpd5.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-11"
   },
   "https://dev.to/he4rt/velocidade-de-entrega-e-custo-de-manutencao-pos-ia-5gei": {
     "ok": true,
@@ -2886,6 +2902,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fjkefqnwarmqoxiv5dy8n.jpg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-24"
+  },
+  "https://dev.to/maame-codes/how-did-you-end-up-in-tech-and-are-you-staying-4l9b": {
+    "ok": true,
+    "title": "How did you end up in tech, and are you staying?",
+    "description": "Last week you showed me where you code. This week I want to know how you ended up there in the first...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F08zci525gx05ca9bdff6.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-11"
   },
   "https://dev.to/maame-codes/lets-see-where-you-code-147": {
     "ok": true,
