@@ -4,7 +4,7 @@ description: "결제 대행사 같은 외부 서비스를 바꿀 때 도메인 �
 date: "2026-11-05"
 published_at: "2026-11-11"
 category: "news"
-tags: []
+tags: ["backend","webdev","programming","news"]
 slug: "provider-agnostic-payment-gateway-laravel"
 cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F5t380u5l0r4uezqilpd5.png"
 coverAlt: "Trocar de provedor não deveria ser uma dor de cabeça"
@@ -27,11 +27,11 @@ source_published: "2026-11-05"
 
 ### 왜 대행사를 바꾸게 되나
 
-회사가 결제 대행사를 바꾸는 이유는 여러 가지입니다. 수수료가 더 낮은 곳이 생기기도 하고, 고객 지원 품질이나 서비스 성숙도, 신뢰성이 문제가 되기도 합니다. 저자는 대행사 대표가 회사와 아는 사이라는 이유로 바꾸는 경우도 있다고 덧붙였습니다. 이유가 무엇이든 교체는 언젠가 일어날 수 있는 일이라는 뜻입니다.
+회사가 결제 대행사를 바꾸는 이유는 여러 가지입니다. 수수료가 더 낮은 곳이 생기기도 하고, 고객 지원 품질이나 서비스 성숙도, 신뢰성이 문제가 되기도 합니다. 저자는 대행사 대표가 회사와 아는 사이라는 이유로 바꾸는 경우도 있다고 덧붙였습니다. 이유야 어떻든, 교체는 언제든 일어날 수 있다는 얘기입니다.
 
 ### 대행사 용어가 도메인에 스며들면
 
-마감이 빠듯한데 대행사가 하나뿐이라면, 그 대행사를 기준으로 모델링하고 연동하는 게 자연스럽습니다. 테스트도 통과하고 잘 돌아갑니다. 문제는 새 대행사를 추가할 때 드러납니다. 테이블 구조와 도메인 코드가 모두 기존 대행사의 용어로 짜여 있어 서로 강하게 묶여(coupled) 있기 때문입니다. 저자는 이 상황이 해결하기는 귀찮지만, 미리 예상하고 막을 수 있는 문제라고 말합니다.
+마감이 빠듯한데 대행사가 하나뿐이라면, 그 대행사를 기준으로 모델링하고 연동하는 게 자연스럽습니다. 테스트도 통과하고 잘 돌아가죠. 문제는 새 대행사를 추가할 때 드러납니다. 테이블 구조와 도메인 코드가 모두 기존 대행사의 용어로 짜여 있어 서로 강하게 묶여(coupled) 있기 때문입니다. 저자는 이 상황이 해결하기는 귀찮지만, 미리 예상하고 막을 수 있는 문제라고 말합니다.
 
 먼저 모델링이 대행사에 묶인 모습입니다.
 
@@ -165,7 +165,7 @@ interface PaymentGatewayContract
 }
 ```
 
-그리고 대행사마다 어댑터를 하나씩 만듭니다. 각 대행사의 용어는 오직 여기에만 등장합니다.
+그다음 대행사마다 어댑터를 하나씩 만듭니다. 대행사 고유의 용어는 이 안에서만 쓰입니다.
 
 ```php
 final class StripeGateway implements PaymentGatewayContract
