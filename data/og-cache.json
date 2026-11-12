@@ -511,6 +511,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-11-02"
   },
+  "https://dev.to/dailycontext/ask-more-of-your-ui-2nf7": {
+    "ok": true,
+    "title": "Ask More of Your UI",
+    "description": "In my last post, I wrote about moving Forem’s performance and maintenance work into autonomous loops...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fsbhz5b16c123bk8q1zp6.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-12"
+  },
   "https://dev.to/dailycontext/building-better-agents-through-end-to-end-evals-pgh": {
     "ok": true,
     "title": "Building Better Agents through End-to-End Evals",
@@ -694,6 +702,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fyef0r2qscs29hbs0j5ba.jpg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-10-30"
+  },
+  "https://dev.to/dannwaneri/one-year-on-devto-109-articles-later-p31": {
+    "ok": true,
+    "title": "One Year on DEV.to, 109 Articles Later",
+    "description": "On November 11, 2025, I registered my DEV.to account. When I checked my dashboard this morning, I was...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fcl26a5i4uiu01qj82yh3.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-12"
   },
   "https://dev.to/dannwaneri/someone-else-pays-for-your-ai-access-5149": {
     "ok": true,
@@ -2351,6 +2367,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/hiper2d/how-much-does-it-cost-to-run-a-text-game-with-llms-57o7": {
+    "ok": true,
+    "title": "How much does it cost to run a text game with LLMs",
+    "description": "AI costs are confusing. Providers give you a lot of numbers and nothing to actually know how much you are going to pay in the long run. There is no point in these input/cached/output token prices if you have no idea how many reasoning tokens you'll spend on your tasks. How much will be cached. We are going to review the real-world usage of 27 frontier models.",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fazelianouski.dev%2Fimages%2Fwerewolf-costs-intro.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-12"
+  },
   "https://dev.to/hubedav/im-building-a-hiring-platform-that-starts-with-people-not-job-descriptions-ha6": {
     "ok": true,
     "title": "I'm Building a Hiring Platform That Starts With People, Not Job Descriptions",
@@ -3126,6 +3150,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fbi4ugkmc4dqyw40guuvv.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-31"
+  },
+  "https://dev.to/necoz/ai-can-write-code-but-the-magic-of-a-first-project-is-unmatched-30c4": {
+    "ok": true,
+    "title": "AI can write code, but the magic of a first project is unmatched! 🗽",
+    "description": "Namaste dev community! 👋  Today, I’m sharing a very special project of mine. It's a web page...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ft7xlpeokmbyx2wht6pdy.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-12"
   },
   "https://dev.to/necoz/necoz-has-a-new-home-on-dev-3454": {
     "ok": true,
@@ -4102,6 +4134,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fvup12usdzyn4mywxxvwv.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-23"
+  },
+  "https://dev.to/xulingfeng/we-keep-hearing-about-ai-productivity-the-qa-group-chat-told-a-different-story-2nma": {
+    "ok": true,
+    "title": "We Keep Hearing About AI Productivity. The QA Group Chat Told a Different Story.",
+    "description": "An anonymous poll, a debate about multimodal testing, and some uncomfortable questions about who...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fjm7bc53mhi6cxl48ue89.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-12"
   },
   "https://dev.to/xulingfeng/what-are-your-chances-of-surviving-resident-evil-based-on-your-tech-job-4b9o": {
     "ok": true,
