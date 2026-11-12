@@ -4,7 +4,7 @@ description: "AI 늑대인간 게임 개발자가 53일 동안 모델 27종에 �
 date: "2026-11-08"
 published_at: "2026-11-12"
 category: "news"
-tags: []
+tags: ["ai","llm","backend","startup","news"]
 cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fazelianouski.dev%2Fimages%2Fwerewolf-costs-intro.jpg"
 coverAlt: "How much does it cost to run a text game with LLMs"
 slug: "llm-text-game-real-cost"
@@ -240,7 +240,7 @@ Sonnet은 턴당 **17배** 비싼데 더 빠르지도 않습니다. 마지막 �
 | Mistral | 42% | 21% | 6% | 2% | 0% |
 | Gemini | 36% | 16% | 2% | 1% | 0% |
 
-표에서 읽을 수 있는 점은 다음과 같습니다.
+표를 보면 몇 가지가 눈에 띕니다.
 
 - **DeepSeek은 게임 속도를 타지 않습니다.** 한 시간이 지나도 반복 호출에서 100% 적중했습니다. 캐시가 몇 시간에서 며칠까지 유지되며, 이런 게임에 맞는 유일한 모델입니다.
 - **Gemini 캐시는 사실상 꺼져 있습니다.** 5분이 지나면 사라집니다. Gemini 3.8 Flash는 저자가 가장 많은 돈을 쓰는 모델 중 하나인데, 입력의 10%만 캐시로 처리됐습니다.
@@ -251,7 +251,7 @@ Sonnet은 턴당 **17배** 비싼데 더 빠르지도 않습니다. 마지막 �
 
 ### 진짜 원인은 구조화된 출력
 
-두 번째 원인은 저자도 예상하지 못했습니다. 모든 걸 속도 탓으로 돌렸던 것입니다. 같은 캐시 비율을 턴 종류별로 나눠 보면 이렇습니다.
+두 번째 원인은 저자도 예상하지 못했습니다. 그전까지는 모든 걸 속도 탓으로 돌렸다고 합니다. 같은 캐시 비율을 턴 종류별로 나눠 보면 이렇습니다.
 
 | 봇 호출 간격 | 1분 미만 | 1~5분 | 5~60분 |
 |---|---:|---:|---:|
