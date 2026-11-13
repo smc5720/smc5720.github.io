@@ -1,0 +1,166 @@
+﻿---
+title: "type-tune 공개: 흩어진 TypeScript 타입을 제자리로 옮겨 주는 Rust CLI"
+description: "프론트엔드 개발자 nyaomaru가 프로젝트 곳곳에 흩어진 공유 TypeScript 타입을 찾아 더 적절한 위치로 옮겨 주는 오픈소스 CLI 'type-tune'을 공개했습니다. 스캔, 계획, 검토, 적용 4단계로 동작하며, 무엇을 옮길지는 개발자가 직접 정합니다."
+date: "2026-11-11"
+published_at: "2026-11-13"
+category: "news"
+tags: []
+slug: "meet-type-tune-typescript-types-better-home"
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fnmpfwlsvrtynp0s1lm59.gif"
+coverAlt: "Meet type-tune! 🦀 Give Your TypeScript Types a Better Home! 😸"
+source_id: "devto-4999208"
+source_url: "https://dev.to/necoz/meet-type-tune-give-your-typescript-types-a-better-home-1p6l"
+source_title: "Meet type-tune! 🦀 Give Your TypeScript Types a Better Home! 😸"
+source_author: "nyaomaru"
+source_published: "2026-11-11"
+---
+
+<LinkCard url="https://dev.to/necoz/meet-type-tune-give-your-typescript-types-a-better-home-1p6l" author="nyaomaru" date="2026-11-11" />
+
+## 개요
+
+프론트엔드 엔지니어 nyaomaru가 오픈소스 CLI 도구 **type-tune**을 공개했습니다. 여러 파일에서 이미 함께 쓰이는 TypeScript 타입을 찾아내 더 알맞은 위치로 옮겨 주는 도구이고, Rust로 만들었습니다.
+
+슬로건은 **"Scan. Review. Move. Validate."** 입니다. 프로젝트를 훑어 후보를 찾고, 개발자가 검토한 뒤, 선언을 옮기고, TypeScript 컴파일러로 결과를 검증하는 흐름입니다.
+
+- GitHub: [necoz-oss/type-tune →](https://github.com/necoz-oss/type-tune)
+- 문서: [type-tune-docs.vercel.app →](https://type-tune-docs.vercel.app/)
+
+## 어떤 문제를 풀려는 도구인가
+
+### 안 쓰는 코드가 아니라 '쓰고 있는데 정리 안 된' 타입
+
+대규모 TypeScript 프로젝트에서는 [Knip](https://knip.dev/) 같은 도구로 쓰지 않는 파일, export, 의존성을 정리하곤 합니다. type-tune은 반대편 문제를 겨냥합니다. **실제로 쓰이고 있지만 위치가 어색한 타입**입니다.
+
+예를 들어 처음에는 `OrderPage` 컴포넌트에서만 쓰려고 이렇게 선언했다고 해 봅시다.
+
+```ts
+// src/features/order/OrderPage.tsx
+export type OrderSummary = {
+  id: string;
+  total: number;
+};
+```
+
+기능이 커지면서 다른 파일들도 이 타입을 import하기 시작합니다. 이미 재사용할 타입이 있다는 걸 모르고 비슷한 타입을 또 선언하는 일도 생깁니다. 그렇게 시간이 지나면 다음과 같은 상태가 됩니다.
+
+- 타입이 컴포넌트와 유틸 파일 여기저기에 흩어져 있다
+- 같은 기능 안에서 비슷한 타입 선언이 반복된다
+- 공유 타입이 어울리지 않는 파일에 남아 있다
+- import 관계가 얽혀 리팩터링이 번거로워진다
+
+코드는 여전히 돌아가지만 유지보수하기는 점점 어려워집니다.
+
+![type-tune workflow](https://raw.githubusercontent.com/necoz-oss/type-tune/main/docs/public/animation/conveyor-belt.gif)
+
+type-tune은 여러 파일에서 공유되는 export 타입과 인터페이스를 찾아 적절한 위치로 옮깁니다. 지원하는 범위 안에서는 import 경로도 함께 고쳐 주고, 호환성을 위한 re-export도 남겨 둡니다. 작성자는 Knip이 필요 없는 코드를 지우는 도구라면 type-tune은 남아 있는 코드를 정리하는 도구라서 둘이 서로 보완한다고 설명합니다.
+
+### 30만 줄 코드베이스에서 출발한 아이디어
+
+작성자는 **30만 줄이 넘는** 프로덕션 코드베이스를 리팩터링하다가 이 도구를 떠올렸다고 합니다. 같은 기능 안에서도 공유할 수 있는 타입을 따로따로 선언한 경우가 있었고, 어느새 여러 곳에서 의존하게 된 타입이 처음 만든 자리에 그대로 남아 있었습니다. 코드베이스가 커질수록 이런 관계를 관리하기가 어려워졌다고 합니다.
+
+AI 보조 개발도 계기가 됐습니다. 작성자는 AI와 함께 작업하면서 타입 시스템을 더 높이 평가하게 됐다고 말합니다. 타입은 실수를 잡아 주는 데서 그치지 않고 **AI 코딩 에이전트의 가드레일** 역할도 한다는 겁니다. 잘 정의된 타입은 애플리케이션 구조와 데이터 관계, 코드가 지켜야 할 계약을 전달합니다. 그런데 타입이 중복되거나 흩어져 있으면 그 정보를 제대로 살릴 수 없습니다. 이 문제를 자동으로 관리해 줄 도구를 찾지 못해 직접 만들었다고 합니다.
+
+![노트북 앞에서 작업하는 개발자](https://images.pexels.com/photos/1181641/pexels-photo-1181641.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Christina Morillo](https://www.pexels.com/@divinetechygirl) on [Pexels](https://www.pexels.com/photo/woman-wearing-purple-top-in-front-of-lenovo-thinkpad-1181641/)*
+
+## 설치와 사용법
+
+### 설치
+
+npm이나 pnpm으로 개발 의존성에 추가합니다.
+
+```bash
+npm install -D type-tune
+```
+
+```bash
+pnpm add -D type-tune
+```
+
+설치 없이 바로 써 볼 수도 있습니다.
+
+```bash
+npx type-tune scan --project tsconfig.json
+```
+
+npm 패키지는 **Node.js v22 이상**이 필요하고, 플랫폼별 네이티브 Rust 바이너리를 실행합니다. Cargo로 GitHub에서 직접 빌드해 설치할 수도 있으며, 이 경우 Rust 1.99 이상이 필요합니다.
+
+```bash
+cargo install --git https://github.com/necoz-oss/type-tune --tag v1.0.0 type-tune
+```
+
+### 1단계: 공유 타입 찾기
+
+```bash
+npx type-tune scan --project tsconfig.json
+```
+
+프로젝트를 분석해 옮길 만한 후보를 찾습니다. 기본 기준은 **다른 파일 두 곳 이상에서 참조하는 export 타입과 인터페이스**입니다. 스캔 단계에서는 코드를 전혀 수정하지 않습니다.
+
+### 2단계: 리팩터링 계획 만들기
+
+```bash
+npx type-tune plan \
+  --project tsconfig.json \
+  --out .type-tune/plan.json \
+  --markdown .type-tune/plan.md
+```
+
+JSON 계획 파일과 검토용 Markdown 파일을 만듭니다. 어떤 타입이 발견됐고 지금 어디에 선언돼 있으며 어디로 옮기면 좋을지 확인할 수 있습니다.
+
+### 3단계: 검토하기
+
+type-tune은 모든 후보를 알아서 옮기지 않습니다. 모든 후보는 처음에 `ignore` 상태로 시작하고, 실제로 옮길 선언은 개발자가 고릅니다.
+
+```bash
+npx type-tune review \
+  --markdown .type-tune/plan.md
+```
+
+Markdown 계획 파일을 직접 편집해도 됩니다. 귀찮은 작업은 자동화하되 아키텍처 결정은 개발자 손에 남겨 두려는 설계입니다.
+
+### 4단계: 적용하기
+
+먼저 dry-run으로 미리 확인합니다.
+
+```bash
+npx type-tune apply \
+  --plan .type-tune/plan.json \
+  --markdown .type-tune/plan.md \
+  --dry-run
+```
+
+dry-run은 지원하는 재작성을 실제로 수행하고 TypeScript로 검증한 다음, 정상적으로 끝나면 바뀐 파일을 원래대로 되돌립니다. 결과가 마음에 들면 `--dry-run`을 빼고 실행합니다.
+
+```bash
+npx type-tune apply \
+  --plan .type-tune/plan.json \
+  --markdown .type-tune/plan.md
+```
+
+지원하는 변환이라면 선언 이동, 타입 import 수정, TypeScript 컴파일러 검증까지 처리합니다. 그래도 Git diff를 확인하고 프로젝트 자체 검사는 따로 돌려야 한다고 작성자는 덧붙였습니다.
+
+### 타입 하나만 옮기고 싶을 때
+
+특정 타입 하나만 바로 꺼내는 `extract` 명령도 있습니다.
+
+```bash
+npx type-tune extract OrderSummary \
+  --from src/features/order/OrderPage.tsx \
+  --to src/features/order/types/order.ts \
+  --project tsconfig.json \
+  --dry-run
+```
+
+## v1의 범위와 앞으로의 계획
+
+이번이 첫 공개 버전인 **v1**입니다. 현재는 `.ts`, `.tsx` 파일의 export된 `type` 별칭과 `interface` 선언만 다룹니다. 중복된 타입 정의를 자동으로 합치지는 않고, 가능한 모든 TypeScript 리팩터링을 지원하지도 않습니다. 작성자는 타입 유지보수를 쉽게 만드는 첫걸음으로 봐 달라고 했습니다.
+
+type-tune은 [Necoz](https://github.com/necoz-oss) 조직 아래 공개됐습니다. 작성자는 아이디어 제안, 버그 리포트, 기여를 환영한다고 밝혔고, DEV의 [Necoz 커뮤니티 →](https://dev.to/necoz)에도 참여자를 모집하고 있습니다.
+
+TypeScript 리팩터링 도구를 왜 TypeScript가 아닌 Rust로 만들었는지는 다음 글에서 다룰 예정이라고 합니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
