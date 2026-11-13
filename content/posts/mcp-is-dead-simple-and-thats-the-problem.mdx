@@ -4,7 +4,7 @@ description: "MCP 서버는 150줄 남짓한 코드로 몇 분 만에 띄울 수
 date: "2026-11-12"
 published_at: "2026-11-13"
 category: "news"
-tags: []
+tags: ["ai","llm","security","programming","news"]
 slug: "mcp-is-dead-simple-and-thats-the-problem"
 cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F4ajaeuift6x1wfndpe9s.png"
 coverAlt: "MCP Is Dead Simple. And That's Exactly the Problem"
@@ -177,7 +177,7 @@ MCP 서버를 연결하고 에이전트를 실행하자 Steve는 먼저 `get_emp
 
 데모에서는 다 좋아 보입니다. 하지만 이 작은 예제에도 구멍이 꽤 많습니다.
 
-먼저 접근 제어가 없습니다. 오해하면 안 되는 부분이 있는데, 그렇다고 인터넷의 아무 에이전트나 이 로컬 서버에 접근할 수 있는 건 아닙니다. 로컬 `stdio` 방식에서는 클라이언트가 서버를 프로세스로 띄우기 때문에, 접근 범위는 누가 그 프로세스를 실행할 수 있고 프로세스가 어떤 권한을 갖는지에 달려 있습니다.
+먼저 접근 제어가 없습니다. 다만 그렇다고 인터넷의 아무 에이전트나 이 로컬 서버에 접근할 수 있는 건 아닙니다. 로컬 `stdio` 방식에서는 클라이언트가 서버를 프로세스로 띄우기 때문에, 접근 범위는 누가 그 프로세스를 실행할 수 있고 프로세스가 어떤 권한을 갖는지에 달려 있습니다.
 
 원격으로 노출한 MCP 서버는 사정이 다릅니다. 제대로 된 인증이 필요하고, 민감한 작업에는 인가 검사가 따라야 합니다. HTTP 기반 MCP 서버를 위해 프로토콜이 OAuth 기반 인가 프레임워크를 정의해 두긴 했지만, MCP를 쓴다고 도구가 저절로 안전해지지는 않습니다.
 
@@ -239,7 +239,7 @@ Kiro에게 코드 리뷰를 맡기자 `sylwia-lask` 앞으로 징계 두 건과 
 
 저자는 이 시리즈를 계속 이어갈 생각입니다. 컨텍스트, 메모리, Steve를 위한 에이전트 하네스(agent harness) 등이 후보로 거론됐습니다. 독자에게는 직접 MCP 서버를 운영하고 있는지, 구현할 때 무엇을 주의하는지, 특히 데모에서는 멀쩡했는데 실제로는 훨씬 복잡했던 경험이 있는지 묻습니다.
 
-저자는 베를린에서 열리는 AI Coding Summit에서 이 주제로 발표할 예정이며, [스피커 배지 링크](https://gitnation.com/badges/ai-coding-summit-berlin/sylwia_laskowska_154511)로 등록하면 행사 무료 자료를 받을 수 있다고 안내했습니다.
+베를린에서 열리는 AI Coding Summit에서도 이 주제로 발표할 예정인데, [스피커 배지 링크](https://gitnation.com/badges/ai-coding-summit-berlin/sylwia_laskowska_154511)로 등록하면 행사 무료 자료를 받을 수 있다고 안내했습니다.
 
 ---
 

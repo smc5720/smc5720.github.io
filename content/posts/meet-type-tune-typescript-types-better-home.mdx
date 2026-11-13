@@ -4,7 +4,7 @@ description: "프론트엔드 개발자 nyaomaru가 프로젝트 곳곳에 흩�
 date: "2026-11-11"
 published_at: "2026-11-13"
 category: "news"
-tags: []
+tags: ["typescript","opensource","frontend","webdev","news"]
 slug: "meet-type-tune-typescript-types-better-home"
 cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fnmpfwlsvrtynp0s1lm59.gif"
 coverAlt: "Meet type-tune! 🦀 Give Your TypeScript Types a Better Home! 😸"
@@ -57,9 +57,9 @@ type-tune은 여러 파일에서 공유되는 export 타입과 인터페이스�
 
 ### 30만 줄 코드베이스에서 출발한 아이디어
 
-작성자는 **30만 줄이 넘는** 프로덕션 코드베이스를 리팩터링하다가 이 도구를 떠올렸다고 합니다. 같은 기능 안에서도 공유할 수 있는 타입을 따로따로 선언한 경우가 있었고, 어느새 여러 곳에서 의존하게 된 타입이 처음 만든 자리에 그대로 남아 있었습니다. 코드베이스가 커질수록 이런 관계를 관리하기가 어려워졌다고 합니다.
+작성자는 **30만 줄이 넘는** 프로덕션 코드베이스를 리팩터링하다가 이 도구를 떠올렸다고 합니다. 같은 기능 안에서도 공유할 수 있는 타입을 따로따로 선언한 경우가 있었고, 어느새 여러 곳에서 의존하게 된 타입이 처음 만든 자리에 그대로 남아 있었습니다. 코드베이스가 커질수록 이런 관계는 점점 관리하기 힘들어졌습니다.
 
-AI 보조 개발도 계기가 됐습니다. 작성자는 AI와 함께 작업하면서 타입 시스템을 더 높이 평가하게 됐다고 말합니다. 타입은 실수를 잡아 주는 데서 그치지 않고 **AI 코딩 에이전트의 가드레일** 역할도 한다는 겁니다. 잘 정의된 타입은 애플리케이션 구조와 데이터 관계, 코드가 지켜야 할 계약을 전달합니다. 그런데 타입이 중복되거나 흩어져 있으면 그 정보를 제대로 살릴 수 없습니다. 이 문제를 자동으로 관리해 줄 도구를 찾지 못해 직접 만들었다고 합니다.
+AI 보조 개발도 계기가 됐습니다. 작성자는 AI와 함께 작업하면서 타입 시스템을 더 높이 평가하게 됐다고 말합니다. 타입은 실수를 잡아 주는 데서 그치지 않고 **AI 코딩 에이전트의 가드레일** 역할도 한다는 겁니다. 잘 정의된 타입은 애플리케이션 구조와 데이터 관계, 코드가 지켜야 할 계약을 전달합니다. 그런데 타입이 중복되거나 흩어져 있으면 그 정보를 제대로 살릴 수 없습니다. 이 문제를 자동으로 관리해 줄 도구가 마땅치 않아 결국 직접 만들었다고 합니다.
 
 ![노트북 앞에서 작업하는 개발자](https://images.pexels.com/photos/1181641/pexels-photo-1181641.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
 *Photo by [Christina Morillo](https://www.pexels.com/@divinetechygirl) on [Pexels](https://www.pexels.com/photo/woman-wearing-purple-top-in-front-of-lenovo-thinkpad-1181641/)*
@@ -111,7 +111,7 @@ JSON 계획 파일과 검토용 Markdown 파일을 만듭니다. 어떤 타입�
 
 ### 3단계: 검토하기
 
-type-tune은 모든 후보를 알아서 옮기지 않습니다. 모든 후보는 처음에 `ignore` 상태로 시작하고, 실제로 옮길 선언은 개발자가 고릅니다.
+type-tune은 후보를 알아서 옮기지 않습니다. 처음에는 모든 후보가 `ignore` 상태이고, 실제로 옮길 선언은 개발자가 고릅니다.
 
 ```bash
 npx type-tune review \
