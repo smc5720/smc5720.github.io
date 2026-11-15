@@ -2967,6 +2967,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/m4rri4nne/detecting-flaky-tests-and-finding-their-root-causes-with-strands-agents-and-gemini-4kan": {
+    "ok": true,
+    "title": "Detecting Flaky Tests and Finding Their Root Causes with Strands Agents and Gemini",
+    "description": "A few years ago (three years at most), one of the biggest challenges QA Engineers faced was: how do...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fo71gqwjons1kfrsun4y1.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-15"
+  },
   "https://dev.to/maame-codes/disappeared-since-march-taking-a-long-break-was-my-best-decision-yet-1n45": {
     "ok": true,
     "title": "Disappeared Since March: Taking a Long Break Was My Best Decision Yet",

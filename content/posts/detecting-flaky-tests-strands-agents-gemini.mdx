@@ -1,0 +1,316 @@
+﻿---
+title: "플래키 테스트 찾아내고 원인까지 분석하기 — Strands Agents와 Gemini 활용기"
+description: "같은 커밋에서 통과와 실패를 오가는 플래키 테스트를 커밋 단위 점수로 걸러내고, Strands Agents SDK와 Gemini로 근본 원인을 1차 분석하는 오픈소스 도구를 소개합니다."
+date: "2026-11-10"
+published_at: "2026-11-15"
+category: "news"
+tags: []
+slug: "detecting-flaky-tests-strands-agents-gemini"
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fo71gqwjons1kfrsun4y1.jpg"
+coverAlt: "Detecting Flaky Tests and Finding Their Root Causes with Strands Agents and Gemini"
+source_id: "devto-5012963"
+source_url: "https://dev.to/m4rri4nne/detecting-flaky-tests-and-finding-their-root-causes-with-strands-agents-and-gemini-4kan"
+source_title: "Detecting Flaky Tests and Finding Their Root Causes with Strands Agents and Gemini"
+source_author: "Alicia Marianne Gonçalves"
+source_published: "2026-11-10"
+---
+
+<LinkCard url="https://dev.to/m4rri4nne/detecting-flaky-tests-and-finding-their-root-causes-with-strands-agents-and-gemini-4kan" author="Alicia Marianne Gonçalves" date="2026-11-10" />
+
+## 개요
+
+길게 잡아도 3년 전까지만 해도 QA 엔지니어의 가장 큰 고민은 "자동화 테스트에 투자해야 한다고 회사와 팀을 어떻게 설득하나"였습니다. 지금은 AI가 테스트 코드를 대신 써 주니 이 고민은 거의 사라졌습니다. 대신 새로운 문제가 떠올랐습니다. 바로 **플래키 테스트(flaky test)** 입니다.
+
+QA 엔지니어 Alicia Marianne Gonçalves는 플래키 테스트를 찾아내는 도구 [flaky-test-detector](https://github.com/m4rri4nne/flaky-test-detector)를 직접 만들어 GitHub에 공개했습니다. JUnit 결과를 커밋 단위로 모아 테스트마다 점수를 매기고, 그 결과를 AI 에이전트에 넘겨 근본 원인을 1차로 분석하게 하는 구조입니다. AI 에이전트는 AWS의 Strands Agents SDK와 Google Gemini로 구성했습니다.
+
+## 플래키 테스트가 왜 문제인가
+
+플래키 테스트는 코드도, 테스트도 바뀌지 않았는데 통과와 실패를 오가는 자동화 테스트를 말합니다.
+
+![Doubt](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/ifoqqzu4r695psprkih6.png)
+
+"결국 통과하는데 굳이 들여다볼 필요가 있나?"라는 생각이 먼저 들 수 있습니다. 하지만 규모가 큰 프로젝트에서는 이야기가 다릅니다. 팀이 자기 제품과 테스트를 믿지 못하게 되고, 진짜 실패까지 무시하는 습관이 생깁니다. 재실행이 잦아지니 파이프라인 한 번에 드는 CI 시간과 비용도 늘어납니다.
+
+![Cracked paint peeling off a wall](https://images.pexels.com/photos/6129298/pexels-photo-6129298.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Valeriia Miller](https://www.pexels.com/@valeriia-miller) on [Pexels](https://www.pexels.com/photo/cracked-paint-peeling-off-a-wall-6129298/)*
+
+## 도구는 어떻게 생겼나
+
+처음 계획은 단순했습니다. 테스트 결과를 파싱하고, 테스트·커밋별로 점수를 매긴 뒤 분석은 사람이 직접 하는 방식이었습니다.
+
+![First draft](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/8kmmfc2adtatsuf7a8m1.png)
+
+그러다 "분석도 AI에 맡기면 어떨까" 싶어 리포트 생성 기능과 AI 모델 연동을 붙였습니다. 현재 구조는 다음과 같습니다.
+
+![Last draft](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/sl8ktgkpi6jy3kmco297.png)
+
+프로젝트 디렉터리 구성입니다.
+
+```text
+flaky-test-detector/
+├── .github/workflows/
+│   └── flaky-report.yml   # weekly analysis + result files
+├── agents/
+│   └── agent.py           # optional AI agent: root-cause analysis of reports
+├── docs/
+│   └── how-it-works.svg   # diagram used in this README
+├── flaky_detector/
+│   ├── __init__.py
+│   ├── __main__.py        # CLI
+│   ├── parsers.py         # JUnit XML parser
+│   ├── github.py          # fetches JUnit artifacts from GitHub Actions
+│   ├── scoring.py         # flakiness scoring and ranking
+│   └── report.py          # result files (JSON / CSV / Markdown)
+├── scripts/
+│   └── generate_junit.py  # generates sample JUnit XML files
+├── results/               # sample JUnit XML files (git-ignored)
+├── reports/               # generated reports and AI analyses
+├── tests/
+├── pyproject.toml         # project metadata and dev dependencies (uv)
+├── requirements.txt
+└── README.md
+```
+
+## 점수는 이렇게 매긴다
+
+### JUnit XML 파싱
+
+입력은 JUnit XML 리포트입니다. 대부분의 테스트 프레임워크가 기본으로 내보내는 형식이고, 실행한 테스트마다 `<testcase>` 하나가 들어 있습니다. `parsers.py`가 이 파일을 읽어 아래 형태로 바꿉니다.
+
+```python
+class Outcome(str, Enum):
+    PASSED = "passed"
+    FAILED = "failed"
+    ERROR = "error"
+    SKIPPED = "skipped"
+
+
+@dataclass(frozen=True)
+class TestResult:
+    """A single test execution in a single CI run."""
+    __test__ = False  # keep pytest from trying to collect this class
+
+    name: str  # "<classname>::<name>"
+    outcome: Outcome
+    commit_sha: str | None
+    run_id: str | None
+    time: float = 0.0
+    message: str | None = None
+    source: str | None = None  # file the result came from
+
+    @property
+    def passed(self) -> bool:
+        return self.outcome is Outcome.PASSED
+```
+
+올바른 JUnit XML이 아니면 예외를 던지고, 정상 파일이면 파싱을 이어갑니다.
+
+### 커밋 단위로 결과 묶기
+
+`scoring.py`의 `FlakinessScorer`는 `TestResult` 목록을 받아 `TestScore`로 바꿉니다. 결과를 테스트 이름별로, 다시 커밋별로 묶은 다음 (테스트, 커밋) 쌍마다 결과를 확인합니다. 다음 두 경우는 건너뜁니다.
+
+- `skipped` 테스트: 플래키 여부와 상관이 없습니다.
+- `commit_sha` 속성(커밋 ID)이 없는 JUnit 파일의 결과: 서로 비교할 기준이 없습니다.
+
+`failed`와 `error`는 둘 다 실패로 셉니다.
+
+```python
+@dataclass(frozen=True)
+class TestScore:
+    """Flakiness score of a single test."""
+    __test__ = False  # keep pytest from trying to collect this class
+
+    name: str
+    commits: int  # commits with usable data for this test
+    flaky_commits: int  # commits where the test had mixed outcomes
+    commits_where_flaky: tuple[str, ...] = field(default=())
+    error_messages: tuple[str, ...] = field(default=())  # distinct failure messages, first seen first
+
+    @property
+    def score(self) -> float:
+        return self.flaky_commits / self.commits if self.commits else 0.0
+
+
+class FlakinessScorer:
+    def score(self, results: Iterable[TestResult]) -> list[TestScore]:
+        outcomes: dict[str, dict[str, set[bool]]] = defaultdict(lambda: defaultdict(set))
+        messages: dict[str, dict[str, None]] = defaultdict(dict)  # ordered, de-duplicated
+        for r in results:
+            if not r.commit_sha or r.outcome.value == "skipped":
+                continue
+            outcomes[r.name][r.commit_sha].add(r.passed)
+            if not r.passed and r.message:
+                messages[r.name][r.message] = None
+        scores = []
+        for name, by_commit in outcomes.items():
+            flaky = tuple(sorted(sha for sha, seen in by_commit.items() if len(seen) > 1))
+            scores.append(
+                TestScore(
+                    name=name,
+                    commits=len(by_commit),
+                    flaky_commits=len(flaky),
+                    commits_where_flaky=flaky,
+                    error_messages=tuple(messages[name]),
+                )
+            )
+        return scores
+```
+
+판단 기준은 간단합니다. 같은 커밋에서 결과 집합이 `{True, False}`, 즉 같은 코드로 통과도 하고 실패도 했다면 플래키로 봅니다. 이렇게 만든 데이터는 다음과 같은 모양으로 랭커에 넘어갑니다.
+
+```json
+{
+  "name": "tests.checkout.test_cart::test_9",
+  "commits": 10,
+  "flaky_commits": 3,
+  "commits_where_flaky": [
+    "gen0007d154385",
+    "gen05893e77ff9",
+    "gen059095256f8"
+  ],
+  "error_messages": [
+    "AssertionError: timeout waiting for gateway",
+    "ConnectionError: connection reset by peer"
+  ]
+}
+```
+
+### 점수 계산과 순위
+
+점수는 `flaky_commits`(같은 커밋에서 통과와 실패가 모두 나온 커밋 수)를 `commits`(해당 테스트의 데이터가 있는 전체 커밋 수)로 나눈 값입니다. 예를 들어 10개 커밋에서 돌았고 그중 3개 커밋에서 통과와 실패가 섞였다면 점수는 0.3입니다.
+
+`FlakinessRanker`는 이 점수로 순위를 매깁니다. 점수를 믿을 수 있도록 최소 5개 커밋(`min_commits`) 이상 데이터가 있는 테스트만 대상으로 삼고, 점수가 0.1(`threshold`) 이상이면 플래키로 표시합니다. 두 값 모두 바꿀 수 있습니다.
+
+```python
+def __init__(self, threshold: float = 0.1, min_commits: int = 5) -> None:
+    if not 0.0 <= threshold <= 1.0:
+        raise ValueError("threshold must be between 0 and 1")
+    if min_commits < 1:
+        raise ValueError("min_commits must be >= 1")
+    self.threshold = threshold
+    self.min_commits = min_commits
+```
+
+여기까지만 구현해도 결과를 볼 수 있습니다. 저자는 샘플 JUnit 리포트를 만든 뒤 아래 명령을 실행했습니다.
+
+```bash
+python -m flaky_detector analyze ./results/*.xml --threshold 0.1
+```
+
+![Frist results](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/khg9sno2ruea2ie6etb2.png)
+
+한 줄에 점수, 테스트 이름, 그리고 데이터가 있는 커밋 중 플래키였던 커밋 수가 표시됩니다.
+
+## AI 에이전트로 원인 분석하기
+
+### 에이전트가 읽기 좋은 리포트
+
+다음 단계는 리포트였습니다. 처음부터 AI 에이전트 연동을 염두에 뒀기 때문에 에이전트가 다루기 좋은 형식이 필요했습니다. `report.py`는 `--output-dir` 옵션을 주면 JSON, CSV, Markdown 세 형식으로 리포트를 만듭니다. 에이전트가 쓰는 건 JSON입니다.
+
+```json
+{
+  "generated_at": "2026-11-10T19:32:23+00:00",
+  "source": "local",
+  "threshold": 0.1,
+  "min_commits": 5,
+  "results_parsed": 19644,
+  "tests_analyzed": 109,
+  "flaky_count": 12,
+  "flaky_rate": 0.1101,
+  "tests": [
+    {
+      "name": "tests.checkout.test_cart::test_9",
+      "score": 0.7,
+      "commits": 60,
+      "flaky_commits": 42,
+      "is_flaky": true,
+      "commits_where_flaky": [
+        "gen0007d154385",
+        "gen059095256f8"
+      ],
+      "error_messages": [
+        "AssertionError: timeout waiting for gateway",
+        "ConnectionError: connection reset by peer",
+        "AssertionError: race condition on shared state",
+        "AssertionError: expected 200, got 503",
+        "TimeoutError: operation timed out after 30s"
+      ]
+    }
+  ]
+}
+```
+
+### Strands Agents SDK + Gemini
+
+에이전트는 [Strands Agents SDK](https://strandsagents.com/docs/user-guide/sdk/)로 만들었습니다. 저자는 AWS EMEA의 Train the Trainers 워크숍에서 이 SDK를 처음 접했고, 에이전트 설정이 매우 간단해서 이번 프로젝트에 골랐다고 합니다.
+
+모델은 `GeminiModel`을 씁니다. API 키는 `.env`의 `GOOGLE_API_KEY`에서 읽습니다. 다른 모델로 바꾸고 싶다면 [Model Providers](https://strandsagents.com/docs/user-guide/sdk/model-providers/) 문서를 참고하면 됩니다.
+
+```python
+from strands import Agent
+from strands.models.gemini import GeminiModel
+
+model = GeminiModel(
+    client_args={"api_key": api_key},
+    model_id="gemini-2.5-flash",
+)
+
+agent = Agent(
+    model=model,
+    tools=[fetch_json_report, export_analysis],
+    name="Flaky Test Analysis Agent",
+    description="This agent analyzes flaky test reports and provides insights on flaky tests, their scores, trends, and it analyzes the error messages to provide insights on the root causes of flakiness. And when it is asked to summarize the flaky test report, it will use the fetch_json_report tool to retrieve the report data and then provide a summary of how many tests are flaky and which are the worst and the possible root causes based on the error messages.",
+    system_prompt="You are a helpful assistant that analyzes flaky test reports. Use the fetch_json_report tool to retrieve report data when needed. Always read the error_messages of each flaky test and infer the possible root causes (timeouts, race conditions, network/gateway instability, shared state, etc.), saying which tests each cause affects and how confident you are. After you finish analysing, call export_analysis once with summary, root_causes and recommendations to save the Markdown report, then tell the user the file path.",
+)
+```
+
+시스템 프롬프트에서 에이전트에게 각 플래키 테스트의 `error_messages`를 반드시 읽고 타임아웃, 경쟁 상태(race condition), 네트워크·게이트웨이 불안정, 공유 상태 같은 원인을 추론하라고 지시합니다. 어떤 원인이 어떤 테스트에 영향을 주는지, 그 추론을 얼마나 확신하는지도 함께 밝히게 했습니다.
+
+에이전트가 쓰는 도구는 두 개입니다.
+
+- `fetch_json_report`: 생성된 JSON 리포트를 가져옵니다. 타임스탬프나 기간으로 파일을 찾고, 오래된 것부터 최신 순으로 정렬해 한 번에 돌려줍니다.
+- `export_analysis`: AI가 내놓은 분석을 Markdown 파일로 저장합니다.
+
+실행 코드는 다음과 같습니다.
+
+```python
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Analyze flaky test reports with an AI agent.")
+    parser.add_argument("period", nargs="?", default="last_24_hours", choices=list(PERIODS),
+                        help="period of reports to analyze (default: %(default)s)")
+    args = parser.parse_args()
+    label = args.period.replace("_", " ")
+    agent(f"Summarize the flaky test reports from the {label} (period={args.period}): "
+          "how many tests are flaky and which are the worst? After finishing, analyze the error messages to infer the possible root causes of flakiness and give recommendations to fix them. And create the report file with export_analysis tool, then tell me the path of the Markdown file that was written.")
+
+
+if __name__ == "__main__":
+    main()
+```
+
+기간은 인자로 넘깁니다(예: `python agents/agent.py last_7_days`). 실제로 에이전트가 만든 리포트는 [Flaky Tests Analysis - Last 24 Hours](https://github.com/m4rri4nne/flaky-test-detector/blob/main/analysis/flaky-analysis-20261110T203859Z.md)에서 볼 수 있습니다.
+
+![What now?](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/qhmx44o9y3ahocp7wppf.png)
+
+## 팀에서는 어떻게 쓰면 좋을까
+
+플래키 테스트를 꾸준히 추적하면 팀이 자기 결과물을 더 믿게 되고, CI 비용이 줄고, 두세 번째 재실행에서 통과했다는 이유로 진짜 버그를 놓치는 일도 막을 수 있습니다. 저자는 실행 주기를 팀의 배포 방식에 맞추라고 권합니다.
+
+- **지속적 배포를 하는 팀**(매일 또는 매주 배포): 주 1회 실행을 추천합니다. 하위 환경에서 PR 머지가 자꾸 막힐 때 원인을 파악하는 데도 도움이 됩니다.
+- **월 1회 정도 배포하는 팀**: 배포할 때마다 실행해서 직전 실행과 비교하며 플래키 테스트 수가 늘었는지 확인합니다.
+- **AI 분석은 선택 사항**입니다. 평소에는 점수 계산과 순위만 돌리고, 한 달이나 분기 같은 주기가 끝날 때 에이전트에게 피드백을 받는 방식도 가능합니다.
+
+### 현재 한계와 연동 방법
+
+- JUnit XML에 `<property name="commit_sha" value=""/>`(커밋 ID)와 `<property name="run_id" value=""/>` 속성이 있어야 합니다. GitHub Actions를 기준으로 만든 도구라 다른 프레임워크나 파이프라인에서는 수정이 필요할 수 있습니다. GitHub Actions에서 결과를 가져올 때(`--repo`)는 두 값을 실행 정보에서 바로 가져옵니다.
+- GitHub Actions 연동용 워크플로(`.github/workflows/flaky-report.yml`)가 이미 들어 있습니다. 매주 월요일에 리포트를 만들어 아티팩트로 올립니다. 자기 워크플로에 붙일 때는 조정이 필요할 수 있고, 분석 대상 저장소가 JUnit XML 파일을 워크플로 아티팩트로 게시해야 합니다.
+- AI 모델은 원하는 것으로 바꿔 쓸 수 있습니다. [Model Providers](https://strandsagents.com/docs/user-guide/sdk/model-providers/) 문서를 보고 환경에 맞게 설정하면 됩니다.
+- Grafana 같은 리포팅 도구와 연동하면 시점별로 플래키 테스트 추이를 보고 실제로 줄고 있는지 확인할 수 있습니다.
+
+## 정리
+
+저자는 플래키 테스트가 단순한 골칫거리가 아니라 테스트에 대한 신뢰를 갉아먹고 진짜 실패를 가리는 문제라고 강조합니다. 대응의 첫걸음은 측정이고, 테스트·커밋 단위의 단순한 점수만으로도 시작할 수 있습니다. AI 분석은 근본 원인을 1차로 짚어 주지만 사람의 검토를 대신하지는 못합니다. 인프라 문제로 생긴 실패도 겉보기에는 플래키처럼 보일 수 있기 때문입니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
