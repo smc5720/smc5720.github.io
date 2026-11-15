@@ -4,7 +4,7 @@ description: "같은 커밋에서 통과와 실패를 오가는 플래키 테스
 date: "2026-11-10"
 published_at: "2026-11-15"
 category: "news"
-tags: []
+tags: ["ai","devops","opensource","google","news"]
 slug: "detecting-flaky-tests-strands-agents-gemini"
 cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fo71gqwjons1kfrsun4y1.jpg"
 coverAlt: "Detecting Flaky Tests and Finding Their Root Causes with Strands Agents and Gemini"
@@ -19,7 +19,7 @@ source_published: "2026-11-10"
 
 ## 개요
 
-길게 잡아도 3년 전까지만 해도 QA 엔지니어의 가장 큰 고민은 "자동화 테스트에 투자해야 한다고 회사와 팀을 어떻게 설득하나"였습니다. 지금은 AI가 테스트 코드를 대신 써 주니 이 고민은 거의 사라졌습니다. 대신 새로운 문제가 떠올랐습니다. 바로 **플래키 테스트(flaky test)** 입니다.
+길게 잡아도 3년 전까지만 해도 QA 엔지니어의 가장 큰 고민은 "자동화 테스트에 투자해야 한다고 회사와 팀을 어떻게 설득하나"였습니다. 지금은 AI가 테스트 코드를 대신 써 주니 이 고민은 거의 사라졌습니다. 그 빈자리를 채운 게 **플래키 테스트(flaky test)** 문제입니다.
 
 QA 엔지니어 Alicia Marianne Gonçalves는 플래키 테스트를 찾아내는 도구 [flaky-test-detector](https://github.com/m4rri4nne/flaky-test-detector)를 직접 만들어 GitHub에 공개했습니다. JUnit 결과를 커밋 단위로 모아 테스트마다 점수를 매기고, 그 결과를 AI 에이전트에 넘겨 근본 원인을 1차로 분석하게 하는 구조입니다. AI 에이전트는 AWS의 Strands Agents SDK와 Google Gemini로 구성했습니다.
 
