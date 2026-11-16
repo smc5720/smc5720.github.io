@@ -1,0 +1,102 @@
+﻿---
+title: "에이전트에 필요한 건 더 나은 프롬프트가 아니라 스키마다 (Your Agent Needs a Schema, Not a Better Prompt)"
+description: "AI 에이전트의 실전 사고는 대부분 추론 실패가 아니라 도메인 규칙을 몰라서 생깁니다. 프랭크 코일 교수는 프롬프트를 늘리는 대신 SHACL 온톨로지로 에이전트 행동을 기계적으로 검증하자고 제안합니다."
+date: "2026-11-11"
+published_at: "2026-11-16"
+slug: "your-agent-needs-a-schema-not-a-better-prompt"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ftlonet5nfjfkf6d7m312.png"
+coverAlt: "Your Agent Needs a Schema, Not a Better Prompt"
+source_id: "devto-5012112"
+source_url: "https://dev.to/dailycontext/your-agent-needs-a-schema-not-a-better-prompt-53bm"
+source_title: "Your Agent Needs a Schema, Not a Better Prompt"
+source_author: "frank coyle"
+source_published: "2026-11-11"
+---
+
+<LinkCard url="https://dev.to/dailycontext/your-agent-needs-a-schema-not-a-better-prompt-53bm" author="frank coyle" date="2026-11-11" />
+
+## 개요
+
+데모에서는 에이전트가 늘 잘 동작합니다. 고객이 환불을 요청하면 알맞은 도구를 부르고, 돈이 정상적으로 나갑니다. 문제는 배포하고 나서 터집니다. 배송도 안 된 주문을 환불하고, 결제 금액보다 많이 돌려주고, 부하 직원이 한 명도 없는 '매니저'의 경비를 승인합니다.
+
+UC 버클리 정보대학원에서 생성형 AI를 가르치는 프랭크 코일(Frank Coyle) 교수는 이런 사고가 추론 실패가 아니라고 말합니다. 모델은 제대로 추론했습니다. 다만 비즈니스에서 무엇이 참인지 시스템 어디에도 적혀 있지 않았기 때문에, 사실이 아닌 전제를 바탕으로 행동했을 뿐입니다.
+
+코일 교수가 내놓은 해법은 시스템 프롬프트를 더 길게 쓰는 것이 아닙니다. 도메인 규칙을 **온톨로지(ontology)** 로 정의하고, 에이전트가 실제로 행동하기 전에 그 규칙으로 검증하자는 것입니다.
+
+## 본문
+
+### 프롬프트는 부탁이고, 온톨로지는 정의다
+
+흔히 쓰는 처방은 프롬프트에 규칙을 추가하는 방식입니다. "주문 금액보다 많이 환불하지 말 것", "배송 완료된 주문만 환불할 것" 같은 문장을 넣는 거죠. 처음에는 효과가 있습니다. 하지만 프롬프트가 4,000토큰까지 불어나면 정말 중요한 규칙 하나가 다른 규칙 마흔 개와 모델의 주의를 두고 다투게 됩니다. 코일 교수의 표현을 빌리면 프롬프트는 조언일 뿐이고, 모델은 그 조언을 '대부분' 따를 뿐입니다.
+
+온톨로지는 성격이 다릅니다. 도메인 안에 무엇이 존재할 수 있고 서로 어떻게 연결되는지를 기계가 읽을 수 있는 형식으로 적은 명세입니다. 예를 들면 이렇습니다.
+
+- 주문(Order)에는 고객(Customer)이 정확히 한 명 있다.
+- 환불(Refund)은 정확히 하나의 주문을 가리킨다.
+- 매니저(Manager)에게는 직속 부하가 한 명 이상 있다.
+
+온톨로지는 모델에게 행동을 부탁하지 않습니다. 모델이 행동할 수 있는 세계를 아예 정해 버립니다. 그리고 매번 밀리초 단위로 기계적인 검사가 가능합니다.
+
+핵심 원칙은 간단합니다. **LLM이 제안하고, 온톨로지가 결정한다(the LLM proposes, the ontology disposes).** 에이전트는 요청을 이해하는 방식에서는 여전히 유연합니다. 다만 도메인과 모순되는 행동을 실행할 자유는 없어집니다.
+
+![노트북으로 작업하는 사람](https://images.pexels.com/photos/5467599/pexels-photo-5467599.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Antoni Shkraba](https://www.pexels.com/@antoni-shkraba) on [Pexels](https://www.pexels.com/photo/man-in-black-suit-jacket-using-laptop-5467599/)*
+
+### 사람이 읽을 수 있는 가드레일, SHACL
+
+이런 제약을 표현하는 W3C 표준으로 SHACL(Shapes Constraint Language)이 있습니다. 앞서 말한 환불 규칙을 SHACL 셰이프로 쓰면 다음과 같습니다.
+
+```turtle
+ex:RefundShape a sh:NodeShape ;
+    sh:targetClass ex:Refund ;
+    sh:property [
+        sh:path ex:forOrder ;
+        sh:class ex:DeliveredOrder ;
+        sh:minCount 1 ; sh:maxCount 1 ;
+        sh:message "A refund must reference exactly one delivered order." ] ;
+    sh:property [
+        sh:path ex:amount ;
+        sh:datatype xsd:decimal ;
+        sh:minExclusive 0 ] .
+```
+
+"환불 금액은 주문 총액을 넘을 수 없다"는 규칙도 같은 셰이프 안에 SPARQL 제약으로 몇 줄만 더하면 됩니다.
+
+코일 교수가 강조하는 부분은 이 코드를 **누가 검토할 수 있는가**입니다. 파이썬 코드는 평생 읽지 않을 컴플라이언스 담당자도 "환불은 배송 완료된 주문 하나를 정확히 가리켜야 한다"는 문장은 읽고 맞는지 틀리는지 판단할 수 있습니다.
+
+### 검증 결과를 에이전트에게 돌려준다
+
+가드레일은 에이전트의 결정과 실제 부수 효과(side effect) 사이에 들어갑니다. 흐름은 네 단계입니다.
+
+1. 에이전트가 실행할 행동을 구조화된 데이터로 제안합니다. JSON-LD를 쓰면 그래프 구조로 깔끔하게 옮겨집니다.
+2. pySHACL 같은 검증기가 셰이프와 대조해 검사합니다. 모델 호출도, 토큰 소모도 없습니다.
+3. 규칙에 맞으면 행동을 실행합니다.
+4. 맞지 않으면 검증 리포트를 도구 결과(tool result)로 에이전트에게 돌려줍니다. 어떤 셰이프가, 어느 필드에서 실패했는지 사람이 쓴 메시지와 함께 전달합니다.
+
+마지막 단계가 특히 중요합니다. "작업 거부됨"이라는 메시지로는 에이전트가 배울 게 없습니다. 반면 "환불은 배송 완료된 주문 하나를 정확히 가리켜야 함. 주문 8812의 상태는 Shipped"라는 메시지를 받으면 에이전트는 이유를 따져 볼 수 있습니다. 코일 교수에 따르면 실제로 에이전트는 스스로 고치거나 사람에게 넘기는데, 이것이야말로 처음에 프롬프트로 얻고 싶었던 동작입니다.
+
+### 하나의 산출물로 세 가지를 해결한다
+
+보통 팀들은 컨텍스트, 가드레일, 평가를 따로 만듭니다. 온톨로지 하나가 이 세 가지를 모두 맡을 수 있습니다.
+
+- **컨텍스트**: 행동을 검증하는 온톨로지로 에이전트의 도구 설명과 엔티티 정의도 생성할 수 있습니다. 모델은 수천 토큰이 아니라 수백 토큰만으로 도메인의 실제 모습을 파악합니다.
+- **가드레일**: 규칙이 선언적이고 결정론적이며 git으로 버전 관리됩니다. 규칙 변경은 누군가 금요일에 슬쩍 고친 프롬프트가 아니라, 리뷰를 거친 diff가 됩니다.
+- **평가(Evals)**: 거부된 행동 하나하나가 셰이프·필드·타임스탬프가 붙은 실패 사례로 남습니다. 테스트 스위트 전체에서 셰이프별 위반 건수를 세면 에이전트가 도메인의 어느 부분을 잘못 이해하는지 정확히 보입니다. LLM 심사관이 매긴 "10점 만점에 6점"을 해석하느라 애쓸 필요가 없습니다.
+
+물론 대가도 있습니다. 누군가는 도메인을 모델링해야 하고, 이는 느리고 꼼꼼함이 필요한 작업입니다. 그래도 그 지식은 이미 데이터베이스 스키마, 정책 문서, 시니어 구성원의 머릿속에 있습니다. 코일 교수는 온톨로지가 그 지식을 암묵지(tribal knowledge)에서 꺼내 놓는 자리라고 설명합니다.
+
+### 어디서부터 시작할까
+
+회사 전체를 모델링하려 들 필요는 없습니다. 잘못됐을 때 피해가 가장 큰 에이전트 행동 하나만 고르면 됩니다. 환불, 레코드 삭제, 외부 발송 이메일 같은 것들이죠. 그 행동에 대한 셰이프를 세 개 작성하고, 해당 도구 호출 앞에 검증기를 두고, 일주일 동안 거부 기록을 남겨 보라는 것이 코일 교수의 제안입니다.
+
+그러면 금방 두 가지를 알게 됩니다. 에이전트가 도메인에서 금지된 행동을 얼마나 자주 하려 했는지, 그리고 그중 몇 건이나 프롬프트가 이미 '처리했다'고 믿었던 경우였는지.
+
+### 필자 소개
+
+프랭크 코일 박사는 UC 버클리 정보대학원에서 생성형 AI와 LLM을 가르치고 있으며, SMU에서 32년간 컴퓨터 과학을 가르쳤습니다. 에모리 대학교에서 신경해부학과 신경생리학을 공부한 뒤 컴퓨터 과학으로 전향했습니다. AIE Code Summit에서 "Ontologies as Guardrails"를 주제로 발표했습니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

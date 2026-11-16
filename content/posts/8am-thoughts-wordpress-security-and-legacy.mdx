@@ -1,0 +1,77 @@
+﻿---
+title: "아침 8시의 생각: 워드프레스, 보안, 그리고 레거시 (8 a.m. Thoughts: Word Press, Security, and Legacy)"
+description: "한 웹 개발자가 워드프레스를 배워야 할지 고민하다가 보안 위험과 플러그인 문제를 이유로 직접 만드는 쪽을 택했습니다. 비즈니스 오너에게는 개발자를 고용하라고, 동료 개발자에게는 AI에 기대지 말고 직접 시스템을 구축해 보라고 권합니다."
+slug: "8am-thoughts-wordpress-security-and-legacy"
+date: "2026-11-11"
+published_at: "2026-11-16"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fla10g56meonvuea9xrvs.png"
+coverAlt: "8 a.m. Thoughts: Word Press, Security, and Legacy"
+source_id: "devto-5017895"
+source_url: "https://dev.to/annavi11arrea1/8-am-thoughts-word-press-security-and-legacy-mn5"
+source_title: "8 a.m. Thoughts: Word Press, Security, and Legacy 💭🤔"
+source_author: "Anna Villarreal"
+source_published: "2026-11-11"
+---
+
+<LinkCard url="https://dev.to/annavi11arrea1/8-am-thoughts-word-press-security-and-legacy-mn5" author="Anna Villarreal" date="2026-11-11" />
+
+## 개요
+
+웹 개발자 Anna Villarreal은 몇 년째 워드프레스를 피해 왔습니다. 그런데 워드프레스로 무언가를 만들었다는 사례가 계속 눈에 띄고, 워드프레스 관리 인력을 찾는 구인 공고도 끊이지 않았습니다. 몸값을 올리려면 이걸 배워야 하나 싶어서 어느 날 아침 직접 알아보기 시작했습니다.
+
+결론은 "배우지 않겠다"였습니다. 보안 위험이 크고 플러그인 생태계가 어지럽다는 게 이유입니다. 글 후반부에서는 비즈니스 오너와 동료 개발자에게 각각 조언을 남겼습니다.
+
+## 본문
+
+### 워드프레스가 2003년에 나왔다는 사실
+
+글쓴이는 먼저 워드프레스가 2003년에 나왔다는 점을 짚습니다. 5G도, Wi-Fi 7도, 메타 글래스도 없던 시절입니다. 그만큼 오래된 시스템인데 지금도 곳곳에서 쓰이고 있습니다.
+
+### 겉만 훑어봐도 보이는 문제들
+
+가볍게 조사만 해 봤는데도 걱정거리가 꽤 나왔다고 합니다.
+
+- 워드프레스는 공격자들이 자주 노리는 대상입니다. (글쓴이는 해킹이 모두 나쁘다는 편견을 없애고 싶어서 '해커' 대신 'bad guys'라는 말을 씁니다.)
+- 패치, 업데이트, 백업을 꾸준히 챙기고 보안 설정도 따로 강화해야 합니다.
+- 업데이트를 하나라도 건너뛰면 버그나 익스플로잇에 그대로 노출됩니다.
+- 커스터마이징을 많이 해 둘수록 업데이트하기가 위험해집니다.
+- 플러그인 충돌, 코드 비대화, 최적화 부족 때문에 사이트가 느려질 수 있습니다.
+
+![meme from wpfixit.com ](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/ch71bx90vuuqq66hjc24.png)
+
+글쓴이는 이걸 보고 워드프레스 관리직 공고가 왜 그렇게 많은지 알겠다고 농담합니다. 웹 개발을 처음 배울 때도 워드프레스를 두고 도는 밈과 불평을 보며 거부감을 느꼈다고 합니다. 남이 신경 쓰지 않고 쌓아 둔 시스템 위에서 최적화를 하느니, 차라리 개발자를 뽑아서 더 깔끔하고 최신 상태인 맞춤형 시스템을 만들라는 게 글쓴이의 생각입니다. 워드프레스 덕분에 주니어 개발자 수요가 다시 늘어날지도 모르겠다는 농담도 덧붙였습니다.
+
+### "직접 만드는 쪽이 낫다"
+
+글쓴이는 지금 아는 걸 기준으로 보면, 개인 이커머스 사이트를 워드프레스에 올리는 위험은 감수하지 않겠다고 말합니다. 규모가 커지고 기댈 기능이 많아질수록 노출되는 면도 넓어진다는 이유입니다.
+
+그래서 기본에 충실하게, 귀찮을 만큼 세세하게 직접 만드는 편을 택합니다. 그쪽이 더 안전하고, 자부심도 생기고, 통제권도 쥘 수 있다고 봅니다. 물론 자신과 다른 사람에 대한 책임을 질 각오가 있어야 한다는 단서를 붙였습니다.
+
+그렇다고 기성 도구와 템플릿이 쓸모없다고 하지는 않습니다. 정적 웹사이트나 레시피 모음처럼 보안이 큰 문제가 아닌 경우라면 워드프레스를 써도 좋고, 잘 맞는 용도도 분명 있을 거라고 인정합니다.
+
+글쓴이는 워드프레스를 "플러그인 혼돈의 비옥한 땅"이라고 표현하면서, 자기 웹사이트 기능은 앞으로도 처음부터 직접 만들겠다고 했습니다. 워드프레스 밈 모음은 [wpfixit.com](https://www.wpfixit.com/wordpress-memes/)에서 볼 수 있습니다.
+
+### 비즈니스 오너에게
+
+글쓴이는 사업하는 사람들에게 개발자를 고용하라고 말합니다. 주니어 개발자라도 원하는 방향으로 워드프레스보다 훨씬 멀리 데려가 줄 수 있다는 겁니다. 사업 상황이 조금이라도 특수하다면 더욱 그렇습니다.
+
+보안 측면의 이유도 듭니다. 공격자가 시스템 구조를 파악하지 못하면 공격하기가 그만큼 번거로워집니다. 어느 정도는 방어막이 생기는 셈입니다. 상대를 충분히 귀찮게 만들면, 공격자는 더 손쉬운 다른 표적으로 옮겨 갑니다.
+
+### 동료 개발자에게
+
+![The word thoughts on a pin board](https://images.pexels.com/photos/7005411/pexels-photo-7005411.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Vie Studio](https://www.pexels.com/@vie-studio) on [Pexels](https://www.pexels.com/photo/the-word-thoughts-on-a-pin-board-7005411/)*
+
+동료 개발자들에게는 AI에 너무 기대지 말라고 당부합니다. 집에서 작은 컴퓨터나 리눅스 기기로 시스템을 직접 만들어 보고, 자기 네트워크에서 호스팅과 보안까지 스스로 해 보라고 권합니다.
+
+글쓴이는 주니어 자리를 원한다면 기존 시스템이 하는 일보다 더 잘해야 한다고 말합니다. 할 일이 많으니 지금 바로 시작하라고, 아니면 아예 직접 사업을 해 보라고 덧붙였습니다.
+
+### 반박을 기다리며
+
+글쓴이는 자신이 바깥에서 본 시각만 갖고 있다는 걸 인정합니다. 그래서 독자들에게 워드프레스 생태계의 속사정을 알려 달라고, 자기 생각을 바꿔 보라고 제안하며 글을 마칩니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

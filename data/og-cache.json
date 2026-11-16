@@ -239,6 +239,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/annavi11arrea1/8-am-thoughts-word-press-security-and-legacy-mn5": {
+    "ok": true,
+    "title": "8 a.m. Thoughts: Word Press, Security, and Legacy 💭🤔",
+    "description": "Word Press was released in the fantastic world of 2003, before 5G, wifi-7, and meta glasses.  I have...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fla10g56meonvuea9xrvs.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-16"
+  },
   "https://dev.to/annavi11arrea1/catbot-custom-grammar-problem-fixed-oc5": {
     "ok": true,
     "title": "Catbot: Custom Grammar Problem Fixed",
@@ -646,6 +654,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F5jcfndik4zmecrxf21x7.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-10-15"
+  },
+  "https://dev.to/dailycontext/your-agent-needs-a-schema-not-a-better-prompt-53bm": {
+    "ok": true,
+    "title": "Your Agent Needs a Schema, Not a Better Prompt",
+    "description": "The failure nobody demos   The agent demo always works. The customer asks for a refund, the...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ftlonet5nfjfkf6d7m312.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-16"
   },
   "https://dev.to/dailycontext/youre-not-really-that-far-behind-h4d": {
     "ok": true,
@@ -1646,6 +1662,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fraw.githubusercontent.com%2FRobinaMirbahar%2Frailpulse-gemma-cloudrun%2Fmain%2Fassets%2Frailpulse_banner_v2.jpg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-11-11"
+  },
+  "https://dev.to/gde/cant-beat-free-gemma-4-31b-on-amd-token-lab-with-a-local-chat-page-and-an-adk-agent-c5b": {
+    "ok": true,
+    "title": "Can't Beat Free: Gemma 4 31B on AMD Token Lab, with a Local Chat Page and an ADK Agent",
+    "description": "AMD Token Lab is a free OpenAI-compatible API on AMD GPUs that comes with the AMD AI Developer Program. How to sign up, a local chat page that keeps the key off the browser, a terminal client, and a small ADK agent that calls Gemma 4 31B through it.",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fraw.githubusercontent.com%2Fxbill9%2Fgemma4-dev%2Fmain%2Fdocs%2Ftokenlab-free%2Fdevto-cover.aff96a99.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-16"
   },
   "https://dev.to/gde/crows-moths-and-makefiles-how-300-megabytes-of-crow-dna-explains-why-a-20-kilobyte-scar-file-36a": {
     "ok": true,
