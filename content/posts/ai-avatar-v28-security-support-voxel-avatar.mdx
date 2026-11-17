@@ -1,0 +1,119 @@
+﻿---
+title: "AI Avatar v28 출시: 보안 점검 기능과 눈 내리는 복셀 아바타 (AI Avatar v28 — Security Support, Voxel Avatar)"
+description: "VS Code와 브라우저에서 VRM 아바타가 개발자를 응원하는 무료 앱 AI Avatar가 v28을 내놨습니다. 라이브러리 취약점과 키 유출을 검사하는 'AI Avatar Security'가 새로 들어갔고, 복셀 아바타에는 겨울 눈 애니메이션이 추가됐습니다."
+date: "2026-11-16"
+published_at: "2026-11-17"
+category: "news"
+tags: []
+slug: "ai-avatar-v28-security-support-voxel-avatar"
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F1p4kxontmb681a8hynvf.png"
+coverAlt: "AI Avatar v28 (Security Support, Voxel Avatar)"
+source_id: "devto-5004164"
+source_url: "https://dev.to/webdeveloperhyper/ai-avatar-v28-security-support-voxel-avatar-2i5i"
+source_title: "AI Avatar v28 (Security Support, Voxel Avatar)🛡️"
+source_author: "Web Developer Hyper"
+source_published: "2026-11-16"
+---
+
+<LinkCard url="https://dev.to/webdeveloperhyper/ai-avatar-v28-security-support-voxel-avatar-2i5i" author="Web Developer Hyper" date="2026-11-16" />
+
+## 개요
+
+AI Avatar는 VRoid(VRM) 아바타가 코딩하는 사람 옆에서 응원해 주는 무료 앱입니다. VS Code 사이드바에 띄우면 Claude Code, Codex, GitHub Copilot에 반응하고, 브라우저 사이드 패널에 띄우면 ChatGPT와 Claude에 반응합니다. 애니메이션과 말풍선은 AI 없이도 동작합니다.
+
+이번 v28의 핵심은 보안입니다. 개발자 Web Developer Hyper는 라이브러리 취약점과 키·비밀번호 유출을 점검하는 **AI Avatar Security** 기능을 새로 넣었습니다. 여기에 복셀 아바타 겨울 업데이트, 그리고 개발자가 직접 겪은 AWS 계정 정리 이야기도 함께 공개했습니다.
+
+[YouTube 영상 보기 →](https://www.youtube.com/watch?v=-X11uLnKq0s)
+
+## 보안 기능을 넣은 이유
+
+개발자는 일본에서 9월 이후 해킹으로 인한 무단 접근과 민감 정보 유출이 크게 늘었다고 전했습니다. 유출된 개인정보 건수가 일본 인구의 두 배를 넘었다는 이야기도 들었다고 합니다. 이런 상황이 일본만의 문제는 아니라고 보고, AI 발전이 일부 영향을 줬을지도 모른다고 적었습니다.
+
+1년 넘게 업무와 취미로 매일 AI를 써 오면서 AI가 짧은 기간에 얼마나 똑똑해졌는지 체감했다는 것도 계기가 됐습니다. 다만 본인은 보안 전문가가 아니라고 밝혔습니다. 보안을 공부하려고 만든 기능이고, 다른 사람에게도 도움이 되고 보안 사고에 관심을 갖는 계기가 되길 바란다고 합니다.
+
+![Padlock hanging on mesh fence](https://images.pexels.com/photos/15049670/pexels-photo-15049670.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Connor Scott McManus](https://www.pexels.com/@connor-scott-mcmanus) on [Pexels](https://www.pexels.com/photo/padlock-hanging-on-mesh-fence-15049670/)*
+
+## AI Avatar Security 살펴보기
+
+새 보안 기능은 보안 점검(Security Check), AI 리뷰(AI Review), 보안 뉴스(Security News) 세 가지로 나뉩니다.
+
+### 보안 점검: 라이브러리 취약점과 키 유출
+
+보안 점검은 두 종류입니다.
+
+- **라이브러리 취약점 점검:** `npm audit`로 이미 알려진 취약점을 찾아 어떤 라이브러리가 문제인지 알려 줍니다.
+- **데이터 유출 점검:** **Betterleaks**(옛 이름 Gitleaks)로 코드에 노출된 키와 비밀번호를 찾아냅니다.
+
+개발자는 보안 점검이 원래 재미있는 일은 아니라서 결과에 따라 아바타 애니메이션이 나오게 만들었다고 설명했습니다. 문제가 발견되면 바이러스처럼 보이는 연출이 나옵니다. 앱이 실제로 감염됐다는 뜻은 아니고 재미를 위한 장치입니다.
+
+[NG 애니메이션 영상 보기 →](https://www.youtube.com/watch?v=I2uPQeGdz14)
+
+문제가 없으면 아바타가 반짝이는 애니메이션이 나옵니다.
+
+[OK 애니메이션 영상 보기 →](https://www.youtube.com/watch?v=T6rMH6Q3OcY)
+
+### AI 리뷰: 여덟 가지 항목을 AI가 점검
+
+무단 접근과 민감 정보 유출을 막기 위한 보안 점검용 AI 프롬프트도 들어갔습니다. 점검 항목에 맞는 테스트를 추가하는 옵션도 있습니다.
+
+| 분류 | AI 점검 항목 |
+|---|---|
+| 무단 접근 (Unauthorized Access) | 로그인과 인증 |
+| 무단 접근 | 역할과 권한 |
+| 무단 접근 | 사용자·팀 간 데이터 분리 |
+| 무단 접근 | 비공개 파일과 다운로드 |
+| 민감 정보 유출 (Sensitive Data Leakage) | 키와 비밀번호 |
+| 민감 정보 유출 | 응답에 섞인 개인 데이터 |
+| 민감 정보 유출 | 로그와 에러 메시지 |
+| 민감 정보 유출 | 공개 파일과 스토리지 |
+
+여덟 항목을 한 번에 검사할 수도 있습니다. 다만 개발자가 써 보니 한 항목씩 검사할 때 분석이 더 깊었다고 합니다.
+
+### 보안 뉴스
+
+최신 보안 소식을 확인하는 뉴스 기능도 생겼습니다. 소프트웨어 취약점은 **CIS(Center for Internet Security)**에서, 일반 보안 권고는 영국 **NCSC(National Cyber Security Centre)**에서 가져옵니다.
+
+## 개발자가 직접 겪은 AWS 정리기
+
+개발자는 이번에 개인 보안 점검도 하면서 미뤄 둔 AWS 계정 정리에 나섰습니다. 그동안은 요금이 나오지 않게 서비스를 멈춰만 뒀고, 삭제는 번거롭고 오래 걸릴 것 같아 손대지 않았다고 합니다.
+
+막상 해 보니 한꺼번에 지울 수 없어서 이름을 하나씩 입력해야 하는 서비스가 있었습니다. 그래서 AI에게 **CloudShell**에서 한 번에 삭제하는 코드를 작성하게 했습니다. 처음에는 **CloudWatch** 로그에 나온 서비스를 지웠는데, 이것만으로는 전부 잡히지 않았습니다. 다음으로 **Resource Explorer**에서 모든 리전에 인덱싱을 켜고 남은 리소스를 확인했습니다. 그런데 지울 필요 없는 기본 설정까지 함께 나왔고, 결국 AI에게 실제로 쓴 서비스만 골라 목록으로 만들게 한 뒤 불필요한 것을 모두 정리했습니다.
+
+며칠 뒤 **Cost Explorer**를 열어 보니 몇 달러가 청구돼 있었습니다. 서비스를 삭제하는 과정에서 **Config**가 작동했기 때문입니다. 개발자는 이렇게 번거롭고 돈까지 더 나갈 줄 알았다면 계정을 통째로 지웠을 거라고 털어놨습니다. 그래도 AWS가 편리하고 서비스가 다양해 계속 쓸 생각이고, 앞으로는 리소스가 쌓이지 않게 주기적으로 정리하겠다고 밝혔습니다.
+
+## 복셀 아바타 겨울 업데이트
+
+[YouTube 영상 보기 →](https://www.youtube.com/watch?v=91f_F8jbG-c)
+
+Voxel Avatar는 VS Code와 크롬 확장을 쓰는 동안 정원을 가꾸고 동물을 배치하는 방치형 게임입니다. 이전 글에 DEV 커뮤니티 친구 shubhradev가 겨울 버전 아이디어를 남겼고, 이번에 눈 내리는 애니메이션이 들어갔습니다. 개발자는 눈 하나로 복셀 세계 분위기가 완전히 달라졌다고 소개했습니다. Voxel Avatar가 이제 AI Avatar의 핵심 기능으로 자리 잡은 만큼 업데이트를 이어 가겠다고 합니다.
+
+## 설치 방법
+
+VS Code 확장은 설치 수 400회를 넘겼습니다. 설치 방법은 두 가지입니다.
+
+- **VS Code에서 설치:** 왼쪽 사이드바 `Extensions` 버튼 → **AI Avatar** 검색 → `Install`
+
+![VS Code에서 AI Avatar 확장 검색 화면](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/tth8lq5he7amhieh2l9v.png)
+
+- **VS Code Marketplace에서 설치:** [AI Avatar 마켓플레이스 페이지 →](https://marketplace.visualstudio.com/items?itemName=web-developer-hyper.ai-avatar)
+
+![VS Code Marketplace의 AI Avatar 페이지](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/ntpvooe7n55djawitt9g.png)
+
+크롬 버전은 [Chrome 웹 스토어](https://chromewebstore.google.com/detail/ai-avatar/afmcfaeaaojalninahhhjnonhmlmiidi)에서 설치합니다.
+
+## 함께 만든 사람들과 다음 계획
+
+개발자는 도움을 준 사람들에게 농담 섞인 직함을 붙여 감사 인사를 전했습니다.
+
+- **annavi11arrea1 (CCO, Chief Creative Officer):** v17에서 Catbot과 AI Avatar 협업
+- **rutenveil (CDO, Chief Design Officer):** v15의 이펙트 제작
+- **gramli (CTO, Chief Technology Officer):** v2 업데이트 참여
+- **itsugo (CMO, Chief Marketing Officer):** AI Avatar의 출발점이 된 아바타 협업 프로젝트
+- **동료 Maximum Blue:** v6의 독특한 아바타 제작
+
+v29 업데이트도 이미 작업 중입니다. 개발자는 최신 AI를 활용한 기능과 재미있는 요소를 더 넣겠다고 예고했습니다. 아울러 보안 점검 아이디어, AI 기능, 아바타와 애니메이션, 사용자 경험 개선, 사용자 확대 방안에 대한 의견을 댓글로 받고 있습니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

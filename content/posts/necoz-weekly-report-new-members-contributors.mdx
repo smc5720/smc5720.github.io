@@ -1,0 +1,142 @@
+﻿---
+title: "Necoz 첫 주간 리포트: 한 주 만에 28명 합류, 기여자 35명이 PR 71건 병합"
+description: "오픈소스 커뮤니티 Necoz가 DEV에 조직을 연 지 일주일 만에 멤버 28명이 들어왔습니다. 지금까지 기여자 35명이 PR 71건을 병합했고, 이번 주 첫 공식 주간 리포트를 냈습니다."
+date: "2026-11-15"
+published_at: "2026-11-17"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F6gxz9dnt2ges3ky0jtpb.gif"
+coverAlt: "Cat Mutilation Successful!! 🛸 Welcome New Members!! 🐈🎉"
+slug: "necoz-weekly-report-new-members-contributors"
+source_id: "devto-5036386"
+source_url: "https://dev.to/necoz/cat-mutilation-successful-welcome-new-members-4bj4"
+source_title: "Cat Mutilation Successful!! 🛸 Welcome New Members!! 🐈🎉"
+source_author: "nyaomaru"
+source_published: "2026-11-15"
+---
+
+<LinkCard url="https://dev.to/necoz/cat-mutilation-successful-welcome-new-members-4bj4" author="nyaomaru" date="2026-11-15" />
+
+## 개요
+
+고양이와 UFO를 콘셉트로 한 오픈소스 커뮤니티 **Necoz**가 첫 주간 리포트를 냈습니다. 지난주 DEV에 조직 페이지를 열었는데, 일주일 만에 멤버 28명이 들어왔다고 합니다. Necoz는 멤버를 '고양이'라고 부릅니다.
+
+운영자 nyaomaru는 이번 리포트가 첫 회인 만큼 이번 주 이전의 기여도 함께 정리했습니다. 지금까지 **기여자 35명이 여러 프로젝트에서 PR 71건을 병합했습니다.** 앞으로는 매주 일요일마다 새 멤버와 기여자, 이슈, 글 소식을 묶어 올릴 예정입니다.
+
+[Necoz DEV 조직 페이지 보기 →](https://dev.to/necoz)
+
+## 본문
+
+### 일주일 만에 멤버 28명
+
+DEV에서는 글 하나에 멘션을 10개까지만 달 수 있습니다. 그래서 운영자는 새 멤버 28명을 멘션 대신 프로필 링크로 하나하나 소개했습니다. 명단에는 이후 '이달의 고양이'로 뽑힌 johnnylemonny를 비롯해 hanzla, star123, leob, francistrdev 등이 있습니다.
+
+운영자는 이렇게 모인 멤버들과 함께 "물밑에서 무언가를 준비하고 있다"고만 밝히고 자세한 내용은 공개하지 않았습니다.
+
+### 프로젝트별 기여 현황
+
+리포트는 프로젝트마다 기여자와 병합된 PR을 정리했습니다.
+
+**🧩 is-kit — TypeScript 런타임 타입 검증 라이브러리**
+
+[GitHub 저장소 보기 →](https://github.com/necoz-oss/is-kit)
+
+기여자 16명이 테스트와 문서를 주로 손봤습니다. 기능 쪽 수정으로는 `oneOfValues`의 리터럴 타입 좁히기(narrowing) 수정([#400](https://github.com/necoz-oss/is-kit/pull/400))과 `isPlainObject` 엣지 케이스 수정([#406](https://github.com/necoz-oss/is-kit/pull/406))이 들어갔습니다. 그 밖에 `oneOf`·`mapOf`·배열 가드의 단락 평가(short-circuit) 테스트, 지연 predicate 캐싱 테스트, 희소 배열 관련 테스트를 보강했고 `safeParse`·`isNumber` 문서도 다듬었습니다. 기여자 tylrcc는 혼자 PR 5건을 병합했습니다.
+
+**🤖 changelog-bot — AI로 체인지로그를 만드는 도구**
+
+[GitHub 저장소 보기 →](https://github.com/necoz-oss/changelog-bot)
+
+기여자가 가장 많이 몰린 프로젝트입니다. 이번 주에 정리된 내용은 아래와 같습니다.
+
+- 체인지로그 생성 시 릴리스 버전 처리 수정([#251](https://github.com/necoz-oss/changelog-bot/pull/251))
+- 중복 체인지로그 항목 처리 수정([#324](https://github.com/necoz-oss/changelog-bot/pull/324))
+- JSON 스키마 지원 추가([#288](https://github.com/necoz-oss/changelog-bot/pull/288))
+- Jest 커버리지 스크립트 추가([#299](https://github.com/necoz-oss/changelog-bot/pull/299))
+- CLI 오류 메시지 개선, 저장소 설정 검증 강화
+
+기여자 dbdefault는 PR 5건을 병합했습니다. 런타임 검증 코드를 is-kit predicate로 단순하게 바꿨고, 펜스 코드 블록 안에서 PR 링크가 잘못 걸리던 문제도 고쳤습니다. 같은 조직의 라이브러리를 서로 가져다 쓰는 사례입니다.
+
+**🦀 type-tune — 공유 TypeScript 타입을 정리하는 Rust CLI**
+
+[GitHub 저장소 보기 →](https://github.com/necoz-oss/type-tune)
+
+ViviBeri가 barrel re-export를 거친 별칭(aliased) 혼합 import 테스트를 보강했습니다([#23](https://github.com/necoz-oss/type-tune/pull/23)).
+
+**🌐 Necoz 웹사이트**
+
+[GitHub 저장소 보기 →](https://github.com/nyaomaru/necoz)
+
+effessdev가 모바일 레이아웃은 그대로 두고 데스크톱에서 텍스트 간격과 줄바꿈이 어긋나던 문제를 고쳤습니다([#23](https://github.com/nyaomaru/necoz/pull/23)).
+
+### 토론에서 시작된 새 프로젝트 safe-paste
+
+커뮤니티 토론에서 나온 아이디어 하나가 **safe-paste**라는 새 오픈소스 프로젝트가 됐습니다. 민감한 정보를 실수로 붙여넣지 않도록 막아 주는 작은 도구입니다. 아직 개발 초기 단계라 함께 만들 사람을 찾고 있습니다.
+
+[safe-paste 저장소 보기 →](https://github.com/necoz-oss/safe-paste)
+
+새 아이디어나 프로젝트 제안은 [GitHub Discussions](https://github.com/orgs/necoz-oss/discussions)에 올리면 됩니다.
+
+### 첫 번째 '이달의 고양이'
+
+첫 'Cat of the Necoz'로는 **johnnylemonny**(John)가 뽑혔습니다. John은 changelog-bot에서 WHY 추출과 평가, GitHub 메타데이터 처리, 출력 전달, Grok 지원, 보안, 크로스 플랫폼 호환성까지 폭넓게 기여했습니다.
+
+[johnnylemonny GitHub 프로필 보기 →](https://github.com/johnnylemonny)
+
+## 지금 참여할 수 있는 이슈
+
+Necoz는 처음 기여하는 사람이 바로 잡을 수 있는 이슈를 'Quest'라는 이름으로 모아 두었습니다.
+
+### is-kit: API 다듬기
+
+지금은 공개 API를 더 일관되고 쓰기 쉽게 다듬는 작업이 중심입니다. 문서와 테스트 보강 이슈가 많아 첫 기여로 고르기 좋습니다.
+
+- [#434 — hasKey, hasKeys가 프로퍼티 값을 읽지 않는지 검증](https://github.com/necoz-oss/is-kit/issues/434)
+- [#437 — safeJsonParse 오류 경계 명확히 하기](https://github.com/necoz-oss/is-kit/issues/437)
+- [#439 — 오래된 tsup 참조를 tsdown으로 교체](https://github.com/necoz-oss/is-kit/issues/439)
+- [#441 — tupleOf 문서 개선](https://github.com/necoz-oss/is-kit/issues/441)
+- [#444 — PR 템플릿 개선](https://github.com/necoz-oss/is-kit/issues/444)
+
+[is-kit 이슈 전체 보기 →](https://github.com/necoz-oss/is-kit/issues)
+
+### changelog-bot: v1.0을 향해
+
+체인지로그 생성, 독자별 필터링(audience filtering), WHY 추출을 개선하며 첫 메이저 릴리스를 준비하고 있습니다.
+
+- [#353 — 테스트의 크로스 플랫폼 경로 처리 수정](https://github.com/necoz-oss/changelog-bot/issues/353)
+- [#354 — 알 수 없는 Markdown 카테고리 제목 보존](https://github.com/necoz-oss/changelog-bot/issues/354)
+- [#355 — 동시성 회귀 테스트 개선](https://github.com/necoz-oss/changelog-bot/issues/355)
+
+[changelog-bot 이슈 전체 보기 →](https://github.com/necoz-oss/changelog-bot/issues)
+
+### type-tune: TypeScript 너머로
+
+Vue 지원을 진행하면서 실제 Vue·Nuxt 프로젝트에 돌려 검증하고 있습니다. 앞으로는 구조가 같은 타입 선언 감지([#17](https://github.com/necoz-oss/type-tune/issues/17)), Svelte·Astro 컴포넌트 안의 TypeScript 지원([#20](https://github.com/necoz-oss/type-tune/issues/20), [#21](https://github.com/necoz-oss/type-tune/issues/21))도 검토할 계획입니다.
+
+- [#18 — 조건부·매핑·제네릭 타입 이동의 안전성 검증](https://github.com/necoz-oss/type-tune/issues/18)
+- [#32 — 타입 이동으로 생기는 순환 의존성 감지](https://github.com/necoz-oss/type-tune/issues/32)
+
+[type-tune 이슈 전체 보기 →](https://github.com/necoz-oss/type-tune/issues)
+
+이슈를 맡기 전에는 다른 사람이 이미 작업 중인지 먼저 확인하고, "이 이슈 작업하고 싶어요(I'd like to work on this issue!)" 같은 댓글을 남겨 달라고 운영진은 당부했습니다. 같은 작업을 두 사람이 하는 일을 막기 위해서입니다.
+
+## 멤버들이 쓴 글
+
+Necoz 이름으로 올라온 글도 함께 소개했습니다. 몇 편만 추리면 다음과 같습니다.
+
+- **John** — 커밋 메시지를 되풀이하는 데서 그치지 말고 변경 이유(WHY)를 담아야 한다는 changelog-bot 설계기. [글 보기 →](https://dev.to/necoz/stop-generating-changelogs-from-git-commits-how-i-fixed-the-why-problem-in-changelogbot-11n9)
+- **John** — 도구를 많이 붙인 AI 에이전트와 MCP 서버가 컨텍스트 윈도를 얼마나 잡아먹는지 짚은 글. [글 보기 →](https://dev.to/necoz/your-mcp-servers-are-silently-draining-your-context-window-the-hidden-cost-of-tool-heavy-ai-agents-fkl)
+- **nyaomaru** — 공유 TypeScript 타입을 정리하는 Rust CLI type-tune 소개. [글 보기 →](https://dev.to/necoz/meet-type-tune-give-your-typescript-types-a-better-home-1p6l)
+- **Prasoon Jadon** — 첫 오픈소스 기여부터 PR 제출까지 다룬 입문 가이드. [글 보기 →](https://dev.to/necoz/from-user-to-contributor-a-beginners-guide-to-open-source-workflow-44h3)
+- **Hanzla Baig** — DEV 알림 화면에서 조직 초대를 바로 수락하거나 거절할 수 있게 만든 PR이 DEV 본 저장소에 병합된 이야기. [글 보기 →](https://dev.to/necoz/you-can-now-accept-or-decline-dev-organization-invitations-from-notifications-1oa)
+- **Sᴛᴀʀ⭐** — 열 살에 DEV 신뢰 멤버(Trusted Member)가 된 경험담. [글 보기 →](https://dev.to/necoz/a-10-years-old-developer-who-has-become-a-devto-trusted-member-49c8)
+
+튜토리얼, 기술 분석, 경험담, 프로젝트 발표까지 어떤 주제든 Necoz 이름으로 글을 올릴 수 있습니다.
+
+## 다음 일정
+
+주간 소식은 매주 일요일에 올라옵니다. 다다음 주에는 멤버들이 저마다 무언가를 가져오는 이벤트(bring-your-own-something)를 열 계획인데, 무엇을 가져오는지는 아직 공개하지 않았습니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

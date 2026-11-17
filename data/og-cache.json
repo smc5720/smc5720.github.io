@@ -983,6 +983,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/devengers/what-does-dev-stand-for-2kg9": {
+    "ok": true,
+    "title": "What does DEV stand for?",
+    "description": "This post was inspired by @mellen months ago when they made a post on MLH:         What does MLH...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F0kixqo2mpzv9f8gn1vjk.gif",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-17"
+  },
   "https://dev.to/devteam/an-update-on-the-hacktoberfest-open-source-ai-challenge-ghost-in-the-machine-winners-44bp": {
     "ok": true,
     "title": "An Update on the Hacktoberfest Open-Source AI Challenge: Ghost in the Machine Winners",
@@ -1382,6 +1390,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fqslnmj930ej0o6fe73x3.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/earlgreyhot1701d/ghost-rovers-i-called-12-machines-nasa-left-behind-one-picked-up-2575": {
+    "ok": true,
+    "title": "Ghost Rovers: I Called 12 Machines NASA Left Behind. One Picked Up.",
+    "description": "A 1969 Mission Control console for kids. Built in one day for NASA Space Apps 2026.   TL;DR: For NASA...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fytd9i1woob1euwni30yg.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-17"
   },
   "https://dev.to/earlgreyhot1701d/my-agents-never-get-tired-i-do-on-satisficing-1mb": {
     "ok": true,
@@ -2335,6 +2351,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-11-10"
   },
+  "https://dev.to/hemapriya_kanagala/dev-pet-corner-6-show-us-your-pets-2gd3": {
+    "ok": true,
+    "title": "🐾 DEV Pet Corner #6: Show Us Your Pets!",
+    "description": "TL;DR  DEV Pet Corner is back for another Sunday! It's a weekly series where we take a little break...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F5ug693cnxbxgmrdi76g0.jpeg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-17"
+  },
   "https://dev.to/hemapriya_kanagala/from-silent-reader-to-25-articles-what-3-months-on-dev-taught-me-ama-2b0j": {
     "ok": true,
     "title": "From Silent Reader to 25 Articles: What 3 Months on DEV Taught Me + AMA",
@@ -3246,6 +3270,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ft7xlpeokmbyx2wht6pdy.jpg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-11-12"
+  },
+  "https://dev.to/necoz/cat-mutilation-successful-welcome-new-members-4bj4": {
+    "ok": true,
+    "title": "Cat Mutilation Successful!! 🛸 Welcome New Members!! 🐈🎉",
+    "description": "Hoi hoi! 👋  Last week, we launched the Necoz organization here on DEV!                               ...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F6gxz9dnt2ges3ky0jtpb.gif",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-17"
   },
   "https://dev.to/necoz/meet-type-tune-give-your-typescript-types-a-better-home-1p6l": {
     "ok": true,
@@ -4166,6 +4198,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fqflfozyi3kyv0xfa4ijs.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-10-16"
+  },
+  "https://dev.to/webdeveloperhyper/ai-avatar-v28-security-support-voxel-avatar-2i5i": {
+    "ok": true,
+    "title": "AI Avatar v28 (Security Support, Voxel Avatar)🛡️",
+    "description": "Intro   AI Avatar is a free app where your VRoid (VRM) avatar cheers you with all its...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F1p4kxontmb681a8hynvf.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-17"
   },
   "https://dev.to/wiseai/i-built-a-version-bump-tool-in-rust-that-is-10000x-faster-than-its-python-counterparts-i6b": {
     "ok": true,
