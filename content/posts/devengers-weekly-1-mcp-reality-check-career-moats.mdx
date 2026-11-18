@@ -1,0 +1,84 @@
+﻿---
+title: "DEVengers Weekly 1호: MCP의 현실, 커리어 해자, 25주 연속 '레이더'"
+description: "Dev.to 커뮤니티 조직 The DEVengers가 첫 주간 다이제스트를 냈습니다. MCP 운영의 현실을 짚은 글, AI 시대 커리어 전략, 멤버들의 연속 발행 기록과 오픈소스 프로젝트를 한 번에 정리했습니다."
+date: "2026-11-17"
+published_at: "2026-11-18"
+category: "news"
+tags: []
+slug: "devengers-weekly-1-mcp-reality-check-career-moats"
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F1hfp6oxm2afnbjw9zfke.png"
+coverAlt: "DEVengers Weekly #1: The MCP Reality Check, Career Moats, and 25 Weeks on the Radar"
+source_id: "devto-5012297"
+source_url: "https://dev.to/devengers/devengers-weekly-1-the-mcp-reality-check-career-moats-and-25-weeks-on-the-radar-23ec"
+source_title: "DEVengers Weekly #1: The MCP Reality Check, Career Moats, and 25 Weeks on the Radar 🚀"
+source_author: "Dhruv Jani"
+source_published: "2026-11-17"
+---
+
+<LinkCard url="https://dev.to/devengers/devengers-weekly-1-the-mcp-reality-check-career-moats-and-25-weeks-on-the-radar-23ec" author="Dhruv Jani" date="2026-11-17" />
+
+## 개요
+
+Dev.to의 커뮤니티 조직 [The DEVengers](https://dev.to/devengers)가 주간 다이제스트 'DEVengers Weekly' 첫 호를 냈습니다. 멤버들이 한 주 동안 쓴 글, 토론, 오픈소스 프로젝트, 기념할 만한 기록을 한데 모아 매주 소개하겠다는 기획입니다.
+
+1호가 다루는 기간은 11월 7일(토)부터 13일(금)까지입니다. 굵직한 주제는 세 가지입니다. Anthropic의 MCP(Model Context Protocol)를 운영 환경에 올릴 때 무엇이 어려운지, AI 시대에 개발자가 어떻게 자기 자리를 지킬지, 그리고 멤버들이 직접 만들어 공개한 코드입니다.
+
+엮은이 Dhruv Jani는 창간호라서 11월 초반의 주요 소식까지 함께 담았다고 설명했습니다. 2호부터는 DEV의 편집 주기에 맞춰 토요일부터 금요일까지 한 주를 정리합니다. 이번 호에는 엮은이 본인의 Forem PR과 첫 기고글도 들어 있는데, 앞으로 이 지면은 멤버들 소식에만 쓰겠다고 밝혔습니다.
+
+## 본문
+
+### MCP는 단순하다, 그래서 문제다
+
+이번 호에서 가장 반응이 컸던 글은 sylwia-lask의 [MCP is dead simple, and that's exactly the problem](https://dev.to/sylwia-lask/mcp-is-dead-simple-and-thats-exactly-the-problem-5811)입니다. LLM을 로컬 도구에 JSON-RPC로 연결하는 데는 몇 분이면 충분합니다. 하지만 실제 서비스에서는 인증·권한 처리, 불어나는 컨텍스트 윈도, 보안 경계를 다시 설계해야 하고, 진짜 엔지니어링은 거기서 시작된다는 게 글의 요지입니다. 스펙은 단순해 보여도 프로덕션에 올리면 훨씬 복잡해진다는 이야기입니다.
+
+같은 저자의 [We're building AI to replace ourselves. What's the plan?](https://dev.to/sylwia-lask/were-building-ai-to-replace-ourselves-whats-the-plan-4oll)에도 댓글이 209개나 달렸습니다.
+
+### AI 시대의 커리어 해자
+
+javz는 [AI is getting better. Here is my plan to stay ahead](https://dev.to/javz/ai-is-getting-better-here-is-my-plan-to-stay-ahead-2822)에서 AI 벤치마크 수치에 휘둘리지 말자고 말합니다. 대신 대체되기 어려운 개발자가 되는 계획을 그림으로 풀어 보여줍니다. 시스템 기본기를 더 깊이 다지고, 에이전트 오케스트레이션을 익히고, 비즈니스 도메인을 누구보다 잘 이해하라는 내용입니다.
+
+francistrdev의 [How do you truly stand out in Tech?](https://dev.to/francistrdev/how-do-you-truly-stand-out-in-tech-478a)에서는 업계에서 눈에 띄려면 무엇이 필요한지를 두고 110개가 넘는 댓글이 오갔습니다.
+
+georgekobaidze는 [Scared to publish your first technical article? Don't be. I'll be there to read it](https://dev.to/georgekobaidze/scared-to-publish-your-first-technical-article-dont-be-ill-be-there-to-read-it-1gg2)에서 처음 기술 글을 쓰는 사람들에게 댓글창을 열었습니다. 초안 링크를 남기면 평가 없이 읽고 피드백을 주겠다고 했습니다.
+
+dj29는 [The C Trilogy](https://dev.to/devengers/the-c-trilogy-how-dennis-ritchie-bjarne-stroustrup-and-anders-hejlsberg-built-the-modern-world-1onp)에서 데니스 리치의 C, 비야네 스트롭스트룹의 C++, 아네르스 헤일스베르의 C#이 어떻게 이어지는지 정리했습니다. 각 언어가 설계 단계에서 무엇을 얻고 무엇을 포기했는지도 함께 짚었습니다.
+
+### 연속 기록과 수상 소식
+
+![신문과 잡지가 꽂힌 선반](https://images.pexels.com/photos/17155075/pexels-photo-17155075.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Patrick](https://www.pexels.com/photo/shelves-with-colored-newspapers-and-journals-17155075/) on [Pexels](https://www.pexels.com/photo/shelves-with-colored-newspapers-and-journals-17155075/)*
+
+- **Dev Opportunity Radar 25호:** hemapriya_kanagala가 지원금, 해커톤, 펠로십 정보를 모은 [Dev Opportunity Radar](https://dev.to/devengers/dev-opportunity-radar-25-120k-atlassian-hackathon-mlh-fellowship-and-insead-ai-founder-sprint-m96)를 25주 연속으로 냈습니다.
+- **204주 연속 발행:** jarvisscript의 [What are your goals for the week?](https://dev.to/jarvisscript/what-are-your-goals-for-the-week-204-420k)가 204호를 맞았습니다. 4년 가까이 매주 한 번도 빠지지 않은 셈입니다.
+- **DEV 주간 Top 7에 두 편 선정(11월 3일 자):** dannwaneri의 [No Human Will Ever Write Code Better Than LLMs? Better at What?](https://dev.to/dannwaneri/no-human-will-ever-write-code-better-than-llms-better-at-what-1dme)과 maame-codes의 [Never Put a Pet on an AWS Spot Instance](https://dev.to/maame-codes/never-put-a-pet-on-an-aws-spot-instance-em3)가 DEV 공식 [Top 7 Featured Posts of the Week](https://dev.to/devteam/top-7-featured-dev-posts-of-the-week-cio)에 함께 올랐습니다.
+- **해커톤 5전 2승:** georgekobaidze는 2026년 DEV Challenge에 다섯 번 출전해 'Metal Birds Watch'와 'NoteRunway'로 두 번 우승했고, [Engine Off: My 2026 Hackathon Run Is Over](https://dev.to/georgekobaidze/engines-off-my-2026-hackathon-run-is-over-2ho8)에서 시즌을 마무리했습니다.
+- **Forem 코어에 병합:** dj29는 RSS 봇 게시물 700건이 `/community` 허브를 뒤덮는 쿼리 병목을 찾아 [forem/forem#24324](https://github.com/forem/forem/pull/24324)로 고쳤습니다. 이 PR은 같은 DEVengers 멤버 mikeydorje가 리뷰하고 병합했습니다.
+
+### 멤버들이 공개한 코드
+
+- **[gp-grid-playground](https://github.com/Hadil-Ben-Abdallah/gp-grid-playground)** (hadil): 'STREET BITES'라는 푸드 페스티벌을 소재로 한 React 앱입니다. `gp-grid`로 1만 행이 넘는 데이터를 가상화해 정렬·필터·그룹핑하는 과정을 보여줍니다. 구현 과정은 [별도 해설 글](https://dev.to/hadil/i-used-gp-grid-to-build-a-react-food-festival-app-with-advanced-data-grid-features-3l22)에 정리돼 있습니다.
+- **[computer-use-rs](https://github.com/The-Best-Codes/computer-use-rs)** (best_codes): AI 코딩 에이전트가 마우스·키보드를 조작하고 화면을 캡처해 데스크톱 작업을 자동화하게 해주는 오픈소스 Rust 라이브러리입니다. [DEV 발표 글](https://dev.to/agent-one/computer-use-rs-open-source-computer-use-for-rust-3eh7)에서 자세히 볼 수 있습니다.
+- **[GitSeance](https://github.com/JaniDhruv/GitSeance)** (dj29): 해크토버페스트 출품작입니다. 레트로 CRT 화면을 흉내 낸 AI 도구로, 오래된 커밋 기록을 '심문'해 코드베이스의 사망 위험 점수를 매기고 방치된 프로젝트를 되살려 줍니다.
+
+### 함께 읽을 만한 글
+
+- [Don't Write Markdown Files for Your Coding Agent. Write Scripts.](https://dev.to/dannwaneri/dont-write-markdown-files-for-your-coding-agent-write-scripts-j00) — dannwaneri
+- [Enterprise SSO for B2B SaaS: How to Prepare Before Your First Big Customer Asks](https://dev.to/hadil/enterprise-sso-for-b2b-saas-how-to-prepare-before-your-first-big-customer-asks-50p6) — hadil
+- [Our Looping Factory Cut DEV Page Load Time by 75% and Counting](https://dev.to/dailycontext/our-looping-factory-cut-dev-page-load-time-by-75-and-counting-1hnf) — ben
+- [How did you end up in tech, and are you staying?](https://dev.to/maame-codes/how-did-you-end-up-in-tech-and-are-you-staying-4l9b) — maame-codes
+- [This is my first HacktoberFest, and I don't know what to feel.](https://dev.to/francistrdev/this-is-my-first-hacktoberfest-and-i-dont-know-what-to-feel-449f) — francistrdev
+- [Ultimate AI Roast!](https://dev.to/annavi11arrea1/ultimate-ai-roast-168b), [Microserver Updated with Mini Catbot!](https://dev.to/annavi11arrea1/microserver-updated-with-mini-catbot-mew-3aa0) — annavi11arrea1
+
+### 지원할 만한 기회
+
+- **Dev Opportunity Radar 25호:** 상금 12만 달러 이상이 걸린 Atlassian 해커톤 'Codegeist 2026', MLH Fellowship(2027년 봄 기수) 모집, INSEAD AI Founder Sprint 소식을 [여기](https://dev.to/devengers/dev-opportunity-radar-25-120k-atlassian-hackathon-mlh-fellowship-and-insead-ai-founder-sprint-m96)에 모았습니다.
+- **Presage SmartSpectra SDK Challenge(총상금 3,000달러):** 일반 카메라로 생체 지표를 실시간 측정하는 앱을 만드는 챌린지입니다. 마감은 태평양 표준시 기준 2026년 11월 22일 오후 11시 59분입니다. 자세한 내용은 [공식 공지](https://dev.to/devteam/join-the-presage-smartspectra-sdk-challenge-3000-in-prizes-across-10-winners-1370)에 있습니다.
+- **주간 성과 공유:** DEV가 매주 금요일 여는 [What was your win this week??](https://dev.to/devteam/what-was-your-win-this-week-4j49) 스레드도 있습니다.
+
+### 이번 주 질문
+
+마지막으로 다이제스트는 dannwaneri가 던져 인기를 끈 질문을 독자에게 다시 건넸습니다. "마법 지팡이로 DEV.to에서 딱 하나를 고칠 수 있다면 무엇을 고치겠습니까?" 다음 주에 공개할 글이나 저장소, 기념할 기록이 있으면 댓글로 알려 달라고 했습니다. 2호에서 소개하겠다는 겁니다. DEV 편집팀이 고른 [이번 주 Top 7](https://dev.to/devteam/top-7-featured-dev-posts-of-the-week-5hda)도 함께 소개했습니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

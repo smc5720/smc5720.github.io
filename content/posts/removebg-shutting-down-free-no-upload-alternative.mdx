@@ -1,0 +1,127 @@
+﻿---
+title: "remove.bg 단독 사이트 12월 종료… 업로드 없는 무료 대안 'APIC Web' 등장 (remove.bg Is Shutting Down)"
+description: "원클릭 배경 제거 서비스 remove.bg가 2026년 12월 1일 단독 웹사이트 운영을 끝내고 Canva로 통합됩니다. 한 1인 개발자는 브라우저 안에서만 동작하는 무료 대안 APIC Web을 공개했습니다."
+date: "2026-11-13"
+published_at: "2026-11-18"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Ffppaetfto55zr1p16o7g.png"
+coverAlt: "remove.bg Is Shutting Down — Here's a Free, No-Upload Alternative"
+slug: "removebg-shutting-down-free-no-upload-alternative"
+source_id: "devto-5017532"
+source_url: "https://dev.to/akhourianmolkumar/removebg-is-shutting-down-heres-a-free-no-upload-alternative-4ebo"
+source_title: "remove.bg Is Shutting Down — Here's a Free, No-Upload Alternative"
+source_author: "Akhouri Anmol Kumar"
+source_published: "2026-11-13"
+---
+
+<LinkCard url="https://dev.to/akhourianmolkumar/removebg-is-shutting-down-heres-a-free-no-upload-alternative-4ebo" author="Akhouri Anmol Kumar" date="2026-11-13" />
+
+## 개요
+
+'원클릭 배경 제거'라는 시장을 사실상 혼자 만든 remove.bg가 **2026년 12월 1일 오전 9시(중앙유럽시간, CET)** 단독 웹사이트를 닫습니다. 배경 제거 기능은 Canva로 넘어가고, API 사용자는 Leonardo.ai 쪽으로 안내받습니다. 이 내용은 [remove.bg 가격 페이지](https://www.remove.bg/pricing)에도 공지돼 있습니다.
+
+이 소식에 맞춰 1인 개발자 Akhouri Anmol Kumar는 자신이 만든 무료 대안 **[APIC Web](https://apic-studio.vercel.app/)**을 Dev.to에 소개했습니다. 사진을 서버에 올리지 않고 브라우저 안에서 AI 모델을 직접 돌리는 방식이라는 점을 가장 앞세웠습니다. 아래 내용은 개발자 본인이 쓴 소개 글을 정리한 것입니다.
+
+![APIC Web 화면](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/l18z9jrygadt9i68ivi3.png)
+
+![APIC Web 화면](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/jcm74cepcagmbyotvh5s.png)
+
+## 본문
+
+### remove.bg에 무슨 일이 생기나
+
+![CLOSED 글자 블록](https://images.pexels.com/photos/32288981/pexels-photo-32288981.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Ann Hannes](https://www.pexels.com/@ann-hannes) on [Pexels](https://www.pexels.com/photo/wooden-blocks-spelling-closed-on-beige-background-32288981/)*
+
+원문에서 정리한 변화는 네 가지입니다.
+
+- **단독 사이트 종료**: 2026년 12월 1일부로 기존 북마크나 늘 열어 두던 탭은 더 이상 쓸 수 없습니다.
+- **Canva로 이전**: 배경 제거는 Canva 안에서 Pro 요금제 기능으로 제공됩니다. 무료 유틸리티가 아닙니다.
+- **원래부터 완전 무료는 아니었음**: remove.bg 무료 요금제로는 미리보기 해상도 이미지만 받을 수 있었습니다. 원본 해상도로 받으려면 크레딧이 필요했고, 월 약 9달러에 40장 수준이었습니다.
+- **API 사용자**: Leonardo.ai 요금 체계로 옮겨갑니다.
+
+작성자는 결국 사용자들이 궁금해할 질문을 "구독 없이 원본 해상도 투명 PNG를 받을 수 있는 무료 remove.bg 대안은 무엇인가"로 정리하고, APIC가 바로 그 질문에 답하려고 만든 도구라고 말합니다.
+
+### APIC Web은 어떤 도구인가
+
+APIC Web은 무료 온라인 사진 편집기이자 AI 배경 제거 도구입니다. 작성자 설명대로라면 모든 처리가 **사용자 기기 안, 브라우저 탭에서** 이뤄집니다. AI 모델을 WebAssembly로 컴파일해 한 번 내려받은 뒤 캐시해 두고 로컬에서 실행합니다. 이미지는 처리용이든 '품질 개선'용이든 어떤 서버로도 보내지 않는다고 강조했습니다.
+
+remove.bg에서 넘어오는 사용자에게 내세운 특징은 다음과 같습니다.
+
+- **원본 해상도 출력**: 미리보기 썸네일이 아닙니다.
+- **투명 PNG / WebP 지원**: 가장자리 보정과 색 번짐(color fringe) 제거 기능이 들어 있습니다.
+- **크레딧·워터마크·유료 요금제 없음**: 가격이 없으니 가격 페이지도 없다고 합니다.
+- **계정 불필요**: 편집, AI 도구, 내보내기, 일괄 ZIP 다운로드까지 로그인 없이 쓸 수 있습니다. 구글 로그인은 커뮤니티 카운터 참여용 선택 기능입니다.
+
+### 세 서비스 비교
+
+작성자가 직접 정리한 비교표입니다.
+
+| | **APIC Web** | **remove.bg (12월 1일까지)** | **Canva 배경 제거** |
+|---|---|---|---|
+| 가격 | **영구 0달러** | 미리보기 무료, 원본 40장에 월 약 9달러 | Pro 구독 |
+| 원본 해상도 무료 다운로드 | **무제한** | 크레딧 필요 | Pro 전용 |
+| 서버 업로드 | **없음 (온디바이스 AI)** | 모든 이미지 | 모든 이미지 |
+| 계정 필요 | **아니요 (선택)** | 예 | 예 |
+| 일괄 배경 제거 | **무료 Batch Studio → ZIP** | 유료 API | Pro 기능 |
+| 오프라인 사용 | **무료 Windows 앱** | 불가 | 불가 |
+
+### '업로드 없음'이 가능한 이유
+
+작성자는 무료로 운영할 수 있는 이유를 구조에서 찾습니다. 클라우드 편집기는 사용자가 '배경 제거' 버튼을 누를 때마다 GPU 연산 비용을 냅니다. 그래서 크레딧, 대기열, 유료 장벽으로 사용량을 제한하고, 무료 요금제는 유료 전환을 유도하는 장치 역할을 한다는 설명입니다.
+
+APIC는 반대로 **사용자 기기를 GPU로 씁니다.** 이미지 분할(segmentation)과 인페인팅(inpainting) 모델이 브라우저 안에서 WebAssembly로 돌아갑니다. 작성자는 이미지 한 장당 자신이 부담하는 연산 비용이 정확히 0루피(₹0.00)라며, '영구 무료'는 마케팅 약속이 아니라 구조에서 나오는 성질이라고 말합니다.
+
+같은 이유로 신분증 스캔본, NDA가 걸린 고객 작업물, 출시 전 제품 사진처럼 외부 서버에 올리기 꺼려지는 이미지도 안심하고 처리할 수 있다고 설명했습니다.
+
+### 하드웨어에 맞춰 고르는 세 가지 엔진
+
+| 모드 | 최초 다운로드 | 용도 |
+|---|---|---|
+| **Light** | 약 5MB | 스마트폰 |
+| **Fast** | 약 44MB | 일상 작업, 모든 기기 |
+| **Maximum** | 약 176MB | 여러 번 처리해 정확도 우선, PC 권장 |
+
+모델은 한 번 받으면 캐시되므로 다음부터는 빠르게 시작합니다. 다운로드에 실패하면 자동으로 다시 시도하고, AI 처리 결과는 모두 **Ctrl+Z**로 되돌릴 수 있습니다.
+
+![APIC 엔진 선택 화면](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/spiqr1nb1f8xxxk4xb1r.png)
+
+### 배경 제거 말고도 되는 것들
+
+remove.bg가 한 가지 기능에 집중했다면, APIC는 종합 편집 도구를 표방합니다. 같은 탭 안에서 업로드 없이 아래 기능을 쓸 수 있다고 합니다.
+
+- **객체 지우기(Remove Object)**: 지우고 싶은 부분을 칠하면 온디바이스 인페인팅 모델이 채웁니다. 색과 질감(grain)도 원본 사진에 맞춥니다. *Ultra* 모드는 크고 복잡한 객체용으로 **LaMa**(Fourier 합성곱 기반 대형 인페인팅 모델, 약 208MB)를 쓰고, *Best/Fast* 모드는 스마트폰에서도 도는 가벼운 **MI-GAN**(약 28MB)을 씁니다. 모델을 불러오지 못하면 Ultra → MI-GAN → 간단한 패치 채우기 순으로 단계를 낮춥니다.
+- **AI 업스케일 2배 / 4배**: **Real-ESRGAN**을 씁니다. 정확도용 x4plus 모델과 스마트폰용 5MB 경량 모델이 있습니다.
+- **전문가용 색 보정**: 실시간 히스토그램, RGB 커브, 8밴드 HSL 믹서, 3-way 컬러 그레이딩, 화이트 밸런스, 톤·디테일 조정을 지원합니다.
+- **`.cube` LUT 내보내기**: 보정 결과를 실제 33×33×33 3D LUT로 저장해 **DaVinci Resolve, Premiere, Photoshop**에서 불러올 수 있습니다. 사진 한 장에서 만든 색감을 영상 타임라인으로 옮기는 식입니다. 색 변환만 LUT에 담기고, 그레인이나 비네트처럼 공간에 작용하는 효과는 포함되지 않습니다. 작성자는 이런 기능을 갖춘 브라우저 도구를 본 적이 없다고 덧붙였습니다.
+- **포맷 변환**: PNG, JPEG, WebP, BMP, ICO, PDF는 물론 **레이어를 유지한 PSD**까지 지원합니다.
+- **목표 용량 압축**: "300KB"처럼 용량을 정하면 그 안에서 화질이 가장 좋은 품질값을 찾아줍니다.
+- **크기 조정**: 픽셀이나 퍼센트로 지정합니다. 여러 번 절반씩 줄이는 단계적 리샘플링으로 축소해도 흐릿해지지 않게 했습니다.
+- **Batch Studio**: 이미지를 여러 장 넣고 배경 제거·크기 조정·압축·변환을 한꺼번에 처리한 뒤 ZIP 하나로 받습니다. 무료이고 로그인도 필요 없습니다.
+- **소셜 미디어 프리셋**: Instagram, YouTube, X, TikTok, LinkedIn, Discord, Twitch, Spotify 등 **15개 플랫폼**의 프로필·배너·게시물·스토리 규격을 제공합니다. 세이프 존 가이드와 플랫폼별 용량 제한도 자동 적용하고, 한 가지 크기만 받거나 전체를 ZIP으로 받을 수 있습니다.
+- **원클릭 기능**: 자동 보정, 스마트 크롭, 피사체 맞춤, 피사체 기준 자르기가 있습니다.
+
+### 오프라인용 Windows 앱
+
+인터넷 없이 쓰고 싶다면 **[Windows용 APIC](https://github.com/Akhouri-Anmol-Kumar/APIC/releases/download/APIC/APIC.zip)**을 받으면 됩니다. 편집·변환·압축 기능을 그대로 담았고, 내려받거나 쓸 때 계정이 필요 없습니다.
+
+### 자주 묻는 질문
+
+작성자가 정리한 FAQ의 요점은 이렇습니다.
+
+- **정말 무료인가?** 유료 요금제, 크레딧, 워터마크가 없습니다. 작성자가 꼽은 '함정'은 사용자 기기가 연산을 맡는다는 점 하나이고, 그게 곧 개인정보 보호 장치이기도 하다고 설명합니다.
+- **가입해야 하나?** 아닙니다. 내보내기와 일괄 다운로드까지 모두 계정 없이 됩니다. 구글 로그인은 커뮤니티 카운터와 업데이트 메일용입니다.
+- **사진이 어딘가에 올라가나?** 올라가지 않습니다. 네트워크 통신은 CDN에서 모델을 처음 한 번 내려받을 때뿐이고, 이미지는 브라우저 메모리 안에만 머뭅니다.
+- **스마트폰에서도 되나?** 됩니다. 약 5MB짜리 Light 엔진이 스마트폰용이고, MI-GAN 객체 지우기도 모바일에서 동작합니다.
+- **여러 장을 한 번에 처리할 수 있나?** Batch Studio가 로컬에서 일괄 처리한 뒤 ZIP 하나로 돌려줍니다.
+
+### 12월 1일 전에 챙길 것
+
+작성자는 remove.bg 종료까지 3주 정도 남은 시점에 이 글을 올리며, 지금 대안을 찾아 둔 사람은 늦은 게 아니라 이른 편이라고 말했습니다. 사용법도 [apic-studio.vercel.app](https://apic-studio.vercel.app/)에 접속해 이미지를 올리고 *Remove background*를 누르는 것으로 끝이라고 소개했습니다.
+
+APIC는 1인 개발자인 그가 운영하는 **Akhouri Systems**의 제품입니다. 버그를 찾아준 동료 개발자에게 감사를 전했고, 기능 요청은 댓글로 남기면 모두 읽는다고 밝혔습니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
