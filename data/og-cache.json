@@ -343,6 +343,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/aws-builders/ai-agents-open-17-million-pull-requests-a-month-i-built-a-gate-that-rejects-the-ones-that-lie-46n7": {
+    "ok": true,
+    "title": "AI agents open 17 million pull requests a month. I built a gate that rejects the ones that lie.",
+    "description": "AI agents now open pull requests on their own. I gave Amazon Nova Pro a real GitHub bug, then built a deterministic Python gate that rejects it when it cannot prove the fix. No model grades the model.",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fraw.githubusercontent.com%2Fsimplynadaf%2Fai-fix-verifier%2Fmain%2Fdocs%2Fgithub-cover.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-19"
+  },
   "https://dev.to/aws-builders/i-followed-the-n8n-aws-docs-and-it-broke-at-the-first-command-4e1k": {
     "ok": true,
     "title": "I Followed the n8n AWS Docs and It Broke at the First Command",
@@ -502,6 +510,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F9utit2uix6jp8aewof64.jpeg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-10-02"
+  },
+  "https://dev.to/codenewbie/the-codenewbie-podcast-is-back-for-season-28-2484": {
+    "ok": true,
+    "title": "The CodeNewbie Podcast is Back for Season 28!",
+    "description": "Hi friends! 👋 The CodeNewbie Podcast is back for season 28, and I’m so excited to be the one hosting...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fxnvlq05rqztkqdg64see.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-19"
   },
   "https://dev.to/codingwithjiro/the-slow-and-quiet-cognitive-atrophy-of-a-modern-software-engineer-3lbh": {
     "ok": true,
@@ -694,6 +710,14 @@
     "image": "https://dev-to-uploads.s3.amazonaws.com/uploads/articles/3otvb2z646ytpt1hl2rv.jpg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-10-21"
+  },
+  "https://dev.to/dannwaneri/could-i-still-do-this-from-scratch-427h": {
+    "ok": true,
+    "title": "Could I Still Do This From Scratch?",
+    "description": "The thing that every dev I know is quietly worrying about is not AI taking their job. It's losing the...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F6sw7q891msu9qonbawld.webp",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-19"
   },
   "https://dev.to/dannwaneri/devtos-dashboard-cant-count-its-own-posts-3fci": {
     "ok": true,
@@ -2327,6 +2351,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-26"
   },
+  "https://dev.to/hemapriya_kanagala/25-editions-of-dev-opportunity-radar-from-my-radar-to-our-radar-ama-5f5": {
+    "ok": true,
+    "title": "25 Editions of Dev Opportunity Radar: From My Radar to Our Radar 💙 + AMA",
+    "description": "📌 TL;DR  When I published the first edition of Dev Opportunity Radar on May 29, 2026, I had no idea...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fopbgltlyc5a6qqtil2x8.webp",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-19"
+  },
   "https://dev.to/hemapriya_kanagala/dev-pet-corner-1-show-us-your-pets-39n6": {
     "ok": true,
     "title": "🐾 DEV Pet Corner #1: Show Us Your Pets!",
@@ -3910,6 +3942,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fg3ocqbjncfop52h2c6go.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-10-22"
+  },
+  "https://dev.to/sylwia-lask/is-coding-with-ai-actually-faster-and-cheaper-2810": {
+    "ok": true,
+    "title": "Is Coding with AI Actually Faster and Cheaper?",
+    "description": "How has AI actually changed the way we work? Are coding agents really making us remarkably faster?...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fh2u8fbzz30f3587urp83.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-19"
   },
   "https://dev.to/sylwia-lask/it-was-just-a-patch-update-what-could-possibly-go-wrong-3be3": {
     "ok": true,
