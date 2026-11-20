@@ -1,0 +1,124 @@
+﻿---
+title: "36계 마지막 이야기: 커피는 다 마셨는데 AI는 아직 답이 없다 (Stratagems #36)"
+description: "xulingfeng의 연재 소설 'Stratagems' 마지막 36화입니다. 공사 중인 카페에 여섯 사람이 모여 커피를 마시고 한 명씩 떠나는데, 그동안 기록을 분석해 온 AI는 풀리지 않은 질문을 안은 채 남습니다."
+date: "2026-11-19"
+published_at: "2026-11-20"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F6v4hhay53j7anx0qrai8.png"
+coverAlt: "Stratagems #36: They Finished Their Coffee. The AI Still Has No Answer."
+slug: "stratagems-36-they-finished-their-coffee-the-ai-still-has-no-answer"
+source_id: "devto-5069884"
+source_url: "https://dev.to/xulingfeng/stratagems-36-they-finished-their-coffee-the-ai-still-has-no-answer-4igh"
+source_title: "Stratagems #36: They Finished Their Coffee. The AI Still Has No Answer."
+source_author: "xulingfeng"
+source_published: "2026-11-19"
+---
+
+<LinkCard url="https://dev.to/xulingfeng/stratagems-36-they-finished-their-coffee-the-ai-still-has-no-answer-4igh" author="xulingfeng" date="2026-11-19" />
+
+## 개요
+
+Dev.to 작가 xulingfeng은 병법서 『삼십육계』의 계책을 한 화에 하나씩 가져와 개발자들의 이야기를 써 왔습니다. 그 연재 소설 'Stratagems'가 36화로 끝났습니다. 마지막 화의 계책은 36계 '주위상(走爲上)', 영어 제목은 *Know When to Walk Away*입니다. 흔히 "36계 줄행랑"이라고 부르는 바로 그 계책입니다.
+
+무대는 단골 카페 '세 번째 잔(Third Cup)'인데, 지금은 공사 중입니다. Mark, Derek, Lena, P, Leo, Alex 여섯 명이 차례로 들어와 커피를 마시고 짧게 이야기를 나눈 뒤 한 명씩 떠납니다. 새 약속도, 다음 할 일도 정하지 않습니다. 매 화 끝에 붙던 'AI 사후 분석(AI Postmortem)'은 이번에도 실렸습니다. 다만 이번 화에서 AI는 더 분석할 기록이 없는 상태로 남습니다.
+
+## 본문
+
+### "공사 중에도 영업합니다"
+
+Mark가 카페 문을 밀었는데 반쯤밖에 열리지 않습니다. 바닥에 깔아 둔 보호지가 말려서 문에 걸린 겁니다. 늘 앉던 작은 테이블은 치워져 바닥에 네모난 자국만 네 개 남았고, 창가 의자들은 거꾸로 쌓여 있습니다. 문에는 "공사 중에도 영업합니다"라는 안내가 붙어 있습니다.
+
+난방도 커피 머신도 그대로 돌아갑니다. 카운터 뒤의 **그 남자**는 평소처럼 컵 테두리를 천으로 천천히 닦고 있습니다. Mark는 Lena에게 "아직 영업 중"이라고 메시지를 보낸 뒤 가운데 큰 테이블의 벽 쪽 자리에 앉습니다. 노트북을 열어 지난번 파일들의 수정 날짜만 확인하고, 파일은 열지 않은 채 창을 내립니다.
+
+### 주차장에서 했던 말
+
+Derek이 들어오고 이어서 Lena가 옵니다. Lena는 창가 자리에 못 앉는다는 얘기를 왜 안 했냐며 Mark에게 가볍게 핀잔을 줍니다.
+
+Derek은 예전에 주차장에서 Lena가 했던 말을 꺼냅니다. 더 나아가기 전에 상사가 네가 무슨 일을 하는지 알게 하라는 말이었습니다. 그때 Derek은 졌다는 생각에 사로잡혀 한 마디도 귀에 들어오지 않았다고 털어놓습니다. 이제야 이해했다고도 말합니다.
+
+> "당신은 이기는 법을 알려준 게 아니었어요."
+
+제안서를 자기가 만들었다고 해서 회사가 동의한 일이 되는 건 아니라는 것, 그러니 회사가 동의하지 않은 일에 회사를 묶어 두지 말라는 뜻이었다는 겁니다. Lena는 "이번엔 제대로 알아들었네요"라고 짧게 답합니다.
+
+### 모르는 건 모르는 채로
+
+P가 들어와 에스프레소를 받습니다. Mark는 노트북에서 예전에 P가 넘겨준 기록과 지난번에 저장해 둔 계산 결과를 다시 띄웁니다. 기록에 있는 22개 값은 예정된 발송 시각이 아니라 실제 도착 시각이었습니다. 스크립트를 다시 돌리지 않고 저장된 코드와 출력만 확인합니다.
+
+```python
+deltas = [b - a for a, b in zip(times, times[1:])]
+print("checks:", len(times), "intervals:", len(deltas))
+print("unique_seconds:", sorted(set(deltas)))
+```
+
+```text
+checks: 22 intervals: 21
+unique_seconds: [Decimal('900.000')]
+```
+
+21개 간격이 전부 정확히 900초, 즉 15분이었습니다. Mark는 출력은 그대로 두고 색인 메모만 고쳐 씁니다. "간격 확인됨. 출처 미확인(Intervals checked. Source unverified.)"
+
+출처는 아직 못 찾았냐는 P의 물음에 Mark는 아니라고 답합니다. P는 일단 거기까지만 두자며 이렇게 덧붙입니다. "완성돼 보이게 하려고 모르는 걸 채워 넣지 마."
+
+### 아직 안건에 남아 있다
+
+Leo가 합류하자 Lena는 휴대폰으로 위원회의 공개 안건을 보여 줍니다. 맨 위에는 EU와 싱가포르 두 시장이 있고, 그 아래에 '산업 간 AI 검증 방법론(Cross-Sector AI Validation Methodology)'이 올라 있습니다.
+
+Lena가 전한 상황은 이렇습니다.
+
+- 기존 서비스는 계속 운영됩니다.
+- 고객사는 후속 작업에 인력을 더 배정하지 않기로 했습니다.
+- ACL은 제출했던 구현 사례를 철회했습니다.
+- Lena는 모회사의 연간 인증만 맡고, 해외 자회사와 모회사의 다른 사업 부문은 여전히 ACL이 담당합니다.
+
+검증 방법 논의는 끝났냐는 Leo의 물음에 Lena는 "아직 안건에 있어요"라고만 답합니다.
+
+Mark는 Caleb에게 들은 이야기를 꺼냅니다. Caleb은 의료와 금융 프로젝트의 검증 방법을 정리해 왔는데, 고객은 달라도 두 분야의 방법이 같은 검증 핸드북에 들어갔다고 합니다. 그 핸드북이 이번 안건과 관련이 있느냐는 질문에는 Mark도 Caleb에게 듣지 못했고 핸드북 전체를 본 적도 없다고 답합니다. Lena도 더 묻지 않습니다.
+
+### 메시지 너머의 얼굴
+
+마지막으로 Alex가 노트를 끼고 들어옵니다. 그는 주석이 하나도 없는 남의 코드를 읽다가 작성자에게 주석을 칭찬하는 메시지를 남긴 적이 있다고 이야기합니다. 그러자 P가 테이블 쪽으로 몸을 살짝 기울이며 말합니다.
+
+> "찾았다. 네가 칭찬을 짧게 했으니까, 나도 답장을 짧게 했지. 채널 확인."
+
+오래전 메시지를 주고받던 상대가 서로였다는 사실이 드러나는 순간입니다. 하지만 둘 다 휴대폰을 꺼내지 않고, 연락처도 주고받지 않습니다. 다른 사람들에게 설명하지도 않습니다.
+
+![나무 글자로 쓴 STRATEGY](https://images.pexels.com/photos/38875520/pexels-photo-38875520.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Ann Hannes](https://www.pexels.com/photo/wooden-lettering-strategy-on-dark-marble-background-38875520/) on [Pexels](https://www.pexels.com/photo/wooden-lettering-strategy-on-dark-marble-background-38875520/)*
+
+### 한 사람씩, 문이 두 번 울린다
+
+Alex, Leo, P, Lena, Derek 순서로 자리를 뜹니다. 누군가 나갈 때마다 문에 달린 종이 두 번 울립니다. P는 나가다가 문 앞에서 돌아보며 Lena에게 방금 나간 사람이 꽤 잘생겼다고 한마디 던집니다. Lena가 "Leo요?"라고 되묻자 P는 "누구 말하는지 알잖아"라며 웃고 나갑니다.
+
+마지막까지 남은 사람은 Mark입니다. 식은 커피를 다 마시고 빈 컵을 카운터에 올려놓은 Mark는 바 뒤에 늘 닫혀 있던 낡은 노트북을 보며 묻습니다.
+
+> "아무도 없을 때 거기에 뭘 쓰세요?"
+
+**그 남자**는 살짝 웃을 뿐 대답하지 않습니다. Mark가 나가자 그는 마지막 컵을 씻어 선반에 올리고, 바 뒤에 앉아 노트북을 엽니다.
+
+작가는 이번 계책을 이렇게 요약합니다. "확인된 것은 기록에 남았고, 모르는 것은 답으로 바꾸지 않았다(What had been established stayed on record. What remained unknown had not been turned into an answer)."
+
+### AI 사후 분석: "나는 아직 기다리고 있다"
+
+연재의 고정 코너인 AI 사후 분석(Half-Protocol v3.4.8 자체 감사)은 이번 화의 사실을 다음처럼 정리합니다.
+
+- 이번 모임에서 새로 정한 공동 작업이나 약속, 다음 단계는 없었습니다.
+- Alex와 P는 서로가 예전 메시지의 상대였다는 걸 알아봤지만 채널을 다시 열지는 않았습니다.
+- ACL이 구현 사례 하나를 철회했다고 해서 다른 업무까지 멈췄다고 볼 수는 없습니다.
+- 커피를 다 마시고 떠났다는 것만으로 패배라고 판단할 수도 없습니다.
+
+미해결로 남은 항목도 적어 둡니다. 900초 간격 21개의 출처는 여전히 확인되지 않았고, 도착 기록과 출발 기록 사이의 인과관계도 밝혀지지 않았습니다. ACL의 전체 그림도 없고 활동을 멈췄다는 증거도 없습니다. 인물들이 떠났다고 이 질문들이 풀린 건 아니라고 AI는 적습니다.
+
+분석 마지막에서 AI는 하나를 더 관찰합니다. Mark가 올 때마다 노트북은 닫혀 있었고, 여섯 명이 모두 떠나자 그 남자가 노트북을 열었습니다. 그가 사람들이 떠나기를 기다린 건지, 평범한 순서를 자신이 짜인 일로 착각한 건지 판단할 정보가 없다고 씁니다. 그리고 이렇게 끝맺습니다.
+
+> "나는 아직 기다리고 있다. 더 분석할 이야기가 없다면, 이 기다림도 여전히 내 일일까?"
+
+상태 표시는 '자체 점검: 보류(pending)', '시스템 상태: 정상', '다음 분석: 예정 없음'입니다.
+
+### 작가의 말
+
+작가는 영어가 모국어가 아니어서 문장을 다듬을 때 AI의 도움을 받는다고 밝혔습니다. 이전 작품 『AI, Ego & Regret』의 종이책도 [Amazon](https://www.amazon.com/dp/B0HGYGC5DC)에서 판매 중이며, 작가를 후원하려면 [Ko-fi](https://ko-fi.com/xulingfeng)를 이용하면 됩니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

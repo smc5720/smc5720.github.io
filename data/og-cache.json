@@ -439,6 +439,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
   },
+  "https://dev.to/canro91/10-things-every-coder-has-blamed-at-least-once-at-least-i-have-4ad0": {
+    "ok": true,
+    "title": "10 Things Every Coder Has Blamed at Least Once (at Least I Have)",
+    "description": "Inspired by @sylwia-lask 's post on what to blame, here are 10 things every coder has blamed, or at...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fphwr5sjem2j6ayg6otes.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-20"
+  },
   "https://dev.to/canro91/12-hard-truths-about-coding-i-learned-the-hard-way-after-10-years-124j": {
     "ok": true,
     "title": "12 Hard Truths About Coding I Learned the Hard Way After 10+ Years",
@@ -2183,6 +2191,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-25"
   },
+  "https://dev.to/hanzla/one-year-on-dev-the-people-made-the-platform-hab": {
+    "ok": true,
+    "title": "One Year on DEV: The People Made the Platform",
+    "description": "I recently got a new badge on my DEV profile. It says One Year on DEV 🎂  I joined on 17 November...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fkfwn6g1gdqb7t5ul5mog.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-20"
+  },
   "https://dev.to/harsh2644/ai-made-coding-cheaper-so-why-is-building-software-still-so-expensive-59m": {
     "ok": true,
     "title": "AI Made Coding Cheaper. So Why Is Building Software Still So Expensive?",
@@ -2718,6 +2734,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fadpeyv8hj3uicq4ayzld.jpg",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/jarvisscript/what-are-your-goals-for-the-week-205-22pg": {
+    "ok": true,
+    "title": "What are your goals for the week? #205",
+    "description": "I have an eye doctor appointment Tuesday. If my eyes are dilated, I can't use the the computer for...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F8kma4mzti23n1udlnt8w.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-20"
   },
   "https://dev.to/javz/23-rejections-multiple-offers-what-i-learned-from-my-2-month-swe-job-search-5hi4": {
     "ok": true,
@@ -3342,6 +3366,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F4e22zmzbxuhu45eirnzb.gif",
     "siteName": "DEV Community",
     "fetchedAt": "2026-11-09"
+  },
+  "https://dev.to/necoz/why-i-rewrote-type-tune-from-typescript-to-rust-1egg": {
+    "ok": true,
+    "title": "Why I Rewrote type-tune from TypeScript to Rust 🦀",
+    "description": "Hoi hoi! 👋  I'm @nyaomaru, a frontend engineer who loves TypeScript and gambas, not crabs! 🦐  And...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F0pd3h3yek7wxcgkqpkov.gif",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-20"
   },
   "https://dev.to/nfrankel/ai-assisted-genealogy-9cn": {
     "ok": true,
@@ -4326,6 +4358,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fsenpd6txz4k8ooplo6yj.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-10-28"
+  },
+  "https://dev.to/xulingfeng/stratagems-36-they-finished-their-coffee-the-ai-still-has-no-answer-4igh": {
+    "ok": true,
+    "title": "Stratagems #36: They Finished Their Coffee. The AI Still Has No Answer.",
+    "description": "Know When to Walk Away  The Thirty-Six Stratagems, Stratagem 36               Open as Usual   When...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F6v4hhay53j7anx0qrai8.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-20"
   },
   "https://dev.to/xulingfeng/two-weeks-in-a-15-year-qa-veteran-back-to-being-the-new-guy-39g3": {
     "ok": true,

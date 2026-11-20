@@ -1,0 +1,384 @@
+﻿---
+title: "type-tune을 TypeScript에서 Rust로 다시 쓴 이유 (Why I Rewrote type-tune from TypeScript to Rust)"
+description: "TypeScript를 좋아하는 프론트엔드 개발자가 2만 줄 규모의 CLI 도구 type-tune을 AI의 도움을 받아 한 달도 안 돼 Rust로 옮겼습니다. 도구는 빨라졌지만, 개발자 본인이 새로운 병목이 됐다고 털어놓습니다."
+date: "2026-11-18"
+published_at: "2026-11-20"
+category: "news"
+tags: []
+slug: "why-i-rewrote-type-tune-from-typescript-to-rust"
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F0pd3h3yek7wxcgkqpkov.gif"
+coverAlt: "Why I Rewrote type-tune from TypeScript to Rust 🦀"
+source_id: "devto-5047522"
+source_url: "https://dev.to/necoz/why-i-rewrote-type-tune-from-typescript-to-rust-1egg"
+source_title: "Why I Rewrote type-tune from TypeScript to Rust 🦀"
+source_author: "nyaomaru"
+source_published: "2026-11-18"
+---
+
+<LinkCard url="https://dev.to/necoz/why-i-rewrote-type-tune-from-typescript-to-rust-1egg" author="nyaomaru" date="2026-11-18" />
+
+## 개요
+
+프론트엔드 엔지니어 nyaomaru가 오픈소스 CLI 도구 **type-tune**을 공개했습니다. 여러 곳에서 함께 쓰는 TypeScript 타입을 찾아 더 알맞은 위치로 옮겨 주는 도구입니다. import 경로, 의존성, barrel export를 손으로 고칠 필요가 없습니다.
+
+눈길을 끄는 건 구현 언어입니다. TypeScript 개발자를 위한 도구를, TypeScript를 좋아한다는 개발자가 Rust로 만들었습니다. 원래 TypeScript로 완성해 둔 코드를 AI의 도움을 받아 한 달이 채 안 돼 Rust로 옮겼다고 합니다.
+
+결과는 만족스러웠지만 문제가 하나 생겼습니다. 도구는 빨라졌는데, 정작 Rust를 잘 모르는 개발자 본인이 느려졌다는 겁니다.
+
+[GitHub 저장소 보기 →](https://github.com/necoz-oss/type-tune)
+
+## 2만 줄짜리 TypeScript 코드를 Rust로
+
+type-tune의 첫 구현은 당연히 TypeScript였습니다. 9월에 이미 완성된 상태였고, 테스트와 주석, 빈 줄까지 합쳐 2만 줄 가까운 규모였습니다.
+
+그 무렵 작성자는 DHH의 영상 하나를 봤습니다. 모든 주장에 동의하지는 않았지만, 지금 같은 시기를 활용해 정말 가슴 뛰는 일에 도전하라는 메시지는 마음에 들었다고 합니다. 물론 개인 프로젝트가 아니라면 모든 걸 AI에 맡길 수는 없고, 누군가는 소프트웨어를 이해하고 유지보수해야 한다는 단서도 달았습니다.
+
+[YouTube 영상 보기 →](https://www.youtube.com/watch?v=vDjW_dRyKXY)
+
+영상을 보다가 떠오른 생각은 단순했습니다.
+
+> **Rails에서 Rust로 갈 수 있다면, TypeScript에서 Rust로는 왜 안 될까? 🦀**
+
+![클래식 타자기와 종이](https://images.pexels.com/photos/4160131/pexels-photo-4160131.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Markus Winkler](https://www.pexels.com/photo/classic-typewriter-with-paper-4160131/) on [Pexels](https://www.pexels.com/photo/classic-typewriter-with-paper-4160131/)*
+
+### 설계가 있으니 이식은 쉬웠다
+
+작성자에게는 이미 돌아가는 구현체와 설계 문서, 테스트, 잘 정의된 TypeScript 타입이 있었습니다. 데이터 모델은 이런 식으로 옮겼습니다.
+
+```typescript
+type CandidateKind = "typeAlias" | "interface";
+
+type Candidate = {
+  id: string;
+  name: string;
+  kind: CandidateKind;
+  referrers: string[];
+};
+```
+
+```rust
+enum CandidateKind {
+    TypeAlias,
+    Interface,
+}
+
+struct Candidate {
+    id: String,
+    name: String,
+    kind: CandidateKind,
+    referrers: Vec<String>,
+}
+```
+
+애플리케이션 전체를 옮기는 일은 타입 정의를 번역하는 것보다 훨씬 많은 작업이었습니다. 그래도 기존 설계와 구현이 있었기에 수월했고, 사이드 프로젝트로 진행하면서도 AI의 도움으로 한 달 안에 이식을 마쳤습니다.
+
+작성자가 꼽은 성과는 세 가지입니다.
+
+- 실행 성능 향상
+- 네이티브 바이너리 배포
+- npm 사용자는 Rust 개발 환경 없이도 설치 가능
+
+설치 방법은 다른 TypeScript 개발 도구와 같습니다.
+
+```bash
+pnpm add -D type-tune
+```
+
+npm 런처는 Node.js 22 이상이 필요하지만, 핵심 로직은 네이티브 바이너리로 돌아갑니다.
+
+## 도구는 빨라졌고, 개발자는 느려졌다
+
+문제는 작성자가 Rust를 거의 몰랐다는 점입니다. AI가 만든 TypeScript 코드는 편하게 리뷰할 수 있지만, Rust는 아직 기초를 배우는 중이었습니다.
+
+### 소유권과 빌림
+
+대표적인 예가 소유권(ownership)과 빌림(borrowing)입니다. TypeScript에서는 아래 코드에 아무 문제가 없습니다.
+
+```typescript
+function printName(name: string) {
+  console.log(name);
+}
+
+const name = "OrderSummary";
+
+printName(name);
+console.log(name); // OK
+```
+
+비슷하게 쓴 Rust 코드는 컴파일되지 않습니다. `name`의 소유권이 `print_name`으로 넘어가기 때문입니다.
+
+```rust
+fn print_name(name: String) {
+    println!("{}", name);
+}
+
+fn main() {
+    let name = String::from("OrderSummary");
+
+    print_name(name);
+    println!("{}", name); // Error: value borrowed after move
+}
+```
+
+값을 빌려주면 해결됩니다.
+
+```rust
+fn print_name(name: &str) {
+    println!("{}", name);
+}
+
+fn main() {
+    let name = String::from("OrderSummary");
+
+    print_name(&name);
+    println!("{}", name); // OK
+}
+```
+
+값을 복제하는 방법도 있습니다.
+
+```rust
+print_name(name.clone());
+println!("{}", name); // OK
+```
+
+둘 다 컴파일은 되지만, 불필요한 복제는 메모리 할당을 늘릴 수 있습니다. 그래서 AI가 `.clone()`을 넣으면 정말 필요한지, 빌림이 더 맞는지 작성자가 직접 판단해야 했습니다.
+
+### 가시성도 설계 결정이다
+
+가시성(visibility) 범위도 마찬가지입니다. 내부 헬퍼를 `pub`으로 열면 접근 문제는 바로 풀립니다.
+
+```rust
+pub fn resolve_destination() {
+    // ...
+}
+```
+
+같은 크레이트 안에서만 쓴다면 `pub(crate)`로 충분합니다.
+
+```rust
+pub(crate) fn resolve_destination() {
+    // ...
+}
+```
+
+자기 모듈에서만 쓴다면 비공개로 두면 됩니다.
+
+```rust
+fn resolve_destination() {
+    // ...
+}
+```
+
+컴파일러는 세 가지를 모두 받아주지만, 각각은 서로 다른 아키텍처 결정입니다. 매크로를 써야 할 때와 일반 함수로 충분할 때를 가리는 것도 작성자에게는 아직 배우는 중인 영역입니다.
+
+AI는 컴파일되는 코드를 만들어 줍니다. 하지만 그 설계가 적절한지는 사람이 이해해야 합니다. TypeScript라면 금방 내릴 판단을, Rust에서는 리뷰를 멈추고 공부부터 해야 하는 일이 잦았습니다.
+
+**AI가 Rust 코드를 만드는 속도는 작성자가 그 코드를 이해하는 속도보다 훨씬 빨랐습니다.** 사이드 프로젝트를 빠르게 진행하려다 새로운 병목을 만든 셈이고, 그 병목은 작성자 자신이었습니다. 작성자는 이를 두고 "정말 훌륭한 최적화"라고 자조합니다.
+
+## "비싼 엔터 키가 되고 싶지는 않다"
+
+그냥 바이브 코딩을 할 수도 있었습니다. AI가 승인을 구할 때마다 엔터만 누르면 기능은 더 빨리 나왔을 겁니다.
+
+하지만 작성자에게 아무것도 배우지 않고 무언가를 만드는 일은 그저 또 하나의 작업일 뿐입니다. 그런 작업만 반복하다 보면 점점 창작하는 능력을 잃게 될 거라고 봅니다. AI로 낯선 개념을 익히고 새로운 접근을 시도하는 건 즐겁지만, 이해하지 못한 채 결과물만 찍어내는 데 시간을 쓰고 싶지는 않다고 말합니다.
+
+> **"아주 비싼 엔터 키(a very expensive Enter key)가 되고 싶지는 않다."**
+
+그렇다고 Rust를 고른 걸 후회하지는 않습니다. 값진 경험이었고, 이렇게 쉽게 새로운 도전을 할 수 있는 시대에 살고 있다는 데 감사한다고 덧붙였습니다.
+
+## type-tune의 설계: Scan, Plan, Apply
+
+이식하는 동안에도 바뀌지 않은 아키텍처 결정이 하나 있습니다. **Scan → Plan → Apply** 세 단계 구조입니다.
+
+### 어떤 문제를 푸나
+
+흔한 TypeScript 프로젝트 구조를 생각해 봅시다.
+
+```text
+src/
+├── features/
+│   ├── orders/
+│   │   └── order-page.ts
+│   ├── dashboard/
+│   │   └── dashboard.ts
+│   └── reports/
+│       └── reports.ts
+```
+
+처음에는 `OrderSummary` 타입이 주문(orders) 기능에 속해 있었습니다.
+
+```typescript
+// features/orders/order-page.ts
+
+export type OrderSummary = {
+  id: string;
+  total: number;
+};
+```
+
+앱이 커지면서 다른 기능들도 이 타입을 가져다 쓰기 시작합니다.
+
+```typescript
+// features/dashboard/dashboard.ts
+
+import type { OrderSummary } from "../orders/order-page";
+
+export function calculateRevenue(orders: OrderSummary[]) {
+  return orders.reduce((sum, order) => sum + order.total, 0);
+}
+```
+
+```typescript
+// features/reports/reports.ts
+
+import type { OrderSummary } from "../orders/order-page";
+
+export function createReport(order: OrderSummary) {
+  return `${order.id}: ${order.total}`;
+}
+```
+
+타입은 여전히 쓸모가 있지만, 처음 자리가 더는 어울리지 않을 수 있습니다. [Knip](https://knip.dev/) 같은 도구가 안 쓰는 코드를 지워 준다면, type-tune은 **아직 쓰이고 있는 타입을 재배치하는** 문제를 다룹니다.
+
+### 1단계: Scan
+
+```bash
+pnpm exec type-tune scan --project tsconfig.json
+```
+
+export된 타입 별칭과 인터페이스, 참조 관계, 관련 의존성을 분석해 옮길 만한 후보를 찾습니다. 이 단계에서는 소스 코드를 전혀 건드리지 않습니다.
+
+### 2단계: Plan
+
+옮길 수 있는 타입이라고 해서 꼭 옮겨야 하는 건 아닙니다. 그래서 type-tune은 사람이 검토할 수 있는 계획서를 만듭니다.
+
+```bash
+pnpm exec type-tune plan \
+  --project tsconfig.json \
+  --out .type-tune/plan.json \
+  --markdown .type-tune/plan.md
+```
+
+결과물은 두 파일입니다.
+
+- `plan.json`: 후보 메타데이터와 검증 정보
+- `plan.md`: 사람이 읽고 수정할 수 있는 계획서
+
+모든 후보는 기본값이 '무시(ignore)'입니다. `plan.md`를 단순화하면 다음과 같습니다.
+
+```markdown
+- [ignore] <candidate-id> `OrderSummary`
+  - kind: `typeAlias`
+  - from: `src/features/orders/order-page.ts`
+  - to: `src/features/orders/types/order.ts`
+```
+
+후보를 승인하고 목적지를 바꿀 수도 있습니다.
+
+```diff
+- [ignore] <candidate-id> OrderSummary
++ [apply] <candidate-id> OrderSummary
+    - kind: typeAlias
+    - from: src/features/orders/order-page.ts
+-   - to: src/features/orders/types/order.ts
++   - to: src/domains/orders/types/order-summary.ts
+```
+
+공용 디렉터리로 갈지, 도메인 모듈로 갈지, 지금 자리에 그대로 둘지는 아키텍처 결정입니다. **무엇을 어디로 옮길지는 개발자가 정합니다.**
+
+### 3단계: Apply
+
+먼저 변경 내용을 미리 봅니다.
+
+```bash
+pnpm exec type-tune apply \
+  --plan .type-tune/plan.json \
+  --markdown .type-tune/plan.md \
+  --dry-run
+```
+
+그다음 실제로 적용합니다.
+
+```bash
+pnpm exec type-tune apply \
+  --plan .type-tune/plan.json \
+  --markdown .type-tune/plan.md
+```
+
+적용 후 프로젝트 구조는 이렇게 바뀝니다.
+
+```text
+src/
+├── domains/
+│   └── orders/
+│       └── types/
+│           └── order-summary.ts  ← Moved!
+└── features/
+    ├── orders/
+    │   └── order-page.ts
+    ├── dashboard/
+    │   └── dashboard.ts
+    └── reports/
+        └── reports.ts
+```
+
+```typescript
+// domains/orders/types/order-summary.ts
+
+export type OrderSummary = {
+  id: string;
+  total: number;
+};
+```
+
+지원하는 형태의 import는 자동으로 고쳐집니다.
+
+```diff
+- import type { OrderSummary } from "../orders/order-page";
++ import type { OrderSummary } from "../../domains/orders/types/order-summary";
+```
+
+원래 모듈에는 호환용 re-export가 남습니다.
+
+```typescript
+// features/orders/order-page.ts
+
+export type { OrderSummary } from "../../domains/orders/types/order-summary";
+```
+
+type-tune은 TypeScript 컴파일러로 결과를 검증하고, 일반 검증에 실패하면 변경을 되돌립니다. 그래도 최종 diff는 직접 검토하고, 프로젝트별 테스트와 빌드를 돌려 보라고 작성자는 권합니다.
+
+## 작업은 자동화하되, 결정은 사람에게
+
+단계를 셋으로 나눈 이유는 기회를 찾는 일, 아키텍처를 결정하는 일, 변경을 실행하는 일이 서로 다른 책임이기 때문입니다.
+
+type-tune은 선택 사항으로 AI 리뷰도 지원합니다.
+
+```bash
+pnpm exec type-tune plan \
+  --project tsconfig.json \
+  --ai-review \
+  --ai-dry-run
+```
+
+AI는 추가 리뷰 의견을 줄 뿐, 소스 코드를 다시 쓰는 과정은 통제하지 않습니다. 위 명령은 AI 제공자에 실제로 요청을 보내지 않고, 어떤 리뷰 요청이 나갈지만 미리 보여 줍니다.
+
+작성자는 이 구조가 자신이 AI와 일하고 싶은 방식과도 같다고 말합니다. **지루한 작업은 자동화하되, 아키텍처 결정은 개발자에게서 빼앗지 않는 것.** type-tune의 철학입니다.
+
+## 시작하기
+
+일단 프로젝트를 스캔해 보는 것부터 시작하면 됩니다. 아무것도 옮기지 않으니 부담 없이 결과만 확인할 수 있습니다.
+
+```bash
+npx type-tune scan --project tsconfig.json
+```
+
+- [GitHub 저장소 보기 →](https://github.com/necoz-oss/type-tune)
+- [공식 문서 보기 →](https://type-tune-docs.vercel.app/)
+
+작성자는 피드백과 아이디어, 이슈 제보, 기여를 모두 환영한다고 밝혔습니다. Rust 개발자라면 "이 불쌍한 TypeScript 고양이가 제대로 된 게가 되는 법"을 가르쳐 달라는 부탁도 남겼습니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
