@@ -1,0 +1,101 @@
+﻿---
+title: "VS Code 시작 페이지에서 Git 저장소 상태를 한눈에 — Repo Board"
+description: "Emanuele Bartolesi가 로컬 Git 저장소의 변경 사항, ahead/behind 상태, 연결된 worktree를 한 탭에 모아 보여주는 VS Code 확장 'Repo Board'를 공개했습니다. VS Code 시작 페이지로 지정할 수도 있습니다."
+date: "2026-11-18"
+published_at: "2026-11-21"
+category: "news"
+tags: ["vscode", "git", "opensource", "productivity"]
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fcdfuqj9vrk6cht6tbjtp.jpg"
+coverAlt: "I built a VS Code start page for my Git repositories"
+slug: "repo-board-vscode-start-page-git-repositories"
+source_id: "devto-5065259"
+source_url: "https://dev.to/playfulprogramming/i-built-a-vs-code-start-page-for-my-git-repositories-5c6"
+source_title: "I built a VS Code start page for my Git repositories"
+source_author: "Emanuele Bartolesi"
+source_published: "2026-11-18"
+---
+
+<LinkCard url="https://dev.to/playfulprogramming/i-built-a-vs-code-start-page-for-my-git-repositories-5c6" author="Emanuele Bartolesi" date="2026-11-18" />
+
+## 개요
+
+VS Code를 켜면 먼저 어느 저장소를 열지 정해야 합니다. 최근에 작업한 프로젝트는 기억나도, 어디에 변경 사항을 남겨 뒀는지, 마지막 커밋을 푸시했는지, 작업 전에 pull부터 해야 하는지는 막상 폴더를 열어 봐야 알 수 있습니다.
+
+Emanuele Bartolesi는 이 확인을 폴더를 열기 전에 끝내고 싶어서 **Repo Board**라는 VS Code 확장을 만들었습니다. 로컬 저장소들의 Git 상태를 탭 하나에 모아 보여주고, VS Code 시작 페이지로도 쓸 수 있습니다. MIT 라이선스 오픈소스입니다.
+
+만들게 된 배경에는 AI와 일하는 방식의 변화도 있었다고 합니다. 저장소를 오가는 일이 잦아졌고, 코딩 에이전트가 별도 Git worktree에서 작업하면 기억해야 할 체크아웃이 하나 더 생깁니다. 다만 확장 자체는 Git 정보만 읽으며 AI 없이 동작합니다.
+
+## 본문
+
+### 처음 한 번만 설정하면 된다
+
+설정 가이드에서 클론을 모아 두는 상위 폴더(예: `C:\code`, `~/src`)를 지정하면, Repo Board가 그 아래에서 Git 저장소를 찾습니다. 기본 탐색 깊이는 3단계입니다. 저장소 하나만 추가하고 싶다면 해당 폴더를 연 상태에서 커맨드 팔레트의 **Repo Board: Add Current Folder**를 실행하면 됩니다.
+
+자주 쓰는 저장소는 고정(pin)할 수 있습니다. 오늘 한 번밖에 열지 않았어도 이번 주 내내 중요한 저장소라면, 고정해 두면 보드 맨 위 **Pinned** 섹션에 계속 남습니다. 프로젝트 전환 기능에서도 고정한 저장소가 먼저 뜹니다.
+
+![Repo Board in VS Code with storefront and design-system pinned above the Acme Commerce collection. Status filters show four repos with changes, three behind, and two ahead.](https://raw.githubusercontent.com/kasuken/vscode-repoboard/v1.2.1/images/hero.png)
+
+*샘플 저장소로 구성한 Repo Board 데모. 고정한 저장소 두 개가 맨 위에 있고 나머지는 아래에 묶여 있습니다.*
+
+시작 페이지로 쓰려면 설정 가이드나 보드의 **⋯** 메뉴에서 **Use Repo Board as Start Page**를 선택합니다. 폴더 없이 새로 여는 VS Code 창에 적용되며, **Repo Board: Stop Using Repo Board as Start Page**를 실행하면 원래 시작 설정으로 돌아갑니다. [Repo Board 설정 및 시작 동작 →](https://github.com/kasuken/vscode-repoboard/tree/v1.2.1#quick-start)
+
+### "pull 해야 하나?"는 숫자 하나로 판단할 수 없다
+
+데모의 `checkout-web` 저장소를 예로 들어 보겠습니다. `feature/apple-pay` 브랜치에 파일 변경 7개가 있고, upstream보다 커밋이 1개 앞서(ahead) 있으면서 2개 뒤처져(behind) 있습니다. 세 숫자는 각각 다른 상태를 가리킵니다.
+
+- **파일 변경**: 워킹 트리나 인덱스에 남아 있는 수정
+- **ahead**: upstream 브랜치에 없는 로컬 커밋
+- **behind**: 아직 반영하지 않은 upstream 커밋
+
+이런 저장소라면 바로 업데이트하지 말고, 먼저 열어서 diff와 히스토리를 확인한 뒤 어떻게 합칠지 정하는 편이 맞다고 작성자는 설명합니다.
+
+보드에서는 필터로 확인할 대상을 줄일 수 있습니다. **With changes**는 커밋하지 않은 작업이 있는 저장소만 보여주고, **Most changes**는 변경이 많은 순으로 정렬합니다. 업데이트가 필요한 브랜치를 보려면 **Behind**로 바꾸면 됩니다. 어떤 폴더를 열지 정했다면 보드에서 바로 그 위치의 터미널을 열 수도 있습니다.
+
+![The Repo Board demo filtered to With changes, showing checkout-web, rust-raytracer, storefront, and tiny-router. Checkout-web is both ahead and behind its upstream.](https://raw.githubusercontent.com/kasuken/vscode-repoboard/v1.2.1/images/attention.png)
+
+*커밋하지 않은 변경이 있는 저장소만 걸러 본 샘플 보드.*
+
+### 상태 정보는 어디서 오나
+
+내부적으로는 `git status --porcelain=v2 --branch` 결과에서 브랜치, upstream, ahead/behind 수, 파일 상태를 읽어 옵니다. 여기서 ahead/behind는 **로컬 Git이 알고 있는 upstream 기준**입니다. 누군가 5분 전에 푸시했다면 status만으로는 알 수 없습니다.
+
+그래서 Repo Board는 대시보드를 열 때 백그라운드에서 fetch를 실행합니다. 갱신하는 동안에는 캐시된 정보를 보여주기 때문에, 작성자는 이 숫자를 스냅숏 정도로 받아들인다고 말합니다. fetch를 직접 하고 싶다면 `repoBoard.fetchOnOpen` 설정을 끄면 됩니다. [Repo Board Git 클라이언트 코드 →](https://github.com/kasuken/vscode-repoboard/blob/v1.2.1/src/services/git.ts) · [Git fetch 문서 →](https://git-scm.com/docs/git-fetch)
+
+fetch는 원격 저장소에 대한 Git의 정보만 갱신하지만, pull은 체크아웃된 브랜치를 옮기고 파일까지 바꿉니다. 그래서 pull은 사용자가 직접 고르는 동작으로 남겨 뒀습니다. Repo Board의 pull은 `--ff-only` 옵션을 씁니다. 양쪽에 새 커밋이 있으면 Git이 멈추고, 어떻게 합칠지는 사용자에게 맡깁니다. 앞의 `checkout-web` 같은 경우에 딱 맞는 동작입니다. [Git pull 문서 →](https://git-scm.com/docs/git-pull)
+
+여러 저장소를 한 번에 정리하는 명령도 있습니다.
+
+- **Repo Board: Fetch All Repos** — upstream이 있는 저장소를 모두 fetch
+- **Repo Board: Pull All Repos That Are Behind** — 먼저 fetch한 뒤, 뒤처진 저장소에 fast-forward를 시도. 워킹 트리에 이미 충돌이 있는 저장소는 건너뜀
+
+[일괄 fetch/pull 구현 코드 →](https://github.com/kasuken/vscode-repoboard/blob/v1.2.1/src/app.ts#L339-L383)
+
+### 변경 사항이 남은 worktree 찾기
+
+메인 체크아웃은 깨끗한데, 옆에 연결된 worktree에는 작업하다 만 수정이 남아 있을 수 있습니다. 실제 작업을 worktree에서 했다면 메인 폴더만 열어서는 절반밖에 확인하지 못합니다. 에이전트가 작업마다 별도 체크아웃을 쓸 때 흔히 생기는 상황이고, 직접 `git worktree`를 쓸 때도 마찬가지입니다.
+
+Repo Board는 기본적으로 연결된 worktree를 메인 저장소 아래에 묶어서 보여줍니다. worktree 배지를 클릭하면 브랜치 목록을 보고, 원하는 체크아웃을 열거나 그 위치에서 터미널을 띄울 수 있습니다. 데모에서는 `storefront` 저장소 아래 `agent/fix-checkout-total` 브랜치에 변경 6개가 있다고 표시하고, 폴더가 사라진 `review/pr-412`에는 경고를 붙였습니다. worktree를 각각 별도 프로젝트로 보고 싶다면 `repoBoard.worktrees`를 `separate`로 설정하면 됩니다. [worktree 동작 설명 →](https://github.com/kasuken/vscode-repoboard/tree/v1.2.1#worktrees-stay-with-their-repo)
+
+![The storefront worktree menu shows six changes on agent/fix-checkout-total and flags review/pr-412 as a missing folder.](https://raw.githubusercontent.com/kasuken/vscode-repoboard/v1.2.1/images/worktrees.png)
+
+*샘플 보드에서 storefront 타일 아래 묶인 worktree 목록.*
+
+열 저장소가 이미 정해져 있다면 보드를 거칠 필요도 없습니다. Windows·Linux에서는 **Ctrl+Alt+P**, macOS에서는 **Cmd+Alt+P**를 누르고 저장소 이름, 경로, 브랜치, 태그 일부를 입력하면 됩니다. 단축키가 다른 기능과 겹친다면 커맨드 팔레트에서 **Repo Board: Switch Project…**를 찾으면 됩니다.
+
+### 설치하고 써 보기
+
+[VS Code Marketplace에서 Repo Board 설치 →](https://marketplace.visualstudio.com/items?itemName=emanuelebartolesi.vscode-repoboard)
+
+`code` CLI가 PATH에 잡혀 있다면 터미널에서 바로 설치할 수도 있습니다.
+
+```bash
+code --install-extension emanuelebartolesi.vscode-repoboard
+```
+
+작성자는 평소 작업하는 폴더 하나로 시작해서, 자주 돌아가는 저장소 두 개를 고정해 보라고 권합니다. 다음에 빈 VS Code 창을 열 때 시작 페이지로 써 보고, 프로젝트를 열기 전에 어디까지 작업했는지 알 수 있는지 확인해 보라는 겁니다. 하루 중 바로 그 순간을 편하게 만들고 싶었다고 합니다.
+
+폴더 구조나 upstream, worktree를 잘못 인식하는 경우는 [GitHub 이슈](https://github.com/kasuken/vscode-repoboard/issues)로 알려 달라고 요청했습니다. 소스는 [MIT 라이선스](https://github.com/kasuken/vscode-repoboard/blob/v1.2.1/LICENSE)로 공개돼 있습니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*
