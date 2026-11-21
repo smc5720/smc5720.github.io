@@ -59,9 +59,9 @@ Emanuele Bartolesi는 이 확인을 폴더를 열기 전에 끝내고 싶어서 
 
 내부적으로는 `git status --porcelain=v2 --branch` 결과에서 브랜치, upstream, ahead/behind 수, 파일 상태를 읽어 옵니다. 여기서 ahead/behind는 **로컬 Git이 알고 있는 upstream 기준**입니다. 누군가 5분 전에 푸시했다면 status만으로는 알 수 없습니다.
 
-그래서 Repo Board는 대시보드를 열 때 백그라운드에서 fetch를 실행합니다. 갱신하는 동안에는 캐시된 정보를 보여주기 때문에, 작성자는 이 숫자를 스냅숏 정도로 받아들인다고 말합니다. fetch를 직접 하고 싶다면 `repoBoard.fetchOnOpen` 설정을 끄면 됩니다. [Repo Board Git 클라이언트 코드 →](https://github.com/kasuken/vscode-repoboard/blob/v1.2.1/src/services/git.ts) · [Git fetch 문서 →](https://git-scm.com/docs/git-fetch)
+그래서 Repo Board는 대시보드를 열 때 백그라운드에서 fetch를 실행합니다. 갱신하는 동안에는 캐시된 정보를 보여주니, 이 숫자는 스냅숏 정도로 보면 된다는 게 작성자의 설명입니다. fetch를 직접 하고 싶다면 `repoBoard.fetchOnOpen` 설정을 끄면 됩니다. [Repo Board Git 클라이언트 코드 →](https://github.com/kasuken/vscode-repoboard/blob/v1.2.1/src/services/git.ts) · [Git fetch 문서 →](https://git-scm.com/docs/git-fetch)
 
-fetch는 원격 저장소에 대한 Git의 정보만 갱신하지만, pull은 체크아웃된 브랜치를 옮기고 파일까지 바꿉니다. 그래서 pull은 사용자가 직접 고르는 동작으로 남겨 뒀습니다. Repo Board의 pull은 `--ff-only` 옵션을 씁니다. 양쪽에 새 커밋이 있으면 Git이 멈추고, 어떻게 합칠지는 사용자에게 맡깁니다. 앞의 `checkout-web` 같은 경우에 딱 맞는 동작입니다. [Git pull 문서 →](https://git-scm.com/docs/git-pull)
+fetch는 원격 저장소에 대한 Git의 정보만 갱신하지만, pull은 체크아웃된 브랜치를 옮기고 파일까지 바꿉니다. pull을 사용자가 직접 고르도록 남겨 둔 이유입니다. Repo Board의 pull은 `--ff-only` 옵션을 씁니다. 양쪽에 새 커밋이 있으면 Git이 멈추고, 어떻게 합칠지는 사용자에게 맡깁니다. 앞의 `checkout-web` 같은 경우에 딱 맞는 동작입니다. [Git pull 문서 →](https://git-scm.com/docs/git-pull)
 
 여러 저장소를 한 번에 정리하는 명령도 있습니다.
 
