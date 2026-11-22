@@ -1,0 +1,88 @@
+﻿---
+title: "리눅스 강의가 지루해서 직접 만든 게임형 학습 사이트, Pixel Linux Quest"
+description: "읽기 위주의 리눅스 입문 강의에 흥미를 잃은 한 개발자가 브라우저 터미널과 픽셀 아트로 리눅스를 배우는 오픈소스 사이트 'Pixel Linux Quest'를 만들었습니다. 현재 8개 레벨을 공개했고, 매주 새 주제를 추가할 계획입니다."
+slug: "pixel-linux-quest-hands-on-linux-learning"
+date: "2026-11-18"
+published_at: "2026-11-22"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F0m5m1rpoz1qwovmfcwu3.png"
+coverAlt: "My Linux Course Put Me to Sleep, So I Built Something That Wouldn't"
+source_id: "devto-5068712"
+source_url: "https://dev.to/maame-codes/my-linux-course-put-me-to-sleep-so-i-built-something-that-wouldnt-5g4k"
+source_title: "My Linux Course Put Me to Sleep, So I Built Something That Wouldn't"
+source_author: "Maame Afua A. P. Fordjour"
+source_published: "2026-11-18"
+---
+
+<LinkCard url="https://dev.to/maame-codes/my-linux-course-put-me-to-sleep-so-i-built-something-that-wouldnt-5g4k" author="Maame Afua A. P. Fordjour" date="2026-11-18" />
+
+## 개요
+
+DevOps를 공부하는 개발자 Maame Afua A. P. Fordjour가 브라우저에서 바로 리눅스 명령어를 연습하는 학습 사이트 **Pixel Linux Quest**를 공개했습니다. 짧은 레슨을 읽고, 곧바로 가상 터미널에서 직접 쳐 보고, 경험치(XP)를 얻어 다음 주제를 여는 방식입니다. 화면 전체는 레트로 픽셀 아트로 꾸몄습니다.
+
+계기는 단순했습니다. 리눅스 재단(Linux Foundation)의 무료 강의 **Introduction to Linux**를 듣기 시작했는데, 몇 챕터 지나지 않아 집중력이 바닥났다고 합니다. 강의 자체는 꼼꼼하고 알찼지만 읽을거리가 끝없이 이어졌습니다. `cd`나 `mkdir` 설명을 읽을 때는 고개를 끄덕여도 다음 날 아침이면 다 잊어버렸다는 겁니다. 작성자는 스스로를 "읽어서가 아니라 직접 해 보고, 망가뜨리고, 고치면서 배우는 사람"이라고 소개합니다.
+
+[Pixel Linux Quest 바로 가기 →](https://pixel-linux-quest.vercel.app)
+
+## 본문
+
+### 기록하는 도구에서 직접 해 보는 도구로
+
+작성자는 올해 1월 GitHub Copilot CLI 챌린지에 [The Linux Compass](https://dev.to/maame-codes/github-copilot-cli-challenge-the-linux-compass-3j9o)라는 터미널 도구를 출품한 적이 있습니다. 명령어를 찾아보면 설명해 주고, 그 내용을 학습 로그에 저장해 '지식 망각(knowledge decay)'을 막는 도구였습니다.
+
+도움은 됐지만 여전히 숙제처럼 느껴졌다고 합니다. Pixel Linux Quest는 그 업그레이드 버전입니다. 배운 내용을 기록하는 대신, 배우는 과정 자체를 손으로 하게 만들었습니다.
+
+![펭귄 스티커를 들고 있는 손](https://images.pexels.com/photos/11035358/pexels-photo-11035358.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [RealToughCandy.com](https://www.pexels.com/@realtoughcandy) on [Pexels](https://www.pexels.com/photo/a-person-holding-black-and-yellow-penguin-sticker-11035358/)*
+
+### 어떤 기능이 들어 있나
+
+- **스토리 인트로**: 픽셀 펭귄 캐릭터 'Pip'이 1969년 유닉스부터 1991년 헬싱키의 한 대학생까지, 리눅스가 탄생한 과정을 애니메이션 장면 7개로 들려줍니다.
+- **짧게 쪼갠 레슨**: 레벨마다 작은 레슨 하나와 간단한 확인 문제가 붙습니다. 퀴즈도 있지만 대부분은 터미널에서 직접 해 보는 과제입니다.
+- **브라우저 속 터미널**: 따로 설치할 것이 없습니다. 실제 터미널처럼 Tab 자동완성과 Ctrl+C도 됩니다.
+- **실시간 폴더 지도**: `mkdir treasure`를 입력하면 픽셀 지도에 폴더가 생기고, `cd treasure`를 입력하면 Pip이 그쪽으로 걸어갑니다. 작성자는 처음 리눅스를 배울 때 지금 어디에 있는지 머릿속에 그려지지 않아 고생했는데, 그때 가장 갖고 싶던 기능이라고 말합니다.
+- **실수 설명해 주기**: 실제 리눅스 오류 메시지를 그대로 보여 주면서 Pip이 친절한 설명을 덧붙입니다. 예를 들어 `cd Treasure`라고 치면 "아깝다! 리눅스는 대소문자를 구분해"라고 알려 줍니다.
+- **Break It 샌드박스**: 초보자라면 한 번쯤 궁금해하는 `rm -rf /`를 안전하게 실행해 볼 수 있습니다. 작성자도 만들면서 알게 된 사실인데, 요즘 리눅스는 안전장치가 있어서 `rm -rf /`를 그냥은 *거부*합니다. 시스템을 날리려면 조금 더 애써야 하고, 샌드박스는 두 경우를 모두 보여 줍니다. 끝내 성공하면 숨겨진 배지도 받습니다.
+- **휴게실(Break Room)**: 5분 동안 쉬면서 할 수 있는 레트로 미니게임 3개를 넣었습니다. 20분쯤 공부하면 Pip이 쉬겠느냐고 묻고, 쉬고 나면 하던 곳으로 바로 돌려보냅니다. 작성자가 쉽게 산만해지는 편이라 넣은 기능이라고 합니다.
+
+### 지금은 8레벨, 앞으로 매주 확장
+
+현재 공개된 범위는 **리눅스 기초**와 **첫 명령어** 두 섹션, 총 8개 레벨입니다. 작성자는 앞으로 몇 주에 걸쳐 다음 내용을 추가할 계획이라고 밝혔습니다.
+
+- **매주 새 주제**: 파일과 권한, 프로세스, 텍스트 도구와 파이프, Bash 스크립팅
+- **실전 미션**: "웹사이트가 다운됐다, 로그에서 오류를 찾아라" 같은 과제
+- **섹션별 종합 챌린지**: 그 섹션에서 배운 내용을 모두 섞은 문제
+- **휴게실 게임 추가**: 그냥 쉬고 싶을 때 하는 잔잔한 게임 포함
+
+### 주말 해킹이 아니라 제품처럼 만들었다
+
+작성자는 이 프로젝트를 하루 이틀 만에 끝내는 해킹이 아니라 실제 제품처럼 다뤘다고 설명합니다.
+
+- **디자인 먼저**: 화면 목업과 작성 지침서부터 만들었습니다. 색상, 폰트, 레슨 형식, 그리고 "모든 리눅스 관련 사실은 정확해야 한다"는 원칙을 문서로 정했습니다.
+- **작은 단계로 나눠 개발**: 단계별로 만들고, 매 단계를 테스트한 뒤 다음으로 넘어갔습니다.
+- **마음에 안 들면 다시**: 처음 만든 인트로 장면은 색깔 상자에 불과했습니다. 너무 마음에 들지 않아 제대로 된 픽셀 아트로 다시 그렸습니다.
+- **사실 검증**: 틀린 내용을 가르치는 학습 사이트는 차라리 없느니만 못하다고 보고, 모든 레슨을 실제 리눅스 동작과 대조해 확인했습니다.
+
+기술 스택은 React, Vite, TypeScript입니다. 터미널은 TypeScript로 직접 짠 작은 리눅스풍 셸이고, 가상 파일시스템 위에서 돌아갑니다. 자동화 테스트는 322개이며, 푸시할 때마다 GitHub Actions가 테스트와 빌드를 돌립니다. 호스팅은 Vercel을 씁니다. 작성자는 "내 안의 DevOps 학생이 이 CI 파이프라인을 보고 아주 흐뭇해한다"고 덧붙였습니다.
+
+![책상 위에 놓인 프로그래밍 책](https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Christina Morillo](https://www.pexels.com/@divinetechygirl) on [Pexels](https://www.pexels.com/photo/python-book-1181671/)*
+
+### 피드백과 기여를 기다리는 중
+
+지금은 첫 버전이라, 작성자는 실제 사용자 피드백을 받아 다음 방향을 정하겠다고 했습니다. 부탁한 내용은 세 가지입니다.
+
+1. 공개된 두 섹션을 해 보고, 막히거나 지루하거나 헷갈린 지점을 알려 달라.
+2. 샌드박스에서 리눅스를 부숴 보고, 'SYSTEM DESTROYED' 화면을 댓글로 공유해 달라.
+3. 틀린 사실을 발견하면 꼭 알려 달라. 잘못 가르치느니 지적받는 편이 낫다.
+
+프로젝트는 오픈소스로 공개돼 있어 새 레슨, 휴게실 게임, 버그 수정 등 어떤 형태로든 기여할 수 있습니다.
+
+[GitHub 저장소 보기 →](https://github.com/Maame-codes/pixel-linux-quest)
+
+커리큘럼 주제는 리눅스 재단의 무료 강의 Introduction to Linux(LFS101)를 참고했지만, 리눅스 재단과 제휴하거나 승인받은 프로젝트는 아닙니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

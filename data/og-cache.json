@@ -3151,6 +3151,14 @@
     "siteName": "DEV Community",
     "fetchedAt": "2026-10-16"
   },
+  "https://dev.to/maame-codes/my-linux-course-put-me-to-sleep-so-i-built-something-that-wouldnt-5g4k": {
+    "ok": true,
+    "title": "My Linux Course Put Me to Sleep, So I Built Something That Wouldn’t",
+    "description": "Confession time. I signed up for the free Introduction to Linux course from the Linux Foundation....",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F0m5m1rpoz1qwovmfcwu3.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-22"
+  },
   "https://dev.to/maame-codes/someone-already-built-that-is-the-favourite-excuse-of-broke-developers-44o6": {
     "ok": true,
     "title": "'Someone Already Built That' is the Favourite Excuse of Broke Developers",
@@ -3622,6 +3630,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F008lxwyehzrvzvtgcu5x.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-10-19"
+  },
+  "https://dev.to/peter/what-team-wide-ai-adoption-actually-takes-1gbh": {
+    "ok": true,
+    "title": "What team-wide AI adoption actually takes",
+    "description": "I've tried nearly every way to make AI practical at work: new models, routers, agent frameworks,...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fu7kwsgmm696mwcbkbl0k.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-22"
   },
   "https://dev.to/playfulprogramming/functional-languages-are-heavily-imperative-4c1": {
     "ok": true,
@@ -4166,6 +4182,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fmgecj41w91psrct0upxp.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-08-18"
+  },
+  "https://dev.to/thethirdcup/the-chairs-are-back-the-coffee-is-on-243p": {
+    "ok": true,
+    "title": "The Chairs Are Back. The Coffee Is On. ☕",
+    "description": "Welcome to The Third Cup.           The Renovation Is Done. We're Open Again!   Finally, the...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F3zgv4z7esusgb6fkjeiu.jpg",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-22"
   },
   "https://dev.to/theycallmeswift/i-got-jev-to-zero-mistakes-im-still-using-flash-lite-2mo7": {
     "ok": true,
