@@ -1,0 +1,139 @@
+﻿---
+title: "고양이로 배우는 Rust 소유권 — Cozy Bytes: Who Owns the Cat?"
+description: "Rust의 소유권(ownership), 이동(move), 빌림(borrowing), 가변 참조, 빌림 검사기(borrow checker)를 고양이 한 마리 예시로 가볍게 정리한 입문 글입니다."
+date: "2026-11-20"
+published_at: "2026-11-23"
+slug: "rust-ownership-who-owns-the-cat"
+category: "news"
+tags: []
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F36ic1wwew7q0m53uv65e.gif"
+coverAlt: "Cozy Bytes 🍺 | Rust::Who Owns the Cat? 🐈🦀"
+source_id: "devto-5082373"
+source_url: "https://dev.to/_yourbrainbuffer_/cozy-bytes-rustwho-owns-the-cat-13ch"
+source_title: "Cozy Bytes 🍺 | Rust::Who Owns the Cat? 🐈🦀"
+source_author: "nyaomaru"
+source_published: "2026-11-20"
+---
+
+<LinkCard url="https://dev.to/_yourbrainbuffer_/cozy-bytes-rustwho-owns-the-cat-13ch" author="nyaomaru" date="2026-11-20" />
+
+## 개요
+
+Rust를 처음 배울 때 가장 먼저 부딪히는 벽은 소유권(ownership)입니다. Dev.to 작성자 nyaomaru는 'Cozy Bytes'라는 짧은 시리즈에서 이 개념을 고양이 한 마리와 게(Rust 마스코트) 한 마리로 풀어냈습니다.
+
+복잡한 아키텍처도, 거대한 다이어그램도 없습니다. 금요일 저녁 맥주 한 잔 곁들이며 읽을 만한 분량으로 소유권, 이동, 빌림, 가변 참조, 빌림 검사기까지 차례로 짚습니다.
+
+## 소유권: 이건 내 고양이야
+
+![Cozy morning with laptop and coffee on bed](https://images.pexels.com/photos/31846250/pexels-photo-31846250.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Helin Gezer](https://www.pexels.com/photo/cozy-morning-with-laptop-and-coffee-on-bed-31846250/) on [Pexels](https://www.pexels.com/photo/cozy-morning-with-laptop-and-coffee-on-bed-31846250/)*
+
+Rust의 소유권 규칙은 세 가지뿐입니다.
+
+- 모든 값에는 소유자가 있다.
+- 소유자는 한 번에 하나만 존재한다.
+- 소유자가 스코프를 벗어나면 값은 해제(drop)된다.
+
+고양이를 한 마리 입양해 봅시다.
+
+```rust
+let a = String::from("cat");
+let b = a;
+
+println!("{b}");
+```
+
+### 이동(Move): 내 고양이 어디 갔어?
+
+여기서 `a`를 다시 쓰려고 하면 어떻게 될까요?
+
+```rust
+println!("{a}"); // ❌ 컴파일 에러!
+```
+
+`let b = a;` 한 줄로 소유권이 `a`에서 `b`로 넘어갔습니다. 이제 `a`의 고양이가 아닙니다. Rust는 이 사실을 끝까지 기억합니다.
+
+작성자는 짧은 주석도 덧붙였습니다. 이 동작은 `String`처럼 `Copy`를 구현하지 않은 타입에만 해당합니다. `i32` 같은 단순 타입은 `Copy`를 구현하기 때문에 `let b = a;`를 해도 값이 복사되고, `a`도 그대로 쓸 수 있습니다.
+
+## 빌림: 고양이 좀 쓰다듬어도 될까?
+
+소유권은 넘기지 않고 값만 잠깐 빌리고 싶을 때는 참조(`&`)를 씁니다.
+
+```rust
+let a = String::from("cat");
+let b = &a;
+
+println!("{b}");
+println!("{a}");
+```
+
+이번에는 두 줄 모두 정상 동작합니다. `a`가 여전히 값을 소유하고, `b`는 빌려 쓰기만 하기 때문입니다. 작성자의 표현을 빌리면 "쓰다듬는 건 괜찮지만, 집에 데려갈 수는 없다"는 뜻입니다.
+
+### 가변 빌림: 고양이가 늘어난다
+
+공유 참조(`&`)로는 빌린 `String`을 고칠 수 없습니다. 값을 바꾸려면 가변 참조(`&mut`)가 필요합니다.
+
+```rust
+let mut a = String::from("cat");
+
+let b = &mut a;
+b.push_str(" and another cat");
+
+println!("{a}");
+```
+
+출력 결과는 다음과 같습니다.
+
+```text
+cat and another cat
+```
+
+고양이가 두 마리가 됐습니다.
+
+## 빌림 검사기: 빗질은 한 사람씩
+
+여러 사람이 같은 고양이를 동시에 쓰다듬는 건 문제없습니다.
+
+```rust
+let cat = String::from("cat");
+
+let a = &cat;
+let b = &cat;
+
+println!("{a} {b}"); // ✅
+```
+
+그런데 두 사람이 동시에 같은 고양이를 빗질하려 하면 이야기가 달라집니다.
+
+```rust
+let mut cat = String::from("cat");
+
+let a = &mut cat;
+let b = &mut cat; // ❌ 컴파일 에러!
+
+a.push_str(" is fluffy");
+b.push_str(" is SUPER fluffy");
+```
+
+Rust는 이 코드를 단호하게 거부합니다. 규칙을 정리하면 이렇습니다.
+
+- `&`: 읽기 목적이라면 여러 사람이 동시에 빌릴 수 있다.
+- `&mut`: 수정 목적이라면 한 사람만 빌릴 수 있고, 그동안 다른 빌림이 살아 있으면 안 된다.
+
+빗질을 하고 싶다면 다른 사람이 다 빌려 쓰고 돌려줄 때까지 기다려야 합니다. 화난 것처럼 보이는 게는 사실 고양이를 지키는 중입니다.
+
+## 한 줄 요약
+
+| 개념 | 고양이 비유 |
+| --- | --- |
+| `Ownership` | 이건 내 고양이야 |
+| `Move` | 이제 네 고양이야 |
+| `&` | 쓰다듬어도 돼 |
+| `&mut` | 빗질해도 되지만, 한 번에 한 사람만 |
+| `BorrowChecker` | 고양이를 지키는 화난 게 |
+
+작성자는 Rust가 가끔 무섭게 보여도 한꺼번에 다 배울 필요는 없다며, "한 번에 한 바이트씩(One little byte at a time)" 익혀 가자는 말로 글을 맺습니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

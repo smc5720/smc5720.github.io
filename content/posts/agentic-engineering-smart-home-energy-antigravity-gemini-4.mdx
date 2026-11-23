@@ -1,0 +1,149 @@
+﻿---
+title: "제미나이 4 두 모델로 주말 동안 만든 스마트홈 에너지 자동화 (Agentic engineering a smart home energy system)"
+description: "구글의 레미기우스 삼보르스키가 Antigravity에서 Gemini 4 Hydrogen과 Carbon을 나눠 쓰며 태양광·가정용 배터리·전기차 충전을 조율하는 오픈소스 도구 cheap-watts를 만들었습니다. 코드는 거의 직접 손대지 않았고, 보안 게이트와 dry-run 모드로 위험을 줄였습니다."
+date: "2026-11-20"
+published_at: "2026-11-23"
+category: "news"
+tags: []
+slug: "agentic-engineering-smart-home-energy-antigravity-gemini-4"
+cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F913y9g66ma1ggz6p92f9.png"
+coverAlt: "Agentic engineering a smart home energy system with Antigravity and Gemini 4"
+source_id: "devto-5081870"
+source_url: "https://dev.to/googleai/agentic-engineering-a-smart-home-energy-system-with-antigravity-and-gemini-4-53md"
+source_title: "Agentic engineering a smart home energy system with Antigravity and Gemini 4"
+source_author: "Remigiusz Samborski"
+source_published: "2026-11-20"
+---
+
+<LinkCard url="https://dev.to/googleai/agentic-engineering-a-smart-home-energy-system-with-antigravity-and-gemini-4-53md" author="Remigiusz Samborski" date="2026-11-20" />
+
+## 개요
+
+지붕 태양광, 10kWh 가정용 배터리, 전기차 두 대, 시간마다 바뀌는 전기 요금. 이것들을 따로 놔두면 서로 손해를 끼칩니다. 해가 좋은 날 한전 같은 전력망에서 전기를 사 배터리를 채우면 돈 낭비이고, 배터리를 미리 채워둔 뒤 전기차를 꽂으면 차가 그 배터리를 그대로 빨아들입니다.
+
+구글의 레미기우스 삼보르스키(Remigiusz Samborski)는 이 문제를 풀려고 토요일 저녁부터 몇 시간 동안 **[cheap-watts](https://github.com/rsamborski/cheap-watts)**를 만들어 GitHub에 공개했습니다. 커밋은 25개가 넘고, 오프라인 단위 테스트 묶음도 갖췄습니다. 그런데 본인은 코드를 거의 직접 건드리지 않았다고 말합니다.
+
+그가 쓴 도구는 **[Google Antigravity](https://g.dev/ai/antigravity-rs)** 안의 두 모델, **[Gemini 4 Hydrogen](https://g.dev/cloud/gemini-4-hydrogen)**과 **[Gemini 4 Carbon](https://g.dev/cloud/gemini-4-carbon)**입니다. 작성자가 꼽은 핵심은 세 가지입니다.
+
+- **모델 역할 분리**: 빠른 대화형 기획은 Hydrogen, 여러 파일에 걸친 코딩과 테스트는 Carbon
+- **하드웨어 추상화**: 인버터와 차량 API를 인터페이스 뒤에 숨겨, 하드웨어 쪽에서 문제가 터져도 커밋 하나로 고칠 수 있게 함
+- **자동 안전장치**: 시크릿 스캔, PR 검사, `--dry-run` 플래그로 에이전트가 빠르게 움직여도 실제 키나 장비가 위험해지지 않게 함
+
+## 기획은 Hydrogen, 구현은 Carbon
+
+![People in hard hats looking at a big sheet of paper](https://images.pexels.com/photos/8470031/pexels-photo-8470031.jpeg?auto=compress&cs=tinysrgb&h=650&w=940)
+*Photo by [Thirdman](https://www.pexels.com/@thirdman) on [Pexels](https://www.pexels.com/photo/people-in-hard-hats-looking-at-the-big-sheet-of-paper-8470031/)*
+
+보통은 모든 작업을 모델 하나에 맡깁니다. 그러면 아이디어를 주고받는 단계에서 무거운 추론 모델의 응답을 기다리게 되거나, 반대로 가벼운 모델에 여러 파일 리팩터링을 맡겼다가 예외 상황을 놓치게 됩니다.
+
+작성자는 두 모델을 용도에 맞게 나눴습니다.
+
+**Gemini 4 Hydrogen은 요구사항 정리용입니다.** 초기 설계는 가정을 검증하고, 트레이드오프를 따지고, 예외 상황을 정의하는 빠른 대화에 가깝습니다. Hydrogen은 응답이 빠르고 할당량도 덜 씁니다. 토요일 저녁, `.py` 파일을 하나도 만들기 전에 그는 Hydrogen과 함께 `docs/planning/` 아래에 문서 세 개를 썼습니다. 아키텍처 결정 기록(`adr-001-initial-architecture.md`), 5단계 실행 계획(`execution-plan.md`), 작업 백로그(`tasks.md`)입니다.
+
+**Gemini 4 Carbon은 구현용입니다.** 스펙이 갖춰진 뒤에는 장기 소프트웨어 엔지니어링 작업에 맞춰 만든 Carbon으로 넘어갔습니다. `tasks.md`의 특정 단계와 `ADR-001`을 가리키기만 하면, Carbon이 모듈 골격을 잡고 바이너리 프로토콜 비트마스크를 작성하고 오프라인 JSON 픽스처를 만든 뒤 `pytest`가 전부 통과할 때까지 돌렸습니다.
+
+덕분에 작성자는 OAuth 토큰 갱신을 디버깅하거나 Modbus 레지스터 오프셋을 손으로 세는 대신, 규칙을 정하고 로컬 네트워크에서 하드웨어 연결을 확인하고 PR을 리뷰하는 아키텍트 역할에 집중했습니다.
+
+## cheap-watts는 어떻게 생겼나
+
+![Architecture diagram: solar forecasts, dynamic tariffs, and battery and EV state of charge feed a 30-minute planner that updates the inverter over local LAN Modbus and emails EV charging windows.](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/oa1sllqaxza0bfk4mlgl.png)
+
+Hydrogen과의 브레인스토밍에서 작성자는 웹 대시보드부터 뺐습니다. 백그라운드에서 혼자 돌아야 할 서비스에 프런트엔드 유지보수 부담만 얹는다는 이유였습니다.
+
+대신 `uv`로 관리하는 Python 3.12 헤드리스 CLI로 만들고, `cron`으로 30분마다 실행합니다. 하루 48번 돌면 날씨 변화나 차 충전 플러그 연결에 제때 반응하면서도, 차량 텔레매틱스 API의 계정당 하루 50회 호출 한도를 넘지 않습니다.
+
+토요일 밤부터 화요일까지의 git 기록을 보면 큰 설계 결정이 네 번 있었습니다.
+
+### 클라우드 API에서 로컬 LAN Modbus로
+
+2단계 작업에서 Carbon은 전력 회사 요금, Open-Meteo 태양광 예보, 차량 텔레매틱스, 인버터 제조사 클라우드 API용 읽기 전용 클라이언트를 만들었습니다. 태양광 예보 클라이언트는 동쪽(-90°)과 서쪽(90°) 지붕면을 함께 지원하고 API 키도 필요 없습니다. 이어서 실제 인증 정보를 시험하는 읽기 전용 `cheap-watts probe` 명령을 추가했습니다.
+
+일요일에 `probe`를 돌려보니 첫 번째 하드웨어 제약이 드러났습니다. 인버터의 Wi-Fi 로거가 제조사 클라우드가 아니라 서드파티 모바일 앱에 연결돼 있었고, 그 플랫폼은 개발자 키를 직접 발급해주지 않았으며 충전 스케줄을 쓰는 공개 엔드포인트도 없었습니다.
+
+인버터 관련 동작을 Python `Protocol`(`InverterClient`) 뒤에 분리해 둔 덕분에 방향 전환은 커밋 하나로 끝났습니다. Carbon은 같은 프로토콜을 구현하는 로컬 LAN 어댑터를 만들었습니다. 로컬 `8899` 포트로 Modbus-over-TCP 통신을 하고, 실시간 레지스터를 읽고, 요일·발전기 비트마스크는 그대로 둔 채 인버터의 6슬롯 충전 스케줄을 씁니다. 로컬 제어로 바꾸면서 클라우드 호출 한도가 사라졌고 외부 API 키도 필요 없어졌으며, 기존 모바일 앱은 그대로 쓸 수 있게 됐습니다.
+
+### 태양광 우선, 전기차 다음에 배터리
+
+![Decision flowchart for each 30-minute cron run: sunny forecasts turn grid charging off for free solar and slow EV charging, while low-sun forecasts schedule the EV window first before locked cheap grid battery charging.](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/ou94hxo3s6dp6vzzyrat.jpg)
+
+가정용 배터리와 전기차 두 대의 순서는 `src/engine/planner.py`에 규칙으로 정해 두었습니다.
+
+- **맑은 날**: 하루 종일 전력망 충전을 **끕니다**. 배터리는 지붕 태양광이 공짜로 채웁니다. 차 배터리가 부족하면 남는 태양광으로 낮에 천천히 충전하도록 플러그를 꽂으라는 메일을 보냅니다.
+- **흐린 날**: 평소 하루 사용량에 설정값만큼 여유분을 더해, 전력망에서 얼마나 사야 하는지 계산합니다. 그리고 요금이 가장 싼 시간대에만 전력망 충전을 **켭니다**.
+- **차가 먼저, 배터리는 나중**: 차량 충전 상태는 제조사 텔레매틱스 API에서 가져오며, 처음 한 번만 OAuth 2.0 Device Code 방식의 CLI 흐름으로 인증합니다. 전기차나 플러그인 하이브리드가 충전 중이거나 충전 시간대가 필요하면, 그 시간에는 인버터의 전력망 충전을 막습니다. 배터리 충전은 차량 충전이 **끝난 뒤** 가장 싼 시간대로 잡습니다. 그래야 전력망에서 사 온 전기를 차 충전기가 곧바로 빼가지 않습니다.
+
+### 충전 도중 계획이 바뀌지 않게 고정하기
+
+30분 주기로 실제 데이터를 받아 돌리기 시작하자, 상태와 관련된 미묘한 스케줄링 버그가 나타났습니다.
+
+예를 들어 전력 회사가 다음 날 요금을 발표했고, cheap-watts가 02:00~04:00에 배터리 충전을 잡았다고 해봅시다. 02:30에 `cron`이 다시 돌면 배터리가 이미 어느 정도 차 있으니, 상태를 기억하지 않는 플래너는 부족분을 더 적게 계산하고 충전 도중에 계획을 새로 씁니다. 24시간 앞을 내다보는 창이 계속 밀리면서, 00:00~24:00 범위의 6슬롯 스케줄에서 25시간째가 앞쪽과 겹치는 문제도 생길 수 있었습니다.
+
+작성자는 `planner.py`를 직접 고치지 않고 증상만 Antigravity에 설명했습니다. Carbon은 전력 회사가 발표한 하루 전 요금 범위에 맞춰 그날의 충전 계획을 고정하는 장치를 넣었습니다. 계획은 30분 주기 실행에서도 유지되고, 다음 경우에만 일찍 풀립니다.
+
+- 전기차가 연결되거나 충전 시간이 겹칠 때 (`ev_conflict_override`)
+- 전력 회사가 새 하루 전 요금을 발표했을 때 (`new_tariff_horizon`)
+- 날씨 예보가 맑음과 흐림 사이에서 바뀔 때 (`solar_regime_changed`)
+
+### 필요할 때만 알림, 끊겨도 돌아가는 배포
+
+하루 48통의 상태 메일을 받고 싶은 사람은 없습니다. cheap-watts는 마지막으로 적용한 스케줄과 알림 시각을 `data/state.json`에 저장하고, 배터리 충전 계획이 바뀌었거나 12시간 대기 시간이 지난 뒤 새 전기차 충전 권고가 생겼을 때**만** SMTP 메일을 보냅니다.
+
+집의 미니 PC에 배포하는 방식은 Hydrogen과 함께 로컬 `uv` 실행과 GitHub Container Registry(ghcr.io)를 비교한 끝에, ghcr.io를 쓰고 `crontab`을 둘로 나누는 쪽으로 정했습니다.
+
+```bash
+# Run optimization every 30 minutes using the cached local image:
+*/30 * * * * docker run --rm --network host --env-file /opt/cheap-watts/.env -v /opt/cheap-watts/data:/app/data -v /opt/cheap-watts/logs:/app/logs ghcr.io/rsamborski/cheap-watts:latest run >> /opt/cheap-watts/logs/cron.log 2>&1
+
+# Pull image updates on a separate hourly schedule:
+15 * * * * docker pull --quiet ghcr.io/rsamborski/cheap-watts:latest >> /opt/cheap-watts/logs/cron.log 2>&1
+```
+
+`docker pull`과 `docker run`을 분리해 두면 인터넷이나 GitHub가 잠깐 끊겨도 로컬 LAN Modbus로 인버터를 제어하는 데는 지장이 없습니다.
+
+## 에이전트가 빨리 움직여도 안전하게
+
+![Pipeline diagram: an Agent PR passes five automated checks (romin-security, Gitleaks, Ruff and Black, Pytest over 90% coverage, and Docker smoke test) before publishing a container image to GitHub Container Registry for the mini PC.](https://dev-to-uploads.s3.us-east-2.amazonaws.com/uploads/articles/l8t6i3h9apbpyk0wipjk.jpg)
+
+전력 회사 API 토큰, 차량 OAuth 인증 정보, 실제 인버터 레지스터가 걸린 저장소에서 AI 에이전트가 빠르게 커밋하면 위험이 따릅니다. 공개 저장소에 잘못된 커밋이 하나만 올라가도 자동 스캐너가 몇 초 만에 키를 수집할 수 있습니다.
+
+그래서 작성자는 토요일 저녁, 애플리케이션 코드를 한 줄도 쓰기 전에 **[`romin-security` 스킬](https://github.com/palladius/gemini-cli-palladius-public-goodies/tree/main/skills/romin-security)**부터 실행했습니다. 로민 이라니(Romin Irani)의 [보안 가이드](https://medium.com/google-cloud/the-hackathon-security-guide-how-to-vibe-code-without-burning-down-your-project-0653cf6a82b9)를 리카르도 카를레소(Riccardo Carlesso)가 스킬로 정리한 것으로, 빠른 에이전트 개발 중 시크릿 유출을 막는 데 초점을 둡니다.
+
+- **코드에 시크릿을 넣지 않습니다.** 모든 인증 정보는 `.env`에서 읽고(`.env.example`은 빈칸), Pydantic `SecretStr` 필드로 감싸 스택 트레이스나 로그에 키가 찍히지 않게 합니다. 갱신된 차량 OAuth 리프레시 토큰 파일은 `0600` 권한으로 저장합니다.
+- **Gitleaks 규칙을 직접 추가했습니다.** `.gitleaks.toml`에 전력 회사의 `sk-` 개인 API 토큰 같은 패턴을 넣었습니다. Gitleaks는 로컬 `pre-commit` 훅과 GitHub Actions 양쪽에서 돌고, Actions에서는 `fetch-depth: 0`으로 전체 커밋 기록을 검사합니다.
+- **CI 권한을 최소화하고 공개 전에 정리했습니다.** 모든 CI 워크플로는 `permissions: {}`로 시작하고, 서드파티 액션은 전체 커밋 SHA로 고정합니다. 저장소를 공개하기 전에는 개인 정보를 지우고 차량 설정을 일반화했으며 `SECURITY.md`를 추가했습니다.
+
+### AGENTS.md와 PR 게이트로 품질 관리
+
+핵심 엔진이 동작하자 작성자는 GitHub에서 `main` 브랜치를 보호하고 에이전트 규칙을 `AGENTS.md`에 적었습니다. 이제 작성자 본인도, Antigravity도 `main`에 바로 푸시할 수 없습니다. 버그 수정이든 기능 추가든 브랜치를 따고, 아래 다섯 가지 검사를 통과해야 병합됩니다.
+
+- **Gitleaks**: 전체 커밋 기록에서 시크릿 검사
+- **Ruff**: Python 정적 린트
+- **Black**: 코드 포맷 일관성 확인
+- **Pytest**: 오프라인 픽스처 테스트 실행, 브랜치 커버리지 `> 90%` 강제 (`pyproject.toml`의 `fail_under = 90`)
+- **Docker 빌드와 CLI 스모크 테스트**: 병합 후 ghcr.io에 `:latest`를 올리기 전에 컨테이너가 정상적으로 뜨는지 확인
+
+Carbon이 혼자 작업하다 커버리지를 90% 아래로 떨어뜨리거나 린트 규칙을 어기면 `pre-commit`과 CI가 병합을 막습니다. 그러면 작성자가 PR을 보기 전에 에이전트가 알아서 고칩니다.
+
+## dry-run에서 실제 운영으로
+
+단위 테스트는 계산을 검증할 뿐, 실제 날씨 예보나 인버터 펌웨어의 별난 동작까지는 잡아주지 못합니다. cheap-watts는 10kW 계통 연계형 하이브리드 인버터의 Modbus 홀딩 레지스터에 직접 값을 쓰기 때문에, 작성자는 처음부터 `--dry-run`을 하드웨어 안전장치로 만들어 두었습니다.
+
+`--dry-run` 모드에서도 컨테이너는 전력 회사 요금, 두 방향 태양광 예보, 차량 데이터, 로컬 인버터 레지스터 같은 실제 입력을 모두 읽고 플래너도 끝까지 돌립니다. 다만 Modbus 쓰기는 모두 건너뛰고, 변경 알림 메일 제목 앞에 `[DRY-RUN]`을 붙입니다.
+
+작성자는 운영 전환 전에 며칠 동안 미니 PC에서 dry-run으로 돌리며 알림을 지켜봤습니다. 가장 싼 차량 충전 시간 추천부터 차 충전이 끝난 직후의 배터리 충전량 계산까지, 지금까지 모든 판단이 정확했다고 합니다. 알림이 올 때마다 계획을 확인하고 같은 설정을 손으로 적용해 봤습니다.
+
+이 기간이 끝난 뒤 `crontab`에서 `--dry-run`을 빼고 운영 모드로 바꿨습니다. 큰 업데이트를 배포할 때는 다시 `--dry-run`을 켜서 문제가 없는지 확인한 뒤 인버터 쓰기를 재개합니다.
+
+## 더 살펴보기
+
+- [cheap-watts 저장소](https://github.com/rsamborski/cheap-watts): 플래너 코드를 보거나, 각자의 전기 요금 API에 맞게 고치거나, `AGENTS.md`와 CI 게이트를 가져다 쓸 수 있습니다.
+- [로민 이라니의 보안 가이드](https://medium.com/google-cloud/the-hackathon-security-guide-how-to-vibe-code-without-burning-down-your-project-0653cf6a82b9)와 [`romin-security` 스킬](https://github.com/palladius/gemini-cli-palladius-public-goodies/tree/main/skills/romin-security)
+- [Gemini 4 Carbon 소개](https://g.dev/cloud/gemini-4-carbon)
+- [Gemini 4 Hydrogen 소개](https://g.dev/cloud/gemini-4-hydrogen)
+- [Google Antigravity 다운로드](https://g.dev/ai/antigravity-rs)
+
+작성자는 다른 사람들의 에이전트 개발 사례가 궁금하다며 [LinkedIn](https://www.linkedin.com/in/remigiusz-samborski/), [X](https://x.com/RemikSamborski), [Bluesky](https://bsky.app/profile/rsamborski.bsky.social)로 의견을 받고 있습니다.
+
+---
+
+*이 글은 위 출처를 바탕으로 한국 독자를 위해 재작성한 기사입니다. 원문의 사실과 수치에 근거하며, 별도의 견해를 포함하지 않습니다.*

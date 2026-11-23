@@ -39,6 +39,14 @@
     "siteName": "",
     "fetchedAt": "2026-09-17"
   },
+  "https://dev.to/_yourbrainbuffer_/cozy-bytes-rustwho-owns-the-cat-13ch": {
+    "ok": true,
+    "title": "Cozy Bytes 🍺 | Rust::Who Owns the Cat? 🐈🦀",
+    "description": "Hoi hoi! 😸  Happy Friday! Let's learn a tiny bit of Rust! 😸🍻  No complicated architecture. No giant...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F36ic1wwew7q0m53uv65e.gif",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-23"
+  },
   "https://dev.to/abbeyperini/state-management-in-front-end-web-development-mutators-24gp": {
     "ok": true,
     "title": "State Management in Front-end Web Development: Mutators",
@@ -1990,6 +1998,14 @@
     "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F0x42aq3mpc7cvx43zb18.png",
     "siteName": "DEV Community",
     "fetchedAt": "2026-09-11"
+  },
+  "https://dev.to/googleai/agentic-engineering-a-smart-home-energy-system-with-antigravity-and-gemini-4-53md": {
+    "ok": true,
+    "title": "Agentic engineering a smart home energy system with Antigravity and Gemini 4",
+    "description": "Running rooftop solar, a home battery, two electric vehicles (EVs), and dynamic hourly electricity...",
+    "image": "https://media2.dev.to/dynamic/image/width=1200,height=627,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F913y9g66ma1ggz6p92f9.png",
+    "siteName": "DEV Community",
+    "fetchedAt": "2026-11-23"
   },
   "https://dev.to/googleai/build-real-time-voice-applications-with-gemini-38-live-and-35-transcribe-4nb5": {
     "ok": true,
