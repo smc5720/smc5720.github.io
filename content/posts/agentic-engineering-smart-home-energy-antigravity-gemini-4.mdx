@@ -4,7 +4,7 @@ description: "구글의 레미기우스 삼보르스키가 Antigravity에서 Gem
 date: "2026-11-20"
 published_at: "2026-11-23"
 category: "news"
-tags: []
+tags: ["ai","llm","google","opensource","news"]
 slug: "agentic-engineering-smart-home-energy-antigravity-gemini-4"
 cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2F913y9g66ma1ggz6p92f9.png"
 coverAlt: "Agentic engineering a smart home energy system with Antigravity and Gemini 4"
@@ -36,7 +36,7 @@ source_published: "2026-11-20"
 
 보통은 모든 작업을 모델 하나에 맡깁니다. 그러면 아이디어를 주고받는 단계에서 무거운 추론 모델의 응답을 기다리게 되거나, 반대로 가벼운 모델에 여러 파일 리팩터링을 맡겼다가 예외 상황을 놓치게 됩니다.
 
-작성자는 두 모델을 용도에 맞게 나눴습니다.
+작성자는 두 모델을 용도별로 나눠 썼습니다.
 
 **Gemini 4 Hydrogen은 요구사항 정리용입니다.** 초기 설계는 가정을 검증하고, 트레이드오프를 따지고, 예외 상황을 정의하는 빠른 대화에 가깝습니다. Hydrogen은 응답이 빠르고 할당량도 덜 씁니다. 토요일 저녁, `.py` 파일을 하나도 만들기 전에 그는 Hydrogen과 함께 `docs/planning/` 아래에 문서 세 개를 썼습니다. 아키텍처 결정 기록(`adr-001-initial-architecture.md`), 5단계 실행 계획(`execution-plan.md`), 작업 백로그(`tasks.md`)입니다.
 
@@ -132,7 +132,7 @@ Carbon이 혼자 작업하다 커버리지를 90% 아래로 떨어뜨리거나 �
 
 작성자는 운영 전환 전에 며칠 동안 미니 PC에서 dry-run으로 돌리며 알림을 지켜봤습니다. 가장 싼 차량 충전 시간 추천부터 차 충전이 끝난 직후의 배터리 충전량 계산까지, 지금까지 모든 판단이 정확했다고 합니다. 알림이 올 때마다 계획을 확인하고 같은 설정을 손으로 적용해 봤습니다.
 
-이 기간이 끝난 뒤 `crontab`에서 `--dry-run`을 빼고 운영 모드로 바꿨습니다. 큰 업데이트를 배포할 때는 다시 `--dry-run`을 켜서 문제가 없는지 확인한 뒤 인버터 쓰기를 재개합니다.
+그렇게 며칠을 지켜본 뒤 `crontab`에서 `--dry-run`을 빼고 운영 모드로 바꿨습니다. 큰 업데이트를 배포할 때는 다시 `--dry-run`을 켜서 문제가 없는지 확인한 뒤 인버터 쓰기를 재개합니다.
 
 ## 더 살펴보기
 
