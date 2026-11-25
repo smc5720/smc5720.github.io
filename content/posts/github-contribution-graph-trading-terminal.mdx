@@ -5,7 +5,7 @@ date: "2026-11-22"
 published_at: "2026-11-25"
 slug: "github-contribution-graph-trading-terminal"
 category: "news"
-tags: []
+tags: ["github","opensource","devops","javascript","tech"]
 cover: "https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.us-east-2.amazonaws.com%2Fuploads%2Farticles%2Fc5w2n6ra57sogqhujyra.png"
 coverAlt: "I turned my GitHub contribution graph into a Bloomberg-style trading terminal"
 source_id: "devto-5093834"
@@ -95,7 +95,7 @@ jobs:
 2. 저장소 시크릿에 **`GH_PAT`**라는 이름으로 저장합니다.
 3. GitHub 프로필 설정에서 **"Private contributions"**를 켭니다.
 
-기본 토큰이 거부될 때 `GH_PAT`를 쓰도록 워크플로에 `secrets.GH_PAT || secrets.GITHUB_TOKEN`을 적어둔 것입니다.
+워크플로에 `secrets.GH_PAT || secrets.GITHUB_TOKEN`이라고 적어둔 이유가 이것입니다. 기본 토큰이 거부되면 `GH_PAT`를 씁니다.
 
 ## 입력값과 테마
 
@@ -155,7 +155,7 @@ low   = min(open, close, count(t), count(t-1))
 
 몇 가지 세부 처리도 있습니다.
 
-- **거래량**은 하루 기여 수를 그대로 씁니다. 너무 튀는 날은 적당한 축 한계에서 **잘라내고 작은 삼각형으로 표시**합니다. 하루 폭주 때문에 차트 전체가 납작해지는 걸 막으려는 것입니다.
+- **거래량**은 하루 기여 수를 그대로 씁니다. 너무 튀는 날은 적당한 축 한계에서 **잘라내고 작은 삼각형으로 표시**합니다. 어느 하루가 폭주해도 차트 전체가 납작해지지 않게 하려는 장치입니다.
 - 아직 끝나지 않은 오늘 기여가 0이어도 **연속 기록은 끊기지 않습니다.**
 - 오늘(UTC) 캔들은 장이 아직 열려 있다는 의미로 **반투명하게 깜빡입니다.**
 
