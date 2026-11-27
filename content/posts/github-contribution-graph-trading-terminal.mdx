@@ -95,7 +95,7 @@ jobs:
 2. 저장소 시크릿에 **`GH_PAT`**라는 이름으로 저장합니다.
 3. GitHub 프로필 설정에서 **"Private contributions"**를 켭니다.
 
-워크플로에 `secrets.GH_PAT || secrets.GITHUB_TOKEN`이라고 적어둔 이유가 이것입니다. 기본 토큰이 거부되면 `GH_PAT`를 씁니다.
+워크플로에 `secrets.GH_PAT || secrets.GITHUB_TOKEN`이라고 적어둔 것도 이 때문입니다. 기본 토큰이 거부되면 `GH_PAT`로 넘어갑니다.
 
 ## 입력값과 테마
 
